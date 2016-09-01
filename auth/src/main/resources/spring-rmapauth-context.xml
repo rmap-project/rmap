@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<context:component-scan base-package="info.rmapproject.auth"/>
+	
+    <import resource="classpath*:spring-rmapcore-context.xml" />
+    
+	<bean id="rmapauthProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	  <!-- set this as true so that it will use other properties files if embedded in another context-->
+	  <property name="ignoreUnresolvablePlaceholders" value="true"/>
+	  <property name="location" value="classpath:rmapauth.properties"/>
+	</bean>
+	
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${authdb.driverClassName}" />
+        <property name="url" value="${authdb.url}" />
+        <property name="username" value="${authdb.username}" />
+        <property name="password" value="${authdb.password}" />
+		<property name="validationQuery" value="SELECT 1"/>
+		<property name="testOnBorrow" value="true"/>
+    </bean>
+		
+    <!-- Hibernate 4 SessionFactory Bean definition -->
+    <bean id="sessionFactory"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="annotatedClasses">
+            <list>
+                <value>info.rmapproject.auth.model.ApiKey</value>
+                <value>info.rmapproject.auth.model.User</value>
+                <value>info.rmapproject.auth.model.UserIdentityProvider</value>
+                <value>info.rmapproject.auth.model.KeyStatus</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <!-- this might destroy manually created database - need to test this out first once GUI finished. 
+                <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+            </props>
+        </property>
+    </bean>	
+    
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+	   <property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<bean id="rmapAuthService" class="info.rmapproject.auth.service.RMapAuthServiceImpl"/>  
+		
+    <bean id="userDao" class="info.rmapproject.auth.dao.UserDaoImpl"/>
+    <bean id="apiKeyDao" class="info.rmapproject.auth.dao.ApiKeyDaoImpl"/> 
+    <bean id="userIdProviderDao" class="info.rmapproject.auth.dao.UserIdProviderDaoImpl"/>
+    
+    <bean id="apiKeyService" class="info.rmapproject.auth.service.ApiKeyServiceImpl"/>
+    <bean id="userService" class="info.rmapproject.auth.service.UserServiceImpl"/>
+    <bean id="userIdProviderService" class="info.rmapproject.auth.service.UserIdProviderServiceImpl"/>
+    <bean id="userRMapAgentService" class="info.rmapproject.auth.service.UserRMapAgentServiceImpl"/>
+    
+        
+</beans>

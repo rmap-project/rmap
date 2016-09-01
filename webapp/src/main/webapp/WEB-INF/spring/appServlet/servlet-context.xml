@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+	<context:component-scan base-package="info.rmapproject.webapp" />
+	
+	<beans:import resource="classpath*:spring-rmapcore-context.xml" />
+    <beans:import resource="classpath*:spring-rmapauth-context.xml" />
+            
+	<beans:bean id="rmapwebProps" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	  <beans:property name="location" value="classpath:rmapweb.properties"/>
+	</beans:bean>
+    
+	<beans:bean id="userMgtService" class="info.rmapproject.webapp.service.UserMgtServiceImpl"/>
+	<beans:bean id="dataDisplayService" class="info.rmapproject.webapp.service.DataDisplayServiceImpl"/>
+
+	<!-- Handles HTTP GET requests for /includes/** by efficiently serving up static resources in the ${webappRoot}/includes directory -->
+	<resources mapping="/includes/**" location="/includes/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<!-- OAUTH Configuration -->		
+	<!-- twitter oauth config -->	
+	<beans:bean id="twitterOAuthConfig" class="info.rmapproject.webapp.auth.OAuthProviderConfig">
+		<beans:constructor-arg value="TWITTER"/>
+		<beans:constructor-arg value="${rmapweb.twitter-key}" />
+		<beans:constructor-arg value="${rmapweb.twitter-secret}"/>
+		<beans:constructor-arg value="${rmapweb.twitter-callback}"/>
+		<beans:constructor-arg value="com.github.scribejava.apis.TwitterApi.Authenticate"/>
+		<beans:constructor-arg value="https://api.twitter.com/1.1/account/verify_credentials.json"/>
+	</beans:bean>	  
+	<beans:bean id="oAuthProviderTwitter" class="info.rmapproject.webapp.auth.TwitterOAuthProvider">
+		<beans:property name="config" ref="twitterOAuthConfig"/>	
+	</beans:bean>
+	
+	<!-- google oauth config -->			
+	<beans:bean id="googleOAuthConfig" class="info.rmapproject.webapp.auth.OAuthProviderConfig">
+		<beans:constructor-arg value="GOOGLE"/>
+		<beans:constructor-arg value="${rmapweb.google-key}" />
+		<beans:constructor-arg value="${rmapweb.google-secret}"/>
+		<beans:constructor-arg value="${rmapweb.google-callback}"/>
+		<beans:constructor-arg value="com.github.scribejava.apis.GoogleApi20"/>
+		<beans:constructor-arg value="email"/>
+		<beans:constructor-arg value="https://www.googleapis.com/plus/v1/people/me"/>
+	</beans:bean>	
+	<beans:bean id="oAuthProviderGoogle" class="info.rmapproject.webapp.auth.GoogleOAuthProvider">
+		<beans:property name="config" ref="googleOAuthConfig"/>	
+	</beans:bean>
+	
+	<!-- orcid oauth config -->	
+	<beans:bean id="orcidOAuthConfig" class="info.rmapproject.webapp.auth.OAuthProviderConfig">
+		<beans:constructor-arg value="ORCID"/>
+		<beans:constructor-arg value="${rmapweb.orcid-key}" />
+		<beans:constructor-arg value="${rmapweb.orcid-secret}"/>
+		<beans:constructor-arg value="${rmapweb.orcid-callback}"/> 
+		<beans:constructor-arg value="info.rmapproject.webapp.auth.OrcidApi20"/>
+		<beans:constructor-arg value="/authenticate"/>
+		<beans:constructor-arg value="https://pub.orcid.org/v1.2/"/>
+	</beans:bean> 
+	<beans:bean id="oAuthProviderOrcid" class="info.rmapproject.webapp.auth.OrcidOAuthProvider">
+		<beans:property name="config" ref="orcidOAuthConfig"/>	
+	</beans:bean>
+	
+	<!-- prevents a problem where URL paths are decoded automatically-->
+	<beans:bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+	  <beans:property name="order" value="-1"></beans:property>
+      <beans:property name="useSuffixPatternMatch" value="false"/>
+	  <beans:property name="urlPathHelper">
+	    <beans:bean class="info.rmapproject.webapp.utils.UrlPathHelperNonDecoding"/>
+	  </beans:property>
+	</beans:bean>
+
+	<interceptors>
+		<interceptor>
+			<mapping path="/user/**"/>
+			<beans:bean class="info.rmapproject.webapp.auth.AuthenticationInterceptor" />
+		</interceptor>
+	</interceptors>	
+	
+</beans:beans>

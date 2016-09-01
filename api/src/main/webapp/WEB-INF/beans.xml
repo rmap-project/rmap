@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs" 
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd"> 
+    
+    <!-- 
+    xmlns:aop="http://www.springframework.org/schema/aop"
+	#schemaLocations:
+	http://www.springframework.org/schema/aop  
+	http://www.springframework.org/schema/aop/spring-aop.xsd 
+	 -->
+    <context:annotation-config/>
+	<context:component-scan base-package="info.rmapproject.api" />
+    
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath*:spring-rmapcore-context.xml" />
+    <import resource="classpath*:spring-rmapauth-context.xml" />
+	
+    <context:property-placeholder/>
+    <bean class="org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer"/>
+    <bean class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer"/>
+		
+    <bean id="discoResponseManager" class="info.rmapproject.api.responsemgr.DiscoResponseManager" scope="prototype"/>
+    <bean id="agentResponseManager" class="info.rmapproject.api.responsemgr.AgentResponseManager" scope="prototype"/>
+    <bean id="eventResponseManager" class="info.rmapproject.api.responsemgr.EventResponseManager" scope="prototype"/>
+    <bean id="statementResponseManager" class="info.rmapproject.api.responsemgr.StatementResponseManager" scope="prototype"/>
+    <bean id="resourceResponseManager" class="info.rmapproject.api.responsemgr.ResourceResponseManager" scope="prototype"/>
+	
+    <jaxrs:server id="services" address="/">
+        <jaxrs:serviceBeans>
+            <bean class="info.rmapproject.api.service.DiSCOApiService"/>   
+            <bean class="info.rmapproject.api.service.EventApiService"/>   
+            <bean class="info.rmapproject.api.service.AgentApiService"/>   
+            <bean class="info.rmapproject.api.service.StatementApiService"/>   
+            <bean class="info.rmapproject.api.service.ResourceApiService"/>   
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <!-- <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>-->
+       		<bean class="info.rmapproject.api.exception.RMapApiExceptionHandler" scope="prototype"/>
+        </jaxrs:providers>
+		<jaxrs:inInterceptors>
+		    <ref bean="authenticationInterceptor"/>
+		</jaxrs:inInterceptors>
+    </jaxrs:server>
+    		
+	<!-- can set these, or let core take care of these.
+    <bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService"/>
+    <bean id="rmapIdService" class="info.rmapproject.core.idservice.ArkIdService"/>
+    <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/>
+	<bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore"/> -->
+		
+   <!-- <bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService" scope="prototype"/>
+    <bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype"/>  --> 
+		
+	<bean id="authenticationInterceptor" class="info.rmapproject.api.auth.AuthenticationInterceptor" scope="prototype"/>   
+	<bean id="apiUserService" class="info.rmapproject.api.auth.ApiUserServiceImpl" scope="prototype"/>  
+
+	
+</beans>
+
