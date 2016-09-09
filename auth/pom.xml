@@ -19,11 +19,6 @@
             <artifactId>rmap-core</artifactId>
             <version>1.0.0-beta</version>
         </dependency>
-        <dependency>
-            <groupId>info.rmapproject</groupId>
-            <artifactId>rmap-auth</artifactId>
-            <version>1.0.0-beta</version>
-        </dependency>
         <!-- logging -->
 	    <dependency>
 	      <groupId>ch.qos.logback</groupId>
