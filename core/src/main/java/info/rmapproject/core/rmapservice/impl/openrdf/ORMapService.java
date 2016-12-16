@@ -237,7 +237,7 @@ public class ORMapService implements RMapService {
 		org.openrdf.model.IRI cUri = ORAdapter.uri2OpenRdfIri(discoUri);
 		Set<URI> returnSet = null;
 		Set<org.openrdf.model.IRI> uris = resourcemgr.getResourceRdfTypes(rUri,cUri, triplestore);
-		if (uris != null && uris.size()>0){
+		if (uris != null){
 			returnSet = ORAdapter.openRdfIriSet2UriSet(uris);
 		}
 		return returnSet;
@@ -296,7 +296,7 @@ public class ORMapService implements RMapService {
 				statementmgr.getRelatedDiSCOs(orSubject, orPredicate, orObject, params, triplestore);
 				
 		List<URI> returnSet = null;
-		if (relatedDiSCOs != null && relatedDiSCOs.size()>0){
+		if (relatedDiSCOs != null){
 			returnSet = ORAdapter.openRdfUriList2UriList(relatedDiSCOs);
 		}		
 		return returnSet;
@@ -328,7 +328,7 @@ public class ORMapService implements RMapService {
 				statementmgr.getAssertingAgents(orSubject, orPredicate, orObject, params, triplestore);
 		
 		List<URI> returnSet = null;
-		if (assertingAgents != null && assertingAgents.size()>0){
+		if (assertingAgents != null){
 			returnSet = new ArrayList<URI>();
 			for (IRI uri:assertingAgents){
 				returnSet.add(ORAdapter.openRdfIri2URI(uri));
