@@ -6,7 +6,7 @@
     <artifactId>rmap-webapp</artifactId>
     <name>webapp</name>
     <packaging>war</packaging>
-    <version>1.0.0-beta</version>
+    <version>1.0.1-beta-SNAPSHOT</version>
     <properties>
         <java-version>1.8</java-version>
         <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
@@ -17,12 +17,12 @@
         <dependency>
             <groupId>info.rmapproject</groupId>
             <artifactId>rmap-core</artifactId>
-            <version>1.0.0-beta</version>
+            <version>1.0.1-beta-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>info.rmapproject</groupId>
             <artifactId>rmap-auth</artifactId>
-            <version>1.0.0-beta</version>
+            <version>1.0.1-beta-SNAPSHOT</version>
         </dependency>
         <!-- logging -->
         <dependency>
