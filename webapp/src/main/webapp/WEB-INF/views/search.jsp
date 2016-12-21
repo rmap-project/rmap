@@ -21,7 +21,10 @@
 	<form:label path="search">Enter a URI *</form:label> 
 	<form:input path="search" style="width:320px;float:left;margin-right:10px;" value="${searchVal}"/>
 	<input type="submit" value="GO" style="margin-top:3px;">
-	<p style="font-size: 85%;">Examples: rmap:rmd18n8xfs, http://dx.doi.org/10.1109/InPar.2012.6339604, https://osf.io/rxgmb/</p><br/>
+	<p style="font-size: 85%;">Examples: 
+	<a href="<c:url value='/resources/rmap%3Armd18n8xfs'/>">rmap:rmd18n8xfs</a>, 
+	<a href="<c:url value='/resources/http%3A%2F%2Fdx.doi.org%2F10.1109%2FInPar.2012.6339604'/>">http://dx.doi.org/10.1109/InPar.2012.6339604</a>, 
+	<a href="<c:url value='/resources/https%3A%2F%2Fosf.io%2Frxgmb%2F'/>">https://osf.io/rxgmb/</a></p><br/>
 </form:form>
 <br/>
 <br/>

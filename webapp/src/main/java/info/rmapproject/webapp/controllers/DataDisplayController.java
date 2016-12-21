@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
+import info.rmapproject.webapp.domain.SearchCommand;
 import info.rmapproject.webapp.service.DataDisplayService;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
@@ -26,6 +27,7 @@ import info.rmapproject.webapp.service.dto.EventDTO;
 import info.rmapproject.webapp.service.dto.ResourceDTO;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Handles requests for the data visualization pages.
@@ -173,40 +176,53 @@ public class DataDisplayController {
 	/**
 	 * GET details of a resource.
 	 *
-	 * @param resourceUri the resource uri
+	 * @param sResourceUri the resource uri
 	 * @param resview - This is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
 	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
 	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
 	 * 					the /resources page will be displayed by default. Default is 0
 	 * @param model the Spring model
-	 * @return the resources page
+	 * @param redirectAttributes holds flash attributes passed from a redirect
+	 * @return the resources page or redirect back to search on error
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/resources/{uri}", method = RequestMethod.GET)
-	public String resource(@PathVariable(value="uri") String resourceUri, 
+	public String resource(@PathVariable(value="uri") String sResourceUri, 
 				@RequestParam(value="resview", required=false) Integer resview, 
-				Model model) throws Exception {
+				Model model, RedirectAttributes redirectAttributes) throws Exception {
 		
-		log.info("Resource requested " + resourceUri);
+		log.info("Resource requested " + sResourceUri);
 
 		if (resview == null) {
 			resview = 0;
 		}
-
-		if (resview==0) {
-			//decode http first
-			resourceUri = URLDecoder.decode(resourceUri, "UTF-8");
-			//TODO: need to handle exception properly
-			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(resourceUri));
-			if (rmapType.length()>0){
-				return "redirect:/" + rmapType.toLowerCase() + "s/" + URLEncoder.encode(resourceUri, "UTF-8");
+		boolean isUri = true;
+		
+		try {
+			if (resview==0) {
+				String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(sResourceUri));
+				if (rmapType.length()>0){
+					return "redirect:/" + rmapType.toLowerCase() + "s/" + URLEncoder.encode(sResourceUri, "UTF-8");
+				}				
 			}
+				
+			ResourceDTO resourceDTO = dataDisplayService.getResourceDTO(sResourceUri);
+		    model.addAttribute("RESOURCE",resourceDTO);	    
+		    model.addAttribute("OBJECT_NODES", resourceDTO.getGraph().getNodes());
+		    model.addAttribute("OBJECT_EDGES", resourceDTO.getGraph().getEdges());
+		    model.addAttribute("OBJECT_NODETYPES", resourceDTO.getGraph().getNodeTypes());
+
+		} catch (URISyntaxException|IllegalArgumentException ex){
+			isUri = false;
+			log.warn(ex.getMessage() + ". Submitted value: " + sResourceUri + ".");
 		}
-		ResourceDTO resourceDTO = dataDisplayService.getResourceDTO(resourceUri);
-	    model.addAttribute("RESOURCE",resourceDTO);	    
-	    model.addAttribute("OBJECT_NODES", resourceDTO.getGraph().getNodes());
-	    model.addAttribute("OBJECT_EDGES", resourceDTO.getGraph().getEdges());
-	    model.addAttribute("OBJECT_NODETYPES", resourceDTO.getGraph().getNodeTypes());
+		if (!isUri){
+			SearchCommand search = new SearchCommand();
+			search.setSearch(sResourceUri);
+			redirectAttributes.addFlashAttribute("search", search);
+			redirectAttributes.addFlashAttribute("notice", "<strong>" + sResourceUri + "</strong> is not a valid URI. Currently only URI searches are supported.");	
+			return "redirect:/search";
+		}		
 	    
 		return "resources";
 	}
