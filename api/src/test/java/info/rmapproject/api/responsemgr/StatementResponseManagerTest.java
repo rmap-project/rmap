@@ -146,8 +146,45 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 			e.printStackTrace();	
 		}
 		
-	}
+	}	
 	
+
+	/**
+	 * Test get statement related DiSCOs where there are no matches
+	 */
+	@Test
+	public void testGetStatementRelatedDiSCOsNoMatches() {
+		Response response = null;
+		try {
+			//createDisco
+			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			String discoURI = rmapDisco.getId().toString();
+	        assertNotNull(discoURI);
+			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			
+			RMapSearchParams params = new RMapSearchParams();
+			params.setStatusCode(RMapStatusFilter.ACTIVE);
+
+
+			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+			//queryParams.add("page", "1");
+			
+			//get disco as related to statement
+			response = statementResponseManager.getStatementRelatedDiSCOs("http://dx.doi.org/10.1109/fail", 
+															"http://www.w3.org/1999/02/22-rdf-syntax-ns#type", 
+															"http://purl.org/spar/fabio/fail", NonRdfType.JSON, queryParams);
+
+			assertNotNull(response);
+			assertEquals(response.getStatus(),404); //Not found 404 is appropriate response.
+			
+			rmapService.deleteDiSCO(rmapDisco.getId().getIri(), super.reqAgent);
+			
+		} catch (Exception e) {
+			e.printStackTrace();	
+		}
+		
+	}
 	
 	/**
 	 * Test get statement asserting Agents.
@@ -171,6 +208,36 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 			assertNotNull(response);
 			assertEquals(response.getStatus(),200);
 			assertEquals(response.getEntity(),"{\""+ Terms.RMAP_AGENT_PATH + "\":[\"" + super.testAgentURI + "\"]}");
+			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
+		} catch (Exception e) {
+			e.printStackTrace();	
+		}
+
+	}
+	
+	
+	/**
+	 * Test get statement asserting Agents.
+	 */
+	@Test
+	public void testGetStatementAssertingAgentsNoMatches() {
+		Response response = null;
+		try {			
+			//createDisco
+			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			String discoURI = rmapDisco.getId().toString();
+	        assertNotNull(discoURI);
+			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+
+			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+			response = 
+					statementResponseManager.getStatementAssertingAgents("http://dx.doi.org/10.1109/fake", 
+														"http://www.w3.org/1999/02/22-rdf-syntax-ns#type", 
+														"http://purl.org/spar/fabio/fake", NonRdfType.JSON, queryParams);
+			assertNotNull(response);
+			assertEquals(response.getStatus(),404);
+			
 			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
 		} catch (Exception e) {
 			e.printStackTrace();	

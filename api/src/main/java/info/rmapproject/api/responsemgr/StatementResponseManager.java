@@ -282,6 +282,9 @@ public class StatementResponseManager extends ResponseManager {
 			if (matchingObjects == null){
 				throw new RMapApiException(ErrorCode.ER_CORE_COULDNT_RETRIEVE_STMT_ASSERTINGAGTS);
 			}
+			if (matchingObjects.size()==0){
+				throw new RMapApiException(ErrorCode.ER_STMT_NOT_FOUND);
+			}
 
 			ResponseBuilder responseBldr = null;
 			
