@@ -356,25 +356,32 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	
 	
 	/**
-	 * Test DiSCO deletion has the correct status.
+	 * Test DiSCO soft deletion (tombstoned) has the correct status.
 	 */
 	@Test
-	public void testDeletionStatus(){
+	public void testDiSCOThatHasBeenTombstoned(){
 		try {
 			//createDisco
 			InputStream rdf = new ByteArrayInputStream(discoWithSpaceInUrl.getBytes(StandardCharsets.UTF_8));
 			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
+	        assertNotNull(rmapDisco.getId());
+			String strDiscoUri = rmapDisco.getId().toString();
 			rmapService.createDiSCO(rmapDisco, super.reqAgent);
 			//delete and check status
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);			
-			List<URI> rmapEvents = rmapService.getDiSCOEvents(new URI(discoURI));
+			rmapService.deleteDiSCO(new URI(strDiscoUri), super.reqAgent);			
+			List<URI> rmapEvents = rmapService.getDiSCOEvents(new URI(strDiscoUri));
 			assertTrue(rmapEvents.size()==2);
 			RMapEvent event = rmapService.readEvent(rmapEvents.get(0));
 			RMapEvent event2 = rmapService.readEvent(rmapEvents.get(1));
 			assertTrue(event.getEventType()==RMapEventType.TOMBSTONE || event2.getEventType()==RMapEventType.TOMBSTONE);
-					
+
+			//now check tombstone returns not found error
+			try {
+				discoResponseManager.getRMapDiSCO(strDiscoUri, RdfMediaType.APPLICATION_LDJSON);
+			} catch(RMapApiException e){
+				assertTrue(e.getErrorCode().getNumber()==ErrorCode.ER_DISCO_TOMBSTONED.getNumber());
+			}		
+			
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());

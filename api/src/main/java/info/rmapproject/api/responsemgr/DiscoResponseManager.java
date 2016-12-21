@@ -253,32 +253,22 @@ public class DiscoResponseManager extends ResponseManager {
 					.build(); 
 			
 			reqSuccessful = true;
-
-		}
-		catch(RMapApiException ex)	{
+			
+		} catch(RMapApiException ex)	{
 			throw RMapApiException.wrap(ex);
-		}  
-		catch(RMapDefectiveArgumentException ex) {
+		} catch(RMapDefectiveArgumentException ex) {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_GET_DISCO_BAD_ARGUMENT);
-		} 
-		catch(RMapDiSCONotFoundException ex) {
+		} catch(RMapDiSCONotFoundException ex) {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
-		} 
-		catch(RMapException ex) {
-			if (ex.getCause() instanceof RMapDeletedObjectException){
-				throw RMapApiException.wrap(ex,ErrorCode.ER_OBJECT_DELETED);  			
-			}
-			else if (ex.getCause() instanceof RMapTombstonedObjectException){
-				throw RMapApiException.wrap(ex,ErrorCode.ER_OBJECT_TOMBSTONED);  			
-			}
-			else if (ex.getCause() instanceof RMapObjectNotFoundException){
-				throw RMapApiException.wrap(ex,ErrorCode.ER_OBJECT_NOT_FOUND);  			
-			}
-			else {
-				throw RMapApiException.wrap(ex,ErrorCode.ER_CORE_GENERIC_RMAP_EXCEPTION);  					
-			}
-		}  
-		catch(Exception ex)	{
+		} catch(RMapTombstonedObjectException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_DISCO_TOMBSTONED);  				
+		} catch(RMapDeletedObjectException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_DISCO_DELETED);  				
+		}  catch(RMapObjectNotFoundException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_OBJECT_NOT_FOUND);  			
+		} catch(RMapException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_CORE_GENERIC_RMAP_EXCEPTION);  					
+		} catch(Exception ex)	{
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
