@@ -221,7 +221,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
         //create another disco
 		InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
 		RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
-		String discoURI2 = rmapDisco.getId().toString();
+		String discoURI2 = rmapDisco2.getId().toString();
         assertNotNull(discoURI2);
         
 		/*String discoURI = "rmap:rmd18m7p1b";*/
@@ -256,6 +256,53 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	}
 	
 
+
+	/**
+	 * Tests whether can retrieve response for updated DiSCO.
+	 *
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testGetLatestDiSCOResponse() throws Exception{
+		//create 1 disco
+		InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
+		RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+		String discoURI = rmapDisco.getId().toString();
+        assertNotNull(discoURI);
+        
+        //create another disco
+		InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
+		RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
+		String discoURI2 = rmapDisco2.getId().toString();
+        assertNotNull(discoURI2);
+        
+		/*String discoURI = "rmap:rmd18m7p1b";*/
+		
+		//create a disco using the test agent
+		rmapService.createDiSCO(rmapDisco, super.reqAgent);
+
+		//update the disco
+		rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
+		
+    	Response response=null;
+    	
+		try {
+			//now get the latest using the first DiSCO URI
+			String encodedUri = URLEncoder.encode(discoURI, "UTF-8");
+			response = discoResponseManager.getLatestRMapDiSCOVersion(encodedUri);
+		} catch (Exception e) {
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+
+		assertNotNull(response);
+		String location = response.getLocation().toString();
+		String encodedUri2 = URLEncoder.encode(discoURI2, "UTF-8");
+		assertTrue(location.contains(encodedUri2));
+		assertEquals(302, response.getStatus());
+		rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
+		rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
+	}
 
 	/**
 	 * Tests whether appropriate not found error is generated when you get a disco that 

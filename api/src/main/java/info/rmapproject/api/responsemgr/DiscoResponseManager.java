@@ -158,29 +158,60 @@ public class DiscoResponseManager extends ResponseManager {
 
 
 	/**
-	 * Retrieves RMap DiSCO in requested RDF format and forms an HTTP response.
-	 *
-	 * @param strDiscoUri the DiSCO URI
-	 * @param returnType the RDF return type
-	 * @return HTTP Response
-	 * @throws RMapApiException the RMap API exception
-	 */	
-	public Response getRMapDiSCO(String strDiscoUri, RdfMediaType returnType) throws RMapApiException	{
-		Response response = getRMapDiSCO(strDiscoUri, returnType, false);
-		return response;
-	}
-	
-	
-	/**
-	 * Retrieves latest version of RMap DiSCO in requested RDF format and forms an HTTP response.
+	 * Retrieves location of the latest version of an RMap DiSCO returns a FOUND HTTP response.
 	 *
 	 * @param strDiscoUri the DiSCO URI
 	 * @param returnType the RDF return type
 	 * @return HTTP Response
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public Response getLatestRMapDiSCOVersion(String strDiscoUri, RdfMediaType returnType) throws RMapApiException	{
-		Response response = getRMapDiSCO(strDiscoUri, returnType, true);
+	public Response getLatestRMapDiSCOVersion(String strDiscoUri) throws RMapApiException	{
+		boolean reqSuccessful = false;
+		Response response = null;	
+
+		try {
+			if (strDiscoUri==null || strDiscoUri.length()==0)	{
+				throw new RMapApiException(ErrorCode.ER_NO_OBJECT_URI_PROVIDED); 
+			}		
+			log.info("Latest version of DiSCO " + strDiscoUri + " requested.");
+							
+			URI uriDiscoUri = null;
+			try {
+				strDiscoUri = URLDecoder.decode(strDiscoUri, "UTF-8");
+				uriDiscoUri = new URI(strDiscoUri);
+			}
+			catch (Exception ex)  {
+				throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
+			}
+		
+			URI latestDiscoUri = rmapService.getDiSCOIdLatestVersion(uriDiscoUri);
+	
+			//now 302 Found response to indicate location of latest
+			response = Response.status(Response.Status.FOUND)
+					.location(new URI(Utils.makeDiscoUrl(latestDiscoUri.toString())))
+					//.header("Link",linkRel)						//TODO: this will be Memento links
+					.build(); 
+			
+			reqSuccessful = true;
+				
+		} catch(RMapApiException ex)	{
+			throw RMapApiException.wrap(ex);
+		} catch(RMapDefectiveArgumentException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_GET_DISCO_BAD_ARGUMENT);
+		} catch(RMapDiSCONotFoundException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
+		}  catch(RMapObjectNotFoundException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_OBJECT_NOT_FOUND);  			
+		} catch(RMapException ex) {
+			throw RMapApiException.wrap(ex,ErrorCode.ER_CORE_GENERIC_RMAP_EXCEPTION);  					
+		} catch(Exception ex)	{
+			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
+		}
+		finally{
+			if (rmapService != null) rmapService.closeConnection();
+			if (!reqSuccessful && response!=null) response.close();
+		}
+		
 		return response;
 	}
 
@@ -195,7 +226,7 @@ public class DiscoResponseManager extends ResponseManager {
 	 * @return HTTP Response
 	 * @throws RMapApiException the RMap API exception
 	 */	
-	private Response getRMapDiSCO(String strDiscoUri, RdfMediaType returnType, Boolean viewLatestVersion) throws RMapApiException	{
+	public Response getRMapDiSCO(String strDiscoUri, RdfMediaType returnType) throws RMapApiException	{
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {			
@@ -206,7 +237,6 @@ public class DiscoResponseManager extends ResponseManager {
 				throw new RMapApiException(ErrorCode.ER_NO_OBJECT_URI_PROVIDED); 
 			}		
 			if (returnType==null) {returnType = Constants.DEFAULT_RDF_TYPE;}
-			if (viewLatestVersion==null){viewLatestVersion=false;}
 
 			URI uriDiscoUri = null;
 			try {
@@ -219,15 +249,7 @@ public class DiscoResponseManager extends ResponseManager {
 				
 			RMapDiSCODTO rmapDiscoDTO;
 
-			if (viewLatestVersion)	{
-				rmapDiscoDTO = rmapService.getDiSCODTOLatestVersion(uriDiscoUri);
-				//now we are using a different disco URI
-				uriDiscoUri = rmapDiscoDTO.getRMapDiSCO().getId().getIri();
-				strDiscoUri = uriDiscoUri.toString();
-			}
-			else {;
-				rmapDiscoDTO = rmapService.readDiSCODTO(uriDiscoUri);
-			}
+			rmapDiscoDTO = rmapService.readDiSCODTO(uriDiscoUri);
 
 			log.info("DiSCO " + strDiscoUri + " object retrieved.");
 			

@@ -167,7 +167,7 @@ public class DiSCOApiService {
 
 	/**
  * GET /disco/{discoUri}/latest
- * Returns latest version of requested RMap:DiSCO as RDF/XML, JSON-LD, NQUADS or TURTLE.
+ * When successful, this returns the location of the latest version of the DiSCO as a 302 Found response
  *
  * @param header the HTTP request headers
  * @param discoUri the DiSCO URI
@@ -176,14 +176,8 @@ public class DiSCOApiService {
  */    
     @GET
     @Path("/{discoUri}/latest")
-    @Produces({"application/rdf+xml;charset=UTF-8;", "application/xml;charset=UTF-8;", "application/vnd.rmap-project.disco+rdf+xml;charset=UTF-8;",
-				"application/ld+json;charset=UTF-8;", "application/vnd.rmap-project.disco+ld+json;charset=UTF-8;",
-				"application/n-quads;charset=UTF-8;", "application/vnd.rmap-project.disco+n-quads;charset=UTF-8;",
-				"text/turtle;charset=UTF-8;", "application/vnd.rmap-project.disco+turtle;charset=UTF-8;"
-				})
-    public Response apiGetLatestRMapDiSCO(@Context HttpHeaders headers, @PathParam("discoUri") String discoUri) throws RMapApiException {
-    	RdfMediaType returnType = HttpTypeMediator.getRdfResponseType(headers);
-    	Response response=getDiscoResponseManager().getLatestRMapDiSCOVersion(discoUri, returnType);
+    public Response apiGetLatestRMapDiSCO(@PathParam("discoUri") String discoUri) throws RMapApiException {
+    	Response response=getDiscoResponseManager().getLatestRMapDiSCOVersion(discoUri);
     	return response;
     }
    
