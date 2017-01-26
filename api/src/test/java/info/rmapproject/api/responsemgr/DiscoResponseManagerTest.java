@@ -23,15 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.api.lists.RdfMediaType;
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.rdfhandler.RDFType;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -46,6 +37,16 @@ import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.rdfhandler.RDFType;
 
 /**
  * Tests for DiscoResponseManager
@@ -212,53 +213,80 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	 */
 	@Test
 	public void testGetRMapDiscoThatHasBeenUpdated() throws Exception{
-		//create 1 disco
-		InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-		RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
-		String discoURI = rmapDisco.getId().toString();
-        assertNotNull(discoURI);
-        
-        //create another disco
-		InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
-		RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
-		String discoURI2 = rmapDisco2.getId().toString();
-        assertNotNull(discoURI2);
-        
-		/*String discoURI = "rmap:rmd18m7p1b";*/
 		
-		//create a disco using the test agent
-		rmapService.createDiSCO(rmapDisco, super.reqAgent);
-
-		//update the disco
-		rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
-		
-    	Response response=null;
-    	
-   		RdfMediaType matchingType = RdfMediaType.get("application/xml");
-
 		try {
-			//now get the updated DiSCO
-			String encodedUri = URLEncoder.encode(discoURI2, "UTF-8");
-			response = discoResponseManager.getRMapDiSCO(encodedUri,matchingType);
+			//create 1 disco
+			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			String discoURI = rmapDisco.getId().toString();
+	        assertNotNull(discoURI);
+	        
+	        //create another disco
+			InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
+			String discoURI2 = rmapDisco2.getId().toString();
+	        assertNotNull(discoURI2);
+	        
+			/*String discoURI = "rmap:rmd18m7p1b";*/
+			
+			//create a disco using the test agent
+			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+	
+			//update the disco
+			rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
+			
+	    	Response response=null;
+	    	
+	   		RdfMediaType matchingType = RdfMediaType.get("application/xml");
+	
+			String encodedDiscoUri1 = URLEncoder.encode(discoURI, "UTF-8");
+			String encodedDiscoUri2 = URLEncoder.encode(discoURI2, "UTF-8");
+	   		
+
+			//now check original DiSCO
+			response = discoResponseManager.getRMapDiSCO(encodedDiscoUri1,matchingType);
+			String links1 = response.getHeaderString("link");
+			String successorVersionLink=encodedDiscoUri2 + ">;rel=\"successor-version\"";
+			String latestVersionLink=encodedDiscoUri2 + ">;rel=\"latest-version\"";
+			String predecessorVersionLink = "rel=\"predecessor-version\"";
+			assertTrue(links1.contains(successorVersionLink));
+			assertTrue(links1.contains(latestVersionLink));
+			assertTrue(!links1.contains(predecessorVersionLink));
+			assertTrue(links1.contains("/inactive"));
+			String location1 = response.getHeaderString("location");
+			assertTrue(location1.contains(encodedDiscoUri1));
+			
+			//check updated disco
+			response = discoResponseManager.getRMapDiSCO(encodedDiscoUri2,matchingType);
+		
+
+			successorVersionLink="rel=\"successor-version\"";
+			predecessorVersionLink = encodedDiscoUri1 + ">;rel=\"predecessor-version\"";
+			
+			assertNotNull(response);
+			String body = response.getEntity().toString();
+			assertTrue(body.contains("DiSCO"));
+			assertEquals(200, response.getStatus());
+			String links2 = response.getHeaderString("link");
+			assertTrue(links2.contains(predecessorVersionLink));
+			assertTrue(links2.contains(latestVersionLink));
+			assertTrue(!links2.contains(successorVersionLink));
+			assertTrue(links2.contains("/active"));
+			String location2 = response.getHeaderString("location");
+			assertTrue(location2.contains(encodedDiscoUri2));
+						
+			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
+			rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
 		}
-
-		assertNotNull(response);
-		//String location = response.getLocation().toString();
-		String body = response.getEntity().toString();
-		//assertTrue(location.contains("disco"));
-		assertTrue(body.contains("DiSCO"));
-		assertEquals(200, response.getStatus());
-		rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
-		rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
 	}
 	
 
 
 	/**
-	 * Tests whether can retrieve response for updated DiSCO.
+	 * Tests whether requesting the latest version of a DiSCO returns the appropriate response.
 	 *
 	 * @throws Exception the exception
 	 */
@@ -435,9 +463,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		}
 
 	}
-	
-	
-	
+		
 	
 
 

@@ -25,9 +25,33 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapNotLatestVersionException;
+import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -40,24 +64,6 @@ import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 /**
@@ -328,7 +334,7 @@ public class ORMapDiSCOMgrTest  {
 			
 			//read DiSCO back
 			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
@@ -418,7 +424,7 @@ public class ORMapDiSCOMgrTest  {
 			
 			//read DiSCO back
 			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
@@ -569,7 +575,7 @@ public class ORMapDiSCOMgrTest  {
 			
 			//read DiSCO back
 			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
 			RMapIri rIdIRI = rDisco.getId();
 			assertEquals(idIRI.toString(),rIdIRI.toString());
 			//check key is associated with event
@@ -601,13 +607,13 @@ public class ORMapDiSCOMgrTest  {
 				ex.printStackTrace();
 			}
 			//read back derived disco
-			ORMapDiSCO rDisco2 = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			ORMapDiSCO rDisco2 = discomgr.readDiSCO(dIri, triplestore);
 			RMapIri rIdIRI2 = rDisco2.getId();
 			assertEquals(idIRI.toString(),rIdIRI2.toString());
 			String description3 = rDisco2.getDescription().toString();
 			assertEquals(description,description3);
 
-			List<java.net.URI> agentVersions = rmapService.getDiSCOAllAgentVersions(rIdIRI2.getIri());
+			List<java.net.URI> agentVersions = rmapService.getDiSCOAgentVersions(rIdIRI2.getIri());
 			assertTrue(agentVersions.size()==2);
 			
 			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
@@ -654,7 +660,7 @@ public class ORMapDiSCOMgrTest  {
 			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 						
 			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, true, null, null, triplestore).getDisco();
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
@@ -664,13 +670,118 @@ public class ORMapDiSCOMgrTest  {
 			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 			assertEquals(event.getAssociatedAgent().toString(),agentId.toString());
 			
-			
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
 		}	
 	}
 	
+	/**
+	 * Test method creates a DiSCO, updates it, updates again, updates it with a different agent, deletes it, 
+	 * then checks to see we have 3 agent versions with dates returned and that these can be ordered correctly.
+	 * @throws RMapObjectNotFoundException 
+	 * @throws RMapException 
+	 */
+	@Test
+	public void testGetAllDiSCOVersionsWithDates() throws RMapObjectNotFoundException, RMapException {
+		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
+		java.net.URI agentId2; //used to pass back into rmapService since all of these use java.net.URI
+		
+		try {
+			//create new test agent
+			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
+			agentId=agent.getId().getIri();
+			if (!rmapService.isAgentId(agentId)) {
+				rmapService.createAgent(agent,requestAgent);
+			}
+			if (rmapService.isAgentId(agentId)){
+				System.out.println("Test Agent successfully created!  URI is " + agentId);
+			}
+			
+			//create second test agent
+			RMapAgent agent2 = new ORMapAgent(AGENT_IRI2, ID_PROVIDER_IRI2, AUTH_ID_IRI2, NAME2);
+			agentId2=agent2.getId().getIri();
+			if (!rmapService.isAgentId(agentId2)) {
+				rmapService.createAgent(agent2,requestAgent2);
+			}
+			if (rmapService.isAgentId(agentId2)){
+				System.out.println("Test Agent 2 successfully created!  URI is " + agentId2);
+			}			
+			// Check the agent was created
+			assertTrue(rmapService.isAgentId(agentId2));	
+		
+			// now create DiSCO	
+			InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
+			RioRDFHandler handler = new RioRDFHandler();	
+			Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			ORMapDiSCO disco = new ORMapDiSCO(stmts);
+			RMapIri idIRI = disco.getId();
+			
+			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			
+			//read DiSCO back
+			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
+			RMapIri rIdIRI = rDisco.getId();
+			assertEquals(idIRI.toString(),rIdIRI.toString());
+			
+			// now update DiSCO	
+			ORMapDiSCO disco2 = new ORMapDiSCO(stmts);
+			discomgr.updateDiSCO(dIri, disco2, requestAgent, false, triplestore);
+			IRI dIri2 = ORAdapter.rMapIri2OpenRdfIri(disco2.getId());
+			
+			//update again
+			ORMapDiSCO disco3 = new ORMapDiSCO(stmts);
+			discomgr.updateDiSCO(dIri2, disco3, requestAgent, false, triplestore);
+			
+
+			IRI dIri3 = ORAdapter.rMapIri2OpenRdfIri(disco3.getId());
+			//update with different agent using latest id
+			ORMapDiSCO disco4 = new ORMapDiSCO(stmts);
+			discomgr.updateDiSCO(dIri3, disco4, requestAgent2, false, triplestore);
+
+			
+			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
+			
+			NavigableMap<Date, java.net.URI> versions = new TreeMap<Date, java.net.URI>();
+			versions.putAll(rmapService.getDiSCOAgentVersionsWithDates(new java.net.URI(dIri3.toString())));
+			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
+			Entry<Date,java.net.URI> version3 = versions.lowerEntry(new Date());
+			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
+			Entry<Date,java.net.URI> version2 = versions.lowerEntry(version3.getKey());
+			assertTrue(version2.getValue().toString().equals(dIri2.toString()));
+			Entry<Date,java.net.URI> version1 = versions.lowerEntry(version2.getKey());
+			assertTrue(version1.getValue().toString().equals(dIri.toString()));
+			versions.clear();
+			
+			versions.putAll(rmapService.getDiSCOAgentVersionsWithDates(new java.net.URI(dIri2.toString())));
+			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
+
+			version3 = versions.lowerEntry(new Date());
+			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
+			version2 = versions.lowerEntry(version3.getKey());
+			assertTrue(version2.getValue().toString().equals(dIri2.toString()));
+			version1 = versions.lowerEntry(version2.getKey());
+			assertTrue(version1.getValue().toString().equals(dIri.toString()));
+			versions.clear();
+
+			versions.putAll(rmapService.getDiSCOAgentVersionsWithDates(new java.net.URI(dIri.toString())));
+			version3 = versions.lowerEntry(new Date());
+			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
+			version2 = versions.lowerEntry(version3.getKey());
+			assertTrue(version2.getValue().toString().equals(dIri2.toString()));
+			version1 = versions.lowerEntry(version2.getKey());
+			assertTrue(version1.getValue().toString().equals(dIri.toString()));
+			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
+			
+			rmapService.deleteDiSCO(disco2.getId().getIri(), requestAgent);
+			rmapService.deleteDiSCO(disco3.getId().getIri(), requestAgent);
+			rmapService.deleteDiSCO(disco4.getId().getIri(), requestAgent2);
+						
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}	
+	}
 
 }
