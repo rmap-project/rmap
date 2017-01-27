@@ -47,7 +47,10 @@ public final class Constants  {
 
 	/** Default non-RDF type where none specified. GET requests whose response is not in RDF will use this type. */
   	public static final NonRdfType DEFAULT_NONRDF_TYPE = NonRdfType.JSON;
-
+  	
+  	/** Media type for application/link-format. Used for Memento timemap response body**/
+	public static final String LINK_FORMAT_MEDIA_TYPE = "application/link-format";
+	
 	/**
   	* Instantiates a new constants.
   	*/

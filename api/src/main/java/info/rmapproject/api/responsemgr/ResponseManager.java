@@ -19,17 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.api.responsemgr;
 
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapLiteral;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.request.DateRange;
-import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.rdfhandler.RDFHandler;
-import info.rmapproject.core.rmapservice.RMapService;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,7 +28,21 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MultivaluedMap;
+
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.api.utils.HttpLinkBuilder;
+import info.rmapproject.api.utils.LinkRels;
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.request.DateRange;
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.rdfhandler.RDFHandler;
+import info.rmapproject.core.rmapservice.RMapService;
 
 /**
  * Abstract class containing generic declarations for response managers. Response managers generate 
@@ -174,28 +177,28 @@ public abstract class ResponseManager {
 	 * @return pagination links 
 	 * @throws RMapApiException the RMap API exception
 	 */
-	protected String generatePaginationLinks(String pageUrlTemplate, Integer pageNum, boolean includeNext) throws RMapApiException{
+	protected Link[] generatePaginationLinks(String pageUrlTemplate, Integer pageNum, boolean includeNext) throws RMapApiException{
 		
 		try {
 			//now build the pagination links
-		    StringBuilder paginationLinks = new StringBuilder();
+			HttpLinkBuilder paginationLinks = new HttpLinkBuilder();
 		    if (pageNum>1){
 		    	String firstUrl = pageUrlTemplate.toString();
 		    	firstUrl = firstUrl.replace(PAGENUM_PLACEHOLDER, "1");
-		    	paginationLinks.append("<" + firstUrl + ">" + ";rel=\"first\"");
+		    	paginationLinks.addLink(firstUrl,LinkRels.FIRST);
 		    	
 		    	Integer previousPage = pageNum-1;
 		    	String previousUrl = pageUrlTemplate.replace(PAGENUM_PLACEHOLDER, previousPage.toString());
-		    	paginationLinks.append("<" + previousUrl + ">" + ";rel=\"previous\"");
+		    	paginationLinks.addLink(previousUrl,LinkRels.PREVIOUS);
 		    }
 		    
 		    if (includeNext){
 		    	String nextUrl = pageUrlTemplate.toString();
 		    	Integer nextPage = pageNum+1;
 		    	nextUrl = nextUrl.replace(PAGENUM_PLACEHOLDER, nextPage.toString());
-		    	paginationLinks.append("<" + nextUrl + ">" + ";rel=\"next\"");	    	
+		    	paginationLinks.addLink(nextUrl,LinkRels.NEXT);	    	
 		    }	    
-			return paginationLinks.toString();
+			return paginationLinks.getLinkArray();
 	
 		} catch (Exception ex) {
 			throw RMapApiException.wrap(ex, ErrorCode.ER_BAD_PARAMETER_IN_REQUEST);

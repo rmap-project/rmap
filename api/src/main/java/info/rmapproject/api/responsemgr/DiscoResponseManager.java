@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +32,10 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 
-import org.openrdf.model.vocabulary.DC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,9 @@ import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.utils.Constants;
+import info.rmapproject.api.utils.HttpLinkBuilder;
 import info.rmapproject.api.utils.HttpTypeMediator;
+import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.api.utils.Utils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -113,11 +116,10 @@ public class DiscoResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {				
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
-					.header("Allow", "HEAD,OPTIONS,GET,POST,DELETE")
-					.header("Link",linkRel)	
+					.allow(HttpMethod.HEAD, HttpMethod.OPTIONS,HttpMethod.GET,HttpMethod.POST,HttpMethod.DELETE)
+					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -143,10 +145,9 @@ public class DiscoResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {				
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
-					.header("Allow", "HEAD,OPTIONS,GET,POST,DELETE")
-					.header("Link",linkRel)	
+					.allow(HttpMethod.HEAD, HttpMethod.OPTIONS,HttpMethod.GET,HttpMethod.POST,HttpMethod.DELETE)
+					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -181,7 +182,7 @@ public class DiscoResponseManager extends ResponseManager {
 							
 			URI uriDiscoUri = null;
 			try {
-				strDiscoUri = URLDecoder.decode(strDiscoUri, "UTF-8");
+				strDiscoUri = URLDecoder.decode(strDiscoUri, StandardCharsets.UTF_8.name());
 				uriDiscoUri = new URI(strDiscoUri);
 			}
 			catch (Exception ex)  {
@@ -192,8 +193,8 @@ public class DiscoResponseManager extends ResponseManager {
 	
 			//now 302 Found response to indicate location of latest
 			response = Response.status(Response.Status.FOUND)
-					.location(new URI(Utils.makeDiscoUrl(latestDiscoUri.toString())))
-					//.header("Link",linkRel)						//TODO: this will be Memento links
+					.location(new URI(Utils.makeDiscoUrl(latestDiscoUri)))
+					//.links(links)						//TODO: this will be Memento links
 					.build(); 
 			
 			reqSuccessful = true;
@@ -244,7 +245,7 @@ public class DiscoResponseManager extends ResponseManager {
 
 			URI uriDiscoUri = null;
 			try {
-				strDiscoUri = URLDecoder.decode(strDiscoUri, "UTF-8");
+				strDiscoUri = URLDecoder.decode(strDiscoUri, StandardCharsets.UTF_8.name());
 				uriDiscoUri = new URI(strDiscoUri);
 			}
 			catch (Exception ex)  {
@@ -272,13 +273,13 @@ public class DiscoResponseManager extends ResponseManager {
 			if (status==null){
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_STATUS_RETURNED_NULL);
 			}
-			DiSCOLinkBuilder linkBuilder = new DiSCOLinkBuilder(uriDiscoUri, status, discoVersions);
-			String linkRel = linkBuilder.getDiscoLinks();
+			DiSCOResponseLinkBuilder linkBuilder = new DiSCOResponseLinkBuilder(uriDiscoUri, status, discoVersions);
+			Link[] links = linkBuilder.buildDiSCOResponseLinks();
 
 			response = Response.status(Response.Status.OK)
 					.entity(discoOutput.toString())
 					.location(new URI(Utils.makeDiscoUrl(strDiscoUri)))
-					.header("Link",linkRel)						//switch this to link() or links()?
+					.links(links)	
 					.type(HttpTypeMediator.getResponseRMapMediaType("disco", returnType.getRdfType())) //TODO move version number to a property?
 					.build(); 
 			
@@ -326,7 +327,7 @@ public class DiscoResponseManager extends ResponseManager {
 			}	
 			URI uriDiscoUri = null;
 			try {
-				strDiscoUri = URLDecoder.decode(strDiscoUri, "UTF-8");
+				strDiscoUri = URLDecoder.decode(strDiscoUri, StandardCharsets.UTF_8.name());
 				uriDiscoUri = new URI(strDiscoUri);
 			}
 			catch (Exception ex)  {
@@ -338,12 +339,12 @@ public class DiscoResponseManager extends ResponseManager {
 			if (status==null){
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_STATUS_RETURNED_NULL);
 			}
-			DiSCOLinkBuilder linkBuilder = new DiSCOLinkBuilder(uriDiscoUri, status, discoVersions);
-			String linkRel = linkBuilder.getDiscoLinks();
-
+			DiSCOResponseLinkBuilder linkBuilder = new DiSCOResponseLinkBuilder(uriDiscoUri, status, discoVersions);
+			Link[] links = linkBuilder.buildDiSCOResponseLinks();
+			
 			response = Response.status(Response.Status.OK)
 					.location(new URI(Utils.makeDiscoUrl(strDiscoUri)))
-					.header("Link",linkRel)						//switch this to link() or links()?
+					.links(links)						//switch this to link() or links()?
 					.build();  
 			
 			reqSuccessful = true;
@@ -422,20 +423,14 @@ public class DiscoResponseManager extends ResponseManager {
 			if (uEventURI==null){
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_EVENTID_RETURNED_NULL);
 			} 
-			String sEventURI = uEventURI.toString();  
-			if (sEventURI.length() == 0){
-				throw new RMapApiException(ErrorCode.ER_CORE_EVENTURI_STRING_EMPTY);
-			} 
 			
-			String newEventURL = Utils.makeEventUrl(sEventURI); 
+			String newEventURL = Utils.makeEventUrl(uEventURI); 
 			String newDiscoUrl = Utils.makeDiscoUrl(sDiscoURI); 
-
-			String linkRel = "<" + newEventURL + ">" + ";rel=\"" + PROV.WASGENERATEDBY + "\"";
 
 			response = Response.status(Response.Status.CREATED)
 						.entity(sDiscoURI)
-						.location(new URI(newDiscoUrl)) //switch this to location()
-						.header("Link",linkRel)    //switch this to link()
+						.location(new URI(newDiscoUrl))
+						.link(newEventURL,PROV.WASGENERATEDBY.toString())    
 						.build(); 
 			
 			reqSuccessful = true;  
@@ -486,7 +481,7 @@ public class DiscoResponseManager extends ResponseManager {
 			
 			URI uriOrigDiscoUri = null;
 			try {
-				origDiscoUri = URLDecoder.decode(origDiscoUri, "UTF-8");
+				origDiscoUri = URLDecoder.decode(origDiscoUri, StandardCharsets.UTF_8.name());
 				uriOrigDiscoUri = new URI(origDiscoUri);
 			}
 			catch (Exception ex)  {
@@ -519,22 +514,19 @@ public class DiscoResponseManager extends ResponseManager {
 			if (uEventURI==null){
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_EVENTID_RETURNED_NULL);
 			} 
-			String sEventURI = uEventURI.toString();  
-			if (sEventURI.length() == 0){
-				throw new RMapApiException(ErrorCode.ER_CORE_EVENTURI_STRING_EMPTY);
-			} 
 
-			String newEventURL = Utils.makeEventUrl(sEventURI); 
+			String newEventURL = Utils.makeEventUrl(uEventURI); 
 			String prevDiscoUrl = Utils.makeDiscoUrl(origDiscoUri); 
 			String newDiscoUrl = Utils.makeDiscoUrl(sDiscoURI); 
-
-			String linkRel = "<" + newEventURL + ">" + ";rel=\"" + PROV.WASGENERATEDBY + "\"";
-			linkRel = linkRel.concat(",<" + prevDiscoUrl + ">" + ";rel=\"predecessor-version\"");
+			
+			HttpLinkBuilder links = new HttpLinkBuilder();
+			links.addLink(newEventURL, LinkRels.WAS_GENERATED_BY);
+			links.addLink(prevDiscoUrl, LinkRels.PREDECESSOR_VERSION);			
 			
 			response = Response.status(Response.Status.CREATED)
 						.entity(sDiscoURI)
 						.location(new URI(newDiscoUrl)) 
-						.header("Link",linkRel)    //switch this to link()
+						.links(links.getLinkArray())  
 						.build();   
 			
 			reqSuccessful = true;
@@ -622,7 +614,7 @@ public class DiscoResponseManager extends ResponseManager {
 			
 			URI uriDiscoUri = null;
 			try {
-				discoUri = URLDecoder.decode(discoUri, "UTF-8");
+				discoUri = URLDecoder.decode(discoUri, StandardCharsets.UTF_8.name());
 				uriDiscoUri = new URI(discoUri);
 			}
 			catch (Exception ex)  {
@@ -631,10 +623,10 @@ public class DiscoResponseManager extends ResponseManager {
 
 			RMapRequestAgent reqAgent = apiUserService.getCurrentRequestAgent();
 			RMapEvent discoEvent = null;
-			if (newStatus == "TOMBSTONED")	{
+			if (newStatus.equals("TOMBSTONED"))	{
 				discoEvent = (RMapEvent)rmapService.deleteDiSCO(uriDiscoUri, reqAgent);					
 			}
-			else if (newStatus == "INACTIVE")	{
+			else if (newStatus.equals("INACTIVE"))	{
 				discoEvent = (RMapEvent)rmapService.inactivateDiSCO(uriDiscoUri, reqAgent);						
 			}
 				
@@ -653,18 +645,19 @@ public class DiscoResponseManager extends ResponseManager {
 
 			String newEventURL = Utils.makeEventUrl(sEventURI); 
 			String origDiscoUrl = Utils.makeDiscoUrl(discoUri); 
-			String linkRel = "";
 			
-			if (newStatus == "TOMBSTONED")	{
-				linkRel = "<" + newEventURL + ">" + ";rel=\"" + RMAP.TOMBSTONE + "\"";
-			}
-			else if (newStatus == "INACTIVE")	{
-				linkRel = "<" + newEventURL + ">" + ";rel=\"" + RMAP.INACTIVATION + "\"";
+			Link link = null;
+			
+			if (newStatus.equals("TOMBSTONED"))	{
+				link = Link.fromUri(newEventURL).rel(RMAP.TOMBSTONE.toString()).build();
+				}
+			else if (newStatus.equals("INACTIVE"))	{
+				link = Link.fromUri(newEventURL).rel(RMAP.INACTIVATION.toString()).build();
 			}
 			
 			response = Response.status(Response.Status.OK)
 					.location(new URI(origDiscoUrl)) 
-					.header("Link",linkRel)    //switch this to link()
+					.links(link)
 					.build();   
 			
 			reqSuccessful = true;
@@ -732,7 +725,7 @@ public class DiscoResponseManager extends ResponseManager {
 			
 			URI uriDiscoUri = null;
 			try {
-				discoUri = URLDecoder.decode(discoUri, "UTF-8");
+				discoUri = URLDecoder.decode(discoUri, StandardCharsets.UTF_8.name());
 				uriDiscoUri = new URI(discoUri);
 			}
 			catch (Exception ex)  {
@@ -769,9 +762,6 @@ public class DiscoResponseManager extends ResponseManager {
 			reqSuccessful = true;
 
 		}
-    	catch(RMapApiException ex) { 
-    		throw RMapApiException.wrap(ex);
-    	}  
     	catch(RMapDiSCONotFoundException ex) {
     		throw RMapApiException.wrap(ex, ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
     	}
@@ -792,7 +782,90 @@ public class DiscoResponseManager extends ResponseManager {
 			if (!reqSuccessful && response!=null) response.close();
 		}
     	return response;
-	}	
+	}
+
+	/**
+	 * Gets list of RMap:DiSCO version URIs and returns them as list of link rels in body of response. 
+	 * Corresponds to Memento timemap standard.
+	 *
+	 * @param discoUri the DiSCO URI
+	 * @return HTTP Response
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public Response getRMapDiSCOTimemap(String discoUri) throws RMapApiException {
+		boolean reqSuccessful = false;
+		Response response = null;
+		try {			
+			//check discoUri param for null
+			if (discoUri==null || discoUri.length()==0)	{
+				throw new RMapApiException(ErrorCode.ER_NO_OBJECT_URI_PROVIDED); 
+			}	
+			
+			URI uriDiscoUri = null;
+			try {
+				discoUri = URLDecoder.decode(discoUri, StandardCharsets.UTF_8.name());
+				uriDiscoUri = new URI(discoUri);
+			}
+			catch (Exception ex)  {
+				throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
+			}
+			
+			Map<Date, URI> timemapHolder = rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri);
+			
+			if (timemapHolder==null || timemapHolder.size()==0)	{ 
+				//should always have at least one version... the one being requested!
+				throw new RMapApiException(ErrorCode.ER_CORE_GET_DISCO_VERSIONLIST_EMPTY); 
+			}	
+
+			//make sure we can navigate through list as needed
+			NavigableMap <Date,URI> timemap = new TreeMap<Date,URI>();
+			timemap.putAll(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+			
+			HttpLinkBuilder links = new HttpLinkBuilder();
+			
+			URI firstDiSCOUrl = timemap.firstEntry().getValue();			
+			links.addLink(Utils.makeDiscoLatestUrl(firstDiSCOUrl), LinkRels.ORIGINAL);
+			links.addLinkWithType(Utils.makeDiscoTimemapUrl(firstDiSCOUrl), LinkRels.SELF, Constants.LINK_FORMAT_MEDIA_TYPE);
+			
+			String lastDiSCOUrl = Utils.makeDiscoUrl(timemap.firstEntry().getValue());
+			Date sLastDate = timemap.lastEntry().getKey();
+			links.addLinkWithDate(lastDiSCOUrl, LinkRels.MEMENTO + " " + LinkRels.LAST, sLastDate);
+										
+			for (Entry<Date,URI> version: timemap.entrySet()){
+				String sDiscoUrl = Utils.makeDiscoUrl(version.getValue());
+				links.addLinkWithDate(sDiscoUrl, LinkRels.MEMENTO, version.getKey());
+			}
+					    			
+			response = Response.status(Response.Status.OK)
+							.entity(links.toString())
+							.type(Constants.LINK_FORMAT_MEDIA_TYPE)
+							.build();
+			
+			reqSuccessful = true;
+
+		}
+    	catch(RMapDiSCONotFoundException ex) {
+    		throw RMapApiException.wrap(ex, ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
+    	}
+    	catch(RMapObjectNotFoundException ex) {
+    		throw RMapApiException.wrap(ex, ErrorCode.ER_OBJECT_NOT_FOUND);
+    	}
+		catch(RMapDefectiveArgumentException ex){
+			throw RMapApiException.wrap(ex,ErrorCode.ER_GET_DISCO_BAD_ARGUMENT);
+		}
+    	catch(RMapException ex) { 
+    		throw RMapApiException.wrap(ex, ErrorCode.ER_CORE_GENERIC_RMAP_EXCEPTION);
+    	}
+		catch(Exception ex)	{
+    		throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
+		}
+		finally{
+			if (rmapService != null) rmapService.closeConnection();
+			if (!reqSuccessful && response!=null) response.close();
+		}
+    	return response;
+	}
+	
 	
 	
 	/**
@@ -818,7 +891,7 @@ public class DiscoResponseManager extends ResponseManager {
 			
 			URI uriDiscoUri = null;
 			try {
-				discoUri = URLDecoder.decode(discoUri, "UTF-8");
+				discoUri = URLDecoder.decode(discoUri, StandardCharsets.UTF_8.name());
 				uriDiscoUri = new URI(discoUri);
 			}
 			catch (Exception ex)  {
@@ -873,7 +946,7 @@ public class DiscoResponseManager extends ResponseManager {
 	
 	
 	
-	private class DiSCOLinkBuilder {
+	private class DiSCOResponseLinkBuilder {
 		/**disco URI**/
 		URI discoUri;
 		/** status of DiSCO that links are being created for**/
@@ -883,7 +956,7 @@ public class DiscoResponseManager extends ResponseManager {
 		/**Position of current version in discoVersions list**/
 		Date currentVersionMapKey;
 				
-		public DiSCOLinkBuilder(URI discoUri, RMapStatus discoStatus, Map<Date,URI> discoVersions)  {
+		public DiSCOResponseLinkBuilder(URI discoUri, RMapStatus discoStatus, Map<Date,URI> discoVersions)  {
 			
 			this.discoUri = discoUri;
 			this.discoStatus = discoStatus;
@@ -900,56 +973,49 @@ public class DiscoResponseManager extends ResponseManager {
 			
 
 		/**
-		 * Retrieves the string of links to DiSCO versions, Status and Events for HTTP Response header Link property.
+		 * Retrieves an array of Link headers to be used in HEAD/GET DiSCO response including versions, 
+		 * Status and Events .
 		 *
-		 * @param rmapDiSCODTO the DiSCO data transfer object
-		 * @return DiSCO links string for header
+		 * @return Link array for Response header
 		 * @throws RMapApiException the RMap API Exception
 		 * @throws RMapException the RMap Exception
 		 * @throws RMapDefectiveArgumentException the RMap Defective Argument exception
 		 */
 		
-		public String getDiscoLinks() throws RMapApiException, RMapException, RMapDefectiveArgumentException {
-			StringBuilder links = new StringBuilder("");		
-			String strDiscoUri = this.discoUri.toString();
-	
-			links.append("<" + Terms.RMAP_NAMESPACE + this.discoStatus.toString().toLowerCase() + ">" + ";rel=\"" + Terms.RMAP_HASSTATUS_PATH + "\"");
-	
-			//get DiSCO version links
+		public Link[] buildDiSCOResponseLinks() throws RMapApiException, RMapException, RMapDefectiveArgumentException {
+			
+			HttpLinkBuilder linkbuilder = new HttpLinkBuilder();
+			
+			//GET DiSCO status link
+			linkbuilder.addLink(this.discoStatus.getPath(), LinkRels.HAS_STATUS);
+				
+			//GET DiSCO version links
 			try {
 				URI latestUri = discoVersions.lastEntry().getValue();
 				if (latestUri!=null && latestUri.toString().length()>0) {
-					links.append(",<" + Utils.makeDiscoUrl(latestUri.toString()) + ">" + ";rel=\"latest-version\"");  			
+					linkbuilder.addLink(Utils.makeDiscoUrl(latestUri), LinkRels.LATEST_VERSION); 
 				}
 				if (discoVersions.size()>1){
 					Entry<Date,URI> prevEntry = discoVersions.lowerEntry(currentVersionMapKey);
 					if (prevEntry!=null){
 						URI prevUri = prevEntry.getValue();
-						links.append(",<" + Utils.makeDiscoUrl(prevUri.toString()) + ">;rel=\"predecessor-version\"");
+						linkbuilder.addLink(Utils.makeDiscoUrl(prevUri), LinkRels.PREDECESSOR_VERSION); 
 					}
 					Entry<Date,URI> nextEntry = discoVersions.higherEntry(currentVersionMapKey);
 					if (nextEntry!=null){
 						URI nextUri = nextEntry.getValue();
-						links.append(",<" + Utils.makeDiscoUrl(nextUri.toString()) + ">;rel=\"successor-version\"");
+						linkbuilder.addLink(Utils.makeDiscoUrl(nextUri), LinkRels.SUCCESSOR_VERSION); 
 					}
 				}
 	
-				try {
-					strDiscoUri = URLEncoder.encode(strDiscoUri, "UTF-8");
-				}
-				catch (Exception ex)  {
-					throw RMapApiException.wrap(ex, ErrorCode.ER_CANNOT_ENCODE_URL);
-				}		
-			
 				//get DiSCO event link
-				String eventUrl = Utils.getDiscoBaseUrl() + strDiscoUri + "/events";		
-				links.append(",<" + eventUrl + ">" + ";rel=\"" + PROV.HAS_PROVENANCE + "\"");
+				linkbuilder.addLink(Utils.makeDiscoEventsUrl(this.discoUri), LinkRels.HAS_PROVENANCE);
 			}
 			catch (Exception ex){
 				throw RMapApiException.wrap(ex, ErrorCode.ER_COULDNT_RETRIEVE_DISCO_VERSION_LINKS);
 			}
 			
-		return links.toString();	
+		return linkbuilder.getLinkArray();	
 		}		
 		
 	}

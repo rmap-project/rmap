@@ -32,6 +32,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.junit.Before;
@@ -41,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.utils.Constants;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -190,7 +193,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		rmapService.createDiSCO(rmapDisco, super.reqAgent);
 	
 		try {
-			response = discoResponseManager.getRMapDiSCO(URLEncoder.encode(discoURI, "UTF-8"),matchingType);
+			response = discoResponseManager.getRMapDiSCO(URLEncoder.encode(discoURI,StandardCharsets.UTF_8.name()),matchingType);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -237,15 +240,15 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			
 	    	Response response=null;
 	    	
-	   		RdfMediaType matchingType = RdfMediaType.get("application/xml");
+	   		RdfMediaType matchingType = RdfMediaType.get(MediaType.APPLICATION_XML);
 	
-			String encodedDiscoUri1 = URLEncoder.encode(discoURI, "UTF-8");
-			String encodedDiscoUri2 = URLEncoder.encode(discoURI2, "UTF-8");
+			String encodedDiscoUri1 = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
+			String encodedDiscoUri2 = URLEncoder.encode(discoURI2, StandardCharsets.UTF_8.name());
 	   		
 
 			//now check original DiSCO
 			response = discoResponseManager.getRMapDiSCO(encodedDiscoUri1,matchingType);
-			String links1 = response.getHeaderString("link");
+			String links1 = response.getLinks().toString();
 			String successorVersionLink=encodedDiscoUri2 + ">;rel=\"successor-version\"";
 			String latestVersionLink=encodedDiscoUri2 + ">;rel=\"latest-version\"";
 			String predecessorVersionLink = "rel=\"predecessor-version\"";
@@ -267,7 +270,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			String body = response.getEntity().toString();
 			assertTrue(body.contains("DiSCO"));
 			assertEquals(200, response.getStatus());
-			String links2 = response.getHeaderString("link");
+			String links2 = response.getLinks().toString();
 			assertTrue(links2.contains(predecessorVersionLink));
 			assertTrue(links2.contains(latestVersionLink));
 			assertTrue(!links2.contains(successorVersionLink));
@@ -316,7 +319,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
     	
 		try {
 			//now get the latest using the first DiSCO URI
-			String encodedUri = URLEncoder.encode(discoURI, "UTF-8");
+			String encodedUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
 			response = discoResponseManager.getLatestRMapDiSCOVersion(encodedUri);
 		} catch (Exception e) {
 			e.printStackTrace();			
@@ -325,7 +328,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 
 		assertNotNull(response);
 		String location = response.getLocation().toString();
-		String encodedUri2 = URLEncoder.encode(discoURI2, "UTF-8");
+		String encodedUri2 = URLEncoder.encode(discoURI2, StandardCharsets.UTF_8.name());
 		assertTrue(location.contains(encodedUri2));
 		assertEquals(302, response.getStatus());
 		rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
@@ -350,7 +353,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		boolean correctErrorThrown = false;
    		
 		try {
-			String encodedUri = URLEncoder.encode(discoURI, "UTF-8");
+			String encodedUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
 			response = discoResponseManager.getRMapDiSCO(encodedUri,matchingType);
 		} catch (RMapApiException e) {
 			assertEquals(e.getErrorCode(), ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
@@ -463,7 +466,61 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		}
 
 	}
+	
+
+	/**
+	 * Tests whether a DiSCO timemap is generated correctly
+	 *
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testGetRMapDiscoTimemap() throws Exception{
 		
+		try {
+			//create 1 disco
+			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			String discoURI = rmapDisco.getId().toString();
+	        assertNotNull(discoURI);
+	        
+	        //create another disco
+			InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
+			String discoURI2 = rmapDisco2.getId().toString();
+	        assertNotNull(discoURI2);
+	        
+			//create a disco using the test agent
+			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+	
+			//update the disco
+			rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
+			
+	    	Response response=null;
+	    		
+			String encodedDiscoUri1 = URLEncoder.encode(discoURI, "UTF-8");
+			String encodedDiscoUri2 = URLEncoder.encode(discoURI2, "UTF-8");
+	   		
+			//now check original DiSCO
+			response = discoResponseManager.getRMapDiSCOTimemap(encodedDiscoUri1);
+			String responseBody = response.getEntity().toString();
+			assertTrue(responseBody.contains(encodedDiscoUri1));
+			assertTrue(responseBody.contains(encodedDiscoUri2));
+			assertEquals(200, response.getStatus());
+			String contentType = response.getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0).toString();
+			
+			assertTrue(contentType.equals(Constants.LINK_FORMAT_MEDIA_TYPE));
+			
+			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
+			rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
+		} catch (Exception e) {
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+	}
+	
+	
+	
+	
 	
 
 

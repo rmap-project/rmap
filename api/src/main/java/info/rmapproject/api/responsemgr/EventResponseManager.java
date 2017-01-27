@@ -19,12 +19,24 @@
  *******************************************************************************/
 package info.rmapproject.api.responsemgr;
 
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Response;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
+import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.api.utils.Utils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -35,16 +47,6 @@ import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.List;
-
-import javax.ws.rs.core.Response;
-
-import org.openrdf.model.vocabulary.DC;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Creates HTTP responses for Event REST API requests.
@@ -76,11 +78,10 @@ public class EventResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {				
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
-					.header("Allow", "HEAD,OPTIONS,GET")
-					.header("Link",linkRel)	
+					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
+					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -105,10 +106,9 @@ public class EventResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {				
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
-					.header("Allow", "HEAD,OPTIONS,GET")
-					.header("Link",linkRel)	
+					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
+					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -143,7 +143,7 @@ public class EventResponseManager extends ResponseManager {
 			
 			URI uriEventUri = null;
 			try {
-				strEventUri = URLDecoder.decode(strEventUri, "UTF-8");
+				strEventUri = URLDecoder.decode(strEventUri, StandardCharsets.UTF_8.name());
 				uriEventUri = new URI(strEventUri);
 			}
 			catch (Exception ex)  {
@@ -211,7 +211,7 @@ public class EventResponseManager extends ResponseManager {
 
 			URI uriEventUri = null;
 			try {
-				strEventUri = URLDecoder.decode(strEventUri, "UTF-8");
+				strEventUri = URLDecoder.decode(strEventUri, StandardCharsets.UTF_8.name());
 				uriEventUri = new URI(strEventUri);
 			}
 			catch (Exception ex)  {

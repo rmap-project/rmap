@@ -381,4 +381,23 @@ public class DiSCOApiService {
     	return versionList;
     }
     
+	/**
+	 * GET /disco/{discoUri}/timemap
+	 * Based on Memento standard, returns the DiSCO timemap version list with dates
+	 * This is presented as a list of link rels in the body of the response and 
+	 * relevant Memento links in the header.
+	 *
+	 * @param header the HTTP request headers
+	 * @param discoUri the DiSCO URI
+	 * @return HTTP Response
+	 * @throws RMapApiException the RMap API exception
+	 */    
+    @GET
+    @Path("/{discoUri}/timemap")
+    @Produces({"application/link-format;charset=UTF-8;"})
+    public Response apiGetRMapDiSCOTimemapList(@PathParam("discoUri") String discoUri) throws RMapApiException {
+    	Response timemap = getDiscoResponseManager().getRMapDiSCOTimemap(discoUri);
+    	return timemap;
+    }
+    
 }
