@@ -179,7 +179,7 @@ public class DiSCOApiService {
     @Path("/{discoUri}/latest")
     public Response apiGetLatestRMapDiSCO(@Context HttpHeaders headers, @PathParam("discoUri") String discoUri) throws RMapApiException {
     	String timegateDate = null;
-    	List<String> acceptDatetimes = headers.getRequestHeader(Constants.HEADER_ACCEPT_DATETIME);
+    	List<String> acceptDatetimes = headers.getRequestHeader(Constants.HTTP_HEADER_ACCEPT_DATETIME);
     	if (acceptDatetimes != null && acceptDatetimes.size()>0){
     		//ignore multiple dates, just get the first one.
     		timegateDate = acceptDatetimes.get(0);

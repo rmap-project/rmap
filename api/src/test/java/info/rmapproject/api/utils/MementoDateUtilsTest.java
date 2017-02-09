@@ -46,15 +46,15 @@ public class MementoDateUtilsTest {
 	
 	
 	/**
-	 * Test method for {@link info.rmapproject.api.utils.MementoDateUtils#convertStringToDate(java.lang.String)}.
+	 * Test method for {@link info.rmapproject.api.utils.HttpHeaderDateUtils#convertStringToDate(java.lang.String)}.
 	 */
 	@Test
 	public void testConvertDateToString() {
 		try {
-			String mementodate = MementoDateUtils.convertDateToString(dTestdate1);
+			String mementodate = HttpHeaderDateUtils.convertDateToString(dTestdate1);
 			assertTrue(mementodate.equals(sTestdate1));		
 			
-			String mementodate2 = MementoDateUtils.convertDateToString(dTestdate2);
+			String mementodate2 = HttpHeaderDateUtils.convertDateToString(dTestdate2);
 			assertTrue(mementodate2.equals(sTestdate2));	
 		} catch (Exception ex){
 			fail("Problem while testing convertStringToDate(Date)");
@@ -63,19 +63,19 @@ public class MementoDateUtilsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.utils.MementoDateUtils#convertDateToString(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.utils.HttpHeaderDateUtils#convertDateToString(java.util.Date)}.
 	 */
 	@Test
 	public void testConvertStringToDate() {
 		try {
-			Date mementodate = MementoDateUtils.convertStringToDate(sTestdate1);
+			Date mementodate = HttpHeaderDateUtils.convertStringToDate(sTestdate1);
 			assertTrue(mementodate.equals(dTestdate1));		
 			
-			Date mementodate2 = MementoDateUtils.convertStringToDate(sTestdate2);
+			Date mementodate2 = HttpHeaderDateUtils.convertStringToDate(sTestdate2);
 			assertTrue(mementodate2.equals(dTestdate2));
 
 			//now use convertDateToString to switch back.
-			String smementodate = MementoDateUtils.convertDateToString(mementodate2);
+			String smementodate = HttpHeaderDateUtils.convertDateToString(mementodate2);
 			assertTrue(smementodate.equals(sTestdate2));	
 			
 		} catch (Exception ex){

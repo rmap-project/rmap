@@ -94,7 +94,7 @@ public class HttpLinkBuilder {
 	public void addLinkWithDate(String url, String rel, Date date) {	
 		Link link = Link.fromUri(url)
 						.rel(rel)
-						.param(LinkRels.DATETIME, MementoDateUtils.convertDateToString(date))
+						.param(LinkRels.DATETIME, HttpHeaderDateUtils.convertDateToString(date))
 						.build();
 		links.add(link);
 	}

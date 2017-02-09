@@ -34,10 +34,6 @@ public class TimegateTest {
 	
 	@Autowired
 	private Timegate timegate;
-	
-	Map<Date, URI> versions_1date = new TreeMap<Date,URI>();
-	Map<Date, URI> versions_2dates = new TreeMap<Date,URI>();
-	Map<Date, URI> versions_5dates = new TreeMap<Date,URI>();
 		
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
 	
@@ -99,24 +95,24 @@ public class TimegateTest {
 		uri3 = new URI(suri3);
 		uri4 = new URI(suri4);
 		uri5 = new URI(suri5);	
-				
+		
+		Map<Date, URI> versions_1date = new TreeMap<Date,URI>();				
 		versions_1date.put(date1,uri1);
+		resourceVersions_1date = new ResourceVersions(versions_1date);
 
+		Map<Date, URI> versions_2dates = new TreeMap<Date,URI>();
 		versions_2dates.put(date2,uri2);
 		versions_2dates.put(date1,uri1);
+		resourceVersions_2dates = new ResourceVersions(versions_2dates);
 
 		//add them in random order, they should be in date order when retrieved later
+		Map<Date, URI> versions_5dates = new TreeMap<Date,URI>();
 		versions_5dates.put(date2, uri2);
 		versions_5dates.put(date5, uri5);
 		versions_5dates.put(date1, uri1);
 		versions_5dates.put(date4, uri4);
 		versions_5dates.put(date3, uri3);
-
-		resourceVersions_1date = new ResourceVersionsImpl(versions_1date);
-		resourceVersions_5dates = new ResourceVersionsImpl(versions_5dates);
-		resourceVersions_2dates = new ResourceVersionsImpl(versions_2dates);
-		
-		
+		resourceVersions_5dates = new ResourceVersions(versions_5dates);
 	}
 
 	/**
@@ -163,7 +159,6 @@ public class TimegateTest {
 		
 		try {
 
-			
 			timegate.setResourceVersions(resourceVersions_5dates);
 			
 			//exact matches

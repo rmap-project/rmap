@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpLinkBuilder;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.api.utils.MementoDateUtils;
+import info.rmapproject.api.utils.HttpHeaderDateUtils;
 import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -89,10 +89,7 @@ public class DiscoResponseManager extends ResponseManager {
 	
 	/** The API User Service. */
 	private final ApiUserService apiUserService;
-			
-	/** Resource Versions*/
-	private final ResourceVersions versions;
-	
+				
 	/** Timegate class */
 	private final Timegate timegate;
 	
@@ -104,20 +101,19 @@ public class DiscoResponseManager extends ResponseManager {
 	 * @param rmapService the RMap Service
 	 * @param rdfHandler the RDF handler
 	 * @param apiUserService the API User Service
+	 * @param timegate the timegate service
 	 * @throws RMapApiException the RMap API exception
 	 */
 	@Autowired
 	public DiscoResponseManager(RMapService rmapService, 
 								RDFHandler rdfHandler,
 								ApiUserService apiUserService,
-								ResourceVersions resourceVersions,
 								Timegate timegate) throws RMapApiException {
 		super(rmapService, rdfHandler);
 		if (apiUserService ==null){
 			throw new RMapApiException(ErrorCode.ER_FAILED_TO_INIT_API_USER_SERVICE);
 		}
 		this.apiUserService = apiUserService;
-		this.versions = resourceVersions;
 		this.timegate = timegate;
 	}
     
@@ -206,11 +202,12 @@ public class DiscoResponseManager extends ResponseManager {
 				throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
 			}
 					
-			versions.setVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+			ResourceVersions versions = 
+					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
 
 			Date matchdate = null;
 			try {
-				matchdate = MementoDateUtils.convertStringToDate(timegateDate);		
+				matchdate = HttpHeaderDateUtils.convertStringToDate(timegateDate);		
 			} catch (ParseException ex){
 				throw RMapApiException.wrap(ex, ErrorCode.ER_INVALID_TIMEGATE_DATE_PROVIDED);
 			}		
@@ -225,7 +222,7 @@ public class DiscoResponseManager extends ResponseManager {
 			//now 302 Found response to indicate location of latest
 			response = Response.status(Response.Status.FOUND)
 					.location(new URI(PathUtils.makeDiscoUrl(closestVersionUri)))
-					.header(HttpHeaders.VARY, Constants.HEADER_ACCEPT_DATETIME)
+					.header(HttpHeaders.VARY, Constants.HTTP_HEADER_ACCEPT_DATETIME)
 					.links(links.getLinkArray())
 					.build(); 
 			
@@ -302,7 +299,8 @@ public class DiscoResponseManager extends ResponseManager {
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_STATUS_RETURNED_NULL);
 			}
 
-			versions.setVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+			ResourceVersions versions = 
+					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
 			
 			DiSCOResponseLinks discoLinks = new DiSCOResponseLinks(uriDiscoUri, status, versions);
 			Link[] links = discoLinks.getDiSCOResponseLinks();
@@ -313,7 +311,7 @@ public class DiscoResponseManager extends ResponseManager {
 					.entity(discoOutput.toString())
 					.location(new URI(PathUtils.makeDiscoUrl(strDiscoUri)))
 					.links(links)	
-					.header(Constants.MEMENTO_DATETIME_HEADER, MementoDateUtils.convertDateToString(discoDate))
+					.header(Constants.MEMENTO_DATETIME_HEADER, HttpHeaderDateUtils.convertDateToString(discoDate))
 					.type(HttpTypeMediator.getResponseRMapMediaType("disco", returnType.getRdfType())) //TODO move version number to a property?
 					.build(); 
 			
@@ -366,7 +364,8 @@ public class DiscoResponseManager extends ResponseManager {
 				throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
 			}
 							
-			versions.setVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+			ResourceVersions versions = 
+					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
 			
 			RMapStatus status = rmapService.getDiSCOStatus(uriDiscoUri);
 			if (status==null){
@@ -380,7 +379,7 @@ public class DiscoResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 					.location(new URI(PathUtils.makeDiscoUrl(strDiscoUri)))
 					.links(links)	
-					.header(Constants.MEMENTO_DATETIME_HEADER, MementoDateUtils.convertDateToString(discoDate))
+					.header(Constants.MEMENTO_DATETIME_HEADER, HttpHeaderDateUtils.convertDateToString(discoDate))
 					.build();  
 			
 			reqSuccessful = true;

@@ -48,10 +48,9 @@ import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.responsemgr.versioning.ResourceVersions;
-import info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.api.utils.MementoDateUtils;
+import info.rmapproject.api.utils.HttpHeaderDateUtils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -575,7 +574,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			
 			//get versions list and use this to make test times
 			Map<Date, URI> versions = rmapService.getDiSCOAgentVersionsWithDates(new URI(discoURI1));
-			ResourceVersions resourceVersions = new ResourceVersionsImpl(versions);
+			ResourceVersions resourceVersions = new ResourceVersions(versions);
 			Date dat1 = resourceVersions.getFirstDate();
 			Calendar cal1 = Calendar.getInstance();
 			cal1.setTime(dat1);
@@ -594,9 +593,9 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			cal3.add(Calendar.SECOND,  2);
 			Date dAfterLast = cal3.getTime();
 			
-			String sdEarlierThanFirst = MementoDateUtils.convertDateToString(dEarlierThanFirst);
-			String sdLaterThanLast = MementoDateUtils.convertDateToString(dAfterLast);
-			String sdBetweenVersions = MementoDateUtils.convertDateToString(dBetweenVersions);
+			String sdEarlierThanFirst = HttpHeaderDateUtils.convertDateToString(dEarlierThanFirst);
+			String sdLaterThanLast = HttpHeaderDateUtils.convertDateToString(dAfterLast);
+			String sdBetweenVersions = HttpHeaderDateUtils.convertDateToString(dBetweenVersions);
 									
 			Response response1 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, sdEarlierThanFirst);
 			URI location1 = response1.getLocation();

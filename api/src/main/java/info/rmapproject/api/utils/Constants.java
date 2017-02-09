@@ -55,10 +55,10 @@ public final class Constants  {
 	public static final String MEMENTO_DATETIME_HEADER = "Memento-Datetime";
 	
 	/** Custom response header for Memento timegate accept datetime **/
-	public static final String HEADER_ACCEPT_DATETIME = "Accept-Datetime";
+	public static final String HTTP_HEADER_ACCEPT_DATETIME = "Accept-Datetime";
 	
 	/** Date format for dates in Response header e.g. Link datetime, Memento-Datetime**/
-	public static final String MEMENTO_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
+	public static final String HTTP_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	
 	/**
   	* Instantiates a new constants.

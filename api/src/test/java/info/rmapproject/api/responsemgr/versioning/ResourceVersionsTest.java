@@ -28,12 +28,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration({ "classpath:/spring-rmapapi-context.xml" })
 public class ResourceVersionsTest {
 	
-	private ResourceVersions resourceVersions;
-	
-	Map<Date, URI> versions_1date = new TreeMap<Date,URI>();
-	Map<Date, URI> versions_2dates = new TreeMap<Date,URI>();
-	Map<Date, URI> versions_5dates = new TreeMap<Date,URI>();
-		
+	private ResourceVersions versions_1date;
+	private ResourceVersions versions_2dates;
+	private ResourceVersions versions_5dates;
+			
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
 	
 	//numbers correspond to ordering
@@ -68,14 +66,11 @@ public class ResourceVersionsTest {
 	Date date5;
 	Date date3a_nomatch;
 	
-	
-
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		resourceVersions = new ResourceVersionsImpl();
 		
 		date1 = sdf.parse(sdate1);
 		date2 = sdf.parse(sdate2);
@@ -92,75 +87,57 @@ public class ResourceVersionsTest {
 		
 		uri_nomatch = new URI(suri_nomatch);
 		
-		versions_1date.put(date1,uri1);
-
-		versions_2dates.put(date2,uri2);
-		versions_2dates.put(date1,uri1);
+		Map<Date, URI> versions_1datemap = new TreeMap<Date,URI>();
+		Map<Date, URI> versions_2datesmap = new TreeMap<Date,URI>();
+		Map<Date, URI> versions_5datesmap = new TreeMap<Date,URI>();
+		
+		versions_1datemap.put(date1,uri1);
+		versions_1date = new ResourceVersions(versions_1datemap);
+				
+		versions_2datesmap.put(date2,uri2);
+		versions_2datesmap.put(date1,uri1);
+		versions_2dates = new ResourceVersions(versions_2datesmap);
 
 		//add them in random order, they should be in date order when retrieved later
-		versions_5dates.put(date2, uri2);
-		versions_5dates.put(date5, uri5);
-		versions_5dates.put(date1, uri1);
-		versions_5dates.put(date4, uri4);
-		versions_5dates.put(date3, uri3);
+		versions_5datesmap.put(date2, uri2);
+		versions_5datesmap.put(date5, uri5);
+		versions_5datesmap.put(date1, uri1);
+		versions_5datesmap.put(date4, uri4);
+		versions_5datesmap.put(date3, uri3);
+		versions_5dates = new ResourceVersions(versions_5datesmap);
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#setVersions(java.util.Map)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getVersions()}.
 	 */
 	@Test
-	public void testSetAndGetVersions() {
+	public void testGetVersions() {
 		try {			
-			resourceVersions.setVersions(versions_5dates);
-			assertTrue(resourceVersions.size()==5);
-			Map<Date, URI> versions = resourceVersions.getVersions();
+			Map<Date, URI> versions = versions_5dates.getVersions();
 			assertTrue(versions.get(date1).equals(uri1));
 			assertTrue(versions.get(date5).equals(uri5));
-			
-			boolean fail = true;
-			try {
-				resourceVersions.setVersions(null);
-			} catch (IllegalArgumentException ex) {
-				fail = false; //null should return illegal argument exception
-			}
-			if (fail){
-				fail("Null value for resource versions not detected;");
-			}
-			
 		} catch(Exception ex){
-			fail("Problem while testing set and get Versions in ResourceVersions:" + ex.getMessage());
+			fail("Problem while testing getVersions() in ResourceVersions:" + ex.getMessage());
 			ex.printStackTrace();
-		}
-				
+		}		
 	}
 	
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getVersionDate(java.net.URI)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getVersionDate(java.net.URI)}.
 	 */
 	@Test
 	public void testGetVersionDate() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.getVersionDate(uri1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			Date testdate = resourceVersions.getVersionDate(uri3);
+			Date testdate = versions_5dates.getVersionDate(uri3);
 			assertNotNull(testdate);
 			assertTrue(testdate.equals(date3));		
 			
-			testdate = resourceVersions.getVersionDate(uri5);
+			testdate = versions_5dates.getVersionDate(uri5);
 			assertNotNull(testdate);
 			assertTrue(testdate.equals(date5));		
 			
 			//return null when pass in null
-			testdate = resourceVersions.getVersionDate(null);
+			testdate = versions_5dates.getVersionDate(null);
 			assertNull(testdate);			
 			
 		} catch(Exception ex){
@@ -169,38 +146,54 @@ public class ResourceVersionsTest {
 		}
 	}
 	
-
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getVersionUri(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions(java.util.Map<Date,URI>)}.
+	 */
+	@Test
+	public void testResourceVersionsConstructor() {		
+		boolean fail = true;
+		try {
+			new ResourceVersions(null);
+		} catch (IllegalArgumentException ex){
+			fail = false; //we want it to raise the fact that there is no versions defined
+		}
+		if (fail) {
+			fail("Failed to detect that the version list was null in ResourceVersions constructor");
+		}
+		fail = true;
+		try {
+			Map<Date,URI> emptymap = new TreeMap<Date,URI>();
+			new ResourceVersions(emptymap);
+		} catch (IllegalArgumentException ex){
+			fail = false; //we want it to raise the fact that there is no versions defined
+		}
+		if (fail) {
+			fail("Failed to detect that the version list was null in ResourceVersions constructor");
+		}
+	}
+	
+	
+	
+	/**
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getVersionUri(java.util.Date)}.
 	 */
 	@Test
 	public void testGetVersionUri() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.getVersionUri(date1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			URI testuri = resourceVersions.getVersionUri(date3);
+			URI testuri = versions_5dates.getVersionUri(date3);
 			assertNotNull(testuri);
 			assertTrue(testuri.equals(uri3));		
 			
-			testuri = resourceVersions.getVersionUri(date5);
+			testuri = versions_5dates.getVersionUri(date5);
 			assertNotNull(testuri);
 			assertTrue(testuri.equals(uri5));		
 			
 			//return null when no match
-			testuri = resourceVersions.getVersionUri(date3a_nomatch);
+			testuri = versions_5dates.getVersionUri(date3a_nomatch);
 			assertNull(testuri);
 			
 			//return null when pass in null
-			testuri = resourceVersions.getVersionUri(null);
+			testuri = versions_5dates.getVersionUri(null);
 			assertNull(testuri);			
 			
 		} catch(Exception ex){
@@ -211,42 +204,29 @@ public class ResourceVersionsTest {
 	
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getFirstDate()}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getFirstDate()}.
 	 */
 	@Test
 	public void testGetFirstDate() {
 		try {
-			boolean fail = true;
-			try {
-				resourceVersions.getFirstDate();
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-						
 			//first check we haven't somehow ended up with a null date1
 			assertNotNull(date1);
 			
 			// all version lists should return date1 as the first date.
-			resourceVersions.setVersions(versions_5dates);
-			Date firstdate = resourceVersions.getFirstDate();
+			Date firstdate = versions_5dates.getFirstDate();
 			assertNotNull(firstdate);
 			assertTrue(firstdate.equals(date1));
 	
-			resourceVersions.setVersions(versions_2dates);
-			firstdate = resourceVersions.getFirstDate();
+			firstdate = versions_2dates.getFirstDate();
 			assertNotNull(firstdate);
 			assertTrue(firstdate.equals(date1));
-	
-			resourceVersions.setVersions(versions_1date);
-			firstdate = resourceVersions.getFirstDate();
+
+			firstdate = versions_1date.getFirstDate();
 			assertNotNull(firstdate);
 			assertTrue(firstdate.equals(date1));
 						
 			//only one item in list so first and last date should be the same!
-			assertTrue(firstdate.equals(resourceVersions.getLastDate()));
+			assertTrue(firstdate.equals(versions_1date.getLastDate()));
 			
 		} catch(Exception ex){
 			fail("Problem while testing getFirstDate() in ResourceVersions:" + ex.getMessage());
@@ -257,38 +237,24 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getFirstUri()}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getFirstUri()}.
 	 */
 	@Test
 	public void testGetFirstUri() {
 		try {
-			boolean fail = true;
-			try {
-				resourceVersions.getFirstUri();
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			
 			//first check we haven't somehow ended up with a null date1
 			assertNotNull(uri1);
 			
 			// all version lists should return date1 as the first date.
-			resourceVersions.setVersions(versions_5dates);
-			URI firsturi = resourceVersions.getFirstUri();
+			URI firsturi = versions_5dates.getFirstUri();
 			assertNotNull(firsturi);
 			assertTrue(firsturi.equals(uri1));
 	
-			resourceVersions.setVersions(versions_2dates);
-			firsturi = resourceVersions.getFirstUri();
+			firsturi = versions_2dates.getFirstUri();
 			assertNotNull(firsturi);
 			assertTrue(firsturi.equals(uri1));
 	
-			resourceVersions.setVersions(versions_1date);
-			firsturi = resourceVersions.getFirstUri();
+			firsturi = versions_1date.getFirstUri();
 			assertNotNull(firsturi);
 			assertTrue(firsturi.equals(uri1));
 			
@@ -299,38 +265,25 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getLastDate()}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getLastDate()}.
 	 */
 	@Test
 	public void testGetLastDate() {
 
 		try {
-			boolean fail = true;
-			try {
-				resourceVersions.getFirstUri();
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
 			//first check we haven't somehow ended up with a null date1
 			assertNotNull(date5);
 			
 			// all version lists should return date1 as the first date.
-			resourceVersions.setVersions(versions_5dates);
-			Date lastdate = resourceVersions.getLastDate();
+			Date lastdate = versions_5dates.getLastDate();
 			assertNotNull(lastdate);
 			assertTrue(lastdate.equals(date5));
 	
-			resourceVersions.setVersions(versions_2dates);
-			lastdate = resourceVersions.getLastDate();
+			lastdate = versions_2dates.getLastDate();
 			assertNotNull(lastdate);
 			assertTrue(lastdate.equals(date2));
 	
-			resourceVersions.setVersions(versions_1date);
-			lastdate = resourceVersions.getLastDate();
+			lastdate = versions_1date.getLastDate();
 			assertNotNull(lastdate);
 			assertTrue(lastdate.equals(date1));		
 
@@ -341,38 +294,22 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getLastUri()}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getLastUri()}.
 	 */
 	@Test
 	public void testGetLastUri() {
 
 		try {
-			boolean fail = true;
-			try {
-				resourceVersions.getLastUri();
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			//first check we haven't somehow ended up with a null date1
-			assertNotNull(uri5);
-			
 			// all version lists should return date1 as the first date.
-			resourceVersions.setVersions(versions_5dates);
-			URI lasturi = resourceVersions.getLastUri();
+			URI lasturi = versions_5dates.getLastUri();
 			assertNotNull(lasturi);
 			assertTrue(lasturi.equals(uri5));
 	
-			resourceVersions.setVersions(versions_2dates);
-			lasturi = resourceVersions.getLastUri();
+			lasturi = versions_2dates.getLastUri();
 			assertNotNull(lasturi);
 			assertTrue(lasturi.equals(uri2));
 	
-			resourceVersions.setVersions(versions_1date);
-			lasturi = resourceVersions.getLastUri();
+			lasturi = versions_1date.getLastUri();
 			assertNotNull(lasturi);
 			assertTrue(lasturi.equals(uri1));
 
@@ -383,39 +320,27 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getNextDate(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getNextDate(java.util.Date)}.
 	 */
 	@Test
 	public void testGetNextDate() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.getNextDate(date1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			Date testdate = resourceVersions.getNextDate(date1);
+			Date testdate = versions_5dates.getNextDate(date1);
 			assertNotNull(testdate);
 			assertTrue(testdate.equals(date2));	
 			
 			//if there is no next date, should return null
-			testdate = resourceVersions.getNextDate(date5);
+			testdate = versions_5dates.getNextDate(date5);
 			assertNull(testdate);
 			
-			testdate = resourceVersions.getNextDate(date3a_nomatch);
+			testdate = versions_5dates.getNextDate(date3a_nomatch);
 			assertTrue(testdate.equals(date4));
-
-			resourceVersions.setVersions(versions_1date);
-			testdate = resourceVersions.getNextDate(date1);
+			
+			testdate = versions_1date.getNextDate(date1);
 			assertNull(testdate);	
 			
 			//return null when pass in null
-			testdate = resourceVersions.getNextDate(null);
+			testdate = versions_1date.getNextDate(null);
 			assertNull(testdate);			
 			
 		} catch(Exception ex){
@@ -426,40 +351,28 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getNextUri(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getNextUri(java.util.Date)}.
 	 */
 	@Test
 	public void testGetNextUri() {
 
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.getNextUri(date1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			URI testuri = resourceVersions.getNextUri(date2);
+			URI testuri = versions_5dates.getNextUri(date2);
 			assertNotNull(testuri);
 			assertTrue(testuri.equals(uri3));	
 			
 			//if there is no next URI, should return null
-			testuri = resourceVersions.getNextUri(date5);
+			testuri = versions_5dates.getNextUri(date5);
 			assertNull(testuri);
 			
-			testuri = resourceVersions.getNextUri(date3a_nomatch);
+			testuri = versions_5dates.getNextUri(date3a_nomatch);
 			assertTrue(testuri.equals(uri4));
 
-			resourceVersions.setVersions(versions_1date);
-			testuri = resourceVersions.getNextUri(date1);
+			testuri = versions_1date.getNextUri(date1);
 			assertNull(testuri);	
 			
 			//return null when pass in null
-			testuri = resourceVersions.getNextUri(null);
+			testuri = versions_1date.getNextUri(null);
 			assertNull(testuri);			
 			
 		} catch(Exception ex){
@@ -469,39 +382,27 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getPreviousDate(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getPreviousDate(java.util.Date)}.
 	 */
 	@Test
 	public void testGetPreviousDate() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.getPreviousDate(date1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			Date testdate = resourceVersions.getPreviousDate(date2);
+			Date testdate = versions_5dates.getPreviousDate(date2);
 			assertNotNull(testdate);
 			assertTrue(testdate.equals(date1));	
 			
 			//if there is no previous date, should return null
-			testdate = resourceVersions.getPreviousDate(date1);
+			testdate = versions_5dates.getPreviousDate(date1);
 			assertNull(testdate);
 			
-			testdate = resourceVersions.getPreviousDate(date3a_nomatch);
+			testdate = versions_5dates.getPreviousDate(date3a_nomatch);
 			assertTrue(testdate.equals(date3));
 
-			resourceVersions.setVersions(versions_1date);
-			testdate = resourceVersions.getPreviousDate(date1);
+			testdate = versions_1date.getPreviousDate(date1);
 			assertNull(testdate);	
 			
 			//return null when pass in null
-			testdate = resourceVersions.getPreviousDate(null);
+			testdate = versions_1date.getPreviousDate(null);
 			assertNull(testdate);			
 			
 		} catch(Exception ex){
@@ -511,39 +412,27 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#getPreviousUri(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#getPreviousUri(java.util.Date)}.
 	 */
 	@Test
 	public void testGetPreviousUri() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.getPreviousUri(date2);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			URI testuri = resourceVersions.getPreviousUri(date2);
+			URI testuri = versions_5dates.getPreviousUri(date2);
 			assertNotNull(testuri);
 			assertTrue(testuri.equals(uri1));	
 			
 			//if there is no next date, should return null
-			testuri = resourceVersions.getPreviousUri(date1);
+			testuri = versions_5dates.getPreviousUri(date1);
 			assertNull(testuri);
 			
-			testuri = resourceVersions.getPreviousUri(date3a_nomatch);
+			testuri = versions_5dates.getPreviousUri(date3a_nomatch);
 			assertTrue(testuri.equals(uri3));
 
-			resourceVersions.setVersions(versions_1date);
-			testuri = resourceVersions.getPreviousUri(date1);
+			testuri = versions_1date.getPreviousUri(date1);
 			assertNull(testuri);	
 			
 			//return null when pass in null
-			testuri = resourceVersions.getPreviousUri(null);
+			testuri = versions_1date.getPreviousUri(null);
 			assertNull(testuri);			
 			
 		} catch(Exception ex){
@@ -553,20 +442,15 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#size()}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#size()}.
 	 */
 	@Test
 	public void testSize() {
-		try {		
-			int startingsize = resourceVersions.size();
-			assertTrue(startingsize==0);
-			
-			resourceVersions.setVersions(versions_5dates);
-			int size = resourceVersions.size();
+		try {
+			int size = versions_5dates.size();
 			assertTrue(size==5);
 	
-			resourceVersions.setVersions(versions_1date);
-			size = resourceVersions.size();
+			size = versions_1date.size();
 			assertTrue(size==1);
 			
 		} catch(Exception ex){
@@ -576,36 +460,24 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#hasPrevious(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#hasPrevious(java.util.Date)}.
 	 */
 	@Test
 	public void testHasPrevious() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.hasPrevious(date2);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			boolean hasprev = resourceVersions.hasPrevious(date1);
+			boolean hasprev = versions_5dates.hasPrevious(date1);
 			assertTrue(!hasprev);
 			
-			hasprev = resourceVersions.hasPrevious(date2);
+			hasprev = versions_5dates.hasPrevious(date2);
 			assertTrue(hasprev);
 
-			hasprev = resourceVersions.hasPrevious(date3a_nomatch);
+			hasprev = versions_5dates.hasPrevious(date3a_nomatch);
 			assertTrue(hasprev);
 			
-			hasprev = resourceVersions.hasPrevious(null);
+			hasprev = versions_5dates.hasPrevious(null);
 			assertTrue(!hasprev);
 	
-			resourceVersions.setVersions(versions_1date);
-			hasprev = resourceVersions.hasPrevious(date1);
+			hasprev = versions_1date.hasPrevious(date1);
 			assertTrue(!hasprev);
 			
 		} catch(Exception ex){
@@ -615,36 +487,24 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#hasNext(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#hasNext(java.util.Date)}.
 	 */
 	@Test
 	public void testHasNext() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.hasNext(date1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			boolean hasnext = resourceVersions.hasNext(date5);
+			boolean hasnext = versions_5dates.hasNext(date5);
 			assertTrue(!hasnext);
 			
-			hasnext = resourceVersions.hasNext(date2);
+			hasnext = versions_5dates.hasNext(date2);
 			assertTrue(hasnext);
 
-			hasnext = resourceVersions.hasNext(date3a_nomatch);
+			hasnext = versions_5dates.hasNext(date3a_nomatch);
 			assertTrue(hasnext);
 			
-			hasnext = resourceVersions.hasNext(null);
+			hasnext = versions_5dates.hasNext(null);
 			assertTrue(!hasnext);
 	
-			resourceVersions.setVersions(versions_1date);
-			hasnext = resourceVersions.hasNext(date1);
+			hasnext = versions_1date.hasNext(date1);
 			assertTrue(!hasnext);
 			
 		} catch(Exception ex){
@@ -654,39 +514,27 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#nextIsLast(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#nextIsLast(java.util.Date)}.
 	 */
 	@Test
 	public void testNextIsLast() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.nextIsLast(date1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			boolean nextislast = resourceVersions.nextIsLast(date5);
+			boolean nextislast = versions_5dates.nextIsLast(date5);
 			assertTrue(!nextislast);
 			
-			nextislast = resourceVersions.nextIsLast(date2);
+			nextislast = versions_5dates.nextIsLast(date2);
 			assertTrue(!nextislast);
 
-			nextislast = resourceVersions.nextIsLast(date4);
+			nextislast = versions_5dates.nextIsLast(date4);
 			assertTrue(nextislast);
 
-			nextislast = resourceVersions.nextIsLast(date3a_nomatch);
+			nextislast = versions_5dates.nextIsLast(date3a_nomatch);
 			assertTrue(!nextislast);
 			
-			nextislast = resourceVersions.nextIsLast(null);
+			nextislast = versions_5dates.nextIsLast(null);
 			assertTrue(!nextislast);
 	
-			resourceVersions.setVersions(versions_1date);
-			nextislast = resourceVersions.nextIsLast(date1);
+			nextislast = versions_1date.nextIsLast(date1);
 			assertTrue(!nextislast);
 			
 		} catch(Exception ex){
@@ -696,39 +544,27 @@ public class ResourceVersionsTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl#previousIsFirst(java.util.Date)}.
+	 * Test method for {@link info.rmapproject.api.responsemgr.versioning.ResourceVersions#previousIsFirst(java.util.Date)}.
 	 */
 	@Test
 	public void testPreviousIsFirst() {
 		try {		
-			boolean fail = true;
-			try {
-				resourceVersions.previousIsFirst(date1);
-			} catch (IllegalStateException ex){
-				fail = false; //we want it to raise the fact that there is no versions defined
-			}
-			if (fail) {
-				fail("Failed to detect that the version list was null in ResourceVersions");
-			}
-			
-			resourceVersions.setVersions(versions_5dates);
-			boolean previousisfirst = resourceVersions.previousIsFirst(date1);
+			boolean previousisfirst = versions_5dates.previousIsFirst(date1);
 			assertTrue(!previousisfirst);
 			
-			previousisfirst = resourceVersions.previousIsFirst(date2);
+			previousisfirst = versions_5dates.previousIsFirst(date2);
 			assertTrue(previousisfirst);
 
-			previousisfirst = resourceVersions.previousIsFirst(date4);
+			previousisfirst = versions_5dates.previousIsFirst(date4);
 			assertTrue(!previousisfirst);
 
-			previousisfirst = resourceVersions.previousIsFirst(date3a_nomatch);
+			previousisfirst = versions_5dates.previousIsFirst(date3a_nomatch);
 			assertTrue(!previousisfirst);
 			
-			previousisfirst = resourceVersions.previousIsFirst(null);
+			previousisfirst = versions_5dates.previousIsFirst(null);
 			assertTrue(!previousisfirst);
 	
-			resourceVersions.setVersions(versions_1date);
-			previousisfirst = resourceVersions.previousIsFirst(date1);
+			previousisfirst = versions_1date.previousIsFirst(date1);
 			assertTrue(!previousisfirst);
 			
 		} catch(Exception ex){

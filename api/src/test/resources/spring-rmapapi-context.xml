@@ -31,7 +31,6 @@
     <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/> -->
 	<bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore"/>
 						
-	<bean id="resourceVersions" class="info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl"/>  
 	<bean id="timegate" class="info.rmapproject.api.responsemgr.versioning.TimegateImpl"/>
 			
 	<bean id="authenticationInterceptor" class="info.rmapproject.api.auth.AuthenticationInterceptor"/>   
