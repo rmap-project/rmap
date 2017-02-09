@@ -49,8 +49,8 @@ import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.responsemgr.versioning.ResourceVersions;
 import info.rmapproject.api.utils.Constants;
-import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.HttpHeaderDateUtils;
+import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -464,13 +464,16 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			RMapEvent event = rmapService.readEvent(rmapEvents.get(0));
 			RMapEvent event2 = rmapService.readEvent(rmapEvents.get(1));
 			assertTrue(event.getEventType()==RMapEventType.TOMBSTONE || event2.getEventType()==RMapEventType.TOMBSTONE);
-
-			//now check tombstone returns not found error
-			try {
-				discoResponseManager.getRMapDiSCO(strDiscoUri, RdfMediaType.APPLICATION_LDJSON);
-			} catch(RMapApiException e){
-				assertTrue(e.getErrorCode().getNumber()==ErrorCode.ER_DISCO_TOMBSTONED.getNumber());
-			}		
+			
+			String encodedDiscoUri = URLEncoder.encode(strDiscoUri, "UTF-8");
+			
+			//now check tombstone returns GONE but still has header
+			Response response = discoResponseManager.getRMapDiSCO(strDiscoUri, RdfMediaType.APPLICATION_LDJSON);
+			assertTrue(response.getStatus()==410);//GONE
+			String links = response.getLinks().toString();
+			assertTrue(links.contains("/tombstoned"));
+			assertTrue(links.contains(encodedDiscoUri + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();			

@@ -37,6 +37,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -279,7 +280,13 @@ public class DiscoResponseManager extends ResponseManager {
 				throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
 			}
 				
-			RMapDiSCO rmapDisco = rmapService.readDiSCO(uriDiscoUri);
+			RMapDiSCO rmapDisco = null;
+			try {
+				rmapDisco = rmapService.readDiSCO(uriDiscoUri);
+			} catch (RMapTombstonedObjectException | RMapDeletedObjectException delex) {
+				// we still want to return headers, so let's return the header response instead			
+				return this.getRMapDiSCOHeader(strDiscoUri);
+			}
 
 			log.info("DiSCO " + strDiscoUri + " object retrieved.");
 			
@@ -321,10 +328,6 @@ public class DiscoResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_GET_DISCO_BAD_ARGUMENT);
 		} catch(RMapDiSCONotFoundException ex) {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
-		} catch(RMapTombstonedObjectException ex) {
-			throw RMapApiException.wrap(ex,ErrorCode.ER_DISCO_TOMBSTONED);  				
-		} catch(RMapDeletedObjectException ex) {
-			throw RMapApiException.wrap(ex,ErrorCode.ER_DISCO_DELETED);  				
 		}  catch(RMapObjectNotFoundException ex) {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_OBJECT_NOT_FOUND);  			
 		} catch(RMapException ex) {
@@ -338,8 +341,6 @@ public class DiscoResponseManager extends ResponseManager {
 		}
 		return response;		
 	}
-
-
 
 	/**
 	 * Retrieves RMap DiSCO metadata and returns it in an HTTP header-only response.
@@ -367,16 +368,22 @@ public class DiscoResponseManager extends ResponseManager {
 			ResourceVersions versions = 
 					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
 			
-			RMapStatus status = rmapService.getDiSCOStatus(uriDiscoUri);
-			if (status==null){
+			RMapStatus discoStatus = rmapService.getDiSCOStatus(uriDiscoUri);
+			if (discoStatus==null){
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_STATUS_RETURNED_NULL);
 			}
-			DiSCOResponseLinks headerBuilder = new DiSCOResponseLinks(uriDiscoUri, status, versions);
+			DiSCOResponseLinks headerBuilder = new DiSCOResponseLinks(uriDiscoUri, discoStatus, versions);
 			Link[] links = headerBuilder.getDiSCOResponseLinks();
+			
+			//set response status to gone if disco is deleted or tombstoned
+			Status responseStatus = Response.Status.OK;
+			if (discoStatus.equals(RMapStatus.DELETED)||discoStatus.equals(RMapStatus.TOMBSTONED)){
+				responseStatus = Response.Status.GONE;
+			}
 			
 			Date discoDate = versions.getVersionDate(uriDiscoUri);
 			
-			response = Response.status(Response.Status.OK)
+			response = Response.status(responseStatus)
 					.location(new URI(PathUtils.makeDiscoUrl(strDiscoUri)))
 					.links(links)	
 					.header(Constants.MEMENTO_DATETIME_HEADER, HttpHeaderDateUtils.convertDateToString(discoDate))
