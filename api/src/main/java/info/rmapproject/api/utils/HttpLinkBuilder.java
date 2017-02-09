@@ -21,8 +21,6 @@
 package info.rmapproject.api.utils;
 
 import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,8 +33,6 @@ import javax.ws.rs.core.Link;
  *
  */
 public class HttpLinkBuilder {
-	/** String format for dates that are embedded in Links**/
-	private static final String LINK_DATE_FORMAT = "EEE, dd MMM YYYY HH:mm:ss Z";
 		
 	/**List of Links**/
 	private List<Link> links = null;
@@ -91,13 +87,15 @@ public class HttpLinkBuilder {
 	/**
 	 * Create Link using the URI as a String, the relationship (rel) and a datetime, 
 	 * then add it to the links list 
-	 * @param uri a Link URI as a String
+	 * @param discoUri a Link URI as a String
 	 * @param rel a Link relationship
 	 * @param date a Link datetime
 	 */
-	public void addLinkWithDate(String url, String rel, Date date) {		
-		DateFormat df = new SimpleDateFormat(LINK_DATE_FORMAT);		
-		Link link = Link.fromUri(url).rel(rel).param(LinkRels.DATETIME, df.format(date)).build();
+	public void addLinkWithDate(String url, String rel, Date date) {	
+		Link link = Link.fromUri(url)
+						.rel(rel)
+						.param(LinkRels.DATETIME, MementoDateUtils.convertDateToString(date))
+						.build();
 		links.add(link);
 	}
 	

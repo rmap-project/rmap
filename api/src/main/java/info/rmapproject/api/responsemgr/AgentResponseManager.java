@@ -42,7 +42,7 @@ import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
-import info.rmapproject.api.utils.Utils;
+import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
@@ -88,7 +88,7 @@ public class AgentResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 						.entity("{\"description\":\"Follow header link to read documentation.\"}")
 						.allow(HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.GET)
-						.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+						.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 						.build();
 			reqSuccessful = true;
 		}
@@ -114,7 +114,7 @@ public class AgentResponseManager extends ResponseManager {
 		try {				
 			response = Response.status(Response.Status.OK)
 						.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-						.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+						.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 						.build();
 			reqSuccessful = true;
 		}
@@ -164,7 +164,7 @@ public class AgentResponseManager extends ResponseManager {
     		
 		    response = Response.status(Response.Status.OK)
 						.entity(agentOutput.toString())
-						.location(new URI(Utils.makeAgentUrl(strAgentUri)))
+						.location(new URI(PathUtils.makeAgentUrl(strAgentUri)))
 						.link(status.getPath().toString(),LinkRels.HAS_STATUS)  
         				.type(HttpTypeMediator.getResponseRMapMediaType("agent", returnType.getRdfType())) //TODO move version number to a property?
 						.build();   
@@ -235,7 +235,7 @@ public class AgentResponseManager extends ResponseManager {
     		}
 
 		    response = Response.status(Response.Status.OK)
-						.location(new URI(Utils.makeAgentUrl(strAgentUri)))
+						.location(new URI(PathUtils.makeAgentUrl(strAgentUri)))
 						.link(status.getPath().toString(),LinkRels.HAS_STATUS)  
 						.build();   
 
@@ -337,7 +337,7 @@ public class AgentResponseManager extends ResponseManager {
 			//we are going to get one extra record to see if we need a "next"
 			params.setLimit(limit+1);
 						 	
-			String path = Utils.makeAgentUrl(agentUri);
+			String path = PathUtils.makeAgentUrl(agentUri);
 			
 			List <URI> uriList = null;
 			switch (rmapObjType) {

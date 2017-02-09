@@ -32,7 +32,7 @@ import info.rmapproject.api.exception.RMapApiException;
  *
  * @author khanson
  */
-public class Utils {
+public class PathUtils {
 	
 	/** The API URL path. */
 	private static String apiPath;

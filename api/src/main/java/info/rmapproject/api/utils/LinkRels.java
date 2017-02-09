@@ -35,36 +35,6 @@ public final class LinkRels {
 	/** HTTP Response header link relationship for dc:description**/
 	public static final String DC_DESCRIPTION = DC.DESCRIPTION.toString();
 	
-	/** HTTP Response header link relationship for Memento original**/
-	public static final String ORIGINAL = "original";
-		
-	/** HTTP Response header link relationship for Memento**/
-	public static final String MEMENTO="memento";
-	
-	/** HTTP Response header link relationship for datetime**/
-	public static final String DATETIME="datetime";
-
-	/**HTTP Response header link relationship for first**/
-	public static final String FIRST = "first";
-	
-	/**HTTP Response header link relationship for first**/
-	public static final String PREVIOUS = "previous";
-	
-	/**HTTP Response header link relationship for next**/
-	public static final String NEXT = "next";
-	
-	/** HTTP Response header link relationship for last**/
-	public static final String LAST="last";
-
-	/** HTTP Response header link relationship for predecessor-version**/
-	public static final String PREDECESSOR_VERSION="predecessor-version";
-
-	/** HTTP Response header link relationship for successor-version**/
-	public static final String SUCCESSOR_VERSION="successor-version";
-
-	/** HTTP Response header link relationship for latest-version**/
-	public static final String LATEST_VERSION="latest-version";
-
 	/** HTTP Response header link relationship for self**/
 	public static final String SELF="self";
 	
@@ -78,6 +48,52 @@ public final class LinkRels {
 	public static final String HAS_STATUS = Terms.RMAP_HASSTATUS_PATH;
 	
 	
+	
+	
+	/**
+	 * Pagination relationships
+	 */
+	
+	/**HTTP Response header link relationship for first page (used for pagination)**/
+	public static final String FIRST = "first";
+	
+	/**HTTP Response header link relationship for previous page (used for pagination)**/
+	public static final String PREVIOUS = "previous";
+	
+	/**HTTP Response header link relationship for next page (used for pagination)**/
+	public static final String NEXT = "next";
+	
+	/** HTTP Response header link relationship for last page (used for pagination)**/
+	public static final String LAST="last";
+
+	/**
+	 * versioning links
+	 */
+	
+	/** HTTP Response header link relationship for Memento original**/
+	public static final String ORIGINAL = "original";
+		
+	/** HTTP Response header link relationship for Memento**/
+	public static final String MEMENTO="memento";
+
+	/** HTTP Response header link relationship for Memento timegate**/
+	public static final String TIMEGATE="timegate";
+
+	/** HTTP Response header link relationship for Memento timegate**/
+	public static final String TIMEMAP="timemap";
+	
+	/** HTTP Response header link relationship for datetime**/
+	public static final String DATETIME="datetime";
+	
+	/** HTTP Response header link relationship for predecessor-version**/
+	public static final String PREDECESSOR_VERSION="predecessor-version";
+
+	/** HTTP Response header link relationship for successor-version**/
+	public static final String SUCCESSOR_VERSION="successor-version";
+
+	/** HTTP Response header link relationship for latest-version**/
+	public static final String LATEST_VERSION="latest-version";
+
 	/**
   	* Instantiates a new constants.
   	*/

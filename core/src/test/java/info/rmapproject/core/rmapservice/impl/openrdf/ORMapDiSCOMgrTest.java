@@ -717,6 +717,7 @@ public class ORMapDiSCOMgrTest  {
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
 			RMapIri idIRI = disco.getId();
 			
+			@SuppressWarnings("unused")
 			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 			
 			//read DiSCO back

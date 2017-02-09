@@ -39,7 +39,7 @@ import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
-import info.rmapproject.api.utils.Utils;
+import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
@@ -81,7 +81,7 @@ public class ResourceResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -109,7 +109,7 @@ public class ResourceResponseManager extends ResponseManager {
 		try {			
 			response = Response.status(Response.Status.OK)
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -149,7 +149,7 @@ public class ResourceResponseManager extends ResponseManager {
 			URI uriResourceUri = convertPathStringToURI(strResourceUri);
 			RMapSearchParams params = generateSearchParamObj(queryParams);
 
-			String path = Utils.makeResourceUrl(strResourceUri);
+			String path = PathUtils.makeResourceUrl(strResourceUri);
 			
 			Integer currPage = extractPage(queryParams);
 			Integer limit=params.getLimit();
@@ -298,7 +298,7 @@ public class ResourceResponseManager extends ResponseManager {
 			if (!queryParams.containsKey(PAGE_PARAM)
 					&& stmtList.size()>limit){  
 				//start See Other response to indicate need for pagination
-				String otherUrl = getPaginatedLinkTemplate(Utils.makeResourceUrl(strResourceUri), queryParams, limit);
+				String otherUrl = getPaginatedLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, limit);
 				otherUrl = otherUrl.replace(PAGENUM_PLACEHOLDER, FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -309,7 +309,7 @@ public class ResourceResponseManager extends ResponseManager {
 				
 				if (stmtList.size()>limit || (currPage!=null && currPage>1)) {
 					boolean showNextLink=stmtList.size()>limit;
-					String pageLinkTemplate = getPaginatedLinkTemplate(Utils.makeResourceUrl(strResourceUri), queryParams, limit);
+					String pageLinkTemplate = getPaginatedLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, limit);
 					Link[] pageLinks =  generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
 					responseBldr.links(pageLinks);
 					if (showNextLink){

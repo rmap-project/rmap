@@ -37,7 +37,7 @@ public class RestApiUtilsTest {
 	 */
 	@Test
 	public void testGetBaseUrl() throws RMapApiException {
-		String baseURL = Utils.getApiPath();
+		String baseURL = PathUtils.getApiPath();
 		assertFalse(baseURL.endsWith("/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -49,7 +49,7 @@ public class RestApiUtilsTest {
 	 */
 	@Test
 	public void testGetStmtBaseUrl() throws RMapApiException {
-		String baseURL = Utils.getStmtBaseUrl();
+		String baseURL = PathUtils.getStmtBaseUrl();
 		assertFalse(baseURL.endsWith("/stmt/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -61,7 +61,7 @@ public class RestApiUtilsTest {
 	 */
 	@Test
 	public void testGetDiscoBaseUrl() throws RMapApiException {
-		String baseURL = Utils.getDiscoBaseUrl();
+		String baseURL = PathUtils.getDiscoBaseUrl();
 		assertFalse(baseURL.endsWith("/disco/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -73,7 +73,7 @@ public class RestApiUtilsTest {
 	 */
 	@Test
 	public void testGetAgentBaseUrl() throws RMapApiException {
-		String baseURL = Utils.getAgentBaseUrl();
+		String baseURL = PathUtils.getAgentBaseUrl();
 		assertFalse(baseURL.endsWith("/agent/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -85,7 +85,7 @@ public class RestApiUtilsTest {
 	 */
 	@Test
 	public void testGetResourceBaseUrl() throws RMapApiException {
-		String baseURL = Utils.getResourceBaseUrl();
+		String baseURL = PathUtils.getResourceBaseUrl();
 		assertFalse(baseURL.endsWith("/resource/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}

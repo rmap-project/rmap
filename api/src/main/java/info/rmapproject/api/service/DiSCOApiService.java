@@ -19,15 +19,8 @@
  *******************************************************************************/
 package info.rmapproject.api.service;
 
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.api.lists.NonRdfType;
-import info.rmapproject.api.lists.RdfMediaType;
-import info.rmapproject.api.responsemgr.DiscoResponseManager;
-import info.rmapproject.api.utils.HttpTypeMediator;
-import info.rmapproject.core.rdfhandler.RDFType;
-
 import java.io.InputStream;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -45,9 +38,17 @@ import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.api.lists.NonRdfType;
+import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.responsemgr.DiscoResponseManager;
+import info.rmapproject.api.utils.Constants;
+import info.rmapproject.api.utils.HttpTypeMediator;
+import info.rmapproject.core.rdfhandler.RDFType;
+
 /**
  * REST API service for RMap DiSCO .
- *
  * @author khanson
  */
 @Path("/discos")
@@ -176,8 +177,14 @@ public class DiSCOApiService {
  */    
     @GET
     @Path("/{discoUri}/latest")
-    public Response apiGetLatestRMapDiSCO(@PathParam("discoUri") String discoUri) throws RMapApiException {
-    	Response response=getDiscoResponseManager().getLatestRMapDiSCOVersion(discoUri);
+    public Response apiGetLatestRMapDiSCO(@Context HttpHeaders headers, @PathParam("discoUri") String discoUri) throws RMapApiException {
+    	String timegateDate = null;
+    	List<String> acceptDatetimes = headers.getRequestHeader(Constants.HEADER_ACCEPT_DATETIME);
+    	if (acceptDatetimes != null && acceptDatetimes.size()>0){
+    		//ignore multiple dates, just get the first one.
+    		timegateDate = acceptDatetimes.get(0);
+    	}    	
+    	Response response=getDiscoResponseManager().getLatestRMapDiSCOVersion(discoUri, timegateDate);
     	return response;
     }
    

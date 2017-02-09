@@ -38,7 +38,7 @@ import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
-import info.rmapproject.api.utils.Utils;
+import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
@@ -81,7 +81,7 @@ public class StatementResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 				
 			reqSuccessful=true;
@@ -109,7 +109,7 @@ public class StatementResponseManager extends ResponseManager {
 		try {		
 			response = Response.status(Response.Status.OK)
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(Utils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 		reqSuccessful=true;
@@ -157,7 +157,7 @@ public class StatementResponseManager extends ResponseManager {
 			
 			RMapSearchParams params = generateSearchParamObj(queryParams);
 
-			String path = Utils.makeStmtUrl(subject,predicate,object) + "/discos";
+			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/discos";
 			
 			Integer currPage = extractPage(queryParams);
 			Integer limit=params.getLimit();
@@ -270,7 +270,7 @@ public class StatementResponseManager extends ResponseManager {
 			
 			RMapSearchParams params = generateSearchParamObj(queryParams);
 
-			String path = Utils.makeStmtUrl(subject,predicate,object) + "/agents";
+			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/agents";
 			
 			Integer currPage = extractPage(queryParams);
 			Integer limit=params.getLimit();

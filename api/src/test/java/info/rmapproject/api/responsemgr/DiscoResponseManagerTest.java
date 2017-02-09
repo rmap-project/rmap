@@ -30,7 +30,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -43,7 +47,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.responsemgr.versioning.ResourceVersions;
+import info.rmapproject.api.responsemgr.versioning.ResourceVersionsImpl;
 import info.rmapproject.api.utils.Constants;
+import info.rmapproject.api.utils.LinkRels;
+import info.rmapproject.api.utils.MementoDateUtils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -249,32 +257,37 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			//now check original DiSCO
 			response = discoResponseManager.getRMapDiSCO(encodedDiscoUri1,matchingType);
 			String links1 = response.getLinks().toString();
-			String successorVersionLink=encodedDiscoUri2 + ">;rel=\"successor-version\"";
-			String latestVersionLink=encodedDiscoUri2 + ">;rel=\"latest-version\"";
-			String predecessorVersionLink = "rel=\"predecessor-version\"";
-			assertTrue(links1.contains(successorVersionLink));
-			assertTrue(links1.contains(latestVersionLink));
+			
+			String successorAndLatestVersionLink = ">;rel=\"" + LinkRels.SUCCESSOR_VERSION 
+													+ " " + LinkRels.LATEST_VERSION + " " + LinkRels.MEMENTO + "\"";
+			String predecessorVersionLink = ">;rel=\"" + LinkRels.PREDECESSOR_VERSION + " " +  LinkRels.MEMENTO + "\"";
+			String successorVersionLink= ">;rel=\"" + LinkRels.SUCCESSOR_VERSION + " " +  LinkRels.MEMENTO + "\"";
+			String latestVersionLink= ">;rel=\"" + LinkRels.LATEST_VERSION + " " + LinkRels.MEMENTO + "\"";
+			
+			assertTrue(links1.contains(encodedDiscoUri2 + successorAndLatestVersionLink));
 			assertTrue(!links1.contains(predecessorVersionLink));
+			assertTrue(links1.contains(">;rel=\"" + LinkRels.TIMEMAP + "\""));
 			assertTrue(links1.contains("/inactive"));
+			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			String location1 = response.getHeaderString("location");
 			assertTrue(location1.contains(encodedDiscoUri1));
 			
+			String mementoDate = response.getHeaderString(Constants.MEMENTO_DATETIME_HEADER);
+			assertNotNull(mementoDate);
+			
 			//check updated disco
 			response = discoResponseManager.getRMapDiSCO(encodedDiscoUri2,matchingType);
-		
-
-			successorVersionLink="rel=\"successor-version\"";
-			predecessorVersionLink = encodedDiscoUri1 + ">;rel=\"predecessor-version\"";
-			
+					
 			assertNotNull(response);
 			String body = response.getEntity().toString();
 			assertTrue(body.contains("DiSCO"));
 			assertEquals(200, response.getStatus());
 			String links2 = response.getLinks().toString();
-			assertTrue(links2.contains(predecessorVersionLink));
-			assertTrue(links2.contains(latestVersionLink));
+			assertTrue(links2.contains(encodedDiscoUri1 + predecessorVersionLink));
+			assertTrue(links2.contains(encodedDiscoUri2 + latestVersionLink));
 			assertTrue(!links2.contains(successorVersionLink));
 			assertTrue(links2.contains("/active"));
+			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			String location2 = response.getHeaderString("location");
 			assertTrue(location2.contains(encodedDiscoUri2));
 						
@@ -320,7 +333,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		try {
 			//now get the latest using the first DiSCO URI
 			String encodedUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
-			response = discoResponseManager.getLatestRMapDiSCOVersion(encodedUri);
+			response = discoResponseManager.getLatestRMapDiSCOVersion(encodedUri,null);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -519,8 +532,114 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	}
 	
 	
-	
-	
+
+	/**
+	 * Tests whether a DiSCO timemap is generated correctly
+	 *
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testGetRMapDiscoTimegate() throws Exception{
+		
+		try {
+			//first create 3 versions of a disco
+			
+			//create 1 disco
+			InputStream rdf1 = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco1 = rdfHandler.rdf2RMapDiSCO(rdf1, RDFType.RDFXML, "");
+			String discoURI1 = rmapDisco1.getId().toString();
+	        assertNotNull(discoURI1);
+	        //create another disco
+			InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
+			String discoURI2 = rmapDisco2.getId().toString();
+	        assertNotNull(discoURI2);
+	        //create another disco
+			InputStream rdf3 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
+			RMapDiSCO rmapDisco3 = rdfHandler.rdf2RMapDiSCO(rdf3, RDFType.TURTLE, "");
+			String discoURI3 = rmapDisco3.getId().toString();
+	        assertNotNull(discoURI3);
+	        
+			//create a disco using the test agent
+			rmapService.createDiSCO(rmapDisco1, super.reqAgent);
+			TimeUnit.SECONDS.sleep(3);
+			//update the disco
+			rmapService.updateDiSCO(new URI(discoURI1), rmapDisco2, super.reqAgent);
+			TimeUnit.SECONDS.sleep(3);
+			//update the disco
+			rmapService.updateDiSCO(new URI(discoURI2), rmapDisco3, super.reqAgent);
+				    		
+			String encodedDiscoUri1 = URLEncoder.encode(discoURI1, "UTF-8");
+			String encodedDiscoUri2 = URLEncoder.encode(discoURI2, "UTF-8");
+			String encodedDiscoUri3 = URLEncoder.encode(discoURI3, "UTF-8");
+			
+			//get versions list and use this to make test times
+			Map<Date, URI> versions = rmapService.getDiSCOAgentVersionsWithDates(new URI(discoURI1));
+			ResourceVersions resourceVersions = new ResourceVersionsImpl(versions);
+			Date dat1 = resourceVersions.getFirstDate();
+			Calendar cal1 = Calendar.getInstance();
+			cal1.setTime(dat1);
+			cal1.add(Calendar.SECOND, -1);
+			Date dEarlierThanFirst = cal1.getTime();
+			
+			Date dat2 = resourceVersions.getLastDate();
+			
+			Calendar cal2 = Calendar.getInstance();
+			cal2.setTime(dat2);
+			cal2.add(Calendar.SECOND,  -1);
+			Date dBetweenVersions = cal2.getTime();
+
+			Calendar cal3 = Calendar.getInstance();
+			cal3.setTime(dat2);
+			cal3.add(Calendar.SECOND,  2);
+			Date dAfterLast = cal3.getTime();
+			
+			String sdEarlierThanFirst = MementoDateUtils.convertDateToString(dEarlierThanFirst);
+			String sdLaterThanLast = MementoDateUtils.convertDateToString(dAfterLast);
+			String sdBetweenVersions = MementoDateUtils.convertDateToString(dBetweenVersions);
+									
+			Response response1 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, sdEarlierThanFirst);
+			URI location1 = response1.getLocation();
+			//location should equal first:
+			assertTrue(location1.toString().contains(encodedDiscoUri1));
+			
+			assertEquals(302, response1.getStatus());
+			
+			String links1 = response1.getLinks().toString();
+			assertTrue(links1.contains(encodedDiscoUri1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
+			assertTrue(links1.contains(encodedDiscoUri1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
+			
+			Response response2 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, sdLaterThanLast);
+			URI location2 = response2.getLocation();
+			//location should equal last
+			assertTrue(location2.toString().contains(encodedDiscoUri3));
+			assertEquals(302, response2.getStatus());
+
+			Response response3 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, sdBetweenVersions);
+			URI location3 = response3.getLocation();
+			//location should equal second to last
+			assertTrue(location3.toString().contains(encodedDiscoUri2));
+			assertEquals(302, response3.getStatus());
+			
+			Response response4 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, null);
+			URI location4 = response4.getLocation();
+			//location should equal second to last
+			assertTrue(location4.toString().contains(encodedDiscoUri3));
+			assertEquals(302, response4.getStatus());
+			String links4 = response4.getLinks().toString();
+			assertTrue(links4.contains(encodedDiscoUri1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
+			assertTrue(links4.contains(encodedDiscoUri1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
+			
+			rmapService.deleteDiSCO(new URI(discoURI1), super.reqAgent);
+			rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
+			rmapService.deleteDiSCO(new URI(discoURI3), super.reqAgent);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+	}
 	
 
 
