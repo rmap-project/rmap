@@ -23,6 +23,24 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
@@ -50,22 +68,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.utils.Utils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A concrete class for managing RMap DiSCOs, implemented using openrdf.
@@ -97,12 +99,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
 	
 	/**
-	 * Return DiSCO DTO corresponding to the DiSCO IRI.
+	 * Return RMap DiSCO object corresponding to the DiSCO IRI.
 	 *
 	 * @param discoID the DiSCO IRI
-	 * @param getLinks true, if the links to next, previous, latest should be set in the DTO; or false if they won't be used.
-	 * @param event2disco map containing IRIs of all versions of the DiSCOs and corresponding Event IRIs
-	 * @param date2event map containing Event dates related to all DiSCO versions and corresponding Event IRI
 	 * @param ts the triplestore instance
 	 * @return the RMap DiSCO DTO
 	 * @throws RMapTombstonedObjectException the RMap tombstoned object exception
@@ -111,9 +110,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapDiSCODTO readDiSCO(IRI discoID, boolean getLinks, Map<IRI, IRI> event2disco, Map<Date, IRI> date2event, SesameTriplestore ts) 
+	public ORMapDiSCO readDiSCO(IRI discoID, SesameTriplestore ts) 
 	throws RMapTombstonedObjectException, RMapDeletedObjectException, RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
-		//TODO: Revisit this method... it seems a little odd - why are two Map parameters passed and then populated anyway when null.	
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
 			throw new RMapException ("null discoID");
@@ -142,27 +140,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		disco = new ORMapDiSCO(discoStmts);
 		
-		ORMapDiSCODTO dto = new ORMapDiSCODTO();
-		dto.setDisco(disco);
-		dto.setStatus(status);
-		
-		if (getLinks){
-			// get latest version of this DiSCO
-			if (event2disco==null){
-				event2disco = this.getAllDiSCOVersions(discoID,true,ts);
-			}
-			dto.setLatest(this.getLatestDiSCOIri(discoID, ts, event2disco));
-			if (date2event==null){
-				date2event = eventmgr.getDate2EventMap(event2disco.keySet(),ts);
-			}
-			// get next version of this DiSCO
-			IRI nextDiscoId = this.getNextIRI(discoID, event2disco, date2event, ts);
-			dto.setNext(nextDiscoId);			
-			// get previous version of this DiSCO
-			IRI prevDiscoId = this.getPreviousIRI(discoID, event2disco, date2event, ts);
-			dto.setPrevious(prevDiscoId);
-		}
-		return dto;		
+		return disco;		
 	}
 	
 	
@@ -512,9 +490,52 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		return event2Disco;
 	}
 	
+
 	/**
-	 * When retrieving a list of DiSCO versions, this method retrieves a list of IRIs for previous versions 
-	 * and their corresponding Event IRI. If lookForward is set to true, it will also retreive next versions using
+	 * Method to get all versions of DiSCO including the creation date (prov:endedAtTime)
+	 * If matchAgent = true, then return only versions created by same agent as creating agent
+	 *                 if false, then return all versions by all agents.
+	 *
+	 * @param discoId the DiSCO IRI
+	 * @param matchAgent true if searching for versions of DiSCO by a particular agent;
+	 *                   false if searching for all versions regardless of agent
+	 * @param ts triplestore
+	 * @return Map from Date of DiSCO creation to the IRI of DiSCO in date order
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapException the RMap exception
+	 */
+	public Map<Date, IRI> getAllDiSCOVersionsWithDates(IRI discoId, boolean matchAgent, SesameTriplestore ts)
+		throws RMapObjectNotFoundException, RMapException {
+		/* TODO: here and elsewhere in RMap, version ordering was implemented based on datetime of Event rather 
+		 * than the order as determined by the Event linkage. Using Map with the date as the key assumes there 
+		 * will not be duplicate dates. There is a TINY chance when using matchAgent=false that 
+		 * two DiSCO versions could have the same event date to the millisecond. Currently the API only makes use of this 
+		 * method with matchAgent=true.  In a future iteration, therefore, it might be worth the extra work to make things
+		 * more robust by creating the version list using the Event links.  See also ORMapEventMgr.getDate2EventMap  */
+		if (discoId==null){
+			throw new RMapException ("Null disco");
+		}
+		if (! this.isDiscoId(discoId, ts)){
+			throw new RMapDiSCONotFoundException("No disco found with identifer " + 
+					discoId.stringValue());
+		}
+		Map<Date,IRI> versions = new TreeMap<Date, IRI>();
+		Map<IRI,IRI> event2disco = lookBack(discoId, null, true, matchAgent, ts);	
+
+		for (Entry<IRI,IRI> version:event2disco.entrySet()){
+			Date eventEndDate = eventmgr.getEventEndDate(version.getKey(), ts);			
+			versions.put(eventEndDate, version.getValue());
+		}
+				
+		return versions;
+	}
+	
+	
+	
+	
+	/**
+	 * When retrieving a list of DiSCO versions, this method retrieves a list of IRIs for previous versions (value)
+	 * and their corresponding Event IRI (key). If lookForward is set to true, it will also retrieve next versions using
 	 * the lookForward() method
 	 *
 	 * @param discoId the DiSCO IRI
@@ -523,7 +544,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @param matchAgent if true only versions of DiSCOs matching the current DiSCO should be included;		
 	 * 					if false all DiSCO versions included.
 	 * @param ts the triplestore instance
-	 * @return the map
+	 * @return the map of event to disco version IRI
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapException the RMap exception
 	 */
@@ -539,12 +560,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			IRI eventId = (IRI)eventStmt.getSubject();
 			IRI oldAgentId = agentId;
 			if (matchAgent){
+				IRI discoAgentUri = eventmgr.getEventAssocAgent(eventId, ts);
 				// first time through, agentID will be null
 				if (agentId==null){
-					oldAgentId = eventmgr.getEventAssocAgent(eventId, ts);
+					oldAgentId = discoAgentUri;
 				}
-				IRI uAgent = eventmgr.getEventAssocAgent(eventId, ts);
-				if (!(oldAgentId.equals(uAgent))){
+				if (!(oldAgentId.equals(discoAgentUri))){
 					break;
 				}
 			}
@@ -826,4 +847,5 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}while (false);
 		return isSame;
 	}
+
 }

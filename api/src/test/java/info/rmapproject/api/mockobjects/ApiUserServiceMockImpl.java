@@ -19,18 +19,16 @@
  *******************************************************************************/
 package info.rmapproject.api.mockobjects;
 
-import info.rmapproject.api.auth.ApiUserService;
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.core.model.request.RMapRequestAgent;
-import info.rmapproject.core.rmapservice.RMapService;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+
+import info.rmapproject.api.auth.ApiUserService;
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.core.model.request.RMapRequestAgent;
 
 /**
  * Mock version of ApiUserServiceImpl for unit tests
@@ -54,8 +52,8 @@ public class ApiUserServiceMockImpl implements ApiUserService {
 	private static final String STR_APIKEY_URI = "rmap:fakermaptestkey";
 	
 	/** The RMap service. */
-	@Autowired 
-	private RMapService rmapService;
+	//@Autowired 
+	//private RMapService rmapService;
 
 //	/** RMap Auth Service instance */
 //	@Autowired

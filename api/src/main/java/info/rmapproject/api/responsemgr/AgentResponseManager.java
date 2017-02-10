@@ -20,14 +20,29 @@
 package info.rmapproject.api.responsemgr;
 
 
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
+import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
-import info.rmapproject.api.utils.Utils;
+import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
@@ -40,19 +55,6 @@ import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.utils.Terms;
-
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.List;
-
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
-import org.openrdf.model.vocabulary.DC;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Creates HTTP responses for RMap Agent REST API requests.
@@ -83,11 +85,10 @@ public class AgentResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {				
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
-					.entity("{\"description\":\"Follow header link to read documentation.\"}")
-						.header("Allow", "HEAD,OPTIONS,GET")
-						.header("Link",linkRel)	
+						.entity("{\"description\":\"Follow header link to read documentation.\"}")
+						.allow(HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.GET)
+						.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 						.build();
 			reqSuccessful = true;
 		}
@@ -111,10 +112,9 @@ public class AgentResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {				
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
-						.header("Allow", "HEAD,OPTIONS,GET")
-						.header("Link",linkRel)	
+						.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
+						.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 						.build();
 			reqSuccessful = true;
 		}
@@ -161,21 +161,17 @@ public class AgentResponseManager extends ResponseManager {
     		if (status==null){
     			throw new RMapApiException(ErrorCode.ER_CORE_GET_STATUS_RETURNED_NULL);
     		}
-    		String linkRel = "<" + status.getPath().toString() + ">" + ";rel=\"" + Terms.RMAP_HASSTATUS_PATH + "\"";
-
+    		
 		    response = Response.status(Response.Status.OK)
 						.entity(agentOutput.toString())
-						.location(new URI(Utils.makeAgentUrl(strAgentUri)))
-						.header("Link",linkRel)    //switch this to link()
+						.location(new URI(PathUtils.makeAgentUrl(strAgentUri)))
+						.link(status.getPath().toString(),LinkRels.HAS_STATUS)  
         				.type(HttpTypeMediator.getResponseRMapMediaType("agent", returnType.getRdfType())) //TODO move version number to a property?
 						.build();   
 		    
 			reqSuccessful = true; 	
 		    
 		}
-		catch(RMapApiException ex)	{
-			throw RMapApiException.wrap(ex);
-		}  
 		catch(RMapDefectiveArgumentException ex) {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_GET_AGENT_BAD_ARGUMENT);
 		} 
@@ -226,7 +222,7 @@ public class AgentResponseManager extends ResponseManager {
 
 			URI uriAgentId = null;
 			try {
-				strAgentUri = URLDecoder.decode(strAgentUri, "UTF-8");
+				strAgentUri = URLDecoder.decode(strAgentUri, StandardCharsets.UTF_8.name());
 				uriAgentId = new URI(strAgentUri);
 			}
 			catch (Exception ex)  {
@@ -237,19 +233,15 @@ public class AgentResponseManager extends ResponseManager {
     		if (status==null){
     			throw new RMapApiException(ErrorCode.ER_CORE_GET_STATUS_RETURNED_NULL);
     		}
-    		String linkRel = "<" + status.getPath().toString() + ">" + ";rel=\"" + Terms.RMAP_HASSTATUS_PATH + "\"";
 
 		    response = Response.status(Response.Status.OK)
-						.location(new URI(Utils.makeAgentUrl(strAgentUri)))
-						.header("Link",linkRel)    //switch this to link()
+						.location(new URI(PathUtils.makeAgentUrl(strAgentUri)))
+						.link(status.getPath().toString(),LinkRels.HAS_STATUS)  
 						.build();   
 
 			reqSuccessful = true;
 		    
-		}
-		catch(RMapApiException ex)	{
-			throw RMapApiException.wrap(ex);
-		}  
+		} 
 		catch(RMapDefectiveArgumentException ex) {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_GET_AGENT_BAD_ARGUMENT);
 		} 
@@ -345,7 +337,7 @@ public class AgentResponseManager extends ResponseManager {
 			//we are going to get one extra record to see if we need a "next"
 			params.setLimit(limit+1);
 						 	
-			String path = Utils.makeAgentUrl(agentUri);
+			String path = PathUtils.makeAgentUrl(agentUri);
 			
 			List <URI> uriList = null;
 			switch (rmapObjType) {
@@ -391,9 +383,9 @@ public class AgentResponseManager extends ResponseManager {
 				if (uriList.size()>limit || currPage>1) {
 					String pageLinkTemplate = getPaginatedLinkTemplate(path, queryParams, limit);
 					boolean showNextLink=uriList.size()>limit;
-					String pageLinks = 
+					Link[] pageLinks = 
 							generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
-					responseBldr.header("Link",pageLinks);
+					responseBldr.links(pageLinks);
 					if (showNextLink){
 						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
 						uriList.remove(uriList.size()-1);			

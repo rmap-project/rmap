@@ -60,7 +60,7 @@
 		
 	<bean id="authenticationInterceptor" class="info.rmapproject.api.auth.AuthenticationInterceptor" scope="prototype"/>   
 	<bean id="apiUserService" class="info.rmapproject.api.auth.ApiUserServiceImpl" scope="prototype"/>  
-
+	<bean id="timegate" class="info.rmapproject.api.responsemgr.versioning.TimegateImpl" scope="prototype"/>  
 	
 </beans>
 

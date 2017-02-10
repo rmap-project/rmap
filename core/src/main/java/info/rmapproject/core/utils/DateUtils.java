@@ -53,7 +53,7 @@ public class DateUtils {
 	throws ParseException{
 		Date finalResult = null;
 		DateFormat format = new SimpleDateFormat(ISO8601);
-			finalResult = format.parse(dateString);		
+		finalResult = format.parse(dateString);		
 		return finalResult;
 	}
 	
