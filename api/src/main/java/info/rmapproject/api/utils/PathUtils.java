@@ -19,19 +19,20 @@
  *******************************************************************************/
 package info.rmapproject.api.utils;
 
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.MissingResourceException;
+
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
 
 /**
  * Supporting utility methods for use in rmap-api
  *
  * @author khanson
  */
-public class Utils {
+public class PathUtils {
 	
 	/** The API URL path. */
 	private static String apiPath;
@@ -134,7 +135,7 @@ public class Utils {
 	/**
 	 * Appends DiSCO URI to DiSCO API URL.
 	 *
-	 * @param uri a DiSCO URI
+	 * @param uri a DiSCO URI as String
 	 * @return the RMap URL for the DiSCO
 	 * @throws RMapApiException the RMap API exception
 	 */
@@ -142,6 +143,69 @@ public class Utils {
 		String discoUrl = appendEncodedUriToURL(getDiscoBaseUrl(),uri);
 		return discoUrl;
 	}
+
+
+	/**
+	 * Appends DiSCO URI to DiSCO API URL.
+	 *
+	 * @param uri a DiSCO URI
+	 * @return the RMap URL for the DiSCO
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public static String makeDiscoUrl(URI uri) throws RMapApiException {
+		return makeDiscoUrl(uri.toString());
+	}
+
+
+	/**
+	 * Makes the path for the latest version of the DiSCO using the first DiSCO URI.
+	 *
+	 * @param uri the first DiSCO URI in the sequence
+	 * @return the path for latest version of the DIsco
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public static String makeDiscoLatestUrl(URI uri) throws RMapApiException {
+		String discourl = makeDiscoUrl(uri.toString());
+		return discourl + "/latest";
+	}
+
+	/**
+	 * Makes the DiSCO timemap path using a DiSCO URI.
+	 *
+	 * @param uri a DiSCO URI
+	 * @return the path to the DiSCO timemap
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public static String makeDiscoTimemapUrl(URI uri) throws RMapApiException {
+		String discourl = makeDiscoUrl(uri.toString());
+		return discourl + "/timemap";
+	}
+
+	/**
+	 * Makes the DiSCO event path using a DiSCO URI.
+	 *
+	 * @param uri a DiSCO URI
+	 * @return the path for DiSCO Events
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public static String makeDiscoEventsUrl(URI uri) throws RMapApiException {
+		String discourl = makeDiscoUrl(uri.toString());
+		return discourl + "/events";
+	}
+	
+	
+	/**
+	 * Appends Event URI to Event API URL.
+	 *
+	 * @param uri the Event URI as String
+	 * @return the RMap URL for the Event
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public static String makeEventUrl(String uri) throws RMapApiException {
+		String eventUrl = appendEncodedUriToURL(getEventBaseUrl(),uri);
+		return eventUrl;
+	}
+	
 	
 	/**
 	 * Appends Event URI to Event API URL.
@@ -150,10 +214,10 @@ public class Utils {
 	 * @return the RMap URL for the Event
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeEventUrl(String uri) throws RMapApiException {
-		String eventUrl = appendEncodedUriToURL(getEventBaseUrl(),uri);
-		return eventUrl;
+	public static String makeEventUrl(URI uri) throws RMapApiException {
+		return makeEventUrl(uri.toString());
 	}
+	
 	
 	/**
 	 * Appends Agent URI to Agent API URL.

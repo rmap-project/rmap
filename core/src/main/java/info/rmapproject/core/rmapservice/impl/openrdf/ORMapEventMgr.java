@@ -49,8 +49,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
@@ -483,31 +481,12 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		Map <Date, IRI>date2event = new HashMap<Date, IRI>();
 		for (IRI eventId:eventIds){
-			Statement stmt = null;
-			try {
-				stmt = ts.getStatement(eventId, PROV.ENDEDATTIME, null, eventId);
-				
-			} catch (Exception e) {
-				throw new RMapException("Exception thrown getting end time statement for event "
-							+ eventId.stringValue());
-			}
-			//String endTimeStr = stmt.getObject().stringValue();
-			Literal endTimeLiteral = (Literal)stmt.getObject();
-			Date date = null;
-			try {
-				XMLGregorianCalendar endTimeDate =  endTimeLiteral.calendarValue();
-				date = DateUtils.xmlGregorianCalendarToDate(endTimeDate);
-				//date = DateUtils.getDateFromIsoString(endTimeStr);
-			} catch (Exception e) {
-				throw new RMapException("Cannot parse date string " +
-						endTimeLiteral.stringValue() + " for event id " + eventId.stringValue());
-			}
+			Date date = this.getEventDate(eventId,PROV.ENDEDATTIME, ts);
 			date2event.put(date, eventId);
 		}
 		return date2event;
 	}
-	
-	/**
+		/**
 	 * Get DiSCOs that are impacted by a specific Event.
 	 *
 	 * @param eventId the Event IRI
@@ -860,31 +839,64 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	public Date getEventStartDate (IRI eventId, SesameTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
+		return getEventDate (eventId, PROV.STARTEDATTIME, ts);
+	}
+
+	/**
+	 * Get end date associated with event.
+	 *
+	 * @param eventId the Event IRI
+	 * @param ts the triplestore instance
+	 * @return the Event end date
+	 * @throws RMapEventNotFoundException the RMap event not found exception
+	 * @throws RMapException the RMap exception
+	 */
+	public Date getEventEndDate (IRI eventId, SesameTriplestore ts) 
+		throws RMapEventNotFoundException, RMapException{
+		return getEventDate (eventId, PROV.ENDEDATTIME, ts);
+	}
+
+	/**
+	 * Get start or end date associated with event.
+	 *
+	 * @param eventId the Event IRI
+	 * @param dateType IRI must be PROV.STARTEDATTIME or PROV.ENDEDATTIME
+	 * @param ts the triplestore instance
+	 * @return the event date
+	 * @throws RMapEventNotFoundException the RMap event not found exception
+	 * @throws RMapException the RMap exception
+	 */
+	private Date getEventDate (IRI eventId, IRI provDateType, SesameTriplestore ts) 
+		throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
 		}
 		if (ts==null){
 			throw new RMapException ("null triplestore");
 		}
-		Date startDate = null;
+		if (!provDateType.equals(PROV.STARTEDATTIME)&&!provDateType.equals(PROV.ENDEDATTIME)){
+			throw new RMapException ("Date type must be PROV.STARTEDATTIME or PROV.ENDEDATTIME");			
+		}
+		Date eventDate = null;
 		Statement stmt = null;
 		try {
-			stmt = ts.getStatement(eventId, PROV.STARTEDATTIME, null, eventId);
+			stmt = ts.getStatement(eventId, provDateType, null, eventId);
 			if (stmt == null){
-				throw new RMapEventNotFoundException("No event start date statement found for ID " +
-			            eventId.stringValue());
+				throw new RMapEventNotFoundException("No Event " + provDateType.getLocalName() + " statement found for ID " 
+			        + eventId.stringValue());
 			}
 			else {
 				Literal startDateLiteral = (Literal) stmt.getObject();
-				startDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
+				eventDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
 			}
 		} catch (Exception e) {
-			throw new RMapException ("Exception thrown getting event start date for " 
+			throw new RMapException ("Exception thrown getting Event " +  provDateType.getLocalName()  + " for " 
 					+ eventId.stringValue(), e);
 		}
 
-		return startDate;
+		return eventDate;
 	}
+	
 	
 	/**
 	 * Checks if an Event has the type CREATION.

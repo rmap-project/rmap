@@ -19,7 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.api.exception;
 
-import info.rmapproject.api.utils.Utils;
+import info.rmapproject.api.utils.PathUtils;
 
 import java.net.URI;
 
@@ -102,7 +102,7 @@ public class RMapApiExceptionHandler implements ExceptionMapper<RMapApiException
     		try {
 				String discoUrl = exMsg;
 				discoUrl = discoUrl.substring(discoUrl.lastIndexOf("<") + 1, discoUrl.lastIndexOf(">"));
-				discoUrl = Utils.makeDiscoUrl(discoUrl);
+				discoUrl = PathUtils.makeDiscoUrl(discoUrl);
 	    		response = Response.status(errType)
 		    						.link(new URI(discoUrl), "latest-version") 
 		    						.type("text/plain")

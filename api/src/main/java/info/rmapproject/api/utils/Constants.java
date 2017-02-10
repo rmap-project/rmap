@@ -47,7 +47,19 @@ public final class Constants  {
 
 	/** Default non-RDF type where none specified. GET requests whose response is not in RDF will use this type. */
   	public static final NonRdfType DEFAULT_NONRDF_TYPE = NonRdfType.JSON;
-
+  	
+  	/** Media type for application/link-format. Used for Memento timemap response body**/
+	public static final String LINK_FORMAT_MEDIA_TYPE = "application/link-format";
+	
+	/** Custom response header name for Memento Datetime support **/
+	public static final String MEMENTO_DATETIME_HEADER = "Memento-Datetime";
+	
+	/** Custom response header for Memento timegate accept datetime **/
+	public static final String HTTP_HEADER_ACCEPT_DATETIME = "Accept-Datetime";
+	
+	/** Date format for dates in Response header e.g. Link datetime, Memento-Datetime**/
+	public static final String HTTP_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
+	
 	/**
   	* Instantiates a new constants.
   	*/

@@ -22,6 +22,23 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.repository.RepositoryException;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
@@ -41,24 +58,8 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.rmapservice.RMapDiSCODTO;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The concrete class for RMap Service, implemented using openrdf
@@ -347,21 +348,8 @@ public class ORMapService implements RMapService {
 		if (discoID == null){
 			throw new RMapDefectiveArgumentException("Null DiSCO id provided");
 		}
-		ORMapDiSCODTO dto = discomgr.readDiSCO(ORAdapter.uri2OpenRdfIri(discoID), false, null, null, triplestore);
-		return dto.getRMapDiSCO();
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCODTO(java.net.URI)
-	 */
-	@Override
-	public RMapDiSCODTO readDiSCODTO (URI discoID)
-	throws RMapException, RMapDiSCONotFoundException, RMapDefectiveArgumentException {
-		if (discoID == null){
-			throw new RMapDefectiveArgumentException("Null DiSCO id provided");
-		}
-		ORMapDiSCODTO dto = discomgr.readDiSCO(ORAdapter.uri2OpenRdfIri(discoID), true, null, null, triplestore);
-		return dto;
+		ORMapDiSCO disco = discomgr.readDiSCO(ORAdapter.uri2OpenRdfIri(discoID), triplestore);
+		return disco;
 	}
 
 	/* (non-Javadoc)
@@ -513,10 +501,10 @@ public class ORMapService implements RMapService {
 		return uris;
 	}
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getAllAgentDiSCOVersions(java.net.URI)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOAgentVersions(java.net.URI)
 	 */
 	@Override
-	public List<URI> getDiSCOAllAgentVersions(URI discoID) 
+	public List<URI> getDiSCOAgentVersions(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("null DiSCO id");
@@ -531,50 +519,24 @@ public class ORMapService implements RMapService {
 		}
 		return uris;
 	}
+	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getLatestVersionDiSCO(java.net.URI)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOAgentVersionsWithDates(java.net.URI)
 	 */
 	@Override
-	public RMapDiSCO getDiSCOLatestVersion(URI discoID) 
-	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {			
-		if (discoID == null){
+	public Map<Date,URI> getDiSCOAgentVersionsWithDates(URI discoID) 
+	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
+		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("null DiSCO id");
 		}
-		IRI dUri  = ORAdapter.uri2OpenRdfIri(discoID);
-		Map<IRI,IRI>event2disco=
-				discomgr.getAllDiSCOVersions(dUri, true, triplestore);
-		IRI latestDiscoURi = discomgr.getLatestDiSCOIri(dUri, triplestore, event2disco);
-		RMapDiSCODTO latestDisco = null;		
-		if (latestDiscoURi != null){
-			latestDisco = discomgr.readDiSCO(latestDiscoURi, false, event2disco, null, triplestore);
+		Map<Date, IRI> date2disco = discomgr.getAllDiSCOVersionsWithDates(ORAdapter.uri2OpenRdfIri(discoID), true, triplestore);
+		Map<Date, URI> versions = new TreeMap<Date, URI>();
+		for (Entry<Date,IRI> version:date2disco.entrySet()){			
+			versions.put(version.getKey(), ORAdapter.openRdfIri2URI(version.getValue()));
 		}
-		RMapDiSCO disco = null;
-		if (latestDisco != null){
-			disco = latestDisco.getRMapDiSCO();
-		}
-		return disco;
+		return versions;
 	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCODTOLatestVersion(java.net.URI)
-	 */
-	@Override
-	public RMapDiSCODTO getDiSCODTOLatestVersion(URI discoID)
-			throws RMapException, RMapObjectNotFoundException,
-			RMapDefectiveArgumentException {
-		if (discoID == null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}
-		IRI dUri  = ORAdapter.uri2OpenRdfIri(discoID);
-		Map<IRI,IRI>event2disco=
-				discomgr.getAllDiSCOVersions(dUri, true, triplestore);
-		IRI latestDiscoURi = discomgr.getLatestDiSCOIri(dUri, triplestore, event2disco);
-		RMapDiSCODTO latestDisco = null;		
-		if (latestDiscoURi != null){
-			latestDisco = discomgr.readDiSCO(latestDiscoURi, true, event2disco, null, triplestore);
-		}
-		return latestDisco;
-	}
+	
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOIdLatestVersion(java.net.URI)
@@ -591,53 +553,11 @@ public class ORMapService implements RMapService {
 		IRI latestDisco = discomgr.getLatestDiSCOIri(dUri, triplestore, event2disco);
 		URI discoURI = null;
 		if (latestDisco != null){
-			ORAdapter.openRdfIri2URI(latestDisco);	
+			discoURI = ORAdapter.openRdfIri2URI(latestDisco);	
 		}
 		return discoURI;
 	}
-	
 
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getPreviousVersionDiSCO(java.net.URI)
-	 */
-	@Override
-	public RMapDiSCO getDiSCOPreviousVersion(URI discoID) 
-	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
-		RMapDiSCO nextDisco = null;
-		if (discoID ==null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}
-		IRI thisUri = ORAdapter.uri2OpenRdfIri(discoID);
-		Map<IRI,IRI>event2disco=
-				discomgr.getAllDiSCOVersions(thisUri, true, triplestore);
-		Map <Date, IRI> date2event = eventmgr.getDate2EventMap(event2disco.keySet(),triplestore);			
-		IRI prevDisco = discomgr.getPreviousIRI(thisUri, event2disco, date2event, triplestore);		
-		RMapDiSCODTO dto  = discomgr.readDiSCO(prevDisco, false, event2disco, date2event, triplestore);
-		if (dto != null){
-			nextDisco = dto.getRMapDiSCO();
-		}
-		return nextDisco;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCODTOPreviousVersion(java.net.URI)
-	 */
-	@Override
-	public RMapDiSCODTO getDiSCODTOPreviousVersion(URI discoID)
-			throws RMapException, RMapObjectNotFoundException,
-			RMapDefectiveArgumentException {
-		if (discoID ==null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}
-		IRI thisUri = ORAdapter.uri2OpenRdfIri(discoID);
-		Map<IRI,IRI>event2disco=
-				discomgr.getAllDiSCOVersions(thisUri, true, triplestore);
-		Map <Date, IRI> date2event = 
-				eventmgr.getDate2EventMap(event2disco.keySet(),triplestore);			
-		IRI prevDisco = discomgr.getPreviousIRI(thisUri, event2disco, date2event, triplestore);		
-		RMapDiSCODTO dto  = discomgr.readDiSCO(prevDisco, true, event2disco, date2event, triplestore);		
-		return dto;
-	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOIdPreviousVersion(java.net.URI)
@@ -659,48 +579,7 @@ public class ORMapService implements RMapService {
 		}
 		return nextDiscoUri;
 	}
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getNextVersionDiSCO(java.net.URI)
-	 */
-	@Override
-	public RMapDiSCO getDiSCONextVersion(URI discoID) 
-	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
-		if (discoID ==null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}
-		IRI thisUri = ORAdapter.uri2OpenRdfIri(discoID);		
-		Map<IRI,IRI>event2disco= discomgr.getAllDiSCOVersions(thisUri, true, triplestore);
-		Map <Date, IRI> date2event = eventmgr.getDate2EventMap(event2disco.keySet(),triplestore);
-		IRI nextDiscoId = discomgr.getNextIRI(thisUri, event2disco, date2event, triplestore);
-		RMapDiSCODTO dto = discomgr.readDiSCO(nextDiscoId, false, event2disco, date2event, triplestore);	
-		RMapDiSCO nextDisco = null;
-		if (dto != null){
-			nextDisco = dto.getRMapDiSCO();
-		}
-		return nextDisco;
-	}
-	
 
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCODTONextVersion(java.net.URI)
-	 */
-	@Override
-	public RMapDiSCODTO getDiSCODTONextVersion(URI discoID)
-			throws RMapException, RMapObjectNotFoundException,
-			RMapDefectiveArgumentException {
-		if (discoID ==null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}
-		IRI thisUri = ORAdapter.uri2OpenRdfIri(discoID);
-		Map<IRI,IRI>event2disco=
-				discomgr.getAllDiSCOVersions(thisUri,true, triplestore);
-		Map <Date, IRI> date2event = 
-				eventmgr.getDate2EventMap(event2disco.keySet(),triplestore);
-		IRI nextDiscoId = discomgr.getNextIRI(thisUri, event2disco, date2event, triplestore);
-		RMapDiSCODTO dto = discomgr.readDiSCO(nextDiscoId, true, event2disco, date2event, triplestore);		
-		return dto;
-	}
-	
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getDiSCOIdNextVersion(java.net.URI)

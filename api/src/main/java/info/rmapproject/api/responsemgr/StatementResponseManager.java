@@ -19,13 +19,26 @@
  *******************************************************************************/
 package info.rmapproject.api.responsemgr;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
+import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
-import info.rmapproject.api.utils.Utils;
+import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
@@ -34,17 +47,6 @@ import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.Terms;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-
-import org.openrdf.model.vocabulary.DC;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Creates HTTP responses for Statement REST API requests.
@@ -76,11 +78,10 @@ public class StatementResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {			
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
-					.header("Allow", "HEAD,OPTIONS,GET")
-					.header("Link",linkRel)	
+					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
+					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 				
 			reqSuccessful=true;
@@ -106,10 +107,9 @@ public class StatementResponseManager extends ResponseManager {
 		boolean reqSuccessful = false;
 		Response response = null;
 		try {		
-			String linkRel = "<" +Utils.getDocumentationPath()+ ">;rel=\"" + DC.DESCRIPTION.toString() + "\"";
 			response = Response.status(Response.Status.OK)
-					.header("Allow", "HEAD,OPTIONS,GET")
-					.header("Link",linkRel)	
+					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
+					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 		reqSuccessful=true;
@@ -157,7 +157,7 @@ public class StatementResponseManager extends ResponseManager {
 			
 			RMapSearchParams params = generateSearchParamObj(queryParams);
 
-			String path = Utils.makeStmtUrl(subject,predicate,object) + "/discos";
+			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/discos";
 			
 			Integer currPage = extractPage(queryParams);
 			Integer limit=params.getLimit();
@@ -193,8 +193,8 @@ public class StatementResponseManager extends ResponseManager {
 				if (matchingObjects.size()>limit || (currPage!=null && currPage>1)) {
 					boolean showNextLink=matchingObjects.size()>limit;
 					String pageLinkTemplate = getPaginatedLinkTemplate(path, queryParams, limit);
-					String pageLinks = generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
-					responseBldr.header("Link",pageLinks);
+					Link[] pageLinks = generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+					responseBldr.links(pageLinks);
 					if (showNextLink){
 						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
 						matchingObjects.remove(matchingObjects.size()-1);			
@@ -270,7 +270,7 @@ public class StatementResponseManager extends ResponseManager {
 			
 			RMapSearchParams params = generateSearchParamObj(queryParams);
 
-			String path = Utils.makeStmtUrl(subject,predicate,object) + "/agents";
+			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/agents";
 			
 			Integer currPage = extractPage(queryParams);
 			Integer limit=params.getLimit();
@@ -306,8 +306,8 @@ public class StatementResponseManager extends ResponseManager {
 					boolean showNextLink=matchingObjects.size()>limit;
 
 					String pageLinkTemplate = getPaginatedLinkTemplate(path, queryParams, limit);
-					String pageLinks = generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
-					responseBldr.header("Link",pageLinks);
+					Link[] pageLinks = generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+					responseBldr.links(pageLinks);
 
 					if (showNextLink){
 						//gone over limit so remove the last record since it was only added to check for record that would spill to next page

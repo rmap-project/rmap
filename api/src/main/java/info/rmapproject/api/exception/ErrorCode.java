@@ -19,10 +19,10 @@
  *******************************************************************************/
 package info.rmapproject.api.exception;
 
+import javax.ws.rs.core.Response.Status;
+
 import info.rmapproject.api.utils.ConfigUtils;
 import info.rmapproject.api.utils.Constants;
-
-import javax.ws.rs.core.Response.Status;
 
 /**
  * Manages custom error codes for RMap API. 
@@ -90,6 +90,9 @@ public enum ErrorCode {
 	
 	/** Error code for when bad parameter in request. */
 	ER_BAD_PARAMETER_IN_REQUEST (Status.BAD_REQUEST, 4001019),
+
+	/** Error code for when invalid Accept-Date date for Memento timegate provided. */
+	ER_INVALID_TIMEGATE_DATE_PROVIDED (Status.BAD_REQUEST, 4001020),
 	
 	/** Error code for when user not authenticated. */
 	//401**** Unauthorized

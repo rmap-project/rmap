@@ -19,15 +19,8 @@
  *******************************************************************************/
 package info.rmapproject.api.service;
 
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.api.lists.NonRdfType;
-import info.rmapproject.api.lists.RdfMediaType;
-import info.rmapproject.api.responsemgr.DiscoResponseManager;
-import info.rmapproject.api.utils.HttpTypeMediator;
-import info.rmapproject.core.rdfhandler.RDFType;
-
 import java.io.InputStream;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -45,9 +38,17 @@ import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.api.lists.NonRdfType;
+import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.responsemgr.DiscoResponseManager;
+import info.rmapproject.api.utils.Constants;
+import info.rmapproject.api.utils.HttpTypeMediator;
+import info.rmapproject.core.rdfhandler.RDFType;
+
 /**
  * REST API service for RMap DiSCO .
- *
  * @author khanson
  */
 @Path("/discos")
@@ -167,7 +168,7 @@ public class DiSCOApiService {
 
 	/**
  * GET /disco/{discoUri}/latest
- * Returns latest version of requested RMap:DiSCO as RDF/XML, JSON-LD, NQUADS or TURTLE.
+ * When successful, this returns the location of the latest version of the DiSCO as a 302 Found response
  *
  * @param header the HTTP request headers
  * @param discoUri the DiSCO URI
@@ -176,14 +177,14 @@ public class DiSCOApiService {
  */    
     @GET
     @Path("/{discoUri}/latest")
-    @Produces({"application/rdf+xml;charset=UTF-8;", "application/xml;charset=UTF-8;", "application/vnd.rmap-project.disco+rdf+xml;charset=UTF-8;",
-				"application/ld+json;charset=UTF-8;", "application/vnd.rmap-project.disco+ld+json;charset=UTF-8;",
-				"application/n-quads;charset=UTF-8;", "application/vnd.rmap-project.disco+n-quads;charset=UTF-8;",
-				"text/turtle;charset=UTF-8;", "application/vnd.rmap-project.disco+turtle;charset=UTF-8;"
-				})
     public Response apiGetLatestRMapDiSCO(@Context HttpHeaders headers, @PathParam("discoUri") String discoUri) throws RMapApiException {
-    	RdfMediaType returnType = HttpTypeMediator.getRdfResponseType(headers);
-    	Response response=getDiscoResponseManager().getLatestRMapDiSCOVersion(discoUri, returnType);
+    	String timegateDate = null;
+    	List<String> acceptDatetimes = headers.getRequestHeader(Constants.HTTP_HEADER_ACCEPT_DATETIME);
+    	if (acceptDatetimes != null && acceptDatetimes.size()>0){
+    		//ignore multiple dates, just get the first one.
+    		timegateDate = acceptDatetimes.get(0);
+    	}    	
+    	Response response=getDiscoResponseManager().getLatestRMapDiSCOVersion(discoUri, timegateDate);
     	return response;
     }
    
@@ -385,6 +386,25 @@ public class DiSCOApiService {
     	NonRdfType outputType = HttpTypeMediator.getNonRdfResponseType(headers);
     	Response versionList = getDiscoResponseManager().getRMapDiSCOVersions(discoUri, outputType, true);
     	return versionList;
+    }
+    
+	/**
+	 * GET /disco/{discoUri}/timemap
+	 * Based on Memento standard, returns the DiSCO timemap version list with dates
+	 * This is presented as a list of link rels in the body of the response and 
+	 * relevant Memento links in the header.
+	 *
+	 * @param header the HTTP request headers
+	 * @param discoUri the DiSCO URI
+	 * @return HTTP Response
+	 * @throws RMapApiException the RMap API exception
+	 */    
+    @GET
+    @Path("/{discoUri}/timemap")
+    @Produces({"application/link-format;charset=UTF-8;"})
+    public Response apiGetRMapDiSCOTimemapList(@PathParam("discoUri") String discoUri) throws RMapApiException {
+    	Response timemap = getDiscoResponseManager().getRMapDiSCOTimemap(discoUri);
+    	return timemap;
     }
     
 }
