@@ -29,9 +29,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.TreeMap;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
@@ -51,10 +48,10 @@ import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.responsemgr.versioning.ResourceVersions;
 import info.rmapproject.api.responsemgr.versioning.Timegate;
 import info.rmapproject.api.utils.Constants;
+import info.rmapproject.api.utils.HttpHeaderDateUtils;
 import info.rmapproject.api.utils.HttpLinkBuilder;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.api.utils.HttpHeaderDateUtils;
 import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -856,26 +853,24 @@ public class DiscoResponseManager extends ResponseManager {
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_DISCO_VERSIONLIST_EMPTY); 
 			}	
 
-			//make sure we can navigate through list as needed
-			NavigableMap <Date,URI> timemap = new TreeMap<Date,URI>();
-			timemap.putAll(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
-			
+			ResourceVersions versions = 
+					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+						
 			HttpLinkBuilder links = new HttpLinkBuilder();
 			
-			URI firstDiSCOUrl = timemap.firstEntry().getValue();			
-			links.addLink(PathUtils.makeDiscoLatestUrl(firstDiSCOUrl), LinkRels.ORIGINAL);
-			links.addLinkWithType(PathUtils.makeDiscoTimemapUrl(firstDiSCOUrl), LinkRels.SELF, Constants.LINK_FORMAT_MEDIA_TYPE);
+			URI firstDiSCOUri = versions.getFirstUri();			
+			links.addLink(PathUtils.makeDiscoLatestUrl(firstDiSCOUri), LinkRels.ORIGINAL);
+			links.addLinkWithType(PathUtils.makeDiscoTimemapUrl(firstDiSCOUri), LinkRels.SELF, Constants.LINK_FORMAT_MEDIA_TYPE);
 			
-			String lastDiSCOUrl = PathUtils.makeDiscoUrl(timemap.lastEntry().getValue());
-			Date sLastDate = timemap.lastEntry().getKey();
-			links.addLinkWithDate(lastDiSCOUrl, LinkRels.MEMENTO + " " + LinkRels.LATEST_VERSION, sLastDate);
-			
-			//remove last row, since we already have a link for this.		
-			timemap.remove(sLastDate);
-			
-			for (Entry<Date,URI> version: timemap.entrySet()){
-				String sDiscoUrl = PathUtils.makeDiscoUrl(version.getValue());
-				links.addLinkWithDate(sDiscoUrl, LinkRels.MEMENTO, version.getKey());
+			String lastDiSCOUrl = PathUtils.makeDiscoUrl(versions.getLastUri());
+			Date lastDate = versions.getLastDate();
+			links.addLinkWithDate(lastDiSCOUrl, LinkRels.MEMENTO + " " + LinkRels.LATEST_VERSION, lastDate);
+
+			Date versionDate = versions.getFirstDate();
+			while(!versions.getLastDate().equals(versionDate)) {
+				String sDiscoUrl = PathUtils.makeDiscoUrl(versions.getVersionUri(versionDate));
+				links.addLinkWithDate(sDiscoUrl, LinkRels.MEMENTO, versionDate);
+				versionDate = versions.getNextDate(versionDate);				
 			}
 					    			
 			response = Response.status(Response.Status.OK)
