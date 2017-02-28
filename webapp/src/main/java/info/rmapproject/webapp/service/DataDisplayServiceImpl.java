@@ -128,7 +128,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		discoDTO.setCreator(disco.getCreator());
 		discoDTO.setProvGeneratedBy(disco.getProvGeneratedBy());
 		
-		discoDTO.setAgentVersions(rmapService.getDiSCOAllAgentVersions(discoUri));
+		discoDTO.setAgentVersions(rmapService.getDiSCOAgentVersions(discoUri));
 		discoDTO.setAllVersions(rmapService.getDiSCOAllVersions(discoUri));
 		
 		discoDTO.setStatus(rmapService.getDiSCOStatus(discoUri));

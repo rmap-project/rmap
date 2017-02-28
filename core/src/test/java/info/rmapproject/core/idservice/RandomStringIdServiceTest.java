@@ -40,7 +40,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class IdServiceTest {
+public class RandomStringIdServiceTest {
 
 	@Autowired
 	private IdService rmapIdService;
@@ -49,7 +49,7 @@ public class IdServiceTest {
 	 * Test method for {@link info.rmapproject.core.idservice.RandomStringIdService}.
 	 */
 	@Test
-	public void testGetHttpUrlIdService() {
+	public void testRandomStringIdService() {
 		try {
 			assertTrue(rmapIdService instanceof info.rmapproject.core.idservice.RandomStringIdService);
 		} catch (Exception e) {
@@ -64,7 +64,7 @@ public class IdServiceTest {
 	 * Test method for {@link info.rmapproject.core.idservice.RandomStringIdService#createId}.
 	 */
 	@Test
-	public void testGetNoids() {
+	public void testCreateId() {
 		try {
 			URI noid1 = rmapIdService.createId();
 			URI noid2 = rmapIdService.createId();

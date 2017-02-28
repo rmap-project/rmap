@@ -28,7 +28,7 @@ import org.junit.Test;
 /**
  * Tests for RestApiUtils class
  */
-public class RestApiUtilsTest {
+public class PathUtilsTest {
 
 	/**
 	 * Test retrieval of base URL

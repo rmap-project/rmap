@@ -19,13 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service;
 
-import info.rmapproject.auth.model.ApiKey;
-import info.rmapproject.auth.model.User;
-import info.rmapproject.auth.model.UserIdentityProvider;
-import info.rmapproject.auth.service.RMapAuthService;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.webapp.auth.OAuthProviderAccount;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +27,12 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import info.rmapproject.auth.model.ApiKey;
+import info.rmapproject.auth.model.User;
+import info.rmapproject.auth.model.UserIdentityProvider;
+import info.rmapproject.auth.service.RMapAuthService;
+import info.rmapproject.webapp.auth.OAuthProviderAccount;
 
 /**
  * Implements the User Management Services interface
@@ -45,10 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserMgtServiceImpl implements UserMgtService {
 
 //private static final Logger logger = LoggerFactory.getLogger(UserMgtServiceImpl.class);
-	
-	/** The RMap Service. */
-	@Autowired 
-	private RMapService rmapService;
 	
 	/** The RMap Auth service. */
 	@Autowired

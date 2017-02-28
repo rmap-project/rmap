@@ -298,7 +298,7 @@ public class ORMapService implements RMapService {
 				
 		List<URI> returnSet = null;
 		if (relatedDiSCOs != null){
-			returnSet = ORAdapter.openRdfUriList2UriList(relatedDiSCOs);
+			returnSet = ORAdapter.openRdfIriList2UriList(relatedDiSCOs);
 		}		
 		return returnSet;
 	}
@@ -671,7 +671,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("null event id");
 		}
 		List<IRI> agents = eventmgr.getAffectedAgents(ORAdapter.uri2OpenRdfIri(eventID), triplestore);
-		List<URI> agentIds = ORAdapter.openRdfUriList2UriList(agents);
+		List<URI> agentIds = ORAdapter.openRdfIriList2UriList(agents);
 
 		return agentIds;
 	}
@@ -860,7 +860,7 @@ public class ORMapService implements RMapService {
 		}
 		IRI uri = ORAdapter.uri2OpenRdfIri(agentId);
 		List<IRI> events = agentmgr.getAgentDiSCOs(uri, params, triplestore); //, limit, offset
-		List<URI> discoUris = ORAdapter.openRdfUriList2UriList(events);
+		List<URI> discoUris = ORAdapter.openRdfIriList2UriList(events);
 		return discoUris;
 	}
 	
@@ -896,7 +896,7 @@ public class ORMapService implements RMapService {
 		}
 		IRI uri = ORAdapter.uri2OpenRdfIri(agentId);
 		List<IRI> events = agentmgr.getAgentEventsInitiated(uri, params, triplestore); //, limit, offset
-		List<URI> eventUris = ORAdapter.openRdfUriList2UriList(events);
+		List<URI> eventUris = ORAdapter.openRdfIriList2UriList(events);
 		return eventUris;
 	}
 	

@@ -68,6 +68,12 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>info.rmapproject</groupId>
+        	<artifactId>rmap-testdata</artifactId>
+            <version>1.0.1-beta-SNAPSHOT</version>
+        	<scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -178,16 +178,16 @@ public class ORAdapter {
 	 * @return the equivalent openrdf Value
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public static Value rMapValue2OpenRdfValue (RMapValue resource) throws RMapDefectiveArgumentException {
+	public static Value rMapValue2OpenRdfValue (RMapValue rmapvalue) throws RMapDefectiveArgumentException {
 		Value value = null;
-		if (resource==null){
+		if (rmapvalue==null){
 			throw new RMapDefectiveArgumentException ("Null RMapValue provided");
 		}
-		if (resource instanceof RMapResource){
-			value = rMapNonLiteral2OpenRdfResource((RMapResource)resource);
+		if (rmapvalue instanceof RMapResource){
+			value = rMapNonLiteral2OpenRdfResource((RMapResource)rmapvalue);
 		}
-		else if (resource instanceof RMapLiteral){
-			value = rMapLiteral2OpenRdfLiteral((RMapLiteral)resource);
+		else if (rmapvalue instanceof RMapLiteral){
+			value = rMapLiteral2OpenRdfLiteral((RMapLiteral)rmapvalue);
 		}
 		else {
 			throw new RMapDefectiveArgumentException("Unrecognized RMapResourceType");
@@ -251,7 +251,7 @@ public class ORAdapter {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public static RMapResource openRdfResource2NonLiteral(Resource resource) 
+	public static RMapResource openRdfResource2RMapResource(Resource resource) 
 			throws RMapException, RMapDefectiveArgumentException {
 		RMapResource nlResource = null;
 		if (resource==null){
@@ -342,13 +342,13 @@ public class ORAdapter {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapException the RMap exception
 	 */
-	public static RMapTriple openRdfStatement2RMapTriple (Statement stmt)
+	public static RMapTriple openRdfStatement2RMapTriple(Statement stmt)
 		throws RMapDefectiveArgumentException, RMapException {
 		if (stmt==null){
 			throw new RMapDefectiveArgumentException("null stmt");
 		}
 		
-		RMapResource subject = openRdfResource2NonLiteral(stmt.getSubject());
+		RMapResource subject = openRdfResource2RMapResource(stmt.getSubject());
 		RMapIri predicate = openRdfIri2RMapIri(stmt.getPredicate());
 		RMapValue object = openRdfValue2RMapValue(stmt.getObject());		
 		RMapTriple rtriple = new RMapTriple(subject, predicate, object);		
@@ -364,7 +364,7 @@ public class ORAdapter {
 	 * @return true if the openrdf IRI can be converted to a java.net.URI.
 	 * @throws RMapException the RMap exception
 	 */
-	public static boolean checkOpenRdfUri2UriCompatibility(IRI iri) throws RMapException {
+	public static boolean checkOpenRdfIri2UriCompatibility(IRI iri) throws RMapException {
 		try {
 			
 			new java.net.URI(iri.toString());
@@ -381,15 +381,15 @@ public class ORAdapter {
 	 * @return true if all IRIs in a statement are compatible with java.net.URI
 	 * @throws RMapException the RMap exception
 	 */
-	public static boolean checkOpenRdfIri2UriCompatibility (Statement stmt) throws RMapException {
+	public static boolean checkOpenRdfIri2UriCompatibility(Statement stmt) throws RMapException {
 		if (stmt.getSubject() instanceof IRI) {
-			checkOpenRdfUri2UriCompatibility((IRI)stmt.getSubject());
+			checkOpenRdfIri2UriCompatibility((IRI)stmt.getSubject());
 		}
 		
-		checkOpenRdfUri2UriCompatibility(stmt.getPredicate());
+		checkOpenRdfIri2UriCompatibility(stmt.getPredicate());
 		
 		if (stmt.getObject() instanceof IRI) {
-			checkOpenRdfUri2UriCompatibility((IRI)stmt.getObject());
+			checkOpenRdfIri2UriCompatibility((IRI)stmt.getObject());
 		}	
 		return true;
 	}
@@ -397,13 +397,13 @@ public class ORAdapter {
 	/**
 	 * Converts a list of openRdf URIs to a list of java.net.URIs
 	 *
-	 * @param openRdfUriList a list of openrdf URIs
+	 * @param openRdfIriList a list of openrdf URIs
 	 * @return the equivalent list of java.net.URIs
 	 */
-	public static List<java.net.URI> openRdfUriList2UriList(List<IRI> openRdfUriList) {
+	public static List<java.net.URI> openRdfIriList2UriList(List<IRI> openRdfIriList) {
 		List<java.net.URI> javaUriList = new ArrayList<java.net.URI>();
-		if (openRdfUriList != null) {
-			for (IRI openRdfUri : openRdfUriList){
+		if (openRdfIriList != null) {
+			for (IRI openRdfUri : openRdfIriList){
 				javaUriList.add(openRdfIri2URI(openRdfUri));
 			}
 		}

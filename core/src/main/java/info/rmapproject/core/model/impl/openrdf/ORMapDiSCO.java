@@ -685,7 +685,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			for (Statement stmt:relatedStatements){
 				RMapResource subject = null;
 				try {
-					subject = ORAdapter.openRdfResource2NonLiteral(stmt.getSubject());
+					subject = ORAdapter.openRdfResource2RMapResource(stmt.getSubject());
 				} catch (RMapDefectiveArgumentException e) {
 					throw new RMapException(e);
 				}
