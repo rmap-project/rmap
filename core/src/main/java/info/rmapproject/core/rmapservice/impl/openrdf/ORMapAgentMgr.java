@@ -485,7 +485,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 							+ "WHERE { "
 							+ " GRAPH ?eventId {"
 							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
-							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> <" + sAgentId + "> . ");
+							+ "	  ?eventId <" + PROV.WASASSOCIATEDWITH + "> " + sAgentId + " . ");
 		if (dateFilterSparql.length()>0){
 			sparqlQuery.append("   ?eventId <" + PROV.STARTEDATTIME + "> ?startDate .");			
 		}

@@ -24,10 +24,24 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.api.lists.NonRdfType;
+import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.test.TestUtils;
+import info.rmapproject.api.utils.Constants;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.utils.Terms;
+import info.rmapproject.testdata.service.TestConstants;
+import info.rmapproject.testdata.service.TestFile;
 
 /**
  * Tests for AgentResponseManager
@@ -80,17 +94,75 @@ public class AgentResponseManagerTest extends ResponseManagerTest {
 		assertNotNull(response);
 		assertEquals(200, response.getStatus());	
 	}
-
-	/*
+	
+	
+	/**
+	 * Tests whether appropriate 200 OK response is generated when you get an Agent that 
+	 * exists in the database.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
-	public void testGetRMapAgent() {
-		fail("Not yet implemented");
-	}*/
+	public void testGetRMapAgent() throws Exception{
 
-	/*
+    	Response response=null;
+    		
+		try {
+			response = agentResponseManager.getRMapAgent(URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()),RdfMediaType.APPLICATION_RDFXML);
+		} catch (Exception e) {
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+
+		assertNotNull(response);
+		String body = response.getEntity().toString();
+		assertTrue(body.contains(Terms.RMAP_AGENT_PATH));
+		assertEquals(200, response.getStatus());
+	}
+	
+	
+	
+	
+	/**
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
-	public void testCreateRMapAgent() {
-		fail("Not yet implemented");
-	}*/
+	public void testGetRMapAgentEvents() throws Exception{
+
+    	Response response=null;
+    	
+		//createDisco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		String discoURI = rmapDisco.getId().toString();
+        assertNotNull(discoURI);
+		rmapService.createDiSCO(rmapDisco, requestAgent);
+
+		//createDisco
+		RMapDiSCO rmapDisco2 = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		String discoURI2 = rmapDisco2.getId().toString();
+        assertNotNull(discoURI2);
+		rmapService.createDiSCO(rmapDisco2, requestAgent);
+	
+		try {
+			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+			queryParams.add(Constants.PAGE_PARAM, "1");
+			queryParams.add(Constants.LIMIT_PARAM, "1");
+			queryParams.add(Constants.FROM_PARAM, "20121201000000");
+			
+			response = agentResponseManager.getRMapAgentEvents(
+					URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()), 
+					NonRdfType.JSON, 
+					queryParams);
+		} catch (Exception e) {
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+
+		assertNotNull(response);
+		String body = response.getEntity().toString();
+		assertTrue(body.contains(Terms.RMAP_EVENT_PATH));
+		assertEquals(200, response.getStatus());
+	}
 
 }
