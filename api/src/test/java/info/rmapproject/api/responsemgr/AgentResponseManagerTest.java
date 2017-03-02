@@ -124,6 +124,8 @@ public class AgentResponseManagerTest extends ResponseManagerTest {
 	
 	
 	/**
+	 * Tests whether list of events initiated for an Agent is retrieved successfully
+	 * when there are date and limit parameters.
 	 *
 	 * @throws Exception the exception
 	 */
