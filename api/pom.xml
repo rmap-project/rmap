@@ -93,7 +93,13 @@
             <version>1.0.1-beta-SNAPSHOT</version>
         	<scope>test</scope>
         </dependency>
-
+		
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-core</artifactId>
+		    <version>2.7.13</version>
+        	<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

@@ -8,7 +8,7 @@
         <rdf:type rdf:resource="http://rmap-project.org/rmap/terms/DiSCO"/>
         <dcterms:creator rdf:resource="http://isni.org/isni/0000000122976723"/>
         <dc:description>This is a made up example of an IEEE DiSCO.</dc:description>
-        <ore:aggregates rdf:resource="http://doi.org/10.1109/discoa.test"/>
+        <ore:aggregates rdf:resource="http://doi.org/10.1109/disco.test"/>
         <ore:aggregates rdf:resource="http://ieeexplore.ieee.org/example/000000-mm.zip"/>
     </rdf:Description>
 </rdf:RDF>

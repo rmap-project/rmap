@@ -159,31 +159,5 @@ public class DateRange {
 	public void setDateUntil(Date dateUntil) {
 		this.dateUntil = dateUntil;
 	}
-	
-	/**
-	 * Gets the date from as a ISO standardized UTC date.
-	 *
-	 * @return the UTC date from
-	 */
-	public String getUTCDateFrom(){
-		String utcdate = null;
-		if (this.dateFrom!=null){
-			utcdate = DateUtils.getIsoStringDate(this.dateFrom);
-		}
-		return utcdate;
-	}
-	
-	/**
-	 * Gets the date until as a ISO standardized UTC date.
-	 *
-	 * @return the UTC date until
-	 */
-	public String getUTCDateUntil(){
-		String utcdate = null;
-		if (this.dateUntil!=null){
-			utcdate = DateUtils.getIsoStringDate(this.dateUntil);
-		}
-		return utcdate;
-	}
 		
 }

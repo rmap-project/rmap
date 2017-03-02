@@ -378,7 +378,7 @@ public abstract class SesameTriplestore  {
 	 * @throws RepositoryException the repository exception
 	 */
 	public void removeStatements(Set<Statement> stmts, Resource...contexts) throws RepositoryException{
-		this.getConnection().remove(stmts, contexts);;
+		this.getConnection().remove(stmts, contexts);
 	}
 	
 	/**

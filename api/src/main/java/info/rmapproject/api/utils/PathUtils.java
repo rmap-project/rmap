@@ -19,13 +19,18 @@
  *******************************************************************************/
 package info.rmapproject.api.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.MissingResourceException;
 
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapValue;
 
 /**
  * Supporting utility methods for use in rmap-api
@@ -295,6 +300,102 @@ public class PathUtils {
 		}
 		return documentationPath;
 	}
+	
+	
+	/**
+	 * Converts a string of text passed in as a "resource" (including subject or predicate) through the API request to a valid java.net.URI
+	 *
+	 * @param sPathString the URL path as string
+	 * @return the URI
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public static URI convertPathStringToURI(String sPathString) throws RMapApiException{
+		URI uri = null;
+		try {
+			sPathString = URLDecoder.decode(sPathString, "UTF-8");
+			sPathString = sPathString.replace(" ", "+");
+			sPathString = removeUriAngleBrackets(sPathString);
+			uri = new URI(sPathString);
+		}
+		catch (URISyntaxException ex){
+			throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
+		}
+		catch (UnsupportedEncodingException ex){
+			throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
+		}
+		return uri;
+	}
+	
+	
+	/**
+	 * Checks for angle brackets around a string URI and removes them if found.
+	 *
+	 * @param sUri the URI as a string
+	 * @return the string with angle brackets removed
+	 */
+	public static String removeUriAngleBrackets(String sUri) {
+		//remove any angle brackets on a string Uri
+		if (sUri.startsWith("<")) {
+			sUri = sUri.substring(1);
+		}
+		if (sUri.endsWith(">")) {
+			sUri = sUri.substring(0,sUri.length()-1);
+		}
+		return sUri;
+	}
+	
+
+	/**
+	 * Converts a string of text passed in as the "object" through the API request to a valid RMapValue
+	 * determining whether it is a typed literal, URI etc.
+	 *
+	 * @param sPathString the url path string
+	 * @return and RMap Value (a Resource or BNode)
+	 * @throws RMapApiException the RMap API exception
+	 */
+	public static RMapValue convertPathStringToRMapValue(String sPathString) throws RMapApiException{
+		RMapValue object = null;
+		try {
+			sPathString = URLDecoder.decode(sPathString, "UTF-8");
+	
+			if (sPathString.startsWith("\"")) {
+				String literal = sPathString.substring(1, sPathString.lastIndexOf("\""));
+				String literalProp = sPathString.substring(sPathString.lastIndexOf("\"")+1);
+				
+				if (literalProp.contains("^^")) {
+					String sType = literalProp.substring(literalProp.indexOf("^^")+2);
+					RMapIri type = null;
+					sType = sType.trim();
+	
+					sType = removeUriAngleBrackets(sType);
+					type = new RMapIri(new URI(sType));
+					object = new RMapLiteral(literal, type);
+				}
+				else if (literalProp.contains("@")) {
+					String language = literalProp.substring(literalProp.indexOf("@")+1);
+					language = language.trim();
+					object = new RMapLiteral(literal, language);
+				}
+				else {
+					object = new RMapLiteral(literal);
+				}
+			}
+			else { //should be a URI
+				object = new RMapIri(new URI(sPathString));
+			}	
+		}
+		catch (URISyntaxException ex){
+			throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
+		}
+		catch (UnsupportedEncodingException ex){
+			throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
+		}
+	
+		return object;
+	}
+	
+	
+	
 
 	
 }

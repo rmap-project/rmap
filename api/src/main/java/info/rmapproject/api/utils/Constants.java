@@ -41,7 +41,31 @@ public final class Constants  {
 	  
 	/** Base URL to be used with triplestore. */
   	public static final String BASE_URL = "";
+  	
+	/** The term used in the querystring for the date from parameter. */
+	public static final String FROM_PARAM="from";
 
+	/** The term used in the querystring for the date until parameter. */
+	public static final String UNTIL_PARAM="until";
+
+	/** The term used in the querystring for the limit parameter. */
+	public static final String LIMIT_PARAM="limit";
+
+	/** The term used in the querystring for the page number parameter. */
+	public static final String PAGE_PARAM="page";
+
+	/** The term used in the querystring for the agent filter parameter. */
+	public static final String AGENTS_PARAM="agents";
+
+	/** The term used in the querystring for the status filter parameter. */
+	public static final String STATUS_PARAM="status";
+
+	/** An character sequence used as a placeholder for the page number when processing pagination. */
+	public static final String PAGENUM_PLACEHOLDER = "**$#pagenum#$**";
+	
+	/** The number of the first page of results */
+	public static final String FIRST_PAGE="1";
+	
 	/** Default RDF type where none specified. GET requests whose response is in RDF will use this type. */
   	public static final RdfMediaType DEFAULT_RDF_TYPE = RdfMediaType.TEXT_TURTLE;
 

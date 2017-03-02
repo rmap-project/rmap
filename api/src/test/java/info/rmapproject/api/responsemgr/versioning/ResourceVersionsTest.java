@@ -16,16 +16,11 @@ import java.util.TreeMap;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author khanson5
  *
  */
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:/spring-rmapapi-context.xml" })
 public class ResourceVersionsTest {
 	
 	private ResourceVersions versions_1date;

@@ -49,4 +49,18 @@ public class TestConstants {
 
 	/** second default system agent name to be used for tests where Agent creation isn't being tested but 2 agents needed*/
 	public static final String SYSAGENT2_NAME = "RMap test Agent 2";	
+	
+	/** a doi that is present at least once in all valid DiSCOs **/
+	public static final String TEST_DISCO_DOI = "http://doi.org/10.1109/disco.test";
+
+	/** The type of the DOI that is present at least once in all valid DiSCOs (note that it is not listed as ConferencePaper until version 4 of DISCO "B" **/
+	public static final String TEST_DISCO_DOI_TYPE = "http://purl.org/spar/fabio/ConferencePaper";
+
+	/** for use when you want a doi that won't match anything **/
+	public static final String INVALID_DOI  = "http://doi.org/10.1109/fail";
+	
+	/** for use when you want a type that won't match anything **/
+	public static final String INVALID_RDF_TYPE  = "http://purl.org/spar/fabio/fail";
+	
+	
 }

@@ -19,9 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.testdata.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 /**
@@ -35,13 +32,10 @@ public class TestDataHandler {
 	 * Retrieves test data InputStream. 
 	 * @param testobj
 	 * @return
-	 * @throws FileNotFoundException
 	 */
-	public static InputStream getTestRdf(TestFile testobj) throws FileNotFoundException {
+	public static InputStream getTestRdf(TestFile testobj) {
 		String filepath = testobj.getFilePath();
-		String path = TestDataHandler.class.getResource(filepath).getFile();
-		File file = new File(path);
-		InputStream rdf = new FileInputStream(file);
+		InputStream rdf = TestDataHandler.class.getResourceAsStream(filepath);
 		return rdf;
 	}
 	

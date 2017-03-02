@@ -10,10 +10,10 @@
 [] a <http://rmap-project.org/rmap/terms/DiSCO> ;
 	dcterms:creator <http://isni.org/isni/0000000122976723> ;
 	dc:description "This is a made up example of an IEEE DiSCO." ;
-	ore:aggregates <http://doi.org/10.1109/discoa.test> ;
+	ore:aggregates <http://doi.org/10.1109/disco.test> ;
 	ore:aggregates <http://ieeexplore.ieee.org/example/000000-mm.zip> .
 
-<http://doi.org/10.1109/discoa.test> 
+<http://doi.org/10.1109/disco.test> 
 	a <http://purl.org/spar/fabio/ConferencePaper> ;
 	dcterms:identifier <ark:/35911/amsid/111111>, <ark:/35911/idams/1b1b1b1b1b1b> ;
 	ieee:content-type "orig-research" ;

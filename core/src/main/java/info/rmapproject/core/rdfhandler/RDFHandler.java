@@ -22,6 +22,10 @@
  */
 package info.rmapproject.core.rdfhandler;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapTriple;
@@ -29,11 +33,6 @@ import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 //import info.rmapproject.core.model.statement.RMapStatement;
-
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
 
 /**
  * The Interface to be used with any RDFHandlers.
@@ -107,4 +106,5 @@ public interface RDFHandler {
 	 */
 	public OutputStream agent2Rdf(RMapAgent agent, RDFType rdfFormat)throws RMapException;
 	
+		
 }

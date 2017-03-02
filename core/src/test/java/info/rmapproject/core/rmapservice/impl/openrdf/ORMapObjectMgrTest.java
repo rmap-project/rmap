@@ -71,6 +71,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateTriple() {
+		System.out.println("Running test: testCreateTriple()");		
 		java.net.URI id1 =null;
 		try {
 			id1 = rmapIdService.createId();
@@ -80,9 +81,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 		IRI subject = ORAdapter.uri2OpenRdfIri(id1);
 		IRI predicate = RDF.TYPE;
 		IRI object = RMAP.DISCO;
-//		ORMapStatementMgr mgr = new ORMapStatementMgr();
-//		String contextString = mgr.createContextIRIString(subject.stringValue(),
-//				predicate.stringValue(), object.stringValue());
+		
 		IRI context = subject;
 
 		try {
@@ -95,6 +94,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			assertEquals(predicate, gStmt.getPredicate());
 			assertEquals(object, gStmt.getObject());
 			assertEquals(context, gStmt.getContext());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -106,6 +106,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testIsRMapType() {
+		System.out.println("Running test: testIsRMapType()");		
 		java.net.URI id1 =null;
 		try {
 			id1 = rmapIdService.createId();
@@ -125,6 +126,8 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			assertEquals(stmt.getPredicate(), stmt2.getPredicate());
 			assertEquals(stmt.getObject(), stmt2.getObject());
 			assertEquals(stmt.getContext(), stmt2.getContext());
+			boolean istype = discomgr.isRMapType(triplestore, subject, RMAP.DISCO);
+			assertTrue(istype);
 		} catch (RepositoryException e1) {
 			e1.printStackTrace();
 			fail(e1.getMessage());
@@ -132,8 +135,6 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}		
-		boolean istype = discomgr.isRMapType(triplestore, subject, RMAP.DISCO);
-		assertTrue(istype);
 	}
 
 
@@ -144,6 +145,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testIsEventId() throws RMapException, RMapDefectiveArgumentException {
+		System.out.println("Running test: testIsEventId()");	
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			createSystemAgent();
@@ -168,6 +170,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			ORMapEventMgr eventMgr = new ORMapEventMgr();
 			IRI crEventId = eventMgr.createEvent(event, triplestore);
 			assertTrue(eventMgr.isEventId(crEventId, triplestore));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -179,11 +182,11 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testIsAgentId() throws URISyntaxException {
+		System.out.println("Running test: testIsAgentId()");	
 		try {
 			createSystemAgent();
 			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
 			assertTrue(agentMgr.isAgentId(ORAdapter.uri2OpenRdfIri(new URI(TestConstants.SYSAGENT_ID)), triplestore));
-			rmapService.closeConnection();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("could not create test agent.");

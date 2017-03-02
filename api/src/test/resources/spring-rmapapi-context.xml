@@ -25,6 +25,12 @@
     <bean id="statementResponseManager" class="info.rmapproject.api.responsemgr.StatementResponseManager"/>
     <bean id="resourceResponseManager" class="info.rmapproject.api.responsemgr.ResourceResponseManager"/>
 	
+    <bean id="resourceApiService" class="info.rmapproject.api.service.ResourceApiService"/>
+    <bean id="discoApiService" class="info.rmapproject.api.service.DiSCOApiService"/>
+    <bean id="statementApiService" class="info.rmapproject.api.service.StatementApiService"/>
+    <bean id="agentApiService" class="info.rmapproject.api.service.AgentApiService"/>
+    <bean id="eventApiService" class="info.rmapproject.api.service.EventApiService"/>
+    			
 	<!-- can set these, or let core take care of these.
     <bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService"/>
     <bean id="rmapIdService" class="info.rmapproject.core.idservice.ArkIdService"/>

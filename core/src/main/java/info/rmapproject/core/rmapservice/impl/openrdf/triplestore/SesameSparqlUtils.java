@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.request.DateRange;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
@@ -150,12 +151,14 @@ public class SesameSparqlUtils {
 		String filterSparql = "";
 		if (dateRange!=null){
 			if (dateRange.getDateFrom()!=null) {
-				String from = dateRange.getUTCDateFrom();
-				filterSparql = filterSparql + "FILTER (" + startDateParam + " >= \"" + from + "\"^^xsd:dateTime) . ";
+				Literal datefrom = ORAdapter.getValueFactory().createLiteral(dateRange.getDateFrom());
+				filterSparql = filterSparql + "FILTER (" + startDateParam + " >= " + datefrom.toString() + ") . ";
 			}
 			if (dateRange.getDateUntil()!=null) {
-				String until = dateRange.getUTCDateUntil();
-				filterSparql = filterSparql + "FILTER (" + startDateParam + " <= \"" + until + "\"^^xsd:dateTime) . ";
+								
+				Literal dateUntil = ORAdapter.getValueFactory().createLiteral(dateRange.getDateUntil());
+				
+				filterSparql = filterSparql + "FILTER (" + startDateParam + " <= " + dateUntil.toString() + ") . ";
 			}
 		}
 		return filterSparql;

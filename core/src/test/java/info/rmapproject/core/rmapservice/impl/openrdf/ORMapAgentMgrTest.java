@@ -30,7 +30,6 @@ import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
@@ -43,27 +42,21 @@ import info.rmapproject.testdata.service.TestConstants;
 
 /**
  * @author smorrissey
+ * @author khanson
  *
  */
 public class ORMapAgentMgrTest extends ORMapMgrTest{
-	
-	@Before
-	public void setUp() throws Exception {
-		//create new test agent
-		createSystemAgent();
-	}
-
 	
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#readAgent(org.openrdf.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws RMapAgentNotFoundException 
-	 * @throws FileNotFoundException 
 	 * @throws URISyntaxException 
 	 */
 	@Test
-	public void testReadAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException, FileNotFoundException, URISyntaxException {
+	public void testReadAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException, URISyntaxException {
+		System.out.println("Running test: testReadAgent()");	
 						
 		try {
 			//now read agent and check it.
@@ -97,6 +90,7 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 	@SuppressWarnings("unused")
 	@Test
 	public void testUpdateAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException, FileNotFoundException {
+		System.out.println("Running test: testUpdateAgent()");	
 				
 		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
 		

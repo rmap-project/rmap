@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,14 +38,6 @@ public class AgentResponseManagerTest extends ResponseManagerTest {
 	/** The Agent Response Manager. */
 	@Autowired
 	protected AgentResponseManager agentResponseManager;
-	
-	/* (non-Javadoc)
-	 * @see info.rmapproject.api.responsemgr.ResponseManagerTest#setUp()
-	 */
-	@Before
-	public void setUp() throws Exception {
-
-	}
 
 	/**
 	 * Test agent response manager instance

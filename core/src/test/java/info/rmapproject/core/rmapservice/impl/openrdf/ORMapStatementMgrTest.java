@@ -31,14 +31,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.DC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -50,8 +47,6 @@ import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
 public class ORMapStatementMgrTest extends ORMapMgrTest {
 		
 	@Autowired
@@ -59,16 +54,10 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 	
 	@Autowired
 	ORMapStatementMgr stmtmgr;
-
-	@Before
-	public void setUp() throws Exception {
-		createSystemAgent();
-	}
-
-	
 	
 	@Test
 	public void testGetRelatedDiSCOs() {
+		System.out.println("Running test: testGetRelatedDiSCOs()");	
 		
 		try {
 
@@ -84,8 +73,8 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
-			IRI subject = ORAdapter.getValueFactory().createIRI("http://doi.org/10.1109/discoa.test");
-			IRI predicate = ORAdapter.getValueFactory().createIRI("http://purl.org/dc/elements/1.1/subject");
+			IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+			IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
 			Value object = ORAdapter.getValueFactory().createLiteral("storage management");
 			
 			RMapSearchParams params = new RMapSearchParams();
@@ -106,7 +95,6 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			params.setStatusCode(RMapStatusFilter.INACTIVE);
 			discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
 			assertTrue(discoIds.size()==1);
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,7 +105,8 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testGetAssertingAgents() {		
+	public void testGetAssertingAgents() {
+		System.out.println("Running test: testGetAssertingAgents()");			
 		try {
 			//create disco				
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -129,8 +118,8 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
-			IRI subject = ORAdapter.getValueFactory().createIRI("http://doi.org/10.1109/discoa.test");
-			IRI predicate = ORAdapter.getValueFactory().createIRI("http://purl.org/dc/elements/1.1/subject");
+			IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+			IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
 			Value object = ORAdapter.getValueFactory().createLiteral("storage management");
 			RMapSearchParams params = new RMapSearchParams();
 			params.setDateRange(dateFrom, dateTo);
@@ -144,7 +133,6 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			Iterator<IRI> iter = agentIds.iterator();
 			IRI matchingAgentId = iter.next();
 			assertTrue(matchingAgentId.toString().equals(TestConstants.SYSAGENT_ID));
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 
 		} catch (Exception e) {
 			e.printStackTrace();

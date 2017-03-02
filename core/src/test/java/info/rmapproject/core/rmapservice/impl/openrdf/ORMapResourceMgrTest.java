@@ -34,15 +34,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.idservice.IdService;
@@ -57,9 +55,6 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
-
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
 public class ORMapResourceMgrTest extends ORMapMgrTest {
 
 	@Autowired
@@ -76,11 +71,18 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		createSystemAgent();
 	}
 
+	@After
+	public void shutdown() throws Exception {
+		triplestore.getConnection().clear();
+	}
+	
 	
 		
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetRelatedDiSCOS() {	
+
+		System.out.println("Running test: testGetRelatedDiSCOS()");
 		
 		try {		
 			//create disco				
@@ -88,7 +90,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 		
 			//get related discos
-			IRI iri = ORAdapter.getValueFactory().createIRI("http://doi.org/10.1109/discoa.test");
+			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
@@ -118,7 +120,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setStatusCode(RMapStatusFilter.INACTIVE);
 			discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
 			assertTrue(discoIris.size()==1);
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 		
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -133,6 +134,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetRelatedAgents() {
+		System.out.println("Running test: testGetRelatedAgents()");
 		
 		try {
 					
@@ -158,7 +160,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Iterator<IRI> iter = agentIris.iterator();
 			IRI matchingIri = iter.next();
 			assertTrue(matchingIri.toString().equals(TestConstants.SYSAGENT_ID));
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -171,7 +172,8 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	
 
 	@Test
-	public void testGetRelatedEvents() {	
+	public void testGetRelatedEvents() {
+		System.out.println("Running test: testGetRelatedEvents()");	
 		
 		try {
 			//create disco			
@@ -185,7 +187,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			RMapEvent updateEvent = discomgr.updateDiSCO(discoId, disco2, requestAgent, false, triplestore);
 			IRI updateEventId = ORAdapter.rMapIri2OpenRdfIri(updateEvent.getId());
 			
-			IRI iri = ORAdapter.getValueFactory().createIRI("http://doi.org/10.1109/discoa.test");
+			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
 			
@@ -208,8 +210,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			
 			assertTrue(sEventIris.contains(eventId.toString()));
 			assertTrue(sEventIris.contains(updateEventId.toString()));
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
-			rmapService.deleteDiSCO(disco2.getId().getIri(), requestAgent);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -222,6 +222,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetRelatedTriples() {	
+		System.out.println("Running test: testGetRelatedTriples()");	
 	
 		try {
 			
@@ -256,7 +257,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
 			stmt = iter.next();
 			assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
@@ -269,12 +270,13 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	
 	@Test
 	public void testGetResourceRdfTypes() {	
+		System.out.println("Running test: testGetResourceRdfTypes()");	
 		try {		
 
 			java.net.URI context = rmapIdService.createId();
 			IRI resource01 = ORAdapter.uri2OpenRdfIri(context);
 			context = rmapIdService.createId();
-			IRI resource02 = ORAdapter.getValueFactory().createIRI("http://doi.org/10.1109/discoa.test");
+			IRI resource02 = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 			
 			Statement s1 = ORAdapter.getValueFactory().createStatement(resource01, RDF.TYPE, RMAP.DISCO, resource01);
 			triplestore.addStatement(s1);
@@ -304,6 +306,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetResourceRdfTypesAllContexts() {
+		System.out.println("Running test: testGetResourceRdfTypesAllContexts()");	
 		try {	
 
 			//create disco				
@@ -311,13 +314,13 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
 
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
-			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));
+			requestAgent.setAgentKeyId(new java.net.URI(TestConstants.SYSAGENT_KEY));
 			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
 		
 			RMapSearchParams params = new RMapSearchParams();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
 			
-			URI uri = new URI("http://doi.org/10.1109/discoa.test");
+			URI uri = new URI(TestConstants.TEST_DISCO_DOI);
 			
 			Map<IRI, Set<IRI>> map = resourcemgr.getResourceRdfTypesAllContexts(ORAdapter.uri2OpenRdfIri(uri), params, triplestore);
 			assertNotNull(map);
@@ -328,15 +331,13 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			assertTrue(map.containsKey(discoid2));
 			Set<IRI> values = map.get(discoid1);
 			assertEquals(1, values.size());
-			IRI fabioJournalType = ORAdapter.getValueFactory().createIRI("http://purl.org/spar/fabio/ConferencePaper");
+			IRI fabioJournalType = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI_TYPE);
 			assertTrue(values.contains(fabioJournalType));
 			
 			Set<IRI> values2 = map.get(discoid2);
 			assertEquals(1, values2.size());
 			assertTrue(values2.contains(fabioJournalType));
 			
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
-			rmapService.deleteDiSCO(disco2.getId().getIri(), requestAgent);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();

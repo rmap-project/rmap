@@ -22,8 +22,11 @@ package info.rmapproject.api.utils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapValue;
 
 import org.junit.Test;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 /**
  * Tests for RestApiUtils class
@@ -90,6 +93,32 @@ public class PathUtilsTest {
 		assertTrue(baseURL.startsWith("http"));		
 	}
 	
+
+	/**
+	 * Test conversion of String to RMapValue.
+	 *
+	 * @throws RMapApiException the RMap API Exception
+	 */
+	@Test 
+	public void testConvertObjectStringToRMapValue() throws RMapApiException {
+		String objectJustLiteral = "\"This is a literal\"";
+		String objectWithType = "\"2015-09-01\"^^" + XMLSchema.DATE.toString();
+		String objectWithLanguage = "\"This is a literal\"@en";
+				
+		RMapValue object = PathUtils.convertPathStringToRMapValue(objectJustLiteral);
+		RMapLiteral litObj = (RMapLiteral)object;
+		assertTrue(litObj.getValue().equals("This is a literal"));
 		
+		object = PathUtils.convertPathStringToRMapValue(objectWithType);
+		litObj = (RMapLiteral)object;
+		assertTrue(litObj.getValue().equals("2015-09-01"));
+		assertTrue(litObj.getDatatype().toString().equals(XMLSchema.DATE.toString()));
+
+		object = PathUtils.convertPathStringToRMapValue(objectWithLanguage);
+		litObj = (RMapLiteral)object;
+		assertTrue(litObj.getValue().equals("This is a literal"));
+		assertTrue(litObj.getLanguage().equals("en"));
+	}
+	
 
 }

@@ -27,6 +27,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
@@ -37,7 +39,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
@@ -61,16 +62,34 @@ public abstract class ORMapMgrTest {
 	SesameTriplestore triplestore;
 	
 	/** General use sysagent for testing **/
-	protected RMapAgent sysagent = null;
+	protected ORMapAgent sysagent = null;
 	
 	/** Second general use sysagent for testing that requires 2 users **/
-	protected RMapAgent sysagent2 = null;
+	protected ORMapAgent sysagent2 = null;
 	
 	/** Request agent based on sysagent. Include key */
 	protected RMapRequestAgent requestAgent = null;
 	
 	/** Request agent based on sysagent2. No Key */
 	protected RMapRequestAgent requestAgent2 = null;	
+	
+	@Before
+	public void setUp() throws Exception {
+		//create 2 test agents and corresponding requestAgents
+		createSystemAgent();
+		createSystemAgent2();
+	}
+
+	/**
+	 * Removes all statements from triplestore to avoid interference between tests
+	 * @throws Exception
+	 */
+	@After
+	public void clearTriplestore() throws Exception {
+		triplestore.getConnection().clear();
+	}
+	
+	
 	
 	/**
 	 * Create generic sysagent and RequestAgent for general use using TestConstants. 

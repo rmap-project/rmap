@@ -29,7 +29,8 @@ import info.rmapproject.api.utils.Constants;
  * @author khanson
  */
 public enum ErrorCode {		
-	
+
+	//303**** See Other
 	/** Error code for when a response is too long and pagination is needed. */
 	ER_RESPONSE_TOO_LONG_NEED_PAGINATION (Status.SEE_OTHER, 3031001),
 

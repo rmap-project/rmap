@@ -19,14 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.api.service;
 
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.api.lists.NonRdfType;
-import info.rmapproject.api.lists.RdfMediaType;
-import info.rmapproject.api.responsemgr.ResourceResponseManager;
-import info.rmapproject.api.utils.HttpTypeMediator;
-import info.rmapproject.core.model.RMapObjectType;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.OPTIONS;
@@ -41,6 +33,14 @@ import javax.ws.rs.core.UriInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
+
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.api.lists.NonRdfType;
+import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.responsemgr.ResourceResponseManager;
+import info.rmapproject.api.utils.HttpTypeMediator;
+import info.rmapproject.core.model.RMapObjectType;
 
 /**
  * REST API service for rdfs:Resources in RMap.
@@ -70,6 +70,7 @@ public class ResourceApiService {
     	return resourceResponseManager;
 	}
 	
+    
 	
 /*
  * ------------------------------
@@ -210,7 +211,7 @@ public class ResourceApiService {
 
     	RdfMediaType outputType = HttpTypeMediator.getRdfResponseType(headers);
     	MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-		Response response = getResourceResponseManager().getRMapResourceTriples(resourceUri, outputType, queryParams);
+    	Response response = getResourceResponseManager().getRMapResourceTriples(resourceUri, outputType, queryParams);
 	    return response;	
     }
     

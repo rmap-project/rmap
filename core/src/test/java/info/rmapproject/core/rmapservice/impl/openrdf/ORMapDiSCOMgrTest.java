@@ -34,7 +34,6 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.model.IRI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,20 +53,14 @@ import info.rmapproject.testdata.service.TestFile;
 
 
 /**
- * @author smorrissey, khanson
+ * @author smorrissey
+ * @author khanson
  *
  */
 public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	
 	@Autowired 
 	ORMapDiSCOMgr discomgr;
-
-	@Before
-	public void setUp() throws Exception {
-		//create 2 RMapAgents to be used and system agents and their corresponding RequestAgents
-		createSystemAgent();
-		createSystemAgent2();
-	}
 	
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.IRI, boolean, Map, Map, ORMapEventMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
@@ -76,6 +69,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testReadDiSCO() throws RMapException, RMapDefectiveArgumentException {
+		System.out.println("Running test: testReadDiSCO()");	
 						
 		try {		
 			// now create DiSCO	
@@ -93,10 +87,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
-			assertEquals(description,description2);
-						
-			rmapService.deleteDiSCO(new java.net.URI(idIRI.toString()), requestAgent);
-									
+			assertEquals(description,description2);									
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
@@ -109,7 +100,8 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 * @throws RMapException 
 	 */
 	@Test
-	public void testCreateDiscoNoAggregates() throws RMapException, RMapDefectiveArgumentException {		
+	public void testCreateDiscoNoAggregates() throws RMapException, RMapDefectiveArgumentException {	
+		System.out.println("Running test: testCreateDiscoNoAggregates()");		
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_NO_AGGREGATES);	
@@ -128,6 +120,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateDiscoNoBody() throws RMapException, RMapDefectiveArgumentException {		
+		System.out.println("Running test: testCreateDiscoNoBody()");		
 		try {		
 			// create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_NO_BODY);	
@@ -144,8 +137,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
 			assertEquals(description,description2);
-						
-			rmapService.deleteDiSCO(new java.net.URI(idIRI.toString()), requestAgent);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -162,7 +153,8 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 * @throws RMapException 
 	 */
 	@Test
-	public void testCreateDiscoNoBodyOrAggregates() throws RMapException, RMapDefectiveArgumentException {		
+	public void testCreateDiscoNoBodyOrAggregates() throws RMapException, RMapDefectiveArgumentException {	
+		System.out.println("Running test: testCreateDiscoNoBodyOrAggregates()");				
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_NO_BODY_NO_AGGREGATES);	
@@ -187,6 +179,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateDiSCOAggregatesOnly() throws RMapException, RMapDefectiveArgumentException {
+		System.out.println("Running test: testCreateDiSCOAggregatesOnly()");				
 			
 		try {
 			// now create DiSCO	
@@ -213,6 +206,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateAndUpdateDiSCO() throws RMapException, RMapDefectiveArgumentException {
+		System.out.println("Running test: testCreateAndUpdateDiSCO()");				
 
 		try {
 			// create DiSCO	
@@ -267,10 +261,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 
 			List<java.net.URI> agentVersions = rmapService.getDiSCOAgentVersions(rIdIRI2.getIri());
 			assertTrue(agentVersions.size()==2);
-			
-			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
-			rmapService.deleteDiSCO(disco2.getId().getIri(), requestAgent);
-			rmapService.deleteDiSCO(disco3.getId().getIri(), requestAgent2);
 						
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -286,6 +276,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateAndUpdateDiSCOWithBNodes() throws RMapException, RMapDefectiveArgumentException {
+		System.out.println("Running test: testCreateAndUpdateDiSCOWithBNodes()");				
 		try {
 			
 			// now create DiSCO	
@@ -320,6 +311,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testGetAllDiSCOVersionsWithDates() throws RMapObjectNotFoundException, RMapException {
+		System.out.println("Running test: testGetAllDiSCOVersionsWithDates()");				
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -383,10 +375,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertTrue(version1.getValue().toString().equals(dIri.toString()));
 			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
 			
-			rmapService.deleteDiSCO(disco2.getId().getIri(), requestAgent);
-			rmapService.deleteDiSCO(disco3.getId().getIri(), requestAgent);
-			rmapService.deleteDiSCO(disco4.getId().getIri(), requestAgent2);
-						
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
