@@ -7,6 +7,7 @@
     <properties>
         <java-version>1.8</java-version>
         <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
+        <org.powermock-version>1.6.6</org.powermock-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
@@ -73,7 +74,18 @@
         	<artifactId>rmap-testdata</artifactId>
             <version>1.0.1-beta-SNAPSHOT</version>
         	<scope>test</scope>
-        </dependency>
+        </dependency>	
+		<dependency>
+		    <groupId>org.powermock</groupId>
+		    <artifactId>powermock-api-mockito</artifactId>
+		    <version>${org.powermock-version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.powermock</groupId>
+		    <artifactId>powermock-module-junit4</artifactId>
+		    <version>${org.powermock-version}</version>
+		</dependency>
     </dependencies>
     <build>
         <plugins>

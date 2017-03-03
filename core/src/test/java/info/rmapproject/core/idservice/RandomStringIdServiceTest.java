@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,10 +36,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
+ * Tests RandomStringIdService. Unlike tests for HttpUrlIdService, this uses the IdService interface and
+ * autowires the service class.
  * @author smorrissey, khanson
  *
  */
-
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
 public class RandomStringIdServiceTest {
@@ -46,39 +49,48 @@ public class RandomStringIdServiceTest {
 	private IdService rmapIdService;
 
 	/**
+	 * Verifies IdService interface autowired by Spring with the RandomStringIdService (ID service used for testing)
 	 * Test method for {@link info.rmapproject.core.idservice.RandomStringIdService}.
 	 */
 	@Test
-	public void testRandomStringIdService() {
+	public void idServiceIsAutowired() {
 		try {
 			assertTrue(rmapIdService instanceof info.rmapproject.core.idservice.RandomStringIdService);
 		} catch (Exception e) {
-			fail("Exception thrown " + e.getMessage());
 			e.printStackTrace();
+			fail("Exception thrown while testing RandomStringIdService.createId() " + e.getMessage());
 		}
 	}
 	
-	
 
 	/**
+	 * Creates 3 IDs and verifies that they are unique.
 	 * Test method for {@link info.rmapproject.core.idservice.RandomStringIdService#createId}.
 	 */
 	@Test
-	public void testCreateId() {
+	public void multipleUniqueIdsCreated() {
 		try {
+			Set<String> ids = new HashSet<String>();
+			
 			URI noid1 = rmapIdService.createId();
+			ids.add(noid1.toString());
 			URI noid2 = rmapIdService.createId();
+			ids.add(noid2.toString());
 			URI noid3 = rmapIdService.createId();
+			ids.add(noid3.toString());
 			
 			assertTrue(noid1 instanceof URI);
 			assertTrue(noid2 instanceof URI);
 			assertTrue(noid3 instanceof URI);
-			assertTrue(noid1 != noid2);
-			assertTrue(noid2 != noid3);
+			
+			//check there are 3 different strings
+			assertTrue(ids.size()==3);
+			
 		} catch (Exception e) {
-			fail("Exception thrown " + e.getMessage());
 			e.printStackTrace();
+			fail("Exception thrown while testing RandomStringIdService.createId() " + e.getMessage());
 		}
 	}
+	
 
 }

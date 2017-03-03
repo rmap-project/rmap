@@ -151,7 +151,7 @@ public class ORMapDiscoTest {
 	@Test
 	public void testORMapDisco() throws RMapException, RMapDefectiveArgumentException, FileNotFoundException {
 		try {
-			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_XML);
+			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
 			RioRDFHandler handler = new RioRDFHandler();
 			Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
@@ -159,7 +159,7 @@ public class ORMapDiscoTest {
 			OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);
 			String output = os.toString();
 			assertTrue(output.contains("Green, M."));
-			stream = TestDataHandler.getTestRdf(TestFile.DISCOB_V1_XML);
+			stream = TestDataHandler.getTestData(TestFile.DISCOB_V1_XML);
 			stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			disco = new ORMapDiSCO(stmts);
 			assertTrue(true);

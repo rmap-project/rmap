@@ -328,7 +328,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	public void testCreateTurtleDisco() {
 		Response response = null;
 		try {			
-			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_TURTLE);
+			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_TURTLE);
 			response = discoResponseManager.createRMapDiSCO(stream, RDFType.TURTLE);
 			
 		} catch (Exception e) {
@@ -351,7 +351,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	public void testCreateJSONLDDisco() {
 		Response response = null;
 		try {			
-			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_JSONLD);
+			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_JSONLD);
 			response = discoResponseManager.createRMapDiSCO(stream, RDFType.JSONLD);
 			
 		} catch (Exception e) {
@@ -374,7 +374,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	public void testCreateRdfXmlDisco() {
 		Response response = null;
 		try {
-			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_XML);
+			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
 			response = discoResponseManager.createRMapDiSCO(stream, RDFType.RDFXML);
 			
 		} catch (Exception e) {

@@ -196,8 +196,8 @@ public enum TestFile {
 //	EVENT_XML_NO_TYPE("/events/event_creation_no_targettype.rdf","RDFXML"),
 	
 	/** An empty file+ */
-	EMPTY_FILE("/empty.txt", "RDFXML"); 
-		
+	EMPTY_FILE("/empty.txt", "");
+	
 	/** The media type. */
 	private final String filepath;
 
