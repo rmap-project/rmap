@@ -56,4 +56,22 @@ public enum RDFType {
 		return rdfType;
 	}
 	
+
+	/**
+	 * Gets the RDF Type from the string representation
+	 *
+	 * @param type as string
+	 * @return the type as RDFType
+	 */
+	public static RDFType get(String type){
+		for (RDFType stat: RDFType.values()){
+			String typeTerm = stat.getRdfType();
+			if (typeTerm.equals(type.toUpperCase())){
+				return stat;
+			}
+		}
+		return null;
+	}
+	
+	
 }

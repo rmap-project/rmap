@@ -23,15 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import info.rmapproject.api.lists.NonRdfType;
-import info.rmapproject.api.lists.RdfMediaType;
-import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.utils.Terms;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -40,9 +32,21 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import info.rmapproject.api.lists.NonRdfType;
+import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.test.TestUtils;
+import info.rmapproject.api.utils.Constants;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.utils.Terms;
+import info.rmapproject.testdata.service.TestConstants;
+import info.rmapproject.testdata.service.TestFile;
 
 /**
  * Tests for the ResourceResponseManager class
@@ -53,20 +57,10 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 	@Autowired
 	protected ResourceResponseManager resourceResponseManager;
 	
-	/* (non-Javadoc)
-	 * @see info.rmapproject.api.responsemgr.ResponseManagerTest#setUp()
-	 */
-	@Before
-	public void setUp() throws Exception {
-		try {
-			super.setUp(); 
-		} catch (Exception e) {
-			fail("Exception thrown " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
+	/** The disco response manager. */
+	@Autowired
+	protected DiscoResponseManager discoResponseManager;
 	
-
 	/**
 	 * Test resource response manager.
 	 */
@@ -117,13 +111,12 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 		Response response = null;
 		try {
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 			MultivaluedMap<String,String> params = new MultivaluedHashMap<String, String>();
-			response = resourceResponseManager.getRMapResourceRelatedObjs("http://dx.doi.org/10.1109/ACCESS.2014.2332453", RMapObjectType.OBJECT, NonRdfType.JSON, params);
+			response = resourceResponseManager.getRMapResourceRelatedObjs(TestConstants.TEST_DISCO_DOI, RMapObjectType.OBJECT, NonRdfType.JSON, params);
 
 			assertNotNull(response);
 			//String location = response.getLocation().toString();
@@ -132,7 +125,6 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 			assertTrue(body.contains(Terms.RMAP_OBJECT_PATH));
 			assertEquals(200, response.getStatus());	
 			
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -149,24 +141,20 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 		Response response = null;
 		try {
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 			
 			MultivaluedMap<String,String> queryparams = new MultivaluedHashMap<String,String>();
 			
-			response = resourceResponseManager.getRMapResourceRelatedObjs("http://dx.doi.org/10.1109/ACCESS.2014.2332453", RMapObjectType.DISCO, NonRdfType.JSON, queryparams);
+			response = resourceResponseManager.getRMapResourceRelatedObjs(TestConstants.TEST_DISCO_DOI, RMapObjectType.DISCO, NonRdfType.JSON, queryparams);
 
 			assertNotNull(response);
-			//String location = response.getLocation().toString();
 			String body = response.getEntity().toString();
-			//assertTrue(location.contains("resource"));
 			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
 			assertEquals(200, response.getStatus());	
 			
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -185,36 +173,32 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 		try {			
 						
 			//create 1 disco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
+			RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
+			String discoURIV1 = rmapDiscoV1.getId().toString();
+	        assertNotNull(discoURIV1);
 	        
 	        //create another disco
-			InputStream rdf2 = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.RDFXML, "");
-			String discoURI2 = rmapDisco.getId().toString();
-	        assertNotNull(discoURI2);
-	        
-			/*String discoURI = "rmap:rmd18m7p1b";*/
+			RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
+			String discoURIV2 = rmapDiscoV2.getId().toString();
+	        assertNotNull(discoURIV2);
 			
 			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
 
 			//update the disco
-			rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
+			rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
 									
 			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
-			queryParams.add("page", "1");
-			queryParams.add("limit", "2");
-			queryParams.add("from", "20121201000000");
+			queryParams.add(Constants.PAGE_PARAM, "1");
+			queryParams.add(Constants.LIMIT_PARAM, "2");
+			queryParams.add(Constants.FROM_PARAM, "20121201000000");
 
-			queryParams.add("status", "active");
-			responseActive = resourceResponseManager.getRMapResourceRelatedObjs("http://dx.doi.org/10.1109/ACCESS.2014.2332453", RMapObjectType.DISCO, NonRdfType.JSON, queryParams);
+			queryParams.add(Constants.STATUS_PARAM, Terms.RMAP_ACTIVE);
+			responseActive = resourceResponseManager.getRMapResourceRelatedObjs(TestConstants.TEST_DISCO_DOI, RMapObjectType.DISCO, NonRdfType.JSON, queryParams);
 
-			queryParams.remove("status");
-			queryParams.add("status", "inactive");
-			responseInactive = resourceResponseManager.getRMapResourceRelatedObjs("http://dx.doi.org/10.1109/ACCESS.2014.2332453", RMapObjectType.DISCO, NonRdfType.JSON, queryParams);
+			queryParams.remove(Constants.STATUS_PARAM);
+			queryParams.add(Constants.STATUS_PARAM, Terms.RMAP_INACTIVE);
+			responseInactive = resourceResponseManager.getRMapResourceRelatedObjs(TestConstants.TEST_DISCO_DOI, RMapObjectType.DISCO, NonRdfType.JSON, queryParams);
 
 			assertNotNull(responseActive);
 			assertNotNull(responseInactive);
@@ -229,9 +213,6 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 			
 			assertEquals(200, responseActive.getStatus());	
 			assertEquals(200, responseInactive.getStatus());	
-			
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
-			rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
 		
 		} catch (Exception e) {
 			e.printStackTrace();			
@@ -248,27 +229,70 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 		Response response = null;
 		try {
 			//create 1 disco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco,super.reqAgent);
+			rmapService.createDiSCO(rmapDisco,requestAgent);
 						
-			String encodedUrl = URLEncoder.encode("http://dx.doi.org/10.1109/ACCESS.2014.2332453","UTF-8");
+			String testDiscoDoi = URLEncoder.encode(TestConstants.TEST_DISCO_DOI,"UTF-8");
 			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
-			params.add("page", "1");
-			params.add("limit", "10");
-			params.add("from", "20121201000000");
-			params.add("from", "20121201000000");
-			response = resourceResponseManager.getRMapResourceTriples(encodedUrl, RdfMediaType.APPLICATION_RDFXML, params);
+			params.add(Constants.PAGE_PARAM, "1");
+			params.add(Constants.FROM_PARAM, "20121201000000");
+			response = resourceResponseManager.getRMapResourceTriples(testDiscoDoi, RdfMediaType.APPLICATION_RDFXML, params);
 
 			assertNotNull(response);
-			//String location = response.getLocation().toString();
 			String body = response.getEntity().toString();
-			//assertTrue(location.contains("resource"));
-			assertTrue(body.contains("JournalArticle"));
+			assertTrue(body.contains(TestConstants.TEST_DISCO_DOI_TYPE));
 			assertEquals(200, response.getStatus());	
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
+
+		} catch (Exception e) {
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+
+	}
+
+	/**
+	 * Test the RMap Resource RDF stmts.
+	 */
+	@Test
+	public void getRMapResourceRdfStmtsWithLimit() {
+		Response response = null;
+		try {
+			//create 1 disco
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+			String discoURI = rmapDisco.getId().toString();
+	        assertNotNull(discoURI);
+			rmapService.createDiSCO(rmapDisco,requestAgent);
+			
+			String resourceUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
+			
+			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
+			params.add(Constants.LIMIT_PARAM, "2");
+						
+			response = resourceResponseManager.getRMapResourceTriples(resourceUri, RdfMediaType.APPLICATION_RDFXML, params);
+
+			assertNotNull(response);
+			String body = response.getEntity().toString();
+			
+			assertEquals(303, response.getStatus());	
+			assertTrue(body.contains("page number"));
+
+			URI location = response.getLocation();
+			MultiValueMap<String, String> parameters =
+			            UriComponentsBuilder.fromUri(location).build().getQueryParams();
+			String untildate = parameters.getFirst(Constants.UNTIL_PARAM);
+			
+			//check page 1 just has 2 statements
+			params.add(Constants.PAGE_PARAM, "1");	
+			params.add(Constants.UNTIL_PARAM, untildate);
+
+			response = resourceResponseManager.getRMapResourceTriples(resourceUri, RdfMediaType.APPLICATION_RDFXML, params);
+			assertEquals(200,response.getStatus());
+			body = response.getEntity().toString();
+			int numMatches = StringUtils.countMatches(body, "xmlns=");
+			assertEquals(2,numMatches);
+						
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -276,9 +300,10 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 
 	}
 	
+	
 		
 	/**
-	 * Make sure it doesn't fail if you pass in a url with a space.
+	 * Make sure it doesn't fail if you pass in a url with an encoded space.
 	 * URL spaces should be replaced with "+"
 	 */
 	@Test
@@ -286,27 +311,23 @@ public class ResourceResponseManagerTest extends ResponseManagerTest {
 		
 		Response response = null;
 		try {
+			final String URL_WITH_SPACE = "http://ieeexplore.ieee.org/example/000000+mm.zip";
+			
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(discoWithSpaceInUrl.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML_ENCODED_SPACE_IN_URL);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 						
 			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
-			params.add("page", "1");
-			params.add("limit", "10");
-			String encodedUrl = "http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585+mm.zip";
-			response = resourceResponseManager.getRMapResourceTriples(encodedUrl, RdfMediaType.APPLICATION_RDFXML, params);
+			params.add(Constants.PAGE_PARAM, "1");
+			params.add(Constants.LIMIT_PARAM, "10");
+			response = resourceResponseManager.getRMapResourceTriples(URL_WITH_SPACE, RdfMediaType.APPLICATION_RDFXML, params);
 
 			assertNotNull(response);
-			//String location = response.getLocation().toString();
 			String body = response.getEntity().toString();
-			//assertTrue(location.contains("resource"));
-			assertTrue(body.contains(encodedUrl));
+			assertTrue(body.contains(URL_WITH_SPACE));
 			assertEquals(200, response.getStatus());	
-			rmapService.deleteDiSCO(rmapDisco.getId().getIri(), super.reqAgent);
-			
 			
 		} catch (Exception e) {
 			e.printStackTrace();			

@@ -26,20 +26,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
-import info.rmapproject.core.vocabulary.impl.openrdf.ORE;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
-import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +49,17 @@ import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.rdfhandler.RDFType;
+import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
+import info.rmapproject.core.vocabulary.impl.openrdf.ORE;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+import info.rmapproject.testdata.service.TestDataHandler;
+import info.rmapproject.testdata.service.TestFile;
 
 
 /**
@@ -87,96 +89,6 @@ public class ORMapDiscoTest {
 	protected IRI creatorIRI;
 	protected IRI creatorIRI2;
 	
-	protected String discoRDF = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> "  
-			+ "<rdf:RDF "  
-			+ " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""  
-			+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\""  
-			+ " xmlns:rmap=\"http://rmap-project.org/rmap/terms/\""  		
-			+ " xmlns:ore=\"http://www.openarchives.org/ore/terms/\""
-			+ " xmlns:dcterms=\"http://purl.org/dc/terms/\""  
-			+ " xmlns:dc=\"http://purl.org/dc/elements/1.1/\""  
-			+ " xmlns:foaf=\"http://xmlns.com/foaf/0.1/\""  
-			+ " xmlns:fabio=\"http://purl.org/spar/fabio/\">"  
-			+ "<rmap:DiSCO>"  
-			+ "<dcterms:creator rdf:resource=\"http://orcid.org/0000-0000-0000-0000\"/>"
-			+ "<dc:description>"  
-			+ "This is an example DiSCO aggregating different file formats for an article on IEEE Xplore as well as multimedia content related to the article."  
-			+ "</dc:description>"  
-			+ "<ore:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\"/>"  
-			+ "<ore:aggregates rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\"/>"  
-	    	+ "</rmap:DiSCO>"  
-	    	+ "<fabio:JournalArticle rdf:about=\"http://dx.doi.org/10.1109/ACCESS.2014.2332453\">"  
-	    	+ "<dc:title>Toward Scalable Systems for Big Data Analytics: A Technology Tutorial</dc:title>"  
-	    	+ "<dc:creator>Yonggang Wen</dc:creator>"  
-	    	+ "<dc:creator>Tat-Seng Chua</dc:creator>"  
-	    	+ "<dc:creator>Xuelong Li</dc:creator>"  
-	    	+ "<dc:subject>Hadoop</dc:subject>"  
-	    	+ "<dc:subject>Big data analytics</dc:subject>"  
-	    	+ "<dc:subject>data acquisition</dc:subject>"  
-	    	+ "</fabio:JournalArticle>"  
-	    	+ "<rdf:Description rdf:about=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip\">"  
-	    	+ "<dc:format>application/zip</dc:format>"  
-	    	+ "<dc:description>Zip file containing an AVI movie and a README file in Word format.</dc:description>"  
-	    	+ "<dc:hasPart rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#big%32data%32intro.avi\"/>"  
-	    	+ "<dc:hasPart rdf:resource=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#README.docx\"/>"  
-	    	+ "</rdf:Description>"  
-	    	+ "<rdf:Description rdf:about=\"http://ieeexplore.ieee.org/ielx7/6287639/6705689/6842585/html/mm/6842585-mm.zip#big%32data%32intro.avi\">"  
-	    	+ "<dc:format>video/x-msvideo</dc:format>"  
-	    	+ "<dc:extent>194KB</dc:extent>"  
-	    	+ "</rdf:Description>"  
-	    	+ "</rdf:RDF>";
-	
-	protected String discoRDFdcterms = 
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-			"<rdf:RDF  xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" " +
-			"    xmlns:rmap=\"http://rmap-project.org/rmap/terms/\" " +
-			"    xmlns:ore=\"http://www.openarchives.org/ore/terms/\"" +
-			"    xmlns:dc=\"http://purl.org/dc/elements/1.1/\" " +
-			"    xmlns:dcterms=\"http://purl.org/dc/terms/\" " +
-			"    xmlns:premis=\"http://www.loc.gov/premis/rdf/v1#\" " +
-			"    xmlns:modsrdf=\"http://www.loc.gov/mods/modsrdf/v1#\">" +
-			"    <rmap:DiSCO>" +
-			"        <dcterms:creator rdf:resource=\"http://portico.org\"/>" +
-			"        <dcterms:description>The group of digital objects relating to a single article that are preserved in the Portico digital archive.</dcterms:description>" +
-			"        <ore:aggregates rdf:resource=\"ark:/27927/pf1xrp1cv9\"/>" +
-			"        <ore:aggregates rdf:resource=\"http://dx.doi.org/10.1109/ICAL.2007.4339019\"/>" +
-			"        <ore:aggregates rdf:resource=\"ark:/27927/pf1xrntg38\"/>" +
-			"        <ore:aggregates rdf:resource=\"ark:/27927/pf1xrsw3hq\"/>" +
-			"        <ore:aggregates rdf:resource=\"ark:/27927/pf1xrnsz85\"/>" +
-			"    </rmap:DiSCO>" +
-			"    <rdf:Description rdf:about=\"http://dx.doi.org/10.1109/ICAL.2007.4339019\">" +
-			"        <rdf:type rdf:resource=\"http://purl.org/spar/fabio/JournalArticle\"/>" +
-			"    </rdf:Description>" +
-			"    <rdf:Description rdf:about=\"ark:/27927/pf1xrp1cv9\">" +
-			"        <dcterms:isFormatOf rdf:resource=\"http://dx.doi.org/10.1109/ICAL.2007.4339019\"/>" +
-			"        <modsrdf:locationOfResource rdf:resource=\"http://portico.org\"/>" +
-			"        <dcterms:hasPart rdf:resource=\"ark:/27927/pf1xrntg38\"/>" +
-			"        <dcterms:hasPart rdf:resource=\"ark:/27927/pf1xrsw3hq\"/>" +
-			"        <dcterms:hasPart rdf:resource=\"ark:/27927/pf1xrnsz85\"/>" +
-			"   </rdf:Description>" +
-			"    <rdf:Description rdf:about=\"ark:/27927/pf1xrntg38\">" +
-			"        <modsrdf:locationOfResource rdf:resource=\"http://portico.org\"/>" +
-			"        <dcterms:format>application/xml</dcterms:format>" +
-			"        <dcterms:format>IEEE IDAMS DTD:1.0:2005-06-27</dcterms:format>" +
-			"        <premis:hasOriginalName>CONFPROC_4338502_4338503.tar/CONFPROC_4338502/4338503/04339019.xml</premis:hasOriginalName>" +
-			"        <dcterms:extent>8807 Bytes</dcterms:extent>" +
-			"    </rdf:Description>" +
-			"    <rdf:Description rdf:about=\"ark:/27927/pf1xrsw3hq\">" +
-			"        <modsrdf:locationOfResource rdf:resource=\"http://portico.org\"/>" +
-			"        <dcterms:format>application/xml</dcterms:format>" +
-			"        <dcterms:format>Portico Journal Archiving DTD:2.0:2006-02-28</dcterms:format>" +
-			"        <premis:hasOriginalName>unknown</premis:hasOriginalName>" +
-			"        <dcterms:extent>6945 Bytes</dcterms:extent>" +
-			"    </rdf:Description>" +
-			"    <rdf:Description rdf:about=\"ark:/27927/pf1xrnsz85\">" +
-			"        <modsrdf:locationOfResource rdf:resource=\"http://portico.org\"/>" +
-			"        <dcterms:format>application/pdf</dcterms:format>" +
-			"        <dcterms:format>Portable Document Format:1.4:2001</dcterms:format>" +
-			"        <premis:hasOriginalName>CONFPROC_4338502_4338503.tar/CONFPROC_4338502/4338503/04339019.pdf</premis:hasOriginalName>" +
-			"        <dcterms:extent>769543 Bytes</dcterms:extent>" +
-			"    </rdf:Description>" +
-			"</rdf:RDF>";
-
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -237,25 +149,27 @@ public class ORMapDiscoTest {
 	}
 
 	@Test
-	public void testORMapDisco() throws RMapException, RMapDefectiveArgumentException {
-		InputStream stream = new ByteArrayInputStream(discoRDF.getBytes(StandardCharsets.UTF_8));
-		RioRDFHandler handler = new RioRDFHandler();	
-		Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
-		ORMapDiSCO disco = new ORMapDiSCO(stmts);
-		assertEquals(14, disco.getRelatedStatementsAsList().size());
-		OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);
-		String output = os.toString();
-		assertTrue(output.contains("Yonggang Wen"));
-		stream = new ByteArrayInputStream(discoRDFdcterms.getBytes(StandardCharsets.UTF_8));
-		stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");;
+	public void testORMapDisco() throws RMapException, RMapDefectiveArgumentException, FileNotFoundException {
 		try {
+			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_XML);
+			RioRDFHandler handler = new RioRDFHandler();
+			Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+			ORMapDiSCO disco = new ORMapDiSCO(stmts);
+			assertEquals(29, disco.getRelatedStatementsAsList().size());
+			OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);
+			String output = os.toString();
+			assertTrue(output.contains("Green, M."));
+			stream = TestDataHandler.getTestRdf(TestFile.DISCOB_V1_XML);
+			stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			disco = new ORMapDiSCO(stmts);
 			assertTrue(true);
 		}
 		catch (RMapException e){
-			fail("should have handled dcTerms");			
+			e.printStackTrace();
+			fail("should have handled converted to DiSCOs");			
 		}
 	}
+	
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#referencesAggregate(java.util.List)}.
 	 * @throws  
@@ -345,7 +259,7 @@ public class ORMapDiscoTest {
 		List<java.net.URI> list1 = new ArrayList<java.net.URI>();
 		list1.add(ORAdapter.openRdfIri2URI(r));
 		list1.add(ORAdapter.openRdfIri2URI(r2));
-		disco.setAggregatedResources(list1);				
+		disco.setAggregatedResources(list1);
 		List<java.net.URI>list2 = disco.getAggregatedResources();
 		assertEquals(2,list2.size());
 		assertTrue(list2.contains(ORAdapter.openRdfIri2URI(r)));

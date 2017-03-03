@@ -24,10 +24,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
@@ -48,15 +46,17 @@ import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.responsemgr.versioning.ResourceVersions;
+import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpHeaderDateUtils;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rdfhandler.RDFType;
+import info.rmapproject.core.utils.Terms;
+import info.rmapproject.testdata.service.TestDataHandler;
+import info.rmapproject.testdata.service.TestFile;
 
 /**
  * Tests for DiscoResponseManager
@@ -64,56 +64,6 @@ import info.rmapproject.core.rdfhandler.RDFType;
  */
 public class DiscoResponseManagerTest extends ResponseManagerTest {
 		
-	/** The DiSCO turtle RDF. */
-	protected String discoTurtleRdf = 
-			"@prefix dc: <http://purl.org/dc/elements/1.1/> ."
-			+ "@prefix frbr: <http://purl.org/vocab/frbr/core#> ."
-			+ "@prefix cito: <http://purl.org/spar/cito/> ."
-			+ "@prefix dcterms: <http://purl.org/dc/terms/> ."
-			+ "@prefix foaf: <http://xmlns.com/foaf/0.1/> ."
-			+ "@prefix scoro: <http://purl.org/spar/scoro/> ."
-			+ "@prefix ore: <http://www.openarchives.org/ore/terms/> ."
-			+ "@prefix rmap: <http://rmap-project.org/rmap/terms/> ."
-			+ "<http://dx.doi.org/10.5281/zenodo.13962>"
-			+ "  a <http://purl.org/dc/dcmitype/Software> ;"
-			+ " dc:identifier \"http://zenodo.org/record/13962\" ;"
-			+ "	frbr:supplementOf \"https://github.com/ComputationalRadiationPhysics/mallocMC/tree/2.0.1crp\" ;"
-			+ "  cito:cites \"http://dx.doi.org/10.1109/InPar.2012.6339604\", \"http://www.icg.tugraz.at/project/mvp/downloads\" ;"
-			+ "  dcterms:isVersionOf \"http://dx.doi.org/10.5281/zenodo.10307\" ;"
-			+ "  dc:title \"mallocMC: 2.0.1crp: Bugfixes\" ;"
-			+ "  dcterms:abstract \"\"\"<p>This release fixes several"
-			+ "            bugs that occurred after the release of"
-			+ "            2.0.0crp.</p>\\n\\n<p>We closed all issues documented in"
-			+ "            Milestone <em>Bugfixes</em>.</p>\"\"\" ;"
-			+ "  dcterms:description \"\"\"This library started as a fork of"
-			+ "            ScatterAlloc, see citations"
-			+ "            http://dx.doi.org/10.1109/InPar.2012.6339604\"\"\" ;"
-			+ "  dcterms:creator <http://orcid.org/0000-0002-6459-0842>, ["
-			+ "    foaf:name \"Axel Huebl\" ;"
-			+ "    a dcterms:Agent"
-			+ "  ], ["
-			+ "    foaf:name \"Ren� Widera\" ;"
-			+ "    a dcterms:Agent"
-			+ "  ] ;"
-			+ "  scoro:contact-person <http://orcid.org/0000-0002-6459-0842> ;"
-			+ "  scoro:data-manager <http://orcid.org/0000-0002-6459-0842> ;"
-			+ "  scoro:project-leader ["
-			+ "    foaf:name \"Axel Huebl\" ;"
-			+ "    a dcterms:Agent"
-			+ "  ] ;"
-			+ "  scoro:project-member ["
-			+ "    foaf:name \"Ren� Widera\" ;"
-			+ "    a dcterms:Agent"
-			+ "  ] ;"
-			+ "  dc:subject \"CUDA, HPC, Manycore, GPU, Policy Based Design\" ."
-			+ "<http://orcid.org/0000-0002-6459-0842>"
-			+ "  foaf:name \"Carlchristian Eckert\" ;"
-			+ "  a dcterms:Agent ."
-			+ "[]"
-			+ "  a <http://rmap-project.org/rmap/terms/DiSCO> ;"
-			+ "  dcterms:creator <http://datacite.org> ;"
-			+ "  ore:aggregates <http://dx.doi.org/10.5281/zenodo.13962> .";
-	
 	/** The disco response manager. */
 	@Autowired
 	protected DiscoResponseManager discoResponseManager;
@@ -189,15 +139,13 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 
     	Response response=null;
     	
-   		RdfMediaType matchingType = RdfMediaType.get("application/xml");
+   		RdfMediaType matchingType = RdfMediaType.get(MediaType.APPLICATION_XML_TYPE.toString());
 
 		//createDisco
-		InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-		RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 		String discoURI = rmapDisco.getId().toString();
         assertNotNull(discoURI);
-		/*String discoURI = "rmap:rmd18m7p1b";*/
-		rmapService.createDiSCO(rmapDisco, super.reqAgent);
+		rmapService.createDiSCO(rmapDisco, requestAgent);
 	
 		try {
 			response = discoResponseManager.getRMapDiSCO(URLEncoder.encode(discoURI,StandardCharsets.UTF_8.name()),matchingType);
@@ -207,12 +155,9 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		}
 
 		assertNotNull(response);
-		//String location = response.getLocation().toString();
 		String body = response.getEntity().toString();
-		//assertTrue(location.contains("disco"));
-		assertTrue(body.contains("DiSCO"));
+		assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
 		assertEquals(200, response.getStatus());
-		rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
 	}
 	
 
@@ -226,24 +171,22 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		
 		try {
 			//create 1 disco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
-			String discoURI = rmapDisco.getId().toString();
+			RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
+			String discoURI = rmapDiscoV1.getId().toString();
 	        assertNotNull(discoURI);
 	        
 	        //create another disco
-			InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
-			String discoURI2 = rmapDisco2.getId().toString();
+			RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
+			String discoURI2 = rmapDiscoV2.getId().toString();
 	        assertNotNull(discoURI2);
 	        
 			/*String discoURI = "rmap:rmd18m7p1b";*/
 			
 			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
 	
 			//update the disco
-			rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
+			rmapService.updateDiSCO(new URI(discoURI), rmapDiscoV2, requestAgent);
 			
 	    	Response response=null;
 	    	
@@ -266,7 +209,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			assertTrue(links1.contains(encodedDiscoUri2 + successorAndLatestVersionLink));
 			assertTrue(!links1.contains(predecessorVersionLink));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.TIMEMAP + "\""));
-			assertTrue(links1.contains("/inactive"));
+			assertTrue(links1.contains("/" + Terms.RMAP_INACTIVE));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			String location1 = response.getHeaderString("location");
 			assertTrue(location1.contains(encodedDiscoUri1));
@@ -279,19 +222,16 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 					
 			assertNotNull(response);
 			String body = response.getEntity().toString();
-			assertTrue(body.contains("DiSCO"));
+			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
 			assertEquals(200, response.getStatus());
 			String links2 = response.getLinks().toString();
 			assertTrue(links2.contains(encodedDiscoUri1 + predecessorVersionLink));
 			assertTrue(links2.contains(encodedDiscoUri2 + latestVersionLink));
 			assertTrue(!links2.contains(successorVersionLink));
-			assertTrue(links2.contains("/active"));
+			assertTrue(links2.contains("/" + Terms.RMAP_ACTIVE));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
-			String location2 = response.getHeaderString("location");
+			String location2 = response.getHeaderString(HttpHeaders.LOCATION);
 			assertTrue(location2.contains(encodedDiscoUri2));
-						
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
-			rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -308,31 +248,29 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	@Test
 	public void testGetLatestDiSCOResponse() throws Exception{
 		//create 1 disco
-		InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-		RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
-		String discoURI = rmapDisco.getId().toString();
-        assertNotNull(discoURI);
+		RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
+		String discoURIV1 = rmapDiscoV1.getId().toString();
+        assertNotNull(discoURIV1);
         
         //create another disco
-		InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
-		RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
-		String discoURI2 = rmapDisco2.getId().toString();
-        assertNotNull(discoURI2);
+		RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
+		String discoURIV2 = rmapDiscoV2.getId().toString();
+        assertNotNull(discoURIV2);
         
 		/*String discoURI = "rmap:rmd18m7p1b";*/
 		
 		//create a disco using the test agent
-		rmapService.createDiSCO(rmapDisco, super.reqAgent);
+		rmapService.createDiSCO(rmapDiscoV1, requestAgent);
 
 		//update the disco
-		rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
+		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
 		
     	Response response=null;
     	
 		try {
 			//now get the latest using the first DiSCO URI
-			String encodedUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
-			response = discoResponseManager.getLatestRMapDiSCOVersion(encodedUri,null);
+			String encodedUriV1 = URLEncoder.encode(discoURIV1, StandardCharsets.UTF_8.name());
+			response = discoResponseManager.getLatestRMapDiSCOVersion(encodedUriV1,null);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -340,11 +278,9 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 
 		assertNotNull(response);
 		String location = response.getLocation().toString();
-		String encodedUri2 = URLEncoder.encode(discoURI2, StandardCharsets.UTF_8.name());
-		assertTrue(location.contains(encodedUri2));
+		String encodedUriV2 = URLEncoder.encode(discoURIV2, StandardCharsets.UTF_8.name());
+		assertTrue(location.contains(encodedUriV2));
 		assertEquals(302, response.getStatus());
-		rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
-		rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
 	}
 
 	/**
@@ -391,11 +327,8 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	@Test
 	public void testCreateTurtleDisco() {
 		Response response = null;
-		try {
-			//MockHttpSession httpsession = new MockHttpSession();
-			//httpsession.setAttribute(name, value);
-						
-			InputStream stream = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
+		try {			
+			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_TURTLE);
 			response = discoResponseManager.createRMapDiSCO(stream, RDFType.TURTLE);
 			
 		} catch (Exception e) {
@@ -409,6 +342,30 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		
 	}
 
+	
+
+	/**
+	 * Test create DiSCO using JSONLD RDF
+	 */
+	@Test
+	public void testCreateJSONLDDisco() {
+		Response response = null;
+		try {			
+			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_JSONLD);
+			response = discoResponseManager.createRMapDiSCO(stream, RDFType.JSONLD);
+			
+		} catch (Exception e) {
+			System.out.print(e.getMessage());
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+	
+		assertNotNull(response);
+		assertEquals(201, response.getStatus());
+		
+	}
+
+	
 
 	/**
 	 * Tests create DiSCO using RDF XML
@@ -417,10 +374,7 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	public void testCreateRdfXmlDisco() {
 		Response response = null;
 		try {
-			//create new ORMapAgent
-			//createAgentforTest();
-			
-			InputStream stream = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
+			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_XML);
 			response = discoResponseManager.createRMapDiSCO(stream, RDFType.RDFXML);
 			
 		} catch (Exception e) {
@@ -432,16 +386,6 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		assertNotNull(response);
 		assertEquals(201, response.getStatus());
 		assertNotNull(response.getEntity());
-		
-
-		try {
-			rmapService.deleteDiSCO(new URI(response.getEntity().toString()), super.reqAgent);
-		} catch (RMapException | RMapDefectiveArgumentException
-				| URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 	}
 	
 	
@@ -452,13 +396,12 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	public void testDiSCOThatHasBeenTombstoned(){
 		try {
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(discoWithSpaceInUrl.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 	        assertNotNull(rmapDisco.getId());
 			String strDiscoUri = rmapDisco.getId().toString();
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 			//delete and check status
-			rmapService.deleteDiSCO(new URI(strDiscoUri), super.reqAgent);			
+			rmapService.deleteDiSCO(new URI(strDiscoUri), requestAgent);			
 			List<URI> rmapEvents = rmapService.getDiSCOEvents(new URI(strDiscoUri));
 			assertTrue(rmapEvents.size()==2);
 			RMapEvent event = rmapService.readEvent(rmapEvents.get(0));
@@ -493,40 +436,36 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 		
 		try {
 			//create 1 disco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
+			RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
+			String discoURIV1 = rmapDiscoV1.getId().toString();
+	        assertNotNull(discoURIV1);
 	        
 	        //create another disco
-			InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
-			String discoURI2 = rmapDisco2.getId().toString();
-	        assertNotNull(discoURI2);
+			RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
+			String discoURIV2 = rmapDiscoV2.getId().toString();
+	        assertNotNull(discoURIV2);
 	        
 			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
 	
 			//update the disco
-			rmapService.updateDiSCO(new URI(discoURI), rmapDisco2, super.reqAgent);
+			rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
 			
 	    	Response response=null;
 	    		
-			String encodedDiscoUri1 = URLEncoder.encode(discoURI, "UTF-8");
-			String encodedDiscoUri2 = URLEncoder.encode(discoURI2, "UTF-8");
+			String encodedDiscoUriV1 = URLEncoder.encode(discoURIV1, "UTF-8");
+			String encodedDiscoUriV2 = URLEncoder.encode(discoURIV2, "UTF-8");
 	   		
 			//now check original DiSCO
-			response = discoResponseManager.getRMapDiSCOTimemap(encodedDiscoUri1);
+			response = discoResponseManager.getRMapDiSCOTimemap(encodedDiscoUriV1);
 			String responseBody = response.getEntity().toString();
-			assertTrue(responseBody.contains(encodedDiscoUri1));
-			assertTrue(responseBody.contains(encodedDiscoUri2));
+			assertTrue(responseBody.contains(encodedDiscoUriV1));
+			assertTrue(responseBody.contains(encodedDiscoUriV2));
 			assertEquals(200, response.getStatus());
 			String contentType = response.getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0).toString();
 			
 			assertTrue(contentType.equals(Constants.LINK_FORMAT_MEDIA_TYPE));
 			
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
-			rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -547,36 +486,33 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			//first create 3 versions of a disco
 			
 			//create 1 disco
-			InputStream rdf1 = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco1 = rdfHandler.rdf2RMapDiSCO(rdf1, RDFType.RDFXML, "");
-			String discoURI1 = rmapDisco1.getId().toString();
-	        assertNotNull(discoURI1);
+			RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
+			String discoURIV1 = rmapDiscoV1.getId().toString();
+	        assertNotNull(discoURIV1);
 	        //create another disco
-			InputStream rdf2 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco2 = rdfHandler.rdf2RMapDiSCO(rdf2, RDFType.TURTLE, "");
-			String discoURI2 = rmapDisco2.getId().toString();
-	        assertNotNull(discoURI2);
+			RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
+			String discoURIV2 = rmapDiscoV2.getId().toString();
+	        assertNotNull(discoURIV2);
 	        //create another disco
-			InputStream rdf3 = new ByteArrayInputStream(discoTurtleRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco3 = rdfHandler.rdf2RMapDiSCO(rdf3, RDFType.TURTLE, "");
-			String discoURI3 = rmapDisco3.getId().toString();
-	        assertNotNull(discoURI3);
+			RMapDiSCO rmapDiscoV3 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V3_XML);
+			String discoURIV3 = rmapDiscoV3.getId().toString();
+	        assertNotNull(discoURIV3);
 	        
 			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDisco1, super.reqAgent);
+			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
 			TimeUnit.SECONDS.sleep(3);
 			//update the disco
-			rmapService.updateDiSCO(new URI(discoURI1), rmapDisco2, super.reqAgent);
+			rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
 			TimeUnit.SECONDS.sleep(3);
 			//update the disco
-			rmapService.updateDiSCO(new URI(discoURI2), rmapDisco3, super.reqAgent);
+			rmapService.updateDiSCO(new URI(discoURIV2), rmapDiscoV3, requestAgent);
 				    		
-			String encodedDiscoUri1 = URLEncoder.encode(discoURI1, "UTF-8");
-			String encodedDiscoUri2 = URLEncoder.encode(discoURI2, "UTF-8");
-			String encodedDiscoUri3 = URLEncoder.encode(discoURI3, "UTF-8");
+			String encodedDiscoUriV1 = URLEncoder.encode(discoURIV1, "UTF-8");
+			String encodedDiscoUriV2 = URLEncoder.encode(discoURIV2, "UTF-8");
+			String encodedDiscoUriV3 = URLEncoder.encode(discoURIV3, "UTF-8");
 			
 			//get versions list and use this to make test times
-			Map<Date, URI> versions = rmapService.getDiSCOAgentVersionsWithDates(new URI(discoURI1));
+			Map<Date, URI> versions = rmapService.getDiSCOAgentVersionsWithDates(new URI(discoURIV1));
 			ResourceVersions resourceVersions = new ResourceVersions(versions);
 			Date dat1 = resourceVersions.getFirstDate();
 			Calendar cal1 = Calendar.getInstance();
@@ -600,48 +536,45 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			String sdLaterThanLast = HttpHeaderDateUtils.convertDateToString(dAfterLast);
 			String sdBetweenVersions = HttpHeaderDateUtils.convertDateToString(dBetweenVersions);
 									
-			Response response1 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, sdEarlierThanFirst);
+			Response response1 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdEarlierThanFirst);
 			URI location1 = response1.getLocation();
 			//location should equal first:
-			assertTrue(location1.toString().contains(encodedDiscoUri1));
+			assertTrue(location1.toString().contains(encodedDiscoUriV1));
 			
 			assertEquals(302, response1.getStatus());
 			
 			String links1 = response1.getLinks().toString();
-			assertTrue(links1.contains(encodedDiscoUri1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
-			assertTrue(links1.contains(encodedDiscoUri1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
+			assertTrue(links1.contains(encodedDiscoUriV1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
+			assertTrue(links1.contains(encodedDiscoUriV1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			
-			Response response2 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, sdLaterThanLast);
+			Response response2 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdLaterThanLast);
 			URI location2 = response2.getLocation();
 			//location should equal last
-			assertTrue(location2.toString().contains(encodedDiscoUri3));
+			assertTrue(location2.toString().contains(encodedDiscoUriV3));
 			assertEquals(302, response2.getStatus());
 
-			Response response3 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, sdBetweenVersions);
+			Response response3 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdBetweenVersions);
 			URI location3 = response3.getLocation();
 			//location should equal second to last
-			assertTrue(location3.toString().contains(encodedDiscoUri2));
+			assertTrue(location3.toString().contains(encodedDiscoUriV2));
 			assertEquals(302, response3.getStatus());
 			
-			Response response4 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUri1, null);
+			Response response4 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, null);
 			URI location4 = response4.getLocation();
 			//location should equal second to last
-			assertTrue(location4.toString().contains(encodedDiscoUri3));
+			assertTrue(location4.toString().contains(encodedDiscoUriV3));
 			assertEquals(302, response4.getStatus());
 			String links4 = response4.getLinks().toString();
-			assertTrue(links4.contains(encodedDiscoUri1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
-			assertTrue(links4.contains(encodedDiscoUri1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
-			
-			rmapService.deleteDiSCO(new URI(discoURI1), super.reqAgent);
-			rmapService.deleteDiSCO(new URI(discoURI2), super.reqAgent);
-			rmapService.deleteDiSCO(new URI(discoURI3), super.reqAgent);
-			
+			assertTrue(links4.contains(encodedDiscoUriV1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
+			assertTrue(links4.contains(encodedDiscoUriV1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
 		}
 	}
+	
+	
 	
 
 

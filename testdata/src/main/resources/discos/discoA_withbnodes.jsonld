@@ -1,0 +1,130 @@
+{
+  "@context": {
+    "cito": "http://purl.org/spar/cito/",
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "ieee": "http://data.ieee.org/ieee/terms/",
+    "ore": "http://www.openarchives.org/ore/terms/",
+    "prism": "http://prismstandard.org/namespaces/basic/2.0/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "_:N53ab4e2e5a454b8bbc25e35776614897",
+      "@type": "http://rmap-project.org/rmap/terms/DiSCO",
+      "dc:description": "This is a made up example of an IEEE DiSCO.",
+      "dcterms:creator": {
+        "@id": "http://isni.org/isni/0000000122976723"
+      },
+      "ore:aggregates": [
+        {
+          "@id": "http://doi.org/10.1109/disco.test"
+        },
+        {
+          "@id": "http://ieeexplore.ieee.org/example/000000-mm.zip"
+        }
+      ]
+    },
+    {
+      "@id": "_:Nc771de2afa09411c89a8a6db2501fd05",
+      "dcterms:identifier": "A13113690.3",
+      "foaf:name": "White, D."
+    },
+    {
+      "@id": "http://ieeexplore.ieee.org/example/000000-mm.zip",
+      "dc:description": "Zip file containing an AVI movie and a README file in Word format.",
+      "dc:format": "application/zip",
+      "dc:hasPart": [
+        {
+          "@id": "http://ieeexplore.ieee.org/example/000000-mm.zip#README.docx"
+        },
+        {
+          "@id": "http://ieeexplore.ieee.org/example/000000-mm.zip#video.avi"
+        }
+      ]
+    },
+    {
+      "@id": "http://ieeexplore.ieee.org/example/000000-mm.zip#video.avi",
+      "dc:extent": "194KB",
+      "dc:format": "video/x-msvideo"
+    },
+    {
+      "@id": "_:N96c88754299a4cf7b159c942ed150862",
+      "dcterms:identifier": "A13113690.2",
+      "foaf:name": "Green, M."
+    },
+    {
+      "@id": "http://doi.org/10.1109/disco.test",
+      "@type": "http://purl.org/spar/fabio/ConferencePaper",
+      "cito:isCitedBy": {
+        "@id": "http://dx.doi.org/10.1109/111111"
+      },
+      "dc:hasPart": {
+        "@id": "http://ieeexplore.ieee.org/example/000000-mm.zip"
+      },
+      "dc:subject": [
+        "storage management",
+        "massively parallel dynamic memory allocation",
+        "resource management",
+        "resource allocation",
+        "graphics processing units",
+        "fragmentation"
+      ],
+      "dc:title": "Made up article about GPUs",
+      "dcterms:creator": [
+        {
+          "@id": "_:N25dab08a9dbf45d8b4ed364b3bc25d07"
+        },
+        {
+          "@id": "_:N7fe5d23a37cd4c7e831168c420ac9f50"
+        },
+        {
+          "@id": "_:Nc771de2afa09411c89a8a6db2501fd05"
+        },
+        {
+          "@id": "_:N96c88754299a4cf7b159c942ed150862"
+        }
+      ],
+      "dcterms:identifier": [
+        {
+          "@id": "ark:/35911/idams/1b1b1b1b1b1b"
+        },
+        {
+          "@id": "ark:/35911/amsid/111111"
+        }
+      ],
+      "dcterms:isPartOf": [
+        {
+          "@id": "urn:isbn:9781467326315"
+        },
+        {
+          "@id": "ark:/35911/amsid/333333"
+        },
+        {
+          "@id": "ark:/35911/amsid/222222"
+        },
+        {
+          "@id": "urn:isbn:9781467326322"
+        }
+      ],
+      "ieee:content-type": "orig-research",
+      "ieee:inspec-accession-number": "123456789",
+      "prism:doi": {
+        "@id": "doi:10.1109/discoa.test"
+      }
+    },
+    {
+      "@id": "_:N7fe5d23a37cd4c7e831168c420ac9f50",
+      "dcterms:identifier": "A13113690.4",
+      "foaf:name": "Black, B."
+    },
+    {
+      "@id": "_:N25dab08a9dbf45d8b4ed364b3bc25d07",
+      "dcterms:identifier": "A13113690.1",
+      "foaf:name": "Brown, A."
+    }
+  ]
+}

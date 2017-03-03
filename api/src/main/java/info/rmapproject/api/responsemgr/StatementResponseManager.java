@@ -151,15 +151,15 @@ public class StatementResponseManager extends ResponseManager {
 			}
 			if (returnType==null) {returnType = Constants.DEFAULT_NONRDF_TYPE;}
 
-			URI rmapSubject = convertPathStringToURI(subject);
-			URI rmapPredicate = convertPathStringToURI(predicate);
-			RMapValue rmapObject = convertPathStringToRMapValue(object);
+			URI rmapSubject = PathUtils.convertPathStringToURI(subject);
+			URI rmapPredicate = PathUtils.convertPathStringToURI(predicate);
+			RMapValue rmapObject = PathUtils.convertPathStringToRMapValue(object);
 			
-			RMapSearchParams params = generateSearchParamObj(queryParams);
+			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
 
 			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/discos";
 			
-			Integer currPage = extractPage(queryParams);
+			Integer currPage = QueryParamHandler.extractPage(queryParams);
 			Integer limit=params.getLimit();
 			//we are going to get one extra record to see if we need a "next"
 			params.setLimit(limit+1);
@@ -177,11 +177,11 @@ public class StatementResponseManager extends ResponseManager {
 			ResponseBuilder responseBldr = null;
 			
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
-			if (!queryParams.containsKey(PAGE_PARAM)
+			if (!queryParams.containsKey(Constants.PAGE_PARAM)
 					&& matchingObjects.size()>limit){  
 				//start See Other response to indicate need for pagination
-				String otherUrl = getPaginatedLinkTemplate(path, queryParams, limit);
-				otherUrl = otherUrl.replace(PAGENUM_PLACEHOLDER, FIRST_PAGE);
+				String otherUrl = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+				otherUrl = otherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
 						.location(new URI(otherUrl));		
@@ -192,8 +192,8 @@ public class StatementResponseManager extends ResponseManager {
 				
 				if (matchingObjects.size()>limit || (currPage!=null && currPage>1)) {
 					boolean showNextLink=matchingObjects.size()>limit;
-					String pageLinkTemplate = getPaginatedLinkTemplate(path, queryParams, limit);
-					Link[] pageLinks = generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+					String pageLinkTemplate = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+					Link[] pageLinks = QueryParamHandler.generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
 					responseBldr.links(pageLinks);
 					if (showNextLink){
 						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
@@ -264,15 +264,15 @@ public class StatementResponseManager extends ResponseManager {
 			}
 			if (returnType==null) {returnType = Constants.DEFAULT_NONRDF_TYPE;}
 
-			URI rmapSubject = convertPathStringToURI(subject);
-			URI rmapPredicate = convertPathStringToURI(predicate);
-			RMapValue rmapObject = convertPathStringToRMapValue(object);
+			URI rmapSubject = PathUtils.convertPathStringToURI(subject);
+			URI rmapPredicate = PathUtils.convertPathStringToURI(predicate);
+			RMapValue rmapObject = PathUtils.convertPathStringToRMapValue(object);
 			
-			RMapSearchParams params = generateSearchParamObj(queryParams);
+			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
 
 			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/agents";
 			
-			Integer currPage = extractPage(queryParams);
+			Integer currPage = QueryParamHandler.extractPage(queryParams);
 			Integer limit=params.getLimit();
 			//we are going to get one extra record to see if we need a "next"
 			params.setLimit(limit+1);
@@ -289,11 +289,11 @@ public class StatementResponseManager extends ResponseManager {
 			ResponseBuilder responseBldr = null;
 			
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
-			if (!queryParams.containsKey(PAGE_PARAM)
+			if (!queryParams.containsKey(Constants.PAGE_PARAM)
 					&& matchingObjects.size()>limit){  
 				//start See Other response to indicate need for pagination
-				String seeOtherUrl = getPaginatedLinkTemplate(path, queryParams, limit);
-				seeOtherUrl = seeOtherUrl.replace(PAGENUM_PLACEHOLDER, FIRST_PAGE);
+				String seeOtherUrl = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+				seeOtherUrl = seeOtherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
 						.location(new URI(seeOtherUrl));		
@@ -305,8 +305,8 @@ public class StatementResponseManager extends ResponseManager {
 				if (matchingObjects.size()>limit || (currPage!=null && currPage>1)) {
 					boolean showNextLink=matchingObjects.size()>limit;
 
-					String pageLinkTemplate = getPaginatedLinkTemplate(path, queryParams, limit);
-					Link[] pageLinks = generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+					String pageLinkTemplate = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+					Link[] pageLinks = QueryParamHandler.generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
 					responseBldr.links(pageLinks);
 
 					if (showNextLink){

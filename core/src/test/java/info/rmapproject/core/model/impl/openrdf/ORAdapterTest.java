@@ -216,7 +216,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testOpenRdfResource2NonLiteralResource() throws Exception {
+	public void testOpenRdfResource2RMapResource() throws Exception {
 		String bnId = null;
 		try {
 			bnId = rmapIdService.createId().toASCIIString();
@@ -225,11 +225,11 @@ public class ORAdapterTest {
 			fail();
 		}
 		BNode bnode = ORAdapter.getValueFactory().createBNode(bnId);
-		RMapResource nonLit = null;
+		RMapResource rmapresource = null;
 		try {
-			nonLit = ORAdapter.openRdfResource2NonLiteral(bnode);
-			assertTrue(nonLit instanceof RMapBlankNode);
-			assertEquals(bnode.getID(), nonLit.getStringValue());
+			rmapresource = ORAdapter.openRdfResource2RMapResource(bnode);
+			assertTrue(rmapresource instanceof RMapBlankNode);
+			assertEquals(bnode.getID(), rmapresource.getStringValue());
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
@@ -237,9 +237,9 @@ public class ORAdapterTest {
 		String urString = "http://rmap-project.info/rmap/";
 		IRI rIri =ORAdapter.getValueFactory().createIRI(urString);
 		try {
-			nonLit = ORAdapter.openRdfResource2NonLiteral(rIri);
-			assertTrue (nonLit instanceof RMapIri);
-			assertEquals(nonLit.getStringValue(), rIri.stringValue());
+			rmapresource = ORAdapter.openRdfResource2RMapResource(rIri);
+			assertTrue (rmapresource instanceof RMapIri);
+			assertEquals(rmapresource.getStringValue(), rIri.stringValue());
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			fail();
@@ -254,7 +254,7 @@ public class ORAdapterTest {
 	}
 
 	@Test
-	public void testOpenRdfValue2RMapResource() throws Exception {
+	public void testOpenRdfValue2RMapValue() throws Exception {
 		Value value = ORAdapter.getValueFactory().createLiteral("OpenRDF Literal");
 		RMapValue rmr = null;
 		try {

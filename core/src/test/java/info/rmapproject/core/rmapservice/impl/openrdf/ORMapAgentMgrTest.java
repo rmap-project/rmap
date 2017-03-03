@@ -25,100 +25,47 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.junit.Test;
+
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.request.RMapRequestAgent;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import info.rmapproject.testdata.service.TestConstants;
 
 /**
  * @author smorrissey
+ * @author khanson
  *
  */
-
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class ORMapAgentMgrTest{
-
-	@Autowired
-	RMapService rmapService;
-	
-	@Autowired
-	SesameTriplestore triplestore;
-		
-	private IRI AGENT_IRI; 
-	private IRI ID_PROVIDER_IRI = null;
-	private IRI AUTH_ID_IRI = null;
-	private Value NAME = null;
-	private RMapRequestAgent requestAgent = null;
-	
-	@Before
-	public void setUp() throws Exception {
-		//these will be used for a test agent.
-		AGENT_IRI = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
-		ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
-		AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
-		NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");		
-		requestAgent = new RMapRequestAgent(new URI(AGENT_IRI.stringValue()));
-	}
-
+public class ORMapAgentMgrTest extends ORMapMgrTest{
 	
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#readAgent(org.openrdf.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws RMapAgentNotFoundException 
+	 * @throws URISyntaxException 
 	 */
 	@Test
-	public void testReadAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException {
+	public void testReadAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException, URISyntaxException {
+		System.out.println("Running test: testReadAgent()");	
 						
-		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
-		
 		try {
-			//create new test agent
-			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
-			agentId=agent.getId().getIri();
-			
-			if (!rmapService.isAgentId(agentId)) {
-				rmapService.createAgent(agent,requestAgent);
-			}
-			
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId.toString());
-			}
-			
-			// Check the agent was created
-			assertTrue(rmapService.isAgentId(agentId));	
-			
 			//now read agent and check it.
-			RMapAgent readagent = rmapService.readAgent(agentId);
+			RMapAgent readagent = rmapService.readAgent(new URI(TestConstants.SYSAGENT_ID));
 
-			String name1=readagent.getName().getStringValue();
-			String name2=NAME.stringValue();
-			assertEquals(name1, name2);
-			
+			assertEquals(readagent.getName().getStringValue(), TestConstants.SYSAGENT_NAME);
 			assertEquals(readagent.getType(), RMapObjectType.AGENT);
-			
-			assertEquals(readagent.getIdProvider().toString(),ID_PROVIDER_IRI.toString());
-			assertEquals(readagent.getAuthId().toString(),AUTH_ID_IRI.toString());
+			assertEquals(readagent.getIdProvider().toString(),TestConstants.SYSAGENT_ID_PROVIDER);
+			assertEquals(readagent.getAuthId().toString(),TestConstants.SYSAGENT_AUTH_ID);
 		}
 		catch (RMapAgentNotFoundException e){
 			fail("agent not found. " + e.getMessage());
@@ -138,51 +85,47 @@ public class ORMapAgentMgrTest{
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws RMapAgentNotFoundException 
+	 * @throws FileNotFoundException 
 	 */
 	@SuppressWarnings("unused")
 	@Test
-	public void testUpdateAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException {
+	public void testUpdateAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException, FileNotFoundException {
+		System.out.println("Running test: testUpdateAgent()");	
 				
 		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
 		
 		try {
+
 			//create new test agent
-			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
-			agentId=agent.getId().getIri();
-			if (!rmapService.isAgentId(agentId)) {
-				rmapService.createAgent(agent,requestAgent);
-			}
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId);
-			}	
+			createSystemAgent();
+
+			agentId = new URI(TestConstants.SYSAGENT_ID);
 			
-			// Check the agent was created
-			assertTrue(rmapService.isAgentId(agentId));	
 			//(IRI agentID, String name, IRI identityProvider, IRI authKeyIri, IRI creatingAgentID)
 			RMapEvent event = rmapService.updateAgent(agentId, 
-										"RMap Test Name Change", 
-										new java.net.URI(ID_PROVIDER_IRI.toString()), 
-										new java.net.URI(AUTH_ID_IRI.toString()), 
+										TestConstants.SYSAGENT2_NAME, 
+										new java.net.URI(TestConstants.SYSAGENT_ID_PROVIDER), 
+										new java.net.URI(TestConstants.SYSAGENT_AUTH_ID), 
 										requestAgent);
 			
-			assertTrue(event.getAssociatedAgent().toString().equals(agentId.toString()));
+			assertTrue(event.getAssociatedAgent().toString().equals(TestConstants.SYSAGENT_ID));
 			assertTrue(event.getDescription().toString().contains("foaf:name"));
 
 			//now read agent and check it was updated.
 			RMapAgent readagent = rmapService.readAgent(agentId);
 			String name1=readagent.getName().getStringValue();
-			assertEquals(name1, "RMap Test Name Change");
+			assertEquals(name1, TestConstants.SYSAGENT2_NAME);
 
 			RMapEvent event2 = rmapService.updateAgent(agentId, 
-										NAME.stringValue(), 
-										new java.net.URI(ID_PROVIDER_IRI.toString()), 
-										new java.net.URI(AUTH_ID_IRI.toString()), 
+										TestConstants.SYSAGENT_NAME, 
+										new java.net.URI(TestConstants.SYSAGENT_ID_PROVIDER), 
+										new java.net.URI(TestConstants.SYSAGENT_AUTH_ID), 
 										requestAgent);
 			
 			//now read agent and check it was updated.
 			readagent = rmapService.readAgent(agentId);
 			name1=readagent.getName().getStringValue();
-			assertEquals(name1, NAME.stringValue());
+			assertEquals(name1, TestConstants.SYSAGENT_NAME);
 			
 			
 		}

@@ -208,8 +208,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	public  ORMapEvent createORMapEventFromStmts (Set<Statement> eventStmts,
 			SesameTriplestore ts) throws RMapException {
+		//TODO:consider moving the majority of this logic into the respective model.event object
+		//instead pass in Set<Statement> to RMapEvent class
 		if (eventStmts==null || eventStmts.size()==0){
-			throw new RMapException ("null or emtpy list of event statements");	
+			throw new RMapException ("null or empty list of event statements");	
 		}
 		Statement eventTypeStmt = null;
 		Statement eventTargetTypeStmt = null;

@@ -14,17 +14,11 @@ import java.util.TreeMap;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author khanson
  *
  */
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:/spring-rmapapi-context.xml" })
 public class TimegateTest {
 
 	private ResourceVersions resourceVersions_empty;
@@ -32,7 +26,6 @@ public class TimegateTest {
 	private ResourceVersions resourceVersions_2dates;
 	private ResourceVersions resourceVersions_5dates;
 	
-	@Autowired
 	private Timegate timegate;
 		
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
@@ -80,6 +73,8 @@ public class TimegateTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		
+		timegate = new TimegateImpl();
 		
 		date1 = sdf.parse(sdate1);
 		date2 = sdf.parse(sdate2);

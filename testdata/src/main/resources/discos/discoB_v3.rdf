@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+    xmlns:rmap="http://rmap-project.org/rmap/terms/" 
+    xmlns:ore="http://www.openarchives.org/ore/terms/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/" 
+    xmlns:dcterms="http://purl.org/dc/terms/" 
+    xmlns:premis="http://www.loc.gov/premis/rdf/v1#" 
+    xmlns:modsrdf="http://www.loc.gov/mods/modsrdf/v1#">
+    <rmap:DiSCO>
+        <dcterms:creator rdf:resource="http://isni.org/isni/0000000406115044"/>
+        <dcterms:description>The group of digital objects relating to a single article that are preserved in the Portico digital archive.</dcterms:description>
+        <ore:aggregates rdf:resource="ark:/27927/12121212"/>
+        <ore:aggregates rdf:resource="http://doi.org/10.1109/disco.test"/>
+        <ore:aggregates rdf:resource="ark:/27927/34343434"/>
+        <ore:aggregates rdf:resource="ark:/27927/56565656"/>
+        <ore:aggregates rdf:resource="ark:/27927/90909090"/>
+    </rmap:DiSCO>
+    <rdf:Description rdf:about="http://doi.org/10.1109/disco.test">
+        <rdf:type rdf:resource="http://purl.org/spar/fabio/ConferencePaper"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="ark:/27927/12121212">
+        <dcterms:isFormatOf rdf:resource="http://doi.org/10.1109/disco.test"/>
+        <modsrdf:locationOfResource rdf:resource="http://portico.org"/>
+        <dcterms:hasPart rdf:resource="ark:/27927/34343434"/>
+        <dcterms:hasPart rdf:resource="ark:/27927/56565656"/>
+        <dcterms:hasPart rdf:resource="ark:/27927/90909090"/>
+   </rdf:Description>
+   <rdf:Description rdf:about="ark:/27927/34343434">
+        <modsrdf:locationOfResource rdf:resource="http://portico.org"/>
+        <dcterms:format>application/xml</dcterms:format>
+        <dcterms:format>IEEE IDAMS DTD:1.0:2005-06-27</dcterms:format>
+        <premis:hasOriginalName>CONFPROC_12345_67890.tar/CONFPROC_12345/67890/abcdefg.xml</premis:hasOriginalName>
+        <dcterms:extent>8807 Bytes</dcterms:extent>
+    </rdf:Description>
+    <rdf:Description rdf:about="ark:/27927/56565656">
+        <modsrdf:locationOfResource rdf:resource="http://portico.org"/>
+        <dcterms:format>application/xml</dcterms:format>
+        <dcterms:format>Portico Journal Archiving DTD:2.0:2006-02-28</dcterms:format>
+        <premis:hasOriginalName>unknown</premis:hasOriginalName>
+        <dcterms:extent>6945 Bytes</dcterms:extent>
+    </rdf:Description>
+    <rdf:Description rdf:about="ark:/27927/90909090">
+        <modsrdf:locationOfResource rdf:resource="http://portico.org"/>
+        <dcterms:format>application/pdf</dcterms:format>
+        <dcterms:format>Portable Document Format:1.4:2001</dcterms:format>
+        <premis:hasOriginalName>CONFPROC_12345_67890.tar/CONFPROC_12345/67890/hijklmn.pdf</premis:hasOriginalName>
+        <dcterms:extent>769543 Bytes</dcterms:extent>
+    </rdf:Description>
+</rdf:RDF>

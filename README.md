@@ -6,7 +6,7 @@ The RMap software allows users to create and manage these maps of relationships 
 Further documentation and links about the RMap Project are available on the [RMap website](http://rmap-project.info/) and [technical wiki](https://rmap-project.atlassian.net).  
 
 ## RMap source overview
-The RMap software has 4 main modules that work together. 
+The RMap software has 4 main modules that work together plus one small module for test data.
 
 ###core
 As the name suggests, this contains the core code for the RMap software. It defines the RMap data model, interacts with the underlying triplestore, and provides the tools needed to manage and access RMap data.
@@ -15,7 +15,9 @@ As the name suggests, this contains the core code for the RMap software. It defi
 ###api
 The api module provides a REST API to expose the major functions of RMap.  These include functions to manage DiSCOs and retrieve triples that reference particular resource URIs.  The technical wiki contains a [full description of the API functions](https://rmap-project.atlassian.net/wiki/display/RMAPPS/API+Documentation).  Read functions are available without an API key. Write funtions require the user to login through the website and register for an API key. 
 ###webapp
-The web application allows users to browse RMap Agents, DiSCOs, and Events in a visual and interactive way.  It also supports the configuration of RMap Agents and API keys to be used for write-access to the RMap API. A [live demo site](https://demo.rmap-project.org/app) is available to try out.
+The web application allows users to browse RMap Agents, DiSCOs, and Events in a visual and interactive way.  It also supports the configuration of RMap Agents and API keys to be used for write-access to the RMap API. A [live demo site](https://demo.rmap-hub.org/app) is available to try out.
+###testdata
+The test data module contains RDF files for DiSCOs and Agents. This data is used to generate test data for the JUnit tests in the other modules.
 
 ##Download
 The current version of RMap and supporting scripts can be [downloaded from the Github](https://github.com/rmap-project/rmap/releases).  The [installation documentation](https://rmap-project.atlassian.net/wiki/display/RMAPPS/Installation) can be found on the RMap technical wiki.
@@ -27,7 +29,7 @@ The current version of RMap and supporting scripts can be [downloaded from the G
 - Maven 2.4
 
 ###Maven install
-Each component should be compiled using mvn install. Core and auth should be compiled first.
+Each component should be compiled using mvn install. If tests are to be run during compilation, testdata should be compiled first, followed by core and auth, and finally api and webapp.
 ```
 mvn clean install
 ``` 

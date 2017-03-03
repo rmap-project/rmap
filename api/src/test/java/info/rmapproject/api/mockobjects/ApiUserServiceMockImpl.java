@@ -29,6 +29,7 @@ import info.rmapproject.api.auth.ApiUserService;
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.testdata.service.TestConstants;
 
 /**
  * Mock version of ApiUserServiceImpl for unit tests
@@ -46,10 +47,10 @@ public class ApiUserServiceMockImpl implements ApiUserService {
 	private static final String TEST_PASS = "rmaptest";
 
 	/** The fake test agent uri. */
-	private static final String STR_SYSAGENT_URI = "rmap:rmaptestagent";
+	private static final String STR_SYSAGENT_URI = TestConstants.SYSAGENT_ID;
 	
 	/** The fake api key uri. */
-	private static final String STR_APIKEY_URI = "rmap:fakermaptestkey";
+	private static final String STR_APIKEY_URI = TestConstants.SYSAGENT_KEY;
 	
 	/** The RMap service. */
 	//@Autowired 

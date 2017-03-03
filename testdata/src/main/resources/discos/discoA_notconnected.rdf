@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:prism="http://prismstandard.org/namespaces/basic/2.0/"
+	xmlns:dcterms="http://purl.org/dc/terms/"
+	xmlns:ore="http://www.openarchives.org/ore/terms/"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:cito="http://purl.org/spar/cito/"
+	xmlns:ieee="http://data.ieee.org/ieee/terms/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <rdf:Description rdf:nodeID="N65570">
+        <rdf:type rdf:resource="http://rmap-project.org/rmap/terms/DiSCO"/>
+        <dcterms:creator rdf:resource="http://isni.org/isni/0000000122976723"/>
+        <dc:description>This is a made up example of an IEEE DiSCO.</dc:description>
+        <ore:aggregates rdf:resource="http://doi.org/10.1109/disco.test"/>
+        <ore:aggregates rdf:resource="http://ieeexplore.ieee.org/example/000000-mm.zip"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://doi.org/10.1109/disco.test">
+        <rdf:type rdf:resource="http://purl.org/spar/fabio/ConferencePaper"/>
+        <dcterms:identifier rdf:resource="ark:/35911/amsid/111111"/>
+        <dcterms:identifier rdf:resource="ark:/35911/idams/1b1b1b1b1b1b"/>
+        <ieee:content-type>orig-research</ieee:content-type>
+        <ieee:inspec-accession-number>123456789</ieee:inspec-accession-number>
+        
+        <dc:hasPart rdf:resource="http://ieeexplore.ieee.org/example/000000-mm.zip"/>
+        
+        <dcterms:isPartOf rdf:resource="ark:/35911/amsid/222222"/>
+        <dcterms:isPartOf rdf:resource="urn:isbn:9781467326322"/>
+        <dcterms:isPartOf rdf:resource="urn:isbn:9781467326315"/>
+        <dcterms:isPartOf rdf:resource="ark:/35911/amsid/333333"/>
+        
+        <dc:creator>Brown, A.</dc:creator>
+        <dc:creator>Green, M.</dc:creator>
+        <dc:creator>White, D.</dc:creator>
+        <dc:creator>Black, B.</dc:creator>
+        
+        <dc:title>Made up article about GPUs</dc:title>
+        <prism:doi rdf:resource="doi:10.1109/discoa.test"/>
+
+        <cito:isCitedBy rdf:resource="http://dx.doi.org/10.1109/111111"/>
+        <dc:subject>storage management</dc:subject>
+        <dc:subject>resource allocation</dc:subject>
+        <dc:subject>massively parallel dynamic memory allocation</dc:subject>
+        <dc:subject>resource management</dc:subject>
+        <dc:subject>graphics processing units</dc:subject>
+        <dc:subject>fragmentation</dc:subject>
+    </rdf:Description>
+	<rdf:Description rdf:about="http://ieeexplore.ieee.org/example/000000-mm.zip">
+		<dc:format>application/zip</dc:format>  
+		<dc:description>Zip file containing an AVI movie and a README file in Word format.</dc:description>  
+		<dc:hasPart rdf:resource="http://ieeexplore.ieee.org/example/000000-mm.zip#video.avi"/>  
+	    <dc:hasPart rdf:resource="http://ieeexplore.ieee.org/example/000000-mm.zip#README.docx"/>  
+	</rdf:Description>  
+	<rdf:Description rdf:about="http://ieeexplore.ieee.org/example/000000-mm-xxx.zip#video.avi">  
+		<dc:format>video/x-msvideo</dc:format>  
+	    <dc:extent>194KB</dc:extent> 
+	</rdf:Description>
+</rdf:RDF>

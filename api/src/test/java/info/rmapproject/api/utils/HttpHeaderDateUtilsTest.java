@@ -17,7 +17,7 @@ import org.junit.Test;
  * @author khanson5
  *
  */
-public class MementoDateUtilsTest {
+public class HttpHeaderDateUtilsTest {
 
 	private Date dTestdate1;
 	private String sTestdate1;

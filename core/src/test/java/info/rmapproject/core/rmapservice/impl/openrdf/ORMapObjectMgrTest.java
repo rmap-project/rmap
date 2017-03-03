@@ -26,20 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.idservice.IdService;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.agent.RMapAgent;
-import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
-import info.rmapproject.core.model.request.RMapRequestAgent;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -47,9 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 //import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -58,56 +42,36 @@ import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idservice.IdService;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+import info.rmapproject.testdata.service.TestConstants;
 
 /**
  * @author smorrissey, khanson
  *
  */
-
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class ORMapObjectMgrTest {
-
-	@Autowired
-	private RMapService rmapService;
+public class ORMapObjectMgrTest extends ORMapMgrTest {
 	
 	@Autowired 
 	private IdService rmapIdService;
-
-	@Autowired 
-	private SesameTriplestore triplestore;
 	
 	@Autowired 
 	ORMapDiSCOMgr discomgr;
-		
-	private IRI AGENT_IRI = null; 
-	private IRI ID_PROVIDER_IRI = null;
-	private IRI AUTH_ID_IRI = null;
-	private Value NAME = null;
-	
-
-	private RMapRequestAgent requestAgent = null;
-	
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-		//these will be used for a test agent.
-		this.AGENT_IRI = ORAdapter.getValueFactory().createIRI("ark:/22573/rmaptestagent");
-		this.ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/");
-		this.AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI("http://rmap-project.org/identities/rmaptestauthid");
-		this.NAME = ORAdapter.getValueFactory().createLiteral("RMap test Agent");	
-		requestAgent = new RMapRequestAgent(new URI(AGENT_IRI.stringValue()));
-	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#createStatement(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore, org.openrdf.model.Statement)}.
 	 */
 	@Test
 	public void testCreateTriple() {
+		System.out.println("Running test: testCreateTriple()");		
 		java.net.URI id1 =null;
 		try {
 			id1 = rmapIdService.createId();
@@ -117,9 +81,7 @@ public class ORMapObjectMgrTest {
 		IRI subject = ORAdapter.uri2OpenRdfIri(id1);
 		IRI predicate = RDF.TYPE;
 		IRI object = RMAP.DISCO;
-//		ORMapStatementMgr mgr = new ORMapStatementMgr();
-//		String contextString = mgr.createContextIRIString(subject.stringValue(),
-//				predicate.stringValue(), object.stringValue());
+		
 		IRI context = subject;
 
 		try {
@@ -132,6 +94,7 @@ public class ORMapObjectMgrTest {
 			assertEquals(predicate, gStmt.getPredicate());
 			assertEquals(object, gStmt.getObject());
 			assertEquals(context, gStmt.getContext());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -143,6 +106,7 @@ public class ORMapObjectMgrTest {
 	 */
 	@Test
 	public void testIsRMapType() {
+		System.out.println("Running test: testIsRMapType()");		
 		java.net.URI id1 =null;
 		try {
 			id1 = rmapIdService.createId();
@@ -162,6 +126,8 @@ public class ORMapObjectMgrTest {
 			assertEquals(stmt.getPredicate(), stmt2.getPredicate());
 			assertEquals(stmt.getObject(), stmt2.getObject());
 			assertEquals(stmt.getContext(), stmt2.getContext());
+			boolean istype = discomgr.isRMapType(triplestore, subject, RMAP.DISCO);
+			assertTrue(istype);
 		} catch (RepositoryException e1) {
 			e1.printStackTrace();
 			fail(e1.getMessage());
@@ -169,8 +135,6 @@ public class ORMapObjectMgrTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}		
-		boolean istype = discomgr.isRMapType(triplestore, subject, RMAP.DISCO);
-		assertTrue(istype);
 	}
 
 
@@ -181,8 +145,10 @@ public class ORMapObjectMgrTest {
 	 */
 	@Test
 	public void testIsEventId() throws RMapException, RMapDefectiveArgumentException {
+		System.out.println("Running test: testIsEventId()");	
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
+			createSystemAgent();
 		    IRI creatorIRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/0000-0003-2069-1219");
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
@@ -198,13 +164,13 @@ public class ORMapObjectMgrTest {
 				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
 			}
 			
-			requestAgent.setAgentKeyId(new java.net.URI("ark:/29297/testkey"));
 			ORMapEventCreation event = new ORMapEventCreation(requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
 			ORMapEventMgr eventMgr = new ORMapEventMgr();
 			IRI crEventId = eventMgr.createEvent(event, triplestore);
 			assertTrue(eventMgr.isEventId(crEventId, triplestore));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -216,18 +182,11 @@ public class ORMapObjectMgrTest {
 	 */
 	@Test
 	public void testIsAgentId() throws URISyntaxException {
+		System.out.println("Running test: testIsAgentId()");	
 		try {
-			RMapAgent agent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
-			java.net.URI agentId=agent.getId().getIri();
-			if (!rmapService.isAgentId(agentId)) {
-				rmapService.createAgent(agent,requestAgent);
-			}
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId);
-			}	
+			createSystemAgent();
 			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
-			assertTrue(agentMgr.isAgentId(ORAdapter.uri2OpenRdfIri(agentId), triplestore));
-			rmapService.closeConnection();
+			assertTrue(agentMgr.isAgentId(ORAdapter.uri2OpenRdfIri(new URI(TestConstants.SYSAGENT_ID)), triplestore));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("could not create test agent.");

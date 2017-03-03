@@ -23,24 +23,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import info.rmapproject.api.lists.NonRdfType;
-import info.rmapproject.api.lists.RdfMediaType;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.model.event.RMapEventCreation;
-import info.rmapproject.core.rdfhandler.RDFType;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.core.Response;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.api.lists.NonRdfType;
+import info.rmapproject.api.lists.RdfMediaType;
+import info.rmapproject.api.test.TestUtils;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.event.RMapEventCreation;
+import info.rmapproject.testdata.service.TestFile;
 
 /**
  * Tests for EventResponseManager class.
@@ -113,13 +112,10 @@ public class EventResponseManagerTest extends ResponseManagerTest {
 	public void testGetRMapEvent() {
 		//create RMapStatement
 		RMapEventCreation event = null;
-		RMapIri discoIri;
 		try {			
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			
-			discoIri = rmapDisco.getId();
-			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, requestAgent);
 			
 			RMapIri eventUri = event.getId();
 			
@@ -142,8 +138,6 @@ public class EventResponseManagerTest extends ResponseManagerTest {
 			assertTrue(body.contains("<eventTargetType xmlns=\"http://rmap-project.org/rmap/terms/\" rdf:resource=\"http://rmap-project.org/rmap/terms/DiSCO\"/>"));
 			assertEquals(200, response.getStatus());
 			
-			rmapService.deleteDiSCO(discoIri.getIri(), super.reqAgent);
-
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -156,11 +150,10 @@ public class EventResponseManagerTest extends ResponseManagerTest {
 		RMapEventCreation event = null;
 		RMapIri discoIri;
 		try {			
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			
 			discoIri = rmapDisco.getId();
-			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, requestAgent);
 			
 			RMapIri eventUri = event.getId();
 			
@@ -191,9 +184,6 @@ public class EventResponseManagerTest extends ResponseManagerTest {
 			assertTrue(body.contains("[]"));
 			assertEquals(200, response.getStatus());
 			
-			
-			rmapService.deleteDiSCO(discoIri.getIri(), super.reqAgent);
-
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());

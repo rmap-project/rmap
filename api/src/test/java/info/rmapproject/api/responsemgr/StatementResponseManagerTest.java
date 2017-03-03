@@ -23,17 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import info.rmapproject.api.lists.NonRdfType;
-import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.model.request.RMapStatusFilter;
-import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.utils.Terms;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -41,7 +30,17 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.api.lists.NonRdfType;
+import info.rmapproject.api.test.TestUtils;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapStatusFilter;
+import info.rmapproject.core.utils.Terms;
+import info.rmapproject.testdata.service.TestConstants;
+import info.rmapproject.testdata.service.TestFile;
 
 /**
  * Procedures to test StatementResponseManager
@@ -53,7 +52,7 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 	/** The statement response manager. */
 	@Autowired
 	protected StatementResponseManager statementResponseManager;
-	
+		
 	/* (non-Javadoc)
 	 * @see info.rmapproject.api.responsemgr.ResponseManagerTest#setUp()
 	 */
@@ -118,11 +117,10 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 		Response response = null;
 		try {
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 			
 			RMapSearchParams params = new RMapSearchParams();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
@@ -132,15 +130,13 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 			//queryParams.add("page", "1");
 			
 			//get disco as related to statement
-			response = statementResponseManager.getStatementRelatedDiSCOs("http://dx.doi.org/10.1109/ACCESS.2014.2332453", 
-															"http://www.w3.org/1999/02/22-rdf-syntax-ns#type", 
-															"http://purl.org/spar/fabio/JournalArticle", NonRdfType.JSON, queryParams);
+			response = statementResponseManager.getStatementRelatedDiSCOs(TestConstants.TEST_DISCO_DOI, 
+															RDF.TYPE.toString(), 
+															TestConstants.TEST_DISCO_DOI_TYPE, NonRdfType.JSON, queryParams);
 
 			assertNotNull(response);
 			assertEquals(response.getStatus(),200);
 			assertTrue(response.getEntity().toString().contains(discoURI));
-			
-			rmapService.deleteDiSCO(rmapDisco.getId().getIri(), super.reqAgent);
 			
 		} catch (Exception e) {
 			e.printStackTrace();	
@@ -157,11 +153,10 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 		Response response = null;
 		try {
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 			
 			RMapSearchParams params = new RMapSearchParams();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
@@ -171,14 +166,14 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 			//queryParams.add("page", "1");
 			
 			//get disco as related to statement
-			response = statementResponseManager.getStatementRelatedDiSCOs("http://dx.doi.org/10.1109/fail", 
-															"http://www.w3.org/1999/02/22-rdf-syntax-ns#type", 
-															"http://purl.org/spar/fabio/fail", NonRdfType.JSON, queryParams);
+			response = statementResponseManager.getStatementRelatedDiSCOs(
+															TestConstants.INVALID_DOI, 
+															RDF.TYPE.toString(), 
+															TestConstants.INVALID_RDF_TYPE, 
+															NonRdfType.JSON, queryParams);
 
 			assertNotNull(response);
 			assertEquals(response.getStatus(),404); //Not found 404 is appropriate response.
-			
-			rmapService.deleteDiSCO(rmapDisco.getId().getIri(), super.reqAgent);
 			
 		} catch (Exception e) {
 			e.printStackTrace();	
@@ -194,21 +189,20 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 		Response response = null;
 		try {			
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 
 			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
 			response = 
-					statementResponseManager.getStatementAssertingAgents("http://dx.doi.org/10.1109/ACCESS.2014.2332453", 
-														"http://www.w3.org/1999/02/22-rdf-syntax-ns#type", 
-														"http://purl.org/spar/fabio/JournalArticle", NonRdfType.JSON, queryParams);
+					statementResponseManager.getStatementAssertingAgents(TestConstants.TEST_DISCO_DOI, 
+														RDF.TYPE.toString(), 
+														TestConstants.TEST_DISCO_DOI_TYPE, NonRdfType.JSON, queryParams);
 			assertNotNull(response);
 			assertEquals(response.getStatus(),200);
-			assertEquals(response.getEntity(),"{\""+ Terms.RMAP_AGENT_PATH + "\":[\"" + super.testAgentURI + "\"]}");
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
+			assertEquals(response.getEntity(),"{\""+ Terms.RMAP_AGENT_PATH + "\":[\"" + TestConstants.SYSAGENT_ID + "\"]}");
+
 		} catch (Exception e) {
 			e.printStackTrace();	
 		}
@@ -224,21 +218,19 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 		Response response = null;
 		try {			
 			//createDisco
-			InputStream rdf = new ByteArrayInputStream(genericDiscoRdf.getBytes(StandardCharsets.UTF_8));
-			RMapDiSCO rmapDisco = rdfHandler.rdf2RMapDiSCO(rdf, RDFType.RDFXML, "");
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, super.reqAgent);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
 
 			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
 			response = 
-					statementResponseManager.getStatementAssertingAgents("http://dx.doi.org/10.1109/fake", 
-														"http://www.w3.org/1999/02/22-rdf-syntax-ns#type", 
-														"http://purl.org/spar/fabio/fake", NonRdfType.JSON, queryParams);
+					statementResponseManager.getStatementAssertingAgents(TestConstants.INVALID_DOI, 
+														RDF.TYPE.toString(), 
+														TestConstants.INVALID_RDF_TYPE, NonRdfType.JSON, queryParams);
 			assertNotNull(response);
 			assertEquals(response.getStatus(),404);
 			
-			rmapService.deleteDiSCO(new URI(discoURI), super.reqAgent);
 		} catch (Exception e) {
 			e.printStackTrace();	
 		}
