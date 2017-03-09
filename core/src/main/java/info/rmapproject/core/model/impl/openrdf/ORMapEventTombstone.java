@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.IRI;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
@@ -88,8 +89,9 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @param targetType the target type
 	 * @param tombstonedResource the IRI of the tombstoned resource
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventTombstone(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException {
+	public ORMapEventTombstone(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
 		this.setTombstonedResourceIdStmt(tombstonedResource);
@@ -110,8 +112,12 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	public RMapIri getTombstonedResourceId() throws RMapException {
 		RMapIri iri = null;
 		if (this.tombstoned!= null){
-			IRI tIri = (IRI) this.tombstoned.getObject();
-			iri = ORAdapter.openRdfIri2RMapIri(tIri);
+			try {
+				IRI tIri = (IRI) this.tombstoned.getObject();
+				iri = ORAdapter.openRdfIri2RMapIri(tIri);
+			} catch (IllegalArgumentException ex){
+				throw new RMapException("Could not retrieve Tombstoned Resource ID",ex);
+			}
 		}
 		return iri;
 	}

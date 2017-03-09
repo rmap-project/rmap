@@ -49,21 +49,23 @@ public class RMapLiteral implements RMapValue {
 	 * Instantiates a new RMap literal.
 	 *
 	 * @param value the string value
+	 * @throws IllegalArgumentException if value argument is null
 	 */
 	public RMapLiteral(String value){
 		this();
-		this.value = value;
+		this.setValue(value);
 	}
 
 	/**
 	 * Instantiates a new RMap literal.
 	 *
 	 * @param value the value
-	 * @param language the language
+	 * @param language the language (can be null)
+	 * @throws IllegalArgumentException if value argument is null
 	 */
 	public RMapLiteral(String value, String language){
 		this();
-		this.value = value;
+		this.setValue(value);
 		this.language = language;
 	}
 
@@ -71,14 +73,28 @@ public class RMapLiteral implements RMapValue {
 	 * Instantiates a new RMap literal.
 	 *
 	 * @param value the value
-	 * @param datatype the datatype
+	 * @param datatype the datatype (can be null)
+	 * @throws IllegalArgumentException if value argument is null
 	 */
 	public RMapLiteral(String value, RMapIri datatype){
 		this();
-		this.value = value;
+		this.setValue(value);
 		this.datatype = datatype;
 	}
 
+	/**
+	 * Sets the value literal.
+	 * @param value the value
+	 * @throws IllegalArgumentException if value argument is null
+	 */
+	protected void setValue(String value){		
+		if (value==null){
+			throw new IllegalArgumentException("Value cannot be null in RMapLiteral");
+		}
+		this.value = value;
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.Resource#getStringValue()
 	 */

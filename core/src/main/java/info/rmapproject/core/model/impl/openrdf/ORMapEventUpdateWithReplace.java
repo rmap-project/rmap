@@ -88,8 +88,9 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 * @param associatedAgent the associated agent
 	 * @param targetType the target type
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
+	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.REPLACE);
 	}
@@ -127,8 +128,12 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	public RMapIri getUpdatedObjectId() throws RMapException {
 		RMapIri updatedObjectIri = null;
 		if (this.updatedObjectIdStmt!= null){
-			IRI iri = (IRI) this.updatedObjectIdStmt.getObject();
-			updatedObjectIri = ORAdapter.openRdfIri2RMapIri(iri);
+			try {
+				IRI iri = (IRI) this.updatedObjectIdStmt.getObject();
+				updatedObjectIri = ORAdapter.openRdfIri2RMapIri(iri);
+			} catch (IllegalArgumentException ex){
+				throw new RMapException("Could not retrieve update object id", ex);
+			}
 		}
 		return updatedObjectIri;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
  * The concrete class representing the Update Event for the openrdf implementation of RMap.
- * @author khanson, smorrissey
+ * @author khanson
+ * @author smorrissey
  *
  */
 public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEventUpdate {
@@ -106,9 +107,10 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 * @param inactivatedObject the IRI of the inactivated object
 	 * @param derivedObject the IRI of the derived object
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public ORMapEventUpdate(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI inactivatedObject, IRI derivedObject) 
-	throws RMapException {
+	throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.UPDATE);
 		this.setInactivatedObjectStmt(inactivatedObject);
@@ -137,8 +139,12 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	public RMapIri getInactivatedObjectId() throws RMapException {
 		RMapIri rid = null;
 		if (this.inactivatedObjectStatement!= null){
-			IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
-			rid = ORAdapter.openRdfIri2RMapIri(iri);
+			try {
+				IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
+				rid = ORAdapter.openRdfIri2RMapIri(iri);
+			} catch (IllegalArgumentException ex){
+				throw new RMapException("Could not retrieve Inactivated Object Id", ex);
+			}
 		}
 		return rid;
 	}
@@ -181,8 +187,12 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	public RMapIri getDerivedObjectId() throws RMapException {
 		RMapIri rid = null;
 		if (this.derivationStatement!= null){
-			IRI iri = (IRI) this.derivationStatement.getObject();
-			rid = ORAdapter.openRdfIri2RMapIri(iri);
+			try {
+				IRI iri = (IRI) this.derivationStatement.getObject();
+				rid = ORAdapter.openRdfIri2RMapIri(iri);
+			} catch (IllegalArgumentException ex){
+				throw new RMapException("Could not retrieve Inactivated Object Id", ex);
+			}
 		}
 		return rid;
 	}

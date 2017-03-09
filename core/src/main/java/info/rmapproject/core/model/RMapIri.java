@@ -44,9 +44,13 @@ public class RMapIri extends RMapResource  {
 	 * Constructor.
 	 *
 	 * @param iri IRI of resource
+	 * @throws IllegalArgumentException if URI is null
 	 */
 	public RMapIri(URI iri){
 		this();
+		if (iri == null) {
+			throw new IllegalArgumentException("IRI cannot be null.");
+		}
 		this.iri = iri;
 	}
 	

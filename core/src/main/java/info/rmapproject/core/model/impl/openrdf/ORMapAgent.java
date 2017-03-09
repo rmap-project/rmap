@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.openrdf;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.agent.RMapAgent;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
 import java.util.Set;
 
 import org.openrdf.model.IRI;
@@ -37,6 +29,14 @@ import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDF;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
  * Concrete class of RMapAgent, specific to OpenRDF object model.
@@ -58,11 +58,12 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * Instantiates a new RMap Agent.
 	 *
 	 * @throws RMapException the RMap exception
+	 * @throws  
 	 */
 	protected ORMapAgent() throws RMapException {
 		super();
-		this.setId();	
-		this.setTypeStatement(RMapObjectType.AGENT);
+		setId();	
+		setTypeStatement(RMapObjectType.AGENT);
 	}
 	
 
@@ -78,9 +79,15 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	public ORMapAgent(RMapIri idProvider, RMapIri authId, RMapValue name) 
 			throws RMapException, RMapDefectiveArgumentException {
 		this();
-		this.setIdProviderStmt(ORAdapter.rMapIri2OpenRdfIri(idProvider));
-		this.setAuthIdStmt(ORAdapter.rMapIri2OpenRdfIri(authId));
-		this.setNameStmt(ORAdapter.rMapValue2OpenRdfValue(name));
+		try {
+			setIdProviderStmt(ORAdapter.rMapIri2OpenRdfIri(idProvider));
+			setAuthIdStmt(ORAdapter.rMapIri2OpenRdfIri(authId));
+			setNameStmt(ORAdapter.rMapValue2OpenRdfValue(name));
+		} catch (RMapDefectiveArgumentException ex1) {
+			throw ex1;
+		} catch(Exception ex2){
+			throw new RMapException("Error while initiating ORMapAgent", ex2);
+		}
 	}
 	
 	/**
@@ -95,19 +102,25 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 */
 	public ORMapAgent(IRI agentIri, IRI idProvider, IRI authId, Value name) 
 			throws RMapException, RMapDefectiveArgumentException {		
-		this.setId(agentIri);		
-		this.setTypeStatement(RMapObjectType.AGENT);
-		this.setContext(agentIri);
-		this.setIdProviderStmt(idProvider);
-		this.setAuthIdStmt(authId);
-		this.setNameStmt(name);
+		try {
+			setId(agentIri);		
+			setTypeStatement(RMapObjectType.AGENT);
+			setContext(agentIri);
+			setIdProviderStmt(idProvider);
+			setAuthIdStmt(authId);
+			setNameStmt(name);
+		} catch (RMapDefectiveArgumentException ex1) {
+			throw ex1;
+		} catch(Exception ex2){
+			throw new RMapException("Error while initiating ORMapAgent", ex2);
+		}
 	}
 		
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.impl.openrdf.ORMapObject#getAsModel()
 	 */
 	@Override
-	public Model getAsModel() throws RMapException {
+	public Model getAsModel() {
 		Model model = new LinkedHashModel();
 		model.add(typeStatement);
 		model.add(nameStmt);
@@ -123,14 +136,10 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapAgent(Set<Statement> stmts)throws RMapException, RMapDefectiveArgumentException {
-		//this(); //sets default id and type
+	public ORMapAgent(Set<Statement> stmts) throws RMapException, RMapDefectiveArgumentException {
 		if (stmts==null){
 			throw new RMapDefectiveArgumentException("Null statement list");
 		}	
-		
-		//Checks all URIs can be converted to java.net.URI - makes sure they are cross compatible
-		ORAdapter.checkOpenRdfIri2UriCompatibility(stmts);
 		
 		//check there is a type statement, if so get the incoming ID value from that.
 		boolean typeFound = false;
@@ -138,7 +147,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		Resource officialAgentId = null;
 		
 		for (Statement stmt:stmts){
-			if (stmt.getPredicate().equals(RDF.TYPE) && stmt.getObject().equals(RMAP.AGENT)){
+			if (!typeFound && stmt.getPredicate().equals(RDF.TYPE) && stmt.getObject().equals(RMAP.AGENT)){
 				typeFound = true;
 				assertedAgentId = stmt.getSubject();
 				officialAgentId = stmt.getContext();
@@ -221,8 +230,8 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			Value value = this.nameStmt.getObject();
 			try {
 				name = ORAdapter.openRdfValue2RMapValue(value);
-			} catch(RMapDefectiveArgumentException e) {
-				throw new RMapException("Could not convert Name value [" + value.stringValue() + "] to RMapValue");
+			} catch(Exception e) {
+				throw new RMapException("Could not convert Name value to RMapValue");
 			}
 		}
 		return name;
@@ -257,10 +266,15 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 */
 	@Override
 	public RMapIri getIdProvider() throws RMapException {
+		
 		RMapIri idProvider = null;
 		if (this.idProviderStmt!= null){
-			IRI value = (IRI)this.idProviderStmt.getObject();
-			idProvider = ORAdapter.openRdfIri2RMapIri(value);
+			try {
+				IRI value = (IRI)this.idProviderStmt.getObject();
+				idProvider = ORAdapter.openRdfIri2RMapIri(value);
+			} catch(Exception e) {
+				throw new RMapException("Could not retrieve ID Provider as RMapValue");
+			}
 		}
 		return idProvider;
 	}
@@ -296,8 +310,12 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	public RMapIri getAuthId() throws RMapException {
 		RMapIri authIdValue = null;
 		if (this.authIdStmt!= null){
-			IRI value = (IRI)this.authIdStmt.getObject();
-			authIdValue = ORAdapter.openRdfIri2RMapIri(value);
+			try {
+				IRI value = (IRI)this.authIdStmt.getObject();
+				authIdValue = ORAdapter.openRdfIri2RMapIri(value);
+			} catch(Exception e) {
+				throw new RMapException("Could not retrieve ID Provider value as RMapIri",e);
+			}
 		}
 		return authIdValue;
 	}
@@ -318,8 +336,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	protected void setAuthIdStmt (IRI authId) throws RMapDefectiveArgumentException{
-		if (authId == null || authId.toString().length()==0)
-			{throw new RMapDefectiveArgumentException("RMapAgent authId is null or empty");}
+		if (authId == null || authId.toString().length()==0) {
+			throw new RMapDefectiveArgumentException("RMapAgent authId is null or empty");
+			}
 		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
 				RMAP.USERAUTHID, authId, this.context);
 		this.authIdStmt = stmt;

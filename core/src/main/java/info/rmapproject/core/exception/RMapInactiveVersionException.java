@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ package info.rmapproject.core.exception;
  *
  * @author khanson
  */
-public class RMapInactiveVersionException extends RMapObjectNotFoundException {
+public class RMapInactiveVersionException extends RuntimeException {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -2993203728345433963L;

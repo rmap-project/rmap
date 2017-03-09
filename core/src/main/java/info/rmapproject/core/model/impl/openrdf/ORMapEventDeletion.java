@@ -22,14 +22,14 @@ package info.rmapproject.core.model.impl.openrdf;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventDeletion;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -72,12 +72,13 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 * @param associatedKeyStmt the associated key stmt
 	 * @param deletedObjects the deleted objects
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public ORMapEventDeletion(Statement eventTypeStmt, 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt, 
-			List<Statement> deletedObjects) throws RMapException {
+			List<Statement> deletedObjects) throws RMapException, RMapDefectiveArgumentException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
@@ -118,10 +119,14 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	public List<RMapIri> getDeletedObjectIds() throws RMapException {
 		List<RMapIri> iris = null;
 		if (this.deletedObjects!= null){
-			iris = new ArrayList<RMapIri>();
-			for (Statement stmt:this.deletedObjects){
-				IRI deletedIri = (IRI) stmt.getObject();
-				iris.add(ORAdapter.openRdfIri2RMapIri(deletedIri));
+			try {
+				iris = new ArrayList<RMapIri>();
+				for (Statement stmt:this.deletedObjects){
+					IRI deletedIri = (IRI) stmt.getObject();
+					iris.add(ORAdapter.openRdfIri2RMapIri(deletedIri));
+				}
+			} catch (Exception e) {
+				throw new RMapException("Could not retrieve deleted object IDs as RMapIris", e);
 			}
 		}
 		return iris;
@@ -140,15 +145,19 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 * @see info.rmapproject.core.model.RMapEventDelete#setDeletedObjectIds(java.util.List)
 	 */
 	public void setDeletedObjectIds(List<RMapIri> deletedObjectIds) 
-			throws RMapException, RMapDefectiveArgumentException {
+			throws RMapException {
 		if (deletedObjectIds != null){
-			List<Statement> stmts = new ArrayList<Statement>();
-			for (RMapIri rid:deletedObjectIds){
-				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
-						ORAdapter.rMapIri2OpenRdfIri(rid), this.context);
-				stmts.add(stmt);
+			try {			
+				List<Statement> stmts = new ArrayList<Statement>();
+				for (RMapIri rid:deletedObjectIds){
+					Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
+							ORAdapter.rMapIri2OpenRdfIri(rid), this.context);
+					stmts.add(stmt);
+				}
+				this.deletedObjects = stmts;
+			} catch (Exception e){
+				throw new RMapException("Could not set Event's deleted object ids", e);
 			}
-			this.deletedObjects = stmts;
 		}
 	}
 

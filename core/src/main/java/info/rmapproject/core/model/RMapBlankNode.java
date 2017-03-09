@@ -41,9 +41,13 @@ public class RMapBlankNode extends RMapResource {
 	 * Create new BlankNode with specific ID.
 	 *
 	 * @param id String value of new id
+	 * @throws IllegalArgumentException if node id is null
 	 */
 	public RMapBlankNode(String id){
 		this();
+		if (id==null){
+			throw new IllegalArgumentException("Blank node ID cannot be null");
+		}
 		this.id = id;
 	}
 

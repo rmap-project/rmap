@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ import org.openrdf.model.Statement;
 
 /**
  * The concrete class representing the Inactivation Event for the openrdf implementation of RMap.
- * @author smorrissey, khanson
+ * @author smorrissey
+ * @author khanson
  *
  */
 public class ORMapEventInactivation extends ORMapEvent implements
@@ -92,8 +93,9 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 * @param associatedAgent the associated agent
 	 * @param targetType the target type
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventInactivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
+	public ORMapEventInactivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.INACTIVATION);
 	}
@@ -120,8 +122,12 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	public RMapIri getInactivatedObjectId() throws RMapException {
 		RMapIri rid = null;
 		if (this.inactivatedObjectStatement!= null){
+			try {
 			IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
 			rid = ORAdapter.openRdfIri2RMapIri(iri);
+			} catch (IllegalArgumentException ex){
+				throw new RMapException("Inactivated object ID could not be converted.",ex);
+			}
 		}
 		return rid;
 	}

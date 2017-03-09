@@ -19,13 +19,13 @@
  *******************************************************************************/
 package info.rmapproject.core.model;
 
-import info.rmapproject.core.utils.Terms;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+
+import info.rmapproject.core.utils.Terms;
 
 /**
  * The Enum for RMap Object Types
@@ -54,11 +54,12 @@ public enum RMapObjectType {
 	 */
 	RMapObjectType(String path){		
 		try {
-			this.objectTypePath = new RMapIri(new URI(path));
+			this.objectTypePath = new RMapIri(new URI(path));		
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}
+	
 
 	/**
 	 * Gets the ontology path.

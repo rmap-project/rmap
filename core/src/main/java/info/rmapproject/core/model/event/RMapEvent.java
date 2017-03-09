@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@
  *******************************************************************************/
 package info.rmapproject.core.model.event;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapObject;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapValue;
-
 import java.util.Date;
+
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapObject;
+import info.rmapproject.core.model.RMapValue;
 
 /**
  * Interface for RMapEvent. The RMap Event captures some information and provenance about 
@@ -105,9 +104,8 @@ public interface RMapEvent extends RMapObject{
 	 *
 	 * @param description the new Event description
 	 * @throws RMapException the RMap exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public void setDescription(RMapValue description) throws RMapException, RMapDefectiveArgumentException;
+	public void setDescription(RMapValue description) throws RMapException;
 	
 	
 }

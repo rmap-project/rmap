@@ -71,20 +71,16 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateTriple() {
-		System.out.println("Running test: testCreateTriple()");		
-		java.net.URI id1 =null;
 		try {
-			id1 = rmapIdService.createId();
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-		IRI subject = ORAdapter.uri2OpenRdfIri(id1);
-		IRI predicate = RDF.TYPE;
-		IRI object = RMAP.DISCO;
-		
-		IRI context = subject;
+			System.out.println("Running test: testCreateTriple()");		
+			java.net.URI id1 =null;
+				id1 = rmapIdService.createId();
+			IRI subject = ORAdapter.uri2OpenRdfIri(id1);
+			IRI predicate = RDF.TYPE;
+			IRI object = RMAP.DISCO;
+			
+			IRI context = subject;
 
-		try {
 			Statement stmt = ORAdapter.getValueFactory().createStatement(subject, predicate, object,context);
 			discomgr.createStatement(triplestore, stmt);
 			Statement gStmt = null;
@@ -106,18 +102,14 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testIsRMapType() {
-		System.out.println("Running test: testIsRMapType()");		
-		java.net.URI id1 =null;
 		try {
+			System.out.println("Running test: testIsRMapType()");		
+			java.net.URI id1 =null;
 			id1 = rmapIdService.createId();
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-		IRI subject = ORAdapter.uri2OpenRdfIri(id1);
-		IRI predicate = RDF.TYPE;
-		Value object = RMAP.DISCO;
-		Statement stmt = null;
-		try {
+			IRI subject = ORAdapter.uri2OpenRdfIri(id1);
+			IRI predicate = RDF.TYPE;
+			Value object = RMAP.DISCO;
+			Statement stmt = null;
 			stmt = ORAdapter.getValueFactory().createStatement(subject, predicate, object);
 			triplestore.addStatement(stmt);
 			Statement stmt2 = triplestore.getStatement(subject, predicate, object);

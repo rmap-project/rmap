@@ -99,7 +99,7 @@ public class RMapSearchParams  {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public RMapSearchParams(String from, String until, String status, String systemAgentsCsv, String limit, String offset) 
-			throws RMapDefectiveArgumentException {
+			throws RMapException, RMapDefectiveArgumentException {
 		setDateRange(new DateRange(from, until));
 		setStatusCode(status); 
 		setSystemAgents(systemAgentsCsv);	
@@ -114,7 +114,7 @@ public class RMapSearchParams  {
 	 *
 	 * @return the limit
 	 */
-	public Integer getLimit() {		
+	public Integer getLimit() throws RMapException{		
 		if (this.limit==null){
 			return getDefaultLimit();
 		}
@@ -186,7 +186,7 @@ public class RMapSearchParams  {
 	 * @param sOffset the new offset as a string
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public void setOffset(String sOffset) throws RMapDefectiveArgumentException {
+	public void setOffset(String sOffset) throws RMapException, RMapDefectiveArgumentException {
 		Integer iOffset = null;
 		if (sOffset != null && sOffset.length()>0) {
 			try{
@@ -208,7 +208,7 @@ public class RMapSearchParams  {
 	 * @param page the results page number 
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public void setOffsetByPage(String page) throws RMapDefectiveArgumentException {
+	public void setOffsetByPage(String page) throws RMapException, RMapDefectiveArgumentException {
 		Integer iPage = null;
 		if (page != null && page.length()>0) {
 			try{

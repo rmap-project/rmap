@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,8 +89,9 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @param associatedAgent the associated agent
 	 * @param targetType the target type
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEventWithNewObjects(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
+	protected ORMapEventWithNewObjects(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 	}
 
@@ -115,11 +116,15 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	public List<RMapIri> getCreatedObjectIds() throws RMapException {
 		List<RMapIri> iris = null;
 		if (this.createdObjects != null){
-			iris = new ArrayList<RMapIri>();
-			for (Statement stmt:this.createdObjects){
-				IRI idIRI = (IRI) stmt.getObject();
-				RMapIri rid = ORAdapter.openRdfIri2RMapIri(idIRI);
-				iris.add(rid);
+			try {
+				iris = new ArrayList<RMapIri>();
+				for (Statement stmt:this.createdObjects){
+					IRI idIRI = (IRI) stmt.getObject();
+					RMapIri rid = ORAdapter.openRdfIri2RMapIri(idIRI);
+					iris.add(rid);
+				}
+			} catch (IllegalArgumentException ex){
+				throw new RMapException("Could not retrieve created object ids", ex);
 			}
 		}
 		return iris;
