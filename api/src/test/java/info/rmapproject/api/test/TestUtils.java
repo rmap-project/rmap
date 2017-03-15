@@ -44,7 +44,7 @@ public class TestUtils {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public static ORMapDiSCO getRMapDiSCO(TestFile testobj) throws FileNotFoundException, RMapException, RMapDefectiveArgumentException {
-		InputStream stream = TestDataHandler.getTestRdf(testobj);
+		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
 		ORMapDiSCO disco = new ORMapDiSCO(stmts);
@@ -60,7 +60,7 @@ public class TestUtils {
 	 * @throws RMapDefectiveArgumentException
 	 */
 	public static ORMapAgent getAgent(TestFile testobj) throws FileNotFoundException, RMapException, RMapDefectiveArgumentException {
-		InputStream stream = TestDataHandler.getTestRdf(testobj);
+		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
 		ORMapAgent agent = new ORMapAgent(stmts);

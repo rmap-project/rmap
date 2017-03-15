@@ -36,8 +36,9 @@ public interface RMapObject {
 	 * Gets the ID of the object.
 	 *
 	 * @return the id
+	 * @throws RMapException the RMap Exception
 	 */
-	public RMapIri getId();
+	public RMapIri getId() throws RMapException;
 	
 	/**
 	 * Gets the type

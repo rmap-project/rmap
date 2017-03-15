@@ -33,7 +33,7 @@ public class TestDataHandler {
 	 * @param testobj
 	 * @return
 	 */
-	public static InputStream getTestRdf(TestFile testobj) {
+	public static InputStream getTestData(TestFile testobj) {
 		String filepath = testobj.getFilePath();
 		InputStream rdf = TestDataHandler.class.getResourceAsStream(filepath);
 		return rdf;

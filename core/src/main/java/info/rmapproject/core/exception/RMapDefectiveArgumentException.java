@@ -27,7 +27,7 @@ package info.rmapproject.core.exception;
  *
  * @author smorrissey
  */
-public class RMapDefectiveArgumentException extends Exception {
+public class RMapDefectiveArgumentException extends RuntimeException {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 8793191899781932688L;

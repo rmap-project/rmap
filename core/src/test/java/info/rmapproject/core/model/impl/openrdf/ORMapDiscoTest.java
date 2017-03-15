@@ -151,7 +151,7 @@ public class ORMapDiscoTest {
 	@Test
 	public void testORMapDisco() throws RMapException, RMapDefectiveArgumentException, FileNotFoundException {
 		try {
-			InputStream stream = TestDataHandler.getTestRdf(TestFile.DISCOA_XML);
+			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
 			RioRDFHandler handler = new RioRDFHandler();
 			Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			ORMapDiSCO disco = new ORMapDiSCO(stmts);
@@ -159,7 +159,7 @@ public class ORMapDiscoTest {
 			OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);
 			String output = os.toString();
 			assertTrue(output.contains("Green, M."));
-			stream = TestDataHandler.getTestRdf(TestFile.DISCOB_V1_XML);
+			stream = TestDataHandler.getTestData(TestFile.DISCOB_V1_XML);
 			stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
 			disco = new ORMapDiSCO(stmts);
 			assertTrue(true);
@@ -237,17 +237,22 @@ public class ORMapDiscoTest {
 	 */
 	@Test
 	public void testGetAggregatedResourceStatements() {
-		ORMapDiSCO disco = new ORMapDiSCO();
-		Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
-		Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
-		List<java.net.URI> list1 = new ArrayList<java.net.URI>();
-		list1.add(ORAdapter.openRdfIri2URI(r));
-		list1.add(ORAdapter.openRdfIri2URI(r2));
-		disco.setAggregatedResources(list1);	
-		List<Statement>list2 = disco.getAggregatedResourceStatements();
-		assertEquals(2,list2.size());
-		assertTrue(list2.contains(rStmt));
-		assertTrue(list2.contains(rStmt2));
+		try {
+			ORMapDiSCO disco = new ORMapDiSCO();
+			Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
+			Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
+			List<java.net.URI> list1 = new ArrayList<java.net.URI>();
+			list1.add(ORAdapter.openRdfIri2URI(r));
+			list1.add(ORAdapter.openRdfIri2URI(r2));
+			disco.setAggregatedResources(list1);	
+			List<Statement>list2 = disco.getAggregatedResourceStatements();
+			assertEquals(2,list2.size());
+			assertTrue(list2.contains(rStmt));
+			assertTrue(list2.contains(rStmt2));
+		} catch (RMapDefectiveArgumentException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
 	}
 
 	/**
@@ -255,15 +260,21 @@ public class ORMapDiscoTest {
 	 */
 	@Test
 	public void testSetAggregratedResources() {
-		ORMapDiSCO disco = new ORMapDiSCO();
-		List<java.net.URI> list1 = new ArrayList<java.net.URI>();
-		list1.add(ORAdapter.openRdfIri2URI(r));
-		list1.add(ORAdapter.openRdfIri2URI(r2));
-		disco.setAggregatedResources(list1);
-		List<java.net.URI>list2 = disco.getAggregatedResources();
-		assertEquals(2,list2.size());
-		assertTrue(list2.contains(ORAdapter.openRdfIri2URI(r)));
-		assertTrue(list2.contains(ORAdapter.openRdfIri2URI(r2)));
+		try {
+			ORMapDiSCO disco = new ORMapDiSCO();
+			List<java.net.URI> list1 = new ArrayList<java.net.URI>();
+			list1.add(ORAdapter.openRdfIri2URI(r));
+			list1.add(ORAdapter.openRdfIri2URI(r2));
+			disco.setAggregatedResources(list1);
+			List<java.net.URI>list2 = disco.getAggregatedResources();
+			assertEquals(2,list2.size());
+			assertTrue(list2.contains(ORAdapter.openRdfIri2URI(r)));
+			assertTrue(list2.contains(ORAdapter.openRdfIri2URI(r2)));
+		} catch (RMapDefectiveArgumentException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+		
 	}
 
 

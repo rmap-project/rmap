@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import java.util.List;
 
+import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -70,9 +70,10 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 * @param sourceObject the IRI of the source object
 	 * @param derivedObject the IRI of the derived object
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	public ORMapEventDerivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI sourceObject, IRI derivedObject) 
-	throws RMapException {
+	throws RMapException, RMapDefectiveArgumentException {
 		super(associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.DERIVATION);
 		this.setSourceObjectStmt(sourceObject);
@@ -140,8 +141,12 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	public RMapIri getDerivedObjectId() throws RMapException {
 		RMapIri rid = null;
 		if (this.derivationStatement!= null){
-			IRI iri = (IRI) this.derivationStatement.getObject();
-			rid = ORAdapter.openRdfIri2RMapIri(iri);
+			try {
+				IRI iri = (IRI) this.derivationStatement.getObject();
+				rid = ORAdapter.openRdfIri2RMapIri(iri);
+			} catch (Exception e) {
+				throw new RMapException("Could not retrieve RMap Event's derived object ID", e);
+			}
 		}
 		return rid;
 	}
@@ -159,8 +164,13 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 * @see info.rmapproject.core.model.event.RMapEventDerivation#setDerivedObjectId(info.rmapproject.core.model.RMapIri)
 	 */
 	@Override
-	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
+	public void setDerivedObjectId(RMapIri iri) throws RMapException {
+		IRI derivedIRI = null;
+		try { 
+			derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
+		} catch (IllegalArgumentException e){
+			throw new RMapException("Could not retrieve RMap Event's derived object ID", e);
+		}
 		this.setDerivationStmt(derivedIRI);
 	}
 	
@@ -186,8 +196,12 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	public RMapIri getSourceObjectId() throws RMapException {
 		RMapIri rid = null;
 		if (this.sourceObjectStatement != null){
-			IRI iri = (IRI) this.sourceObjectStatement.getObject();
-			rid = ORAdapter.openRdfIri2RMapIri(iri);
+			try {
+				IRI iri = (IRI) this.sourceObjectStatement.getObject();
+				rid = ORAdapter.openRdfIri2RMapIri(iri);
+			} catch (Exception e) {
+				throw new RMapException("Problem while retrieving Event Source Object ID", e);
+			}
 		}
 		return rid;
 	}
@@ -199,20 +213,27 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 * @throws RMapException the RMap exception
 	 */
 	protected void setSourceObjectStmt (IRI sourceObject) throws RMapException {
+		Statement stmt = null;
 		if (sourceObject != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP.HASSOURCEOBJECT,
-					sourceObject, this.context);
-			this.sourceObjectStatement = stmt;
+			stmt = ORAdapter.getValueFactory().createStatement(this.context, 
+					RMAP.HASSOURCEOBJECT, sourceObject, this.context);
 		}
+		this.sourceObjectStatement = stmt;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.event.RMapEventDerivation#setSourceObjectId(info.rmapproject.core.model.RMapIri)
 	 */
 	@Override
-	public void setSourceObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI sourceIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
+	public void setSourceObjectId(RMapIri iri) throws RMapException,RMapDefectiveArgumentException {
+		IRI sourceIRI = null;
+		if (iri!=null) {
+			try {
+				sourceIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
+			} catch (IllegalArgumentException ex) {
+				throw new RMapDefectiveArgumentException("Source Object ID could not be converted to an IRI",ex);
+			}
+		}
 		this.setSourceObjectStmt(sourceIRI);
 	}
 

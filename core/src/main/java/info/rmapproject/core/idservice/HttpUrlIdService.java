@@ -81,6 +81,9 @@ public class HttpUrlIdService implements IdService {
 
 	/**  Default ID length (-1 means no length defined). */
 	private static final String DEFAULT_ID_LENGTH = "-1";
+
+	/**  Wait time to retry when ID retrieval unsuccessful (5 seconds). */
+	private static final int RETRY_WAIT_TIME = 5000;
 	
 	/**  An instance of the HttpIdService. */
 	private static HttpUrlIdService instance = new HttpUrlIdService();
@@ -259,7 +262,7 @@ public class HttpUrlIdService implements IdService {
 							}
 						}
 					} else {
-						log.error("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE and  HTTP RETURN CODE is : " + noidCon.getResponseCode());
+						log.error("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE, HTTP RETURN CODE is : " + noidCon.getResponseCode());
 					}
 			} catch(Exception e){
 				log.error("EXCEPTION CONNECTING TO NOID SERVER", e);
@@ -282,11 +285,11 @@ public class HttpUrlIdService implements IdService {
 				}
 			}
 			shouldRetry = (retryCounter < maxRetryAttempts && noids.size() == 0);
-			//WAIT FOR 10 SECS BEFORE RE-TRYING TO OVERCOME TEMPORARY NETWORK FAILURES
+			//WAIT FOR 5 SECS BEFORE RE-TRYING TO OVERCOME TEMPORARY NETWORK FAILURES
 			//OR THE NOID SERVER BEING BUSY SERVICING ANOTHER REQUEST.
 			if(shouldRetry){
 				try{
-					wait(10000);
+					wait(RETRY_WAIT_TIME);
 				}catch(InterruptedException ie){
 					log.error("Wait interrupted in retry loop", ie);
 				}
@@ -327,7 +330,7 @@ public class HttpUrlIdService implements IdService {
 				return new URI(HttpUrlIdService.getInstance().getNoidId());
 				// need to instead return configured per Component.getInstance("noidServiceImpl")
 			} catch (Exception e) {
-				throw new Exception("failed to get id from IdServiceImpl, caught exception", e);
+				throw new Exception("Failed to create a new ID.", e);
 			}
 	}
 }

@@ -42,7 +42,7 @@ public class RMapRequestAgent {
 	 *
 	 * @param systemAgent the system agent URI
 	 */
-	public RMapRequestAgent(URI systemAgent){
+	public RMapRequestAgent(URI systemAgent) throws RMapException{
 		if (systemAgent == null){
 			throw new RMapException("Requesting System Agent cannot be null.");
 		}
@@ -55,7 +55,7 @@ public class RMapRequestAgent {
 	 * @param systemAgent the system agent URI
 	 * @param agentKeyId the agent key URI - null if none specified
 	 */
-	public RMapRequestAgent(URI systemAgent, URI agentKeyId){
+	public RMapRequestAgent(URI systemAgent, URI agentKeyId) throws RMapException{
 		if (systemAgent == null){
 			throw new RMapException("Requesting System Agent cannot be null.");
 		}

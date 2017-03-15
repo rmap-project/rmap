@@ -104,7 +104,7 @@ public class RioRDFHandler implements RDFHandler {
 	 * @throws RMapException if null parameters, or invalid rdfType, or error parsing stream
 	 */
 	public Set <Statement> convertRDFToStmtList(InputStream rdfIn, RDFType rdfType, String baseUri) 
-	throws RMapException	{
+			throws RMapException	{
 		if (rdfIn==null){
 			throw new RMapException("Null rdf input stream");
 		}
@@ -126,6 +126,15 @@ public class RioRDFHandler implements RDFHandler {
 		} catch (RDFParseException | RDFHandlerException | IOException e) {
 			throw new RMapException("Unable to parse input RDF: ",e);
 		}		
+		
+		//Need to do last check to make sure IRIs are compatible with java.net.URI format. 
+		//IRI is less restrictive and will allow e.g. /n in URIs.
+		for (Statement stmt:stmts){
+			if (!ORAdapter.isOpenRdfStmtUriCompatible(stmt)){
+				throw new RMapException("A statement in the RDF contains an invalid URI: " + stmt.toString());
+			}
+		}
+		
 		return stmts;
 	}
 
@@ -165,7 +174,7 @@ public class RioRDFHandler implements RDFHandler {
 		Model model = new LinkedHashModel();		
 		
 		for (RMapTriple triple:triples){
-			model.add(ORAdapter.rMapNonLiteral2OpenRdfResource(triple.getSubject()), 
+			model.add(ORAdapter.rMapResource2OpenRdfResource(triple.getSubject()), 
 						ORAdapter.rMapIri2OpenRdfIri(triple.getPredicate()), 
 						ORAdapter.rMapValue2OpenRdfValue(triple.getObject()));
 		}

@@ -38,7 +38,7 @@ public class TestDataHandlerTests {
 
 	@Test
 	public void test() throws IOException {
-		InputStream testdisco = TestDataHandler.getTestRdf(TestFile.DISCOA_TURTLE);
+		InputStream testdisco = TestDataHandler.getTestData(TestFile.DISCOA_TURTLE);
 		assertTrue(testdisco!=null);
 				
 		ByteArrayOutputStream result = new ByteArrayOutputStream();

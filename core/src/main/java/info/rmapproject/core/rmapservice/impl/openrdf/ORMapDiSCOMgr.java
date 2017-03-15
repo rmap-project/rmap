@@ -231,10 +231,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapException the RMap exception
+	 * @throws RMapNotLatestVersionException 
 	 */
 	//try to roll this back!
 	public RMapEvent updateDiSCO(IRI oldDiscoId, ORMapDiSCO disco, RMapRequestAgent requestAgent,  boolean justInactivate, SesameTriplestore ts) 
-	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException {
+	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException, RMapNotLatestVersionException {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
 			throw new RMapDefectiveArgumentException ("Null value for id of target DiSCO");

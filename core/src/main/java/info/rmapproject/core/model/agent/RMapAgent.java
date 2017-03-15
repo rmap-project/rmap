@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 package info.rmapproject.core.model.agent;
 
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapValue;
 
 /**

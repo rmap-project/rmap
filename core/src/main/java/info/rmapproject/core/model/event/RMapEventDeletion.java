@@ -22,11 +22,10 @@
  */
 package info.rmapproject.core.model.event;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import java.util.List;
+
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
-
-import java.util.List;
 
 /**
  * Interface for Events that involve deletion of an object. 
@@ -36,8 +35,6 @@ import java.util.List;
  */
 public interface RMapEventDeletion extends RMapEvent {
 	
-
-
 	/**
 	 * Retrieve the IRIs of the deleted RMap objects as a List
 	 * @return the list of deleted RMap objects
@@ -50,6 +47,6 @@ public interface RMapEventDeletion extends RMapEvent {
 	 * @param deletedObjectIds the deleted object ID list to set
 	 * @throws RMapException 
 	 */
-	public void setDeletedObjectIds(List<RMapIri> deletedObjectIds) throws RMapException, RMapDefectiveArgumentException;
+	public void setDeletedObjectIds(List<RMapIri> deletedObjectIds) throws RMapException;
 
 }

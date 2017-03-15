@@ -51,9 +51,20 @@ public class RMapTriple {
 	 * @param subject the subject
 	 * @param predicate the predicate
 	 * @param object the object
+	 * @throws IllegalArgumentException if subject, predicate, or object is null
 	 */
 	public RMapTriple(RMapResource subject, RMapIri predicate, RMapValue object){
 		this();
+		if (subject==null){
+			throw new IllegalArgumentException("Subject cannot be null in RMapTriple");
+		}
+		if (predicate==null){
+			throw new IllegalArgumentException("Predicate cannot be null in RMapTriple");
+		}
+		if (object==null){
+			throw new IllegalArgumentException("Object cannot be null in RMapTriple");
+		}
+		
 		this.subject = subject;
 		this.predicate = predicate;
 		this.object = object;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,6 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
-import info.rmapproject.core.utils.DateUtils;
-import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
 import java.net.URI;
 import java.util.Date;
 
@@ -47,6 +34,19 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapValue;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.utils.DateUtils;
+import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
  * Abstract Event class, defines core components of RMap Event, specific to OpenRDF object model.
@@ -91,11 +91,13 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param typeStatement the type statement
 	 * @param associatedKeyStmt the associated key stmt
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt) throws RMapException {
+			Statement typeStatement, Statement associatedKeyStmt) 
+					throws RMapException, RMapDefectiveArgumentException {
 		super();
 		if (context != null){  //set it as the ID... this also sets the context
 			setId(context);
@@ -118,6 +120,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * Constructor sets the start time and ID
 	 *
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected ORMapEvent() throws RMapException {
 		super();
@@ -136,8 +139,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param associatedAgent the associated agent
 	 * @param targetType the target type
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEvent(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException {
+	protected ORMapEvent(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		this();
 		if (associatedAgent==null){
 			throw new RMapException("Null agent not allowed in RMapEvent");
@@ -195,7 +199,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			IRI eventtypeIri = ORAdapter.rMapIri2OpenRdfIri(eventType.getPath());
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.EVENTTYPE, eventtypeIri, this.context);
 			this.eventTypeStmt = stmt;
-		} catch (RMapDefectiveArgumentException e) {
+		} catch (Exception e) {
 			throw new RMapException("Invalid path for the object type provided.", e);
 		}
 	}
@@ -242,7 +246,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			IRI eventTTIri = ORAdapter.rMapIri2OpenRdfIri(eventTargetType.getPath());
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.TARGETTYPE, eventTTIri, this.context);
 			this.eventTargetTypeStmt = stmt;
-		} catch (RMapDefectiveArgumentException e) {
+		} catch (Exception e) {
 			throw new RMapException("Invalid path for the object type provided.", e);
 		}
 	}
@@ -278,9 +282,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @throws RMapException the RMap exception
 	 */
 	protected void setAssociatedAgentStatement (IRI associatedAgent) 
-			throws RMapException{
+			throws RMapException, RMapDefectiveArgumentException{
 		if (associatedAgent==null){
-			throw new RMapException("The associated agent statement could not be created because a valid agent was not provided");
+			throw new RMapDefectiveArgumentException("The associated agent statement could not be created because a valid agent was not provided");
 		}
 		if (this.id == null || this.context==null){
 			throw new RMapException("The object ID and context value must be set before creating an associated agent statement");
@@ -294,10 +298,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @see info.rmapproject.core.model.RMapEvent#getAssociatedAgent()
 	 */
 	@Override
-	public RMapIri getAssociatedAgent() throws RMapException{
+	public RMapIri getAssociatedAgent() throws RMapException {
 		RMapIri rUri = null;
-		IRI agentURI = (IRI)this.associatedAgentStmt.getObject();
-		rUri = ORAdapter.openRdfIri2RMapIri(agentURI);
+		try {
+			IRI agentURI = (IRI)this.associatedAgentStmt.getObject();
+			rUri = ORAdapter.openRdfIri2RMapIri(agentURI);
+		} catch (Exception e) {
+			throw new RMapException("Problem while retrieving Event agent ID", e);
+		}
 		return rUri;
 	}
 		
@@ -321,7 +329,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			try {
 				rResource = ORAdapter.openRdfValue2RMapValue(value);
 			}
-			catch(RMapDefectiveArgumentException e) {
+			catch(Exception e) {
 				throw new RMapException(e);
 			}
 		}
@@ -342,11 +350,12 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 *
 	 * @param associatedKey the IRI of the associated API key
 	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected void setAssociatedKeyStatement (IRI associatedKey) 
-			throws RMapException{
+			throws RMapException, RMapDefectiveArgumentException{
 		if (this.id == null || this.context==null){
-			throw new RMapException("The object ID and context value must be set before creating an associated key statement");
+			throw new RMapDefectiveArgumentException("The object ID and context value must be set before creating an associated key statement");
 		}
 		if (associatedKey!=null){
 			Statement keystmt = ORAdapter.getValueFactory().createStatement(this.id, PROV.USED, 
@@ -361,9 +370,13 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	@Override
 	public RMapIri getAssociatedKey() throws RMapException {
 		RMapIri rUri = null;
-		if (this.associatedKeyStmt!= null){
-			IRI keyUri = (IRI)this.associatedKeyStmt.getObject();
-			rUri = ORAdapter.openRdfIri2RMapIri(keyUri);
+		try {
+			if (this.associatedKeyStmt!= null){
+				IRI keyUri = (IRI)this.associatedKeyStmt.getObject();
+				rUri = ORAdapter.openRdfIri2RMapIri(keyUri);
+			}
+		} catch (Exception e) {
+			throw new RMapException("Error occurred while retrieving key as RMapIri", e);
 		}
 		return rUri;
 	}
@@ -446,8 +459,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @see info.rmapproject.core.model.RMapEvent#setDescription(RMapUri)
 	 */
 	@Override
-	public void setDescription(RMapValue description) 
-			throws RMapException, RMapDefectiveArgumentException {
+	public void setDescription(RMapValue description) throws RMapException {
 		if (description != null){
 			Statement descSt = ORAdapter.getValueFactory().createStatement(this.context, 
 					DC.DESCRIPTION, ORAdapter.rMapValue2OpenRdfValue(description), this.context);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,6 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.idservice.IdService;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapObject;
-import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.utils.Constants;
-
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -35,6 +27,14 @@ import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idservice.IdService;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapObject;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.utils.Constants;
 
 /**
  * Base class for OpenRDF implementation classes of RMapObjects.
@@ -75,11 +75,16 @@ public abstract class ORMapObject implements RMapObject  {
 	 * Return identifier of object as RMapIri.
 	 *
 	 * @return the object ID
+	 * @throws RMapException 
 	 */
-	public RMapIri getId(){
+	public RMapIri getId() throws RMapException {
 		RMapIri id = null;
 		if (this.id!=null){
-			id = ORAdapter.openRdfIri2RMapIri(this.id);
+			try {
+				id = ORAdapter.openRdfIri2RMapIri(this.id);
+			} catch (Exception e) {
+				throw new RMapException("Could not retrieve a valid ID for RMap object", e);
+			}
 		}
 		return id;
 	}
@@ -87,11 +92,11 @@ public abstract class ORMapObject implements RMapObject  {
 	/**
 	 * Assigns a new object ID.
 	 * @param id the new object ID
-	 * @throws RMapException the RMap exception
+	 * @throws RMapDefectiveArgumentException where object id is null or empty
 	 */
-	protected void setId(IRI id) {		
+	protected void setId(IRI id) throws RMapDefectiveArgumentException {		
 		if (id == null || id.toString().length()==0)
-			{throw new RMapException("Object ID is null or empty");}
+			{throw new RMapDefectiveArgumentException("Object ID is null or empty");}
 		this.id = id;
 		setContext(id); //context always corresponds to ID
 	}
@@ -100,13 +105,12 @@ public abstract class ORMapObject implements RMapObject  {
 	 * Creates and assigns a new id.
 	 * @throws RMapException the RMap exception
 	 */
-	protected void setId() throws RMapException{		
+	protected void setId() throws RMapException {		
 		try {
 			IRI objId = ORAdapter.uri2OpenRdfIri(rmapIdService.createId());
 			setId(objId);
-			
-		} catch (Exception e) {
-			throw new RMapException("Could not generate valid ID for RMap object", e);
+		} catch(Exception ex){
+			throw new RMapException("Error while setting object ID", ex);
 		}
 	}
 	
@@ -141,8 +145,8 @@ public abstract class ORMapObject implements RMapObject  {
 			IRI typeIri = ORAdapter.rMapIri2OpenRdfIri(type.getPath());
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.id, RDF.TYPE, typeIri, this.context);
 			this.typeStatement = stmt;
-		} catch (RMapDefectiveArgumentException e) {
-			throw new RMapException("Invalid path for the object type provided.", e);
+		} catch (Exception e) {
+			throw new RMapException("Invalid object type provided.", e);
 		}
 	}
 
@@ -150,16 +154,15 @@ public abstract class ORMapObject implements RMapObject  {
 	 * @see info.rmapproject.core.model.RMapObject#getType()
 	 */
 	public RMapObjectType getType() throws RMapException {
-		Value v = this.getTypeStatement().getObject();
-		RMapIri iri = null;
-		if (v instanceof IRI){
+		RMapObjectType type = null;
+		try {
+			Value v = this.getTypeStatement().getObject();
 			IRI vIri = (IRI)v;
-			iri = ORAdapter.openRdfIri2RMapIri(vIri);
+			RMapIri iri = ORAdapter.openRdfIri2RMapIri(vIri);
+			type = RMapObjectType.getObjectType(iri);
+		} catch (Exception ex){
+			throw new RMapException("Type statement object could not convert to an IRI",ex);						
 		}
-		else {
-			throw new RMapException("Type statement object is not a IRI: " + v.stringValue());
-		}
-		RMapObjectType type = RMapObjectType.getObjectType(iri);
 		return type;
 	}
 	
