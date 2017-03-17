@@ -5,7 +5,7 @@ var nodes, edges, network;
 function drawgraph(){
 	nodes = new vis.DataSet([
 			 <c:forEach var="node" items="${OBJECT_NODES}" varStatus="loop">
-			 {id: ${node.getId()}, title: '${node.getName()}', label: '${node.getShortname()}', value:${node.getWeight()}, group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
+			 {id: ${node.getId()}, title: '<em>Click to see info</em>', uri: '${node.getName()}', label: '${node.getShortname()}', value:${node.getWeight()}, group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
 	edges = new vis.DataSet([
@@ -65,18 +65,39 @@ function drawgraph(){
 	};
 
 	network = new vis.Network(container, data, options);
+	
 	network.on("click", function (params) {
+		var found = false;
+		var linkpopup = document.getElementById('nodeInfoPopup');
 		nodes.forEach(function (node) {
 		  if (node.id==params.nodes && node.group!='Literal' && node.group!='Type'){
+			  var nodeinfopath = "<c:url value='/nodeinfo/'/>" + encodeURIComponent(node.uri);
 			  var url = window.location.href;
-			  if (url.indexOf("/widget")>0){ //if we are in the widget, go to another widget page!
-					location.href="<c:url value='/resources/'/>" + encodeURIComponent(node.title) + "/widget";				  
-			  } else {
-					location.href="<c:url value='/resources/'/>" + encodeURIComponent(node.title);						  
+			  
+			  if (url.indexOf("/resources/")==-1){ //if we are not on a resources page!
+				  nodeinfopath = nodeinfopath + "/" + encodeURIComponent("${RESOURCEURI.toString()}"); 
 			  }
+			  nodeinfopath = nodeinfopath + "?viewmode=" + "${VIEWMODE}";
+			  
+			  $.get(nodeinfopath, function( data ) {
+				  linkpopup.style.visibility = "visible";
+				  linkpopup.innerHTML = data;
+				  linkpopup.style.position = 'absolute';
+				  linkpopup.style.left = params.pointer.DOM.x + "px";
+				  linkpopup.style.top = params.pointer.DOM.y + "px";
+				  found = true;
+				  loadFirstProps();
+				});
+			  
 		    }
 		});
+		if (!found) {
+			linkpopup.style.visibility = "hidden";
+			}
 	  });
+	
+	network.on("dragStart", function () {document.getElementById('nodeInfoPopup').style.visibility = "hidden";});
+	network.on("zoom", function () {document.getElementById('nodeInfoPopup').style.visibility = "hidden";});
 	  
 	network.on("stabilizationProgress", function(params) {
 		var maxWidth = 200;
@@ -137,7 +158,7 @@ function removeNodeType(type){
 function addNodeType(type){
 	removedNodes.forEach(function(node) {
 		if (node.group == type)	{
-			nodes.add({id: node.id,title: node.title, label: node.label, value:node.value, group:node.group}); 		
+			nodes.add({id: node.id, title: node.title, uri: node.uri, label: node.label, value:node.value, group:node.group}); 		
 			removedNodes.remove({id: node.id});
 			
 		};
@@ -149,7 +170,6 @@ function addNodeType(type){
 		};
 	});
 }
-
 
 </script>
 <style>

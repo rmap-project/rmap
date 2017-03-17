@@ -19,12 +19,13 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service;
 
+import java.net.URI;
+
+import info.rmapproject.webapp.domain.ResourceDescription;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
 import info.rmapproject.webapp.service.dto.EventDTO;
 import info.rmapproject.webapp.service.dto.ResourceDTO;
-
-import java.net.URI;
 
 /**
  * Service to retrieve packages of data to be used in webpage display.
@@ -78,5 +79,25 @@ public interface DataDisplayService {
 	 * @throws Exception the exception
 	 */
 	public String getRMapTypeDisplayName(URI resourceUri) throws Exception;
-
+	
+	/**
+	 * Retrieve basic resource description only (used in popup data)
+	 *
+	 * @param resourceUri the resource URI
+	 * @return resource description
+	 * @throws Exception the exception
+	 */
+	public ResourceDescription getResourceLiterals(String resourceUri) throws Exception;
+	
+	/**
+	 * Retrieve basic resource description only (used in popup data). Limits to a specific graph URI / context
+	 * e.g. only retrieves triples within an Agent, DiSCO or Event.
+	 *
+	 * @param resourceUri the resource URI
+	 * @param graphUri the context URI to filter the graph data by (e.g. DiSCO URI, Agent URI or Event URI).
+	 * @return resource description
+	 * @throws Exception the exception
+	 */
+	public ResourceDescription getResourceLiteralsInContext(String resourceUri, String graphUri) throws Exception;
+	
 }

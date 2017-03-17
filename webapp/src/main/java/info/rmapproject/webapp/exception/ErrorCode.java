@@ -19,7 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.webapp.exception;
 
-import info.rmapproject.auth.utils.Constants;
+import info.rmapproject.webapp.utils.Constants;
 
 import java.util.Properties;
 

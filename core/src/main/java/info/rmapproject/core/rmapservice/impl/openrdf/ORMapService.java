@@ -128,7 +128,7 @@ public class ORMapService implements RMapService {
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriples(URI, RMapStatus, List<URI>, Date, Date)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriples(URI, RMapSearchParams)
 	 */
 	@Override
 	public List<RMapTriple> getResourceRelatedTriples(URI uri, RMapSearchParams params)
@@ -151,8 +151,38 @@ public class ORMapService implements RMapService {
 		return triples;
 	}
 	
+
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedEvents(java.net.URI, List<URI>, Date, Date)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriplesInContext(URI, URI, RMapSearchParams)
+	 */
+	@Override
+	public List<RMapTriple> getResourceRelatedTriplesInContext(URI uri, URI context, RMapSearchParams params)
+			throws RMapException, RMapDefectiveArgumentException {
+		if (uri==null){
+			throw new RMapDefectiveArgumentException("null uri");
+		}
+		if (context==null){
+			throw new RMapDefectiveArgumentException("null context");
+		}
+		if (params==null){
+			params = new RMapSearchParams();
+		}
+		org.openrdf.model.IRI mIri = ORAdapter.uri2OpenRdfIri(uri);
+		org.openrdf.model.IRI mContextIri = ORAdapter.uri2OpenRdfIri(context);
+		
+		Set<Statement> stmts = resourcemgr.getRelatedTriples(mIri, mContextIri, params, triplestore); //, limit, offset
+		
+		List<RMapTriple> triples = new ArrayList<RMapTriple>();
+		for (Statement stmt:stmts){
+			RMapTriple triple = ORAdapter.openRdfStatement2RMapTriple(stmt);
+			triples.add(triple);
+		}
+		return triples;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedEvents(java.net.URI, RMapSearchParams)
 	 */
 	@Override
 	public List<URI> getResourceRelatedEvents (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException {
@@ -175,7 +205,7 @@ public class ORMapService implements RMapService {
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedDiSCOs(java.net.URI, info.rmapproject.core.model.RMapStatus, List<URI>, Date, Date)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getRelatedDiSCOs(java.net.URI, RMapSearchParams)
 	 */
 	@Override
 	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapSearchParams params)
@@ -199,7 +229,7 @@ public class ORMapService implements RMapService {
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceAssertingAgents (URI, RMapStatus, List<URI>, Date, Date)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceAssertingAgents (URI, RMapSearchParams)
 	 */
 	@Override
 	public List<URI> getResourceAssertingAgents (URI uri, RMapSearchParams params)
@@ -953,6 +983,6 @@ public class ORMapService implements RMapService {
 		boolean isDiSCOId = discomgr.isDiscoId(id, triplestore);
 		return isDiSCOId;
 	}
-	
+
 
 }

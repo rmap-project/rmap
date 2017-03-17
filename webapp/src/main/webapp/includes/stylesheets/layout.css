@@ -536,3 +536,12 @@ input[readonly]{background-color:#f0f0f0;}
 	opacity: 0.3;
 	filter: alpha(opacity=30);
 }
+
+.nodeInfoPopup {
+	padding:2px; 
+	z-index:1;
+	background-color:white; 
+	border: 1px solid gray;
+	width:350px; 
+	visibility:hidden;
+}

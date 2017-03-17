@@ -306,7 +306,23 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Set<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, SesameTriplestore ts) 
+	public Set<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, SesameTriplestore ts) {
+		return getRelatedTriples(resource, null, params, ts);
+	}
+	
+	/**
+	 * Get Statements referencing a IRI in subject or object, whose Subject, Predicate, and Object comprise an RMapStatement, 
+	 * and (if statusCode is not null), whose status matches statusCode, agent, and date filters.
+	 *
+	 * @param resource a Resource IRI
+	 * @param context a context filter (e.g. when retrieving from a single DiSCO use a DiSCO IRI)
+	 * @param the search filter parameters
+	 * @param ts the triplestore instance
+	 * @return set of Statements that reference the Resource IRI as either the subject or object
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 * @throws RMapException the RMap exception
+	 */
+	public Set<Statement> getRelatedTriples(IRI resource, IRI context, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapDefectiveArgumentException, RMapException {
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("null URI");
@@ -375,12 +391,19 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitOffsetFilterSparql);
 		
+		//if there a context filter was provided, let's be specific about the graph name
+		String query = sparqlQuery.toString();
+		if (context!=null){
+			String graphid = SesameSparqlUtils.convertIriToSparqlParam(context);
+			query = query.replaceAll("\\?rmapObjId", graphid);
+		}
+		
 		List<BindingSet> resultset = null;
 		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
+			resultset = ts.getSPARQLQueryResults(query);
 		}
 		catch (Exception e) {
-			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
+			throw new RMapException("Could not retrieve SPARQL query results using " + query, e);
 		}
 		
 		try{

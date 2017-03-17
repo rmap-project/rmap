@@ -27,7 +27,11 @@ public final class Constants  {
 	//TODO:read configurable constants in from properties file
 	
 	/** File path for error message text. */
-	public static final String ERROR_MSGS_PROPS_FILEPATH = "/error_msgs.properties";
+	public static final String ERROR_MSGS_PROPS_FILEPATH = "/webapp_error_msgs.properties";
+
+	/** File path for error message text. */
+	public static final String DEFAULT_ERROR_MESSAGE = "An error occurred.";
+	
 	
 	/**  maximum length for the short graph node text. */
 	public static final Integer MAX_NODETEXT_LENGTH = 21;

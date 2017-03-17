@@ -17,7 +17,7 @@
 	</tr>
 	<tr>
 		<td>Initiating Agent</td>
-		<td><a href="<c:url value='/agents/${my:httpEncode(EVENT.getAssociatedAgent())}'/>">${EVENT.getAssociatedAgent()}</a></td>
+		<td><a href="<c:url value='/agents/${my:httpEncodeStr(EVENT.getAssociatedAgent())}'/>">${EVENT.getAssociatedAgent()}</a></td>
 	</tr>
 	<tr>
 		<td>Start time</td><td>${EVENT.getStartTime().toString()}</td>
@@ -54,7 +54,7 @@
 		</tr>
 		<c:forEach var="affected_resource" items="${EVENT.getResourcesAffected()}">
 			<tr>
-				<td><a href="<c:url value='/resources/${my:httpEncode(affected_resource.getKey())}'/>">${affected_resource.getKey()}</a></td>
+				<td><a href="<c:url value='/resources/${my:httpEncodeStr(affected_resource.getKey())}'/>">${affected_resource.getKey()}</a></td>
 				<td>${affected_resource.getValue()}</td>
 			</tr>
 		</c:forEach>

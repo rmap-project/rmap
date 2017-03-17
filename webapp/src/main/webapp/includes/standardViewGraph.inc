@@ -17,4 +17,5 @@
 				</div>
 			</div>
 		</div>
+		<div class="nodeInfoPopup" id="nodeInfoPopup"></div>
 	</div>

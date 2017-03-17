@@ -53,6 +53,11 @@ public class ResourceDescription implements Serializable {
 	 * describing the Resources along with additional information to support display 
 	 * of the Resource */
 	private Map<String, TripleDisplayFormat> propertyValues;
+	
+	/** Indicates where there may be more properties that have not been loaded into to the properties 
+	 * list. This gives a way for webpage to determine whether it should give a next option, or display
+	 * a warning that not all data is shown. **/
+	private boolean hasMoreProperties = false;
 		
 	/**
 	 * Instantiates a new resource description.
@@ -100,6 +105,25 @@ public class ResourceDescription implements Serializable {
 	public void setResourceName(String resourceName) {
 		this.resourceName = resourceName;
 	}
+	
+	/**
+	 * Retrieves the flag for whether there are more properties that weren't loaded to the ResourceDescription.
+	 *
+	 * @return the hasMoreProperties flag
+	 */
+	public boolean getHasMoreProperties() {
+		return hasMoreProperties;
+	}
+
+	/**
+	 * Sets the flag for whether there are more properties that weren't loaded to the ResourceDescription
+	 *
+	 * @param hasMoreProperties flag
+	 */
+	public void setHasMoreProperties(boolean hasMoreProperties) {
+		this.hasMoreProperties = hasMoreProperties;
+	}
+	
 
 	/**
 	 * Gets the Resource types.
@@ -164,7 +188,7 @@ public class ResourceDescription implements Serializable {
 			//this is the only time we want to format the triple's object
 			String objDisplay = WebappUtils.replaceNamespace(tripleDF.getObjectDisplay());
 			tripleDF.setObjectDisplay(objDisplay);
-			String listKey = tripleDF.getSubjectDisplay()+tripleDF.getPredicateDisplay()+tripleDF.getObjectDisplay();
+			String listKey = tripleDF.getSubjectDisplay()+tripleDF.getPredicateLink()+tripleDF.getObjectDisplay();
 			this.resourceTypes.put(listKey, tripleDF);
 		}
 		else {

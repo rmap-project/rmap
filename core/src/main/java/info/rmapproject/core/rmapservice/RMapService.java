@@ -48,7 +48,7 @@ import info.rmapproject.core.model.request.RMapSearchParams;
 public interface RMapService {
 	
 	/**
-	 * Get the list of triples comprised by statements that reference a resource and whose status matches provided status code.
+	 * Get the list of triples that reference the resource with params applied
 	 *
 	 * @param uri URI of Resource to be matched in triples
 	 * @param params the search filters
@@ -57,6 +57,20 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
 	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	
+
+	/**
+	 * Get the list of triples that reference the resource with params applied and that are within the context provided.  
+	 *
+	 * @param uri URI of Resource to be matched in triples
+	 * @param uri URI of graph to constrain by
+	 * @param params the search filters
+	 * @return the resource related triples
+	 * @throws RMapException an RMap exception
+	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
+	 */
+	public List<RMapTriple>getResourceRelatedTriplesInContext(URI uri, URI context, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	
 	
 	/**
 	 * Get all RMapEvents related to a Resource URI that match the filters provided.

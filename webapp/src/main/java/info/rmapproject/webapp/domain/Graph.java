@@ -33,7 +33,8 @@ import java.util.Set;
  */
 public class Graph {
 
-	/**  Unique list of nodes stored to prevent duplicate nodes being added. */
+	/**  Unique list of nodes stored to prevent duplicate nodes being added. 
+	 *   Note that nodes.size() might not be equal to uniqueNodes.size() since duplicate literals are allowed */
     private Set<String> uniqueNodes;  
 	
 	/**  List of nodes. */
@@ -120,7 +121,7 @@ public class Graph {
 	}
 	
 	/**
-	 * Creates GraphNode object and adds it to the Graph.
+	 * Creates GraphNode object and adds it to the Graph. 
 	 *
 	 * @param sNode the node as a string
 	 * @param nodeType the node type
@@ -129,7 +130,7 @@ public class Graph {
 	 */
 	public Integer addNode(String sNode, String nodeType) throws Exception{
 		Integer id = 0;
-		if (!uniqueNodes.contains(sNode)) {
+		if (!uniqueNodes.contains(sNode) || nodeType.equals(Constants.NODETYPE_LITERAL)) {
 			id = getNextId();
 			uniqueNodes.add(sNode);	
 			nodes.add(new GraphNode(id, sNode, Constants.NODE_WEIGHT_INCREMENT, nodeType));
@@ -172,7 +173,8 @@ public class Graph {
 		targetKey = targetKey.replaceAll("[\n\r]", "");
 		targetKey = targetKey.replaceAll("[ ]+", " ");
 		Integer source = addNode(sourceKey, sourceNodeType);
-		Integer target = addNode(targetKey, targetNodeType);
+		Integer target = addNode(targetKey, targetNodeType);		
+		
 		edge.setLabel(label);
 		edge.setSource(source);
 		edge.setTarget(target);

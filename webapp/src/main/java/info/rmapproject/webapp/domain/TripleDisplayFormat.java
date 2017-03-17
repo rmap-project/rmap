@@ -19,14 +19,18 @@
  *******************************************************************************/
 package info.rmapproject.webapp.domain;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.jsoup.Jsoup;
+
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.webapp.utils.Constants;
 import info.rmapproject.webapp.utils.WebappUtils;
-
-import java.net.URLEncoder;
 
 /**
  * Used to hold the details of triples relevant to display them in the webpage
@@ -73,19 +77,28 @@ public class TripleDisplayFormat {
 	 * @param rmapTriple the RMap triple
 	 * @throws Exception the exception
 	 */
-	public TripleDisplayFormat(RMapTriple rmapTriple) throws Exception {
+	public TripleDisplayFormat(RMapTriple rmapTriple) throws UnsupportedEncodingException {
 		
 		RMapResource subj = rmapTriple.getSubject();
 		String subjDisplay = subj.toString();
 		String subjLink = Constants.RESOURCE_PATH_PREFIX + URLEncoder.encode(subj.toString(), "UTF-8");
 		
 		RMapIri pred = rmapTriple.getPredicate();
-		String predDisplay = WebappUtils.replaceNamespace(pred.toString());
+		String predDisplay = WebappUtils.removeNamespace(pred.toString());
 		String predLink = pred.toString();
 		
-		RMapValue obj = rmapTriple.getObject();
-		String objDisplay = obj.toString();
+
+		String objDisplay = "";
 		String objLink = "";
+		
+		RMapValue obj = rmapTriple.getObject();
+		if (obj instanceof RMapLiteral){
+			//remove any html tags so that it doesn't mess up display
+			objDisplay = Jsoup.parse(obj.toString()).text();
+		} else {
+			objDisplay = obj.toString();
+		}
+		
 					    			
 		if (predDisplay.contains("rdf:type"))	{
 			objLink = obj.toString();  
