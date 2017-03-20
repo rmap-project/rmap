@@ -7,10 +7,10 @@
 <em>
 <c:choose>
 	<c:when test="${VIEWMODE.equals('standard')}">
-		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}?resview=1'/>">Reload with this at center</a><br/>
+		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}?resview=1'/>">Redraw with this node at the center</a><br/>
 	</c:when>
 	<c:otherwise>
-		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}/${VIEWMODE}?resview=1'/>">Reload with this at center</a><br/>
+		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}/${VIEWMODE}?resview=1'/>">Redraw with this node at the center</a><br/>
 	</c:otherwise>
 </c:choose>
 </em>
@@ -18,8 +18,8 @@
 
 <c:set var="resuri" value="${RESDES.getResourceName()}"/>
 <c:choose>
-	<c:when test="${resuri.length()>50}">
-		<c:set var="resuriDisplay" value="${resuri.substring(0,47)}..." scope="request"/>
+	<c:when test="${resuri.length()>48}">
+		<c:set var="resuriDisplay" value="${resuri.substring(0,45)}..." scope="request"/>
 	</c:when>
 	<c:otherwise>
 		<c:set var="resuriDisplay" value="${resuri}" scope="request"/>
@@ -30,7 +30,7 @@
 <c:choose>
   <c:when test="${resuri.startsWith('https:') || resuri.startsWith('http:')
 				  ||resuri.startsWith('ftp:') || resuri.startsWith('ftps:')}">
-	<a href="${resuri}" title="${resuri}" target="_blank">${resuriDisplay}</a>
+	<a href="${resuri}" title="${resuri}" target="_blank">${resuriDisplay} <i class="fa fa-external-link"></i></a>
   </c:when>
   <c:when test="${ISRMAPTYPE}">
   	<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}'/>" title="${resuri}">${resuriDisplay}</a>
@@ -45,10 +45,10 @@
 
 <c:if test="${resource_types.size()>0}">
 	<br />
-	<span style="font-weight: bold;" title="${resource_type.getValue()}">types:</span>
+	<span style="font-weight: bold;" title="http://www.w3.org/1999/02/22-rdf-syntax-ns#type">types:</span>
 	<em>
 	<c:forEach var="resource_type" items="${resource_types}">
-		&nbsp;<span title="${resource_type.getValue()}">${resource_type.getValue()}</span>;
+		&nbsp;<span title="${resource_type.getKey()}">${resource_type.getValue()}</span>;
 	</c:forEach>
 	</em>
 </c:if>

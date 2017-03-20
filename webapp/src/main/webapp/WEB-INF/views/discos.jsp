@@ -43,10 +43,16 @@
 	<c:forEach var="resource_descrip" items="${DISCO.getResourceDescriptions()}">
 		<c:set var="properties" value="${resource_descrip.getPropertyValues()}"/>
 		<c:set var="resource_types" value="${resource_descrip.getResourceTypes()}"/>
+		<c:set var="resuri" value="${resource_descrip.getResourceName()}"/>
 			
 		<c:if test="${properties.size()>0||resource_types.size()>0}">
 			<h3>
-				About: <em><a href="<c:url value='/resources/${my:httpEncodeStr(resource_descrip.getResourceName())}'/>">${resource_descrip.getResourceName()}</a></em>
+				About: <em><a href="<c:url value='/resources/${my:httpEncodeStr(resuri)}'/>" title="Load RMap DiSCO page">${resuri}</a></em>
+					
+				<c:if test="${resuri.startsWith('https:') || resuri.startsWith('http:')
+						  ||resuri.startsWith('ftp:') || resuri.startsWith('ftps:')}">
+					<a href="${resuri}" title="Visit resource" target="_blank"> <i class="fa fa-external-link"></i></a>
+				</c:if>				
 			</h3>
 			<c:if test="${resource_types.size()>0}">
 				<h4>
@@ -74,11 +80,16 @@
 								<td>
 									<c:set var="objectLink" value="${property.getValue().getObjectLink()}"/>
 									<c:if test="${objectLink.length()>0}">
-										<a href="<c:url value='${objectLink}'/>">
+										<a href="<c:url value='${objectLink}'/>" title="Load RMap Resource page">
 									</c:if>
 									${property.getValue().getObjectDisplay()}
 									<c:if test="${objectLink.length()>0}">
 										</a>
+										<c:set var="valueuri" value="${property.getValue().getObject().toString()}"/>
+										<c:if test="${valueuri.startsWith('https:') || valueuri.startsWith('http:')
+												  ||valueuri.startsWith('ftp:') || valueuri.startsWith('ftps:')}">
+											<a href="${valueuri}" title="Visit resource" target="_blank"> <i class="fa fa-external-link"></i></a>
+										</c:if>		
 									</c:if>
 								</td>
 							</tr>
