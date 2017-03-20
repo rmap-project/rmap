@@ -26,6 +26,8 @@ import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
+import info.rmapproject.webapp.exception.ErrorCode;
+import info.rmapproject.webapp.exception.RMapWebException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -88,8 +90,16 @@ public class ExceptionHandlingController {
 	 * @param exception the exception
 	 * @return the string
 	 */
-	@ExceptionHandler({RMapException.class, Exception.class})
+	@ExceptionHandler({RMapWebException.class,RMapException.class, Exception.class})
 	 public String genericError(Exception exception) {	
+		if (exception instanceof RMapWebException){
+			RMapWebException ex = (RMapWebException) exception;
+			if (ex.getErrorCode().equals(ErrorCode.ER_PROBLEM_LOADING_NODEINFO)){
+				logger.error(exception.getMessage(), exception);
+				return "nodeinfoerror";
+			}
+		}
+		
 		logger.error(exception.getMessage(), exception);
 		return "error";
 	  }

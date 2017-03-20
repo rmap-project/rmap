@@ -4,62 +4,6 @@
 <%@ taglib prefix="my" uri="/WEB-INF/tld/rmapTagLibrary.tld"%>
 
 <body>
-<style> 
-	.shown{
-	  display:block;
-	} 
-	.hiddenproperty{
-	  display:none;
-	}
-	#properties  {
-	 margin-left:0px;
-	 margin-bottom:0px;
-	 margin-top:5px;
-	 padding-left:0px;
-	}
-	
-	#properties li  {
-	 margin-bottom:0px;
-	 margin-top:0px;
-	}
-		
-	#navlinks{
-	 display:block;
-	 margin-top:3px;
-	 margin-left:0px;
-	 margin-bottom:0px;
-	}
-	
-	#navlinks a {
-	    text-decoration: none;
-		font-weight:bold;
-	    display: block;
-	    padding: 1px 11px 3px 11px;
-	}
-	
-	#navlinks a:hover {
-	    background-color: #ddd;
-	    color: black;
-	}
-	
-	.previous {
-	    background-color: #91CC00;
-	    color: black;
-		float:left;
-		margin-right:4px;
-	}
-	
-	.next {
-	    background-color: #91CC00;
-	    color: black;
-		float:left;
-	}
-	
-	.round {
-	    border-radius: 7%;
-	}
-</style>
-
 <em>
 <c:choose>
 	<c:when test="${VIEWMODE.equals('standard')}">
@@ -74,8 +18,8 @@
 
 <c:set var="resuri" value="${RESDES.getResourceName()}"/>
 <c:choose>
-	<c:when test="${resuri.length()>52}">
-		<c:set var="resuriDisplay" value="${resuri.substring(0,50)}..." scope="request"/>
+	<c:when test="${resuri.length()>50}">
+		<c:set var="resuriDisplay" value="${resuri.substring(0,47)}..." scope="request"/>
 	</c:when>
 	<c:otherwise>
 		<c:set var="resuriDisplay" value="${resuri}" scope="request"/>
@@ -88,6 +32,9 @@
 				  ||resuri.startsWith('ftp:') || resuri.startsWith('ftps:')}">
 	<a href="${resuri}" title="${resuri}" target="_blank">${resuriDisplay}</a>
   </c:when>
+  <c:when test="${ISRMAPTYPE}">
+  	<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}'/>" title="${resuri}">${resuriDisplay}</a>
+  </c:when>
   <c:otherwise>
     <span title="${resuri}">${resuriDisplay}</span>
   </c:otherwise>
@@ -98,10 +45,10 @@
 
 <c:if test="${resource_types.size()>0}">
 	<br />
-	<span style="font-weight: bold;" title="${resource_type.getValue().getObjectLink()}">types:</span>
+	<span style="font-weight: bold;" title="${resource_type.getValue()}">types:</span>
 	<em>
 	<c:forEach var="resource_type" items="${resource_types}">
-		&nbsp;<span title="${resource_type.getValue().getObjectLink()}">${resource_type.getValue().getObjectDisplay()}</span>;
+		&nbsp;<span title="${resource_type.getValue()}">${resource_type.getValue()}</span>;
 	</c:forEach>
 	</em>
 </c:if>
@@ -117,8 +64,8 @@
 	</ul>
 			
 	<span id="navlinks">
-	<a href="JavaScript:showPrevious()" class="previous round" id="navlink">&#8249; back</a>
-	<a href="JavaScript:showNext()" class="next round" id="navlink">load more&#8250;</a>
+	<a href="JavaScript:showPrevious()" class="previous roundedcorners" id="navlink">&#8249; back</a>
+	<a href="JavaScript:showNext()" class="next roundedcorners" id="navlink">load more&#8250;</a>
 	</span>
 </c:if>
 

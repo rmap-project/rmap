@@ -545,3 +545,62 @@ input[readonly]{background-color:#f0f0f0;}
 	width:350px; 
 	visibility:hidden;
 }
+
+<!--nodeinfo popup-->
+
+.shown{
+  display:block;
+} 
+.hiddenproperty{
+  display:none;
+}
+#properties  {
+ margin-left:0px;
+ margin-bottom:0px;
+ margin-top:5px;
+ padding-left:0px;
+}
+
+#properties li  {
+ margin-bottom:0px;
+ margin-top:0px;
+}
+	
+#navlinks{
+ display:block;
+ margin-top:3px;
+ margin-left:0px;
+ margin-bottom:0px;
+}
+
+#navlinks a {
+    text-decoration: none;
+	font-weight:bold;
+    display: block;
+    padding: 1px 11px 3px 11px;
+}
+
+#navlinks a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.previous {
+    background-color: #91CC00;
+    color: black;
+	float:left;
+	margin-right:4px;
+}
+
+.next {
+    background-color: #91CC00;
+    color: black;
+	float:left;
+}
+
+.roundedcorners {
+    border-radius: 7%;
+}
+
+
+

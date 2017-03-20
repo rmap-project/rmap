@@ -42,11 +42,9 @@ public class ResourceDescription implements Serializable {
 	/** Name of resource - generally a string version of the URI for the Resource. */
 	private String resourceName; 
 	
-	/**List of rdf:types associated with the Resource. Typically the String KV is
-	 * a concatenation of sub-pred-obj. The TripleDisplayFormat contains triples 
-	 * describing the Resource types along with additional information to support display 
-	 * of the Resource */
-	private Map<String, TripleDisplayFormat> resourceTypes;
+	/**List of rdf:types associated with the Resource. Typically the String key is
+	 * the full type path. The value is shortened path with prefix  */
+	private Map<String, String> resourceTypes;
 	
 	/**List of triples associated with the Resource. Typically the String KV is
 	 * a concatenation of sub-pred-obj. The TripleDisplayFormat contains triples 
@@ -71,7 +69,7 @@ public class ResourceDescription implements Serializable {
 	 */
 	public ResourceDescription(String resourceName) {
 		this.resourceName = resourceName;
-		this.resourceTypes = new TreeMap<String,TripleDisplayFormat>();
+		this.resourceTypes = new TreeMap<String,String>();
 		this.propertyValues = new TreeMap<String, TripleDisplayFormat>();
 	}
 	
@@ -82,7 +80,7 @@ public class ResourceDescription implements Serializable {
 	 * @param resourceTypes the Resource types
 	 * @param propertyValues the property values (triples describing resource)
 	 */
-	public ResourceDescription(String resourceName, Map<String, TripleDisplayFormat> resourceTypes, Map<String, TripleDisplayFormat> propertyValues) {
+	public ResourceDescription(String resourceName, Map<String, String> resourceTypes, Map<String, TripleDisplayFormat> propertyValues) {
 		this.resourceName = resourceName;
 		this.resourceTypes = resourceTypes;
 		this.propertyValues = propertyValues;		
@@ -130,7 +128,7 @@ public class ResourceDescription implements Serializable {
 	 *
 	 * @return the Resource types
 	 */
-	public Map<String, TripleDisplayFormat> getResourceTypes() {
+	public Map<String, String> getResourceTypes() {
 		return resourceTypes;
 	}
 
@@ -139,7 +137,7 @@ public class ResourceDescription implements Serializable {
 	 *
 	 * @param resourceTypes the Resource types
 	 */
-	public void setResourceTypes(Map<String, TripleDisplayFormat> resourceTypes) {
+	public void setResourceTypes(Map<String, String> resourceTypes) {
 		this.resourceTypes = resourceTypes;
 	}
 
@@ -183,13 +181,10 @@ public class ResourceDescription implements Serializable {
 	 * @param tripleDF the triple display format
 	 * @throws RMapWebException the RMap web exception
 	 */
-	public void addResourceType(TripleDisplayFormat tripleDF) throws RMapWebException {
-		if (tripleDF!=null) {
-			//this is the only time we want to format the triple's object
-			String objDisplay = WebappUtils.replaceNamespace(tripleDF.getObjectDisplay());
-			tripleDF.setObjectDisplay(objDisplay);
-			String listKey = tripleDF.getSubjectDisplay()+tripleDF.getPredicateLink()+tripleDF.getObjectDisplay();
-			this.resourceTypes.put(listKey, tripleDF);
+	public void addResourceType(String type) throws RMapWebException {
+		if (type!=null) {
+			String typeDisplay = WebappUtils.replaceNamespace(type);
+			this.resourceTypes.put(type, typeDisplay);
 		}
 		else {
 			throw new RMapWebException(ErrorCode.ER_RESOURCE_TYPE_NULL);

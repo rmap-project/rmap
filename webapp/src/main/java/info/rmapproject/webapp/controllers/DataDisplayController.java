@@ -36,8 +36,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import info.rmapproject.core.utils.Terms;
 import info.rmapproject.webapp.domain.ResourceDescription;
 import info.rmapproject.webapp.domain.SearchCommand;
+import info.rmapproject.webapp.exception.ErrorCode;
+import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.DataDisplayService;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
@@ -341,10 +344,18 @@ public class DataDisplayController {
 		if (view==null || view.length()==0){
 			view=STANDARD_VIEW;
 		}
-		ResourceDescription resourceLiterals = dataDisplayService.getResourceLiterals(resourceUri);
-	    
-		model.addAttribute("RESDES",resourceLiterals);	  
-	    model.addAttribute("VIEWMODE", view);	 
+		try {
+			ResourceDescription resourceLiterals = dataDisplayService.getResourceLiterals(resourceUri);
+			boolean isRMapType = resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_DISCO_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_AGENT_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_EVENT_PATH);
+			model.addAttribute("ISRMAPTYPE",isRMapType);	  
+			model.addAttribute("RESDES",resourceLiterals);	  
+		    model.addAttribute("VIEWMODE", view);	 
+		} catch (Exception e) {
+			//we need to mark this as a nodeinfo error - it needs to load a smaller custom exception page
+			throw new RMapWebException(e,ErrorCode.ER_PROBLEM_LOADING_NODEINFO);
+		}
 	    
 		return "nodeinfo";
 	}	
@@ -366,9 +377,20 @@ public class DataDisplayController {
 		if (view==null || view.length()==0){
 			view=STANDARD_VIEW;
 		}
-		ResourceDescription resourceLiterals = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri);
-	    model.addAttribute("RESDES",resourceLiterals);	
-	    model.addAttribute("VIEWMODE", view);	   
+		try {
+			ResourceDescription resourceLiterals = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri);
+
+			boolean isRMapType = resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_DISCO_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_AGENT_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_EVENT_PATH);
+			
+			model.addAttribute("ISRMAPTYPE",isRMapType);	  
+			model.addAttribute("RESDES",resourceLiterals);	
+		    model.addAttribute("VIEWMODE", view);	  
+		} catch (Exception e) {
+			//we need to mark this as a nodeinfo error - it needs to load a smaller custom exception page
+			throw new RMapWebException(e,ErrorCode.ER_PROBLEM_LOADING_NODEINFO);
+		}  
 	    
 		return "nodeinfo";
 	}	

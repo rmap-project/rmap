@@ -34,7 +34,12 @@ public enum ErrorCode {
 	ER_RESOURCE_PROPERTY_VALUE_NULL (4013001),
 	
 	/** An error code for when the Resource type is null. */
-	ER_RESOURCE_TYPE_NULL (4013002); 
+	ER_RESOURCE_TYPE_NULL (4013002),
+	
+	/** Error code for when there is a problem loading the /nodeinfo/. Usually caused by 
+	 * node ID being invalid.
+	 */
+	ER_PROBLEM_LOADING_NODEINFO (4013003); 
 
 	/** The error number. */
 	private final int number;

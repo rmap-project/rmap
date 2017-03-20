@@ -309,14 +309,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
     	ResourceDescription resourceDescription = new ResourceDescription(resource.toString());	  
     	
     	try {
-	    	for (RMapTriple triple : triples) {  
-	    		TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
-	    		if (tripleDF.getPredicate().toString().equals(RDF.TYPE.toString()) 
+	    	for (RMapTriple triple : triples) { 
+	    		if (triple.getPredicate().toString().equals(RDF.TYPE.toString()) 
 	    				&& triple.getSubject().toString().equals(resource.toString()))	{
-	    			resourceDescription.addResourceType(tripleDF);
+	    			resourceDescription.addResourceType(triple.getObject().toString());
 	    		}
-	    		else if (!literalsOnly || tripleDF.getObject() instanceof RMapLiteral) {
+	    		else if (!literalsOnly || triple.getObject() instanceof RMapLiteral) {
 	    			//only include this if it's either a literal, or we aren't filtering by literals.
+		    		TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
 	    			resourceDescription.addPropertyValue(tripleDF);		
 	    		}
 	    	}
@@ -430,7 +430,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			Graph graph = new Graph();
 			String sAgentUri = agentUri.toString();
 			
-			graph.addEdge(sAgentUri, agentName, FOAF.NAME.stringValue(), agentNodeType, Constants.NODETYPE_LITERAL);
 			graph.addEdge(sAgentUri, idProvider,Terms.RMAP_IDENTITYPROVIDER_PATH, agentNodeType, agentNodeType);
 			graph.addEdge(sAgentUri, authId,Terms.RMAP_USERAUTHID_PATH, agentNodeType, WebappUtils.getNodeType(new URI(Terms.RMAP_USERAUTHID_PATH)));
 						

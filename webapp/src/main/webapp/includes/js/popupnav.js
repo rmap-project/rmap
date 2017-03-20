@@ -51,6 +51,7 @@ function switchButtons() {
 }
 
 function loadFirstProps() {
+	offset=0;
 	var listData = Array.prototype.slice.call(document.querySelectorAll('#properties li:not(.shown)')).slice(offset, offset+LIMIT);
 	for (var i=0; i < listData.length; i++)  {
 		listData[i].className  = 'shown';

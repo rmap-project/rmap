@@ -54,8 +54,8 @@
 					:&nbsp;
 					<em>
 						<c:forEach var="resource_type" items="${resource_types}">
-							<a href="${resource_type.getValue().getObjectLink()}">
-								${resource_type.getValue().getObjectDisplay()}
+							<a href="${resource_type.getValue()}">
+								${resource_type.getValue()}
 							</a>;&nbsp;
 						</c:forEach>
 					</em>
