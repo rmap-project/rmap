@@ -175,7 +175,7 @@ public class GraphEdge implements Serializable {
 	 */
 	public String shortenLabel(String label) {
 		if (label != null){
-			label = WebappUtils.replaceNamespace(label);
+			label = WebappUtils.removeNamespace(label);
 			if (label.length() > Constants.MAX_EDGETEXT_LENGTH) {
 				setShortlabel(label.substring(label.length() - Constants.MAX_EDGETEXT_LENGTH) + "...");
 			}

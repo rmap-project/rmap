@@ -4,7 +4,8 @@
 <c:set var="pageTitle" value="RMap Resource Summary | RMap Project"/>
 <c:set var="currPage" value="search"/>
 <%@include file="/includes/headstart.inc" %>
-<%@include file="/includes/js/nodesedges.js" %>        
+<%@include file="/includes/js/nodesedges.js" %>  
+<%@include file="/includes/js/popupnav.js" %>        
 </head>
 <body onload="drawgraph();">
 <%@include file="/includes/bodystart.inc" %> 
@@ -17,22 +18,22 @@
 <c:set var="resource_types" value="${resource_descrip.getResourceTypes()}"/>
 
 <h1>Resource Summary</h1>
-<h2>URI: <a href="<c:url value='/resources/${my:httpEncode(resourceUri)}?resview=1'/>">${resourceUri}</a></h2>
+<h2>URI: <a href="<c:url value='/resources/${my:httpEncodeUri(resourceUri)}?resview=1'/>">${resourceUri}</a></h2>
 <c:if test="${resource_types.size()>0}">
 	<h3>
 		A resource of type<c:if test="${resource_types.size()>1}">s</c:if>
 		:&nbsp;
 		<em>
 			<c:forEach var="resource_type" items="${resource_types}">
-				<a href="${resource_type.getValue().getObjectLink()}">
-					${resource_type.getValue().getObjectDisplay()}
+				<a href="${resource_type.getKey()}">
+					${resource_type.getValue()}
 				</a>;&nbsp;
 			</c:forEach>
 		</em>
 	</h3>
 </c:if>
 <c:if test="${properties.size()>0 || resource_types.size()>0}">
-	<a href="<c:url value='/resources/${my:httpEncode(resourceUri)}/visual?resview=1'/>">View larger visualization</a><br/>
+	<a href="<c:url value='/resources/${my:httpEncodeUri(resourceUri)}/visual?resview=1'/>">View larger visualization</a><br/>
 	<%@include file="/includes/standardViewGraph.inc" %>
 </c:if>
 <br/>
@@ -63,7 +64,9 @@
 								</a>
 							</c:if>
 						</td>
-						<td><a href="${property.getValue().getPredicateLink()}">${property.getValue().getPredicateDisplay()}</a></td>
+						<td>
+							<c:set var="predicateLink" value="${property.getValue().getPredicateLink()}"/>
+							<a href="${predicateLink}" title="${predicateLink}">${property.getValue().getPredicateDisplay()}</a></td>
 						<td>
 							<c:set var="objectLink" value="${property.getValue().getObjectLink()}"/>
 							<c:if test="${objectLink.length()>0}">

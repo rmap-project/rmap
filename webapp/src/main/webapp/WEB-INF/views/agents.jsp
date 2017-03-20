@@ -5,12 +5,13 @@
 <c:set var="currPage" value="search"/>
 <%@include file="/includes/headstart.inc" %>
 <%@include file="/includes/js/nodesedges.js" %> 
+<%@include file="/includes/js/popupnav.js" %>    
 </head>       
 <body onload="drawgraph();">
 <%@include file="/includes/bodystart.inc" %> 
 
 <c:set var="agentUri" value="${AGENT.getUri().toString()}"/>     
-<c:set var="agentUriEncoded" value="${my:httpEncode(agentUri)}"/>       
+<c:set var="agentUriEncoded" value="${my:httpEncodeStr(agentUri)}"/>       
 <article class="twelve columns main-content">
 	<h1>RMap Agent Summary</h1>
 	<h2>URI: <a href="<c:url value='/agents/${agentUriEncoded}'/>">${agentUri}</a></h2>
@@ -35,11 +36,11 @@
 		</c:if>	
 		<tr>
 			<td>ID Provider</td>
-			<td><a href="<c:url value='/resources/${my:httpEncode(AGENT.getIdProvider())}'/>">${AGENT.getIdProvider()}</a></td>
+			<td><a href="<c:url value='/resources/${my:httpEncodeStr(AGENT.getIdProvider())}'/>">${AGENT.getIdProvider()}</a></td>
 		</tr>	
 		<tr>
 			<td>User Authentication ID</td>
-			<td><a href="<c:url value='/resources/${my:httpEncode(AGENT.getAuthId())}'/>">${AGENT.getAuthId()}</a></td>
+			<td><a href="<c:url value='/resources/${my:httpEncodeStr(AGENT.getAuthId())}'/>">${AGENT.getAuthId()}</a></td>
 		</tr>	
 		
 		</table>

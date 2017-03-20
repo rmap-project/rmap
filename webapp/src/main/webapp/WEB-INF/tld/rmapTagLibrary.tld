@@ -5,7 +5,7 @@
 	<tlib-version>1.0</tlib-version>
 	<uri>/WEB-INF/tld/rmapTagLibrary</uri>
 	<function>
-		<name>httpEncode</name>
+		<name>httpEncodeStr</name>
 		<function-class>info.rmapproject.webapp.utils.CustomELFunctions</function-class>
 		<function-signature>java.lang.String httpEncode(java.lang.String)</function-signature>
 	</function>

@@ -19,13 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
-import info.rmapproject.webapp.domain.SearchCommand;
-import info.rmapproject.webapp.service.DataDisplayService;
-import info.rmapproject.webapp.service.dto.AgentDTO;
-import info.rmapproject.webapp.service.dto.DiSCODTO;
-import info.rmapproject.webapp.service.dto.EventDTO;
-import info.rmapproject.webapp.service.dto.ResourceDTO;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -42,6 +35,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import info.rmapproject.core.utils.Terms;
+import info.rmapproject.webapp.domain.ResourceDescription;
+import info.rmapproject.webapp.domain.SearchCommand;
+import info.rmapproject.webapp.exception.ErrorCode;
+import info.rmapproject.webapp.exception.RMapWebException;
+import info.rmapproject.webapp.service.DataDisplayService;
+import info.rmapproject.webapp.service.dto.AgentDTO;
+import info.rmapproject.webapp.service.dto.DiSCODTO;
+import info.rmapproject.webapp.service.dto.EventDTO;
+import info.rmapproject.webapp.service.dto.ResourceDTO;
 
 /**
  * Handles requests for the data visualization pages.
@@ -65,7 +69,10 @@ public class DataDisplayController {
 	
 	/**  path parameter for widget view. */
 	private static final String WIDGET_VIEW = "widget";
-	
+
+	/**  term for standard view, used in VIEWMODE. */
+	private static final String STANDARD_VIEW = "standard";
+		
 	/**
 	 * path parameter for the edit view 
 	 * currently partially works for DiSCOs only... is part of proof of concept for DiSCO edit.
@@ -91,6 +98,9 @@ public class DataDisplayController {
 	    model.addAttribute("OBJECT_NODES", discoDTO.getGraph().getNodes());
 	    model.addAttribute("OBJECT_EDGES", discoDTO.getGraph().getEdges());
 	    model.addAttribute("OBJECT_NODETYPES", discoDTO.getGraph().getNodeTypes());
+	    model.addAttribute("RESOURCEURI", discoDTO.getUri());
+	    model.addAttribute("VIEWMODE", STANDARD_VIEW);
+	    
 		return "discos";
 	}	
 	
@@ -107,11 +117,16 @@ public class DataDisplayController {
 	public String discoAltView(@PathVariable(value="uri") String discoUri, 
 			@PathVariable(value="view") String view, Model model) throws Exception {
 		log.info("DiSCO visualization requested: " + discoUri);
+		if (view==null || view.length()==0){
+			view=STANDARD_VIEW;
+		}
 		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 	    model.addAttribute("DISCO",discoDTO);	    
 	    model.addAttribute("OBJECT_NODES", discoDTO.getGraph().getNodes());
 	    model.addAttribute("OBJECT_EDGES", discoDTO.getGraph().getEdges());
 	    model.addAttribute("OBJECT_NODETYPES", discoDTO.getGraph().getNodeTypes());   
+	    model.addAttribute("RESOURCEURI", discoDTO.getUri());
+	    model.addAttribute("VIEWMODE", view);
 	    if (view.equals(VISUAL_VIEW)){
 	    	return "discovisual";
 	    } else if (view.equals(WIDGET_VIEW)) {
@@ -122,7 +137,7 @@ public class DataDisplayController {
 	    	return "discos";
 	    }	    
 	}	
-
+	
 	/**
 	 * GET details of an Agent.
 	 *
@@ -138,7 +153,9 @@ public class DataDisplayController {
 	    model.addAttribute("AGENT",agentDTO);	    
 	    model.addAttribute("OBJECT_NODES", agentDTO.getGraph().getNodes());
 	    model.addAttribute("OBJECT_EDGES", agentDTO.getGraph().getEdges());
-	    model.addAttribute("OBJECT_NODETYPES", agentDTO.getGraph().getNodeTypes());
+	    model.addAttribute("OBJECT_NODETYPES", agentDTO.getGraph().getNodeTypes()); 
+	    model.addAttribute("RESOURCEURI", agentDTO.getUri());
+	    model.addAttribute("VIEWMODE", STANDARD_VIEW);
 	    
 		return "agents";
 	}	
@@ -157,11 +174,16 @@ public class DataDisplayController {
 	public String agentAltView(@PathVariable(value="uri") String agentUri, 
 			@PathVariable(value="view") String view, Model model) throws Exception {
 		log.info("Agent requested: " + agentUri);	
+		if (view==null || view.length()==0){
+			view=STANDARD_VIEW;
+		}
 		AgentDTO agentDTO = dataDisplayService.getAgentDTO(agentUri);
 	    model.addAttribute("AGENT",agentDTO);	    
 	    model.addAttribute("OBJECT_NODES", agentDTO.getGraph().getNodes());
 	    model.addAttribute("OBJECT_EDGES", agentDTO.getGraph().getEdges());
 	    model.addAttribute("OBJECT_NODETYPES", agentDTO.getGraph().getNodeTypes());
+	    model.addAttribute("RESOURCEURI", agentDTO.getUri());
+	    model.addAttribute("VIEWMODE", view);
 	    
 	    if (view.equals(VISUAL_VIEW)){
 	    	return "agentvisual";
@@ -211,6 +233,8 @@ public class DataDisplayController {
 		    model.addAttribute("OBJECT_NODES", resourceDTO.getGraph().getNodes());
 		    model.addAttribute("OBJECT_EDGES", resourceDTO.getGraph().getEdges());
 		    model.addAttribute("OBJECT_NODETYPES", resourceDTO.getGraph().getNodeTypes());
+		    model.addAttribute("RESOURCEURI", resourceDTO.getUri());
+		    model.addAttribute("VIEWMODE", STANDARD_VIEW);
 
 		} catch (URISyntaxException|IllegalArgumentException ex){
 			isUri = false;
@@ -247,6 +271,9 @@ public class DataDisplayController {
 				@RequestParam(value="resview", required=false) Integer resview, 
 				Model model) throws Exception {
 		log.info("Resource requested " + resourceUri);
+		if (view==null || view.length()==0){
+			view=STANDARD_VIEW;
+		}
 
 		//by default the system will redirect to the object type 
 		//e.g. a disco uri will redirect to DiSCO view.
@@ -268,6 +295,8 @@ public class DataDisplayController {
 	    model.addAttribute("OBJECT_NODES", resourceDTO.getGraph().getNodes());
 	    model.addAttribute("OBJECT_EDGES", resourceDTO.getGraph().getEdges());
 	    model.addAttribute("OBJECT_NODETYPES", resourceDTO.getGraph().getNodeTypes());
+	    model.addAttribute("RESOURCEURI", resourceDTO.getUri());
+	    model.addAttribute("VIEWMODE", view);
 	    
 	    if (view.equals(WIDGET_VIEW)){
 			return "resourcewidget";	    	
@@ -293,10 +322,79 @@ public class DataDisplayController {
 				
 		EventDTO eventDTO = dataDisplayService.getEventDTO(eventUri);
 		model.addAttribute("EVENT", eventDTO);
+	    model.addAttribute("RESOURCEURI", eventDTO.getUri());
+	    model.addAttribute("VIEWMODE", STANDARD_VIEW);
 		
 		return "events";
 	}	
+	
 
+	/**
+	 * Retrieves information about the node to be formatted in a popup
+	 *
+	 * @param resourceUri a resource uri
+	 * @param model the Spring model
+	 * @param view the current page view
+	 * @return the resource literals popup box
+	 * @throws Exception the exception
+	 */
+	@RequestMapping(value="/nodeinfo/{resource}", method = RequestMethod.GET)
+	public String resourceLiterals(@PathVariable(value="resource") String resourceUri, 
+				Model model, @RequestParam(value="viewmode", required=false) String view) throws Exception {
+		if (view==null || view.length()==0){
+			view=STANDARD_VIEW;
+		}
+		try {
+			ResourceDescription resourceLiterals = dataDisplayService.getResourceLiterals(resourceUri);
+			boolean isRMapType = resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_DISCO_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_AGENT_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_EVENT_PATH);
+			model.addAttribute("ISRMAPTYPE",isRMapType);	  
+			model.addAttribute("RESDES",resourceLiterals);	  
+		    model.addAttribute("VIEWMODE", view);	 
+		} catch (Exception e) {
+			//we need to mark this as a nodeinfo error - it needs to load a smaller custom exception page
+			throw new RMapWebException(e,ErrorCode.ER_PROBLEM_LOADING_NODEINFO);
+		}
+	    
+		return "nodeinfo";
+	}	
+		
+	/**
+	 * Retrieves information about the node to be formatted in a popup
+	 *
+	 * @param resourceUri a resource uri
+	 * @param contextUri a context uri - uri of graph to limit results by
+	 * @param model the Spring model
+	 * @param view the current page view
+	 * @return the resource literals popup box
+	 * @throws Exception the exception
+	 */
+	@RequestMapping(value="/nodeinfo/{resource}/{context}", method = RequestMethod.GET)
+	public String resourceLiteralsInContext(@PathVariable(value="resource") String resourceUri, 
+			@PathVariable(value="context") String contextUri, Model model, 
+			@RequestParam(value="viewmode", required=false) String view) throws Exception {
+		if (view==null || view.length()==0){
+			view=STANDARD_VIEW;
+		}
+		try {
+			ResourceDescription resourceLiterals = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri);
+
+			boolean isRMapType = resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_DISCO_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_AGENT_PATH)
+									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_EVENT_PATH);
+			
+			model.addAttribute("ISRMAPTYPE",isRMapType);	  
+			model.addAttribute("RESDES",resourceLiterals);	
+		    model.addAttribute("VIEWMODE", view);	  
+		} catch (Exception e) {
+			//we need to mark this as a nodeinfo error - it needs to load a smaller custom exception page
+			throw new RMapWebException(e,ErrorCode.ER_PROBLEM_LOADING_NODEINFO);
+		}  
+	    
+		return "nodeinfo";
+	}	
+	
 	/**
 	 * Experiment for proof of concept - this doesn't allow you to save the DiSCOs you make.
 	 *

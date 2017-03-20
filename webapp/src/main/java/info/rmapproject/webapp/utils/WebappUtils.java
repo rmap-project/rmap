@@ -77,6 +77,31 @@ public class WebappUtils {
 			return url;
 		}
 	}	
+
+	/**
+	 * Remove the namespace URL and just return the term
+	 *
+	 * @param url the url
+	 * @return the term
+	 */
+	public static String removeNamespace(String url) {
+		try{
+			URI uri = new URI(url);
+			String term = null;
+
+			if (url.contains("#")){
+				term = uri.getFragment();
+			}
+			else if (url.contains("/")){
+				term = url.substring(url.lastIndexOf("/")+1);
+			}
+			return term;
+		} catch (URISyntaxException e){
+			//it's not a uri... that's OK, send it back...
+			return url;
+		}
+	}	
+	
 	
 	/**
 	 * Retrieve the node type based on URI provided.  The graph visualization is colored based on 

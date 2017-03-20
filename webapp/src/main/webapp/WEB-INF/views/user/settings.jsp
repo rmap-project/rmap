@@ -87,7 +87,7 @@
     	<div class="boxedsidebar">
 			<h3>Your Agent ID is</h3><br/>
 			<c:if test="${user.hasRMapAgent()}">
-				<h3><a href="<c:url value='/agents/${my:httpEncode(user.rmapAgentUri)}'/>">&lt;${user.rmapAgentUri}&gt;</a></h3>
+				<h3><a href="<c:url value='/agents/${my:httpEncodeStr(user.rmapAgentUri)}'/>">&lt;${user.rmapAgentUri}&gt;</a></h3>
 			</c:if>
 			<c:if test="${not user.hasRMapAgent()}">
 				<h3>&lt;none created&gt;</h3><br/>

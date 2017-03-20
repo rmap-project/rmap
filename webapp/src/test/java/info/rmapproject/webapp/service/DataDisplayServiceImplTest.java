@@ -79,7 +79,7 @@ public class DataDisplayServiceImplTest {
 			fail(e.getMessage());
 		}
 	}
-
+	
 	/**
 	 * Test retrieval of Event DTO.
 	 */
