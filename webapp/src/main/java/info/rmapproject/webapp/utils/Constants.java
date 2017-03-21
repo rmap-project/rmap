@@ -57,6 +57,9 @@ public final class Constants  {
     /** Label for node type "Literal". */
     public static final String NODETYPE_LITERAL = "Literal";
     
+    /** Term used to define node shape as "image". */
+    public static final String NODESHAPE_IMAGE = "image";
+    
     /** Label for node type "Undefined". */
     public static final String NODETYPE_UNDEFINED = "Undefined";
     

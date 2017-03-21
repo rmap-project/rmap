@@ -18,8 +18,8 @@
 
 <c:set var="resuri" value="${RESDES.getResourceName()}"/>
 <c:choose>
-	<c:when test="${resuri.length()>48}">
-		<c:set var="resuriDisplay" value="${resuri.substring(0,45)}..." scope="request"/>
+	<c:when test="${resuri.length()>43}">
+		<c:set var="resuriDisplay" value="${resuri.substring(0,40)}..." scope="request"/>
 	</c:when>
 	<c:otherwise>
 		<c:set var="resuriDisplay" value="${resuri}" scope="request"/>

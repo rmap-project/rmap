@@ -49,6 +49,9 @@ public class GraphNodeType {
 	/** The node type shape. */
 	private String shape = "";
 
+	/** The node type image path. */
+	private String image = "";
+	
 	/**
 	 * Instantiates a new graph node type.
 	 *
@@ -65,6 +68,9 @@ public class GraphNodeType {
 				String[] props = nodeProps.split("\\|");
 				this.color = props[0];
 				this.shape = props[1];
+				if (this.shape.equals(Constants.NODESHAPE_IMAGE) && props.length==3){
+					this.image = props[2];					
+				}
 			} else { //set defaults
 				this.color=Constants.DEFAULT_NODE_COLOR;
 				this.shape=Constants.DEFAULT_NODE_SHAPE;
@@ -106,6 +112,15 @@ public class GraphNodeType {
 	 */
 	public String getShape() {
 		return shape;
+	}
+	
+	/**
+	 * Gets the node type imagepath.
+	 *
+	 * @return the image path
+	 */
+	public String getImage() {
+		return image;
 	}
 	
 }

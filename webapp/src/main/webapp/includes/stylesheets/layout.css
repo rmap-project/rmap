@@ -382,27 +382,29 @@ div.loadbarOuterBorder {
 }
 
 .square {
-     width: 20px;
-     height: 20px;
-  font-size:9pt;
-  margin-bottom:3px;
-  border: 1px solid gray;
-   }	
+    width: 20px;
+    height: 20px;
+	font-size:9pt;
+	border: 1px solid gray;
+	float:left;
+	position:absolute;
+   }
 	
 .dot {
-     width: 20px;
-     height: 20px;
-     -webkit-border-radius: 10px;
-     -moz-border-radius: 10px;
-     border-radius: 10px;
-  border: 1px solid gray;
-  margin-bottom:3px;
+    width: 20px;
+    height: 20px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+	border: 1px solid gray;
+	float:left;
+	position:absolute;
    }	
 
 .legendlabel {
   font-size:9pt; 
-  float:left;
-  margin-left:22px;
+  margin-left:25px;
+  margin-bottom:3px;
 }
 
 #info {
