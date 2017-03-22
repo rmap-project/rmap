@@ -24,7 +24,7 @@ function drawgraph(){
 			autoResize:true,
 			nodes: {
 				shape: 'dot',
-				font: {strokeWidth: 2, strokeColor : '#ffffff', size: 14, background:'#F7F7FF'}
+				font: {strokeWidth: 2, strokeColor : '#ffffff', background:'#F7F7FF'}
 			},
 			edges: {
 				width: 0.15,
@@ -32,7 +32,7 @@ function drawgraph(){
 				smooth: {
 					type: 'dynamic'
 				},
-				font: {align: 'middle', strokeWidth: 2, strokeColor : '#ffffff', size: 16, background:'#F7F7FF'}
+				font: {align: 'middle', strokeWidth: 2, strokeColor : '#ffffff', background:'#F7F7FF'}
 			},
 			physics: {
 				barnesHut: {

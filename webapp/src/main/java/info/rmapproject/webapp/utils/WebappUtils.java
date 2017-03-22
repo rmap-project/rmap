@@ -111,11 +111,11 @@ public class WebappUtils {
 	 * @return the Node type
 	 */
 	public static String getNodeType(URI type){
-		if (type==null){return Constants.NODETYPE_UNDEFINED;}
+		if (type==null){return Constants.NODETYPE_UNCATEGORIZED;}
 		String nodeType = null;
 		nodeType = typeMappings.get(type.toString());
 		if (nodeType==null){
-			nodeType = Constants.NODETYPE_UNDEFINED;
+			nodeType = Constants.NODETYPE_UNCATEGORIZED;
 		}
 		return nodeType;
 	}
@@ -130,13 +130,13 @@ public class WebappUtils {
 	 */
 	public static String getNodeType(Set<URI> types){
 		if (types==null || types.size()==0){
-			return Constants.NODETYPE_UNDEFINED;
+			return Constants.NODETYPE_UNCATEGORIZED;
 		}
 		String nodeType = null;
 		Map<String, Integer> typemap = new HashMap<String, Integer>();
 		for (URI type:types){
 			String thisNodeType = getNodeType(type);
-			if (!thisNodeType.equals(Constants.NODETYPE_UNDEFINED)){
+			if (!thisNodeType.equals(Constants.NODETYPE_UNCATEGORIZED)){
 				if (typemap.containsKey(thisNodeType)) {
 					//increment count
 					typemap.put(thisNodeType, typemap.get(thisNodeType)+1);
@@ -158,7 +158,7 @@ public class WebappUtils {
 		if (nodeType != null) {
 			return nodeType;
 		} else {
-			return Constants.NODETYPE_UNDEFINED;
+			return Constants.NODETYPE_UNCATEGORIZED;
 		}
 	}
 	

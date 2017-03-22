@@ -61,7 +61,7 @@ public final class Constants  {
     public static final String NODESHAPE_IMAGE = "image";
     
     /** Label for node type "Undefined". */
-    public static final String NODETYPE_UNDEFINED = "Undefined";
+    public static final String NODETYPE_UNCATEGORIZED = "Uncategorized";
     
     /** Default node color in case config fails*. */
     public static final String DEFAULT_NODE_COLOR = "#87CEFA";
