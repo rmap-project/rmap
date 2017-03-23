@@ -4,16 +4,16 @@
 <%@ taglib prefix="my" uri="/WEB-INF/tld/rmapTagLibrary.tld"%>
 
 <body>
-<em>
+<span class="reload">
 <c:choose>
 	<c:when test="${VIEWMODE.equals('standard')}">
-		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}?resview=1'/>">Redraw with this node at the center</a><br/>
+		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}?resview=1'/>">Redraw with this node at the center</a>
 	</c:when>
 	<c:otherwise>
-		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}/${VIEWMODE}?resview=1'/>">Redraw with this node at the center</a><br/>
+		<a href="<c:url value='/resources/${my:httpEncodeStr(RESDES.getResourceName())}/${VIEWMODE}?resview=1'/>">Redraw with this node at the center</a>
 	</c:otherwise>
 </c:choose>
-</em>
+</span>
 <span style="font-weight: bold;">uri:</span>
 
 <c:set var="resuri" value="${RESDES.getResourceName()}"/>
@@ -46,11 +46,9 @@
 <c:if test="${resource_types.size()>0}">
 	<br />
 	<span style="font-weight: bold;" title="http://www.w3.org/1999/02/22-rdf-syntax-ns#type">types:</span>
-	<em>
 	<c:forEach var="resource_type" items="${resource_types}">
-		&nbsp;<span title="${resource_type.getKey()}">${resource_type.getValue()}</span>;
+		<span title="${resource_type.getKey()}">${resource_type.getValue()}</span>;
 	</c:forEach>
-	</em>
 </c:if>
 
 <c:if test="${properties.size()>0}">
@@ -63,9 +61,9 @@
 	</c:forEach>
 	</ul>
 			
-	<span id="navlinks">
-	<a href="JavaScript:showPrevious()" class="previous roundedcorners" id="navlink">&#8249; back</a>
-	<a href="JavaScript:showNext()" class="next roundedcorners" id="navlink">load more&#8250;</a>
+	<span class="navlinks">
+		<a href="JavaScript:showPrevious()" class="previous">&#8249; previous</a>
+		<a href="JavaScript:showNext()" class="next">next &#8250;</a>
 	</span>
 </c:if>
 
