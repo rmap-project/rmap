@@ -24,8 +24,14 @@ import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.utils.WebappUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.openrdf.model.vocabulary.DC;
+import org.openrdf.model.vocabulary.DCTERMS;
+import org.openrdf.model.vocabulary.FOAF;
+import org.openrdf.model.vocabulary.RDFS;
 
 /**
  * Holds a description of a single Resource to support the display of the data about that Resource.
@@ -167,7 +173,21 @@ public class ResourceDescription implements Serializable {
 	 */
 	public void addPropertyValue(TripleDisplayFormat tripleDF) throws RMapWebException {
 		if (tripleDF!=null) {
-			String listKey = tripleDF.getSubjectDisplay()+tripleDF.getPredicateDisplay()+tripleDF.getObjectDisplay();
+			
+			//these predicates should be first in the list. Property Values list is ordered alphabetically.
+			String[] bubbleToTop = {DC.TITLE.toString(),DCTERMS.TITLE.toString(),FOAF.NAME.toString(),
+									RDFS.LABEL.toString(),RDFS.SEEALSO.toString(), DC.IDENTIFIER.toString(),
+									DCTERMS.IDENTIFIER.toString()};
+			
+			String listKey;
+			String predicate= tripleDF.getPredicateLink();
+			//if it's a title, name or label, bubble to top of list.
+			if (Arrays.asList(bubbleToTop).contains(predicate)){
+				listKey = tripleDF.getSubjectDisplay()+"______a" + tripleDF.getPredicateDisplay()+tripleDF.getObjectDisplay();	
+			} else {
+				listKey = tripleDF.getSubjectDisplay()+tripleDF.getPredicateDisplay()+tripleDF.getObjectDisplay();	
+			}
+			
 			this.propertyValues.put(listKey, tripleDF);
 		}
 		else {

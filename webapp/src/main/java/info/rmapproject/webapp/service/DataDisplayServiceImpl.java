@@ -432,7 +432,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			
 			graph.addEdge(sAgentUri, idProvider,Terms.RMAP_IDENTITYPROVIDER_PATH, agentNodeType, agentNodeType);
 			graph.addEdge(sAgentUri, authId,Terms.RMAP_USERAUTHID_PATH, agentNodeType, WebappUtils.getNodeType(new URI(Terms.RMAP_USERAUTHID_PATH)));
-						
 			return graph;
 		}	
 			

@@ -5,7 +5,7 @@ var nodes, edges, network;
 function drawgraph(){
 	nodes = new vis.DataSet([
 			 <c:forEach var="node" items="${OBJECT_NODES}" varStatus="loop">
-			 {id: ${node.getId()}, title: '<em>Click to see info</em>', uri: '${node.getName()}', label: '${node.getShortname()}', value:${node.getWeight()}, group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
+			 {id: ${node.getId()}, title: '<em>Click to see info</em>', uri: '${node.getName()}', label: '${node.getShortname()}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
 	edges = new vis.DataSet([
@@ -24,7 +24,7 @@ function drawgraph(){
 			autoResize:true,
 			nodes: {
 				shape: 'dot',
-				font: {strokeWidth: 2, strokeColor : '#ffffff'}
+				font: {strokeWidth: 2, strokeColor : '#ffffff', background:'#F7F7FF'}
 			},
 			edges: {
 				width: 0.15,
@@ -32,7 +32,7 @@ function drawgraph(){
 				smooth: {
 					type: 'dynamic'
 				},
-				font: {align: 'middle', strokeWidth: 2, strokeColor : '#ffffff'}
+				font: {align: 'middle', strokeWidth: 2, strokeColor : '#ffffff', background:'#F7F7FF'}
 			},
 			physics: {
 				barnesHut: {
@@ -57,8 +57,9 @@ function drawgraph(){
 	        groups: {
 				 <c:forEach var="nodeType" items="${OBJECT_NODETYPES}" varStatus="loop">
 				 	${nodeType.getName()}: {
-			              shape: '${nodeType.getShape()}',
-			              color: '${nodeType.getColor()}' // grey
+				 		shape: '${nodeType.getShape()}',
+				 		image: '<c:url value="${nodeType.getImage()}"/>',
+			 			color: '${nodeType.getColor()}' 
 			            }<c:if test="${!loop.last}">,</c:if>				 	
 				 </c:forEach>	
 	          }
@@ -174,9 +175,12 @@ function addNodeType(type){
 </script>
 <style>
 
+
 <c:forEach var="nodeType" items="${OBJECT_NODETYPES}" varStatus="loop">
-	.legend${nodeType.getName()} {
-	      background: ${nodeType.getColor()};
-	    } 	
+	<c:if test="${!nodeType.getShape().equals('image')}">
+		.legend${nodeType.getName()} {
+			background: ${nodeType.getColor()};
+			}
+	</c:if>
 </c:forEach>	
 </style>
