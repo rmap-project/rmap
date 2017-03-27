@@ -39,6 +39,7 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.response.ResultBatch;
 
 /**
  * The Interface for an RMapService, the main point of access for RMap core functionality.
@@ -46,45 +47,50 @@ import info.rmapproject.core.model.request.RMapSearchParams;
  * @author khanson, smorrissey
  */
 public interface RMapService {
-	
+
 	/**
-	 * Get the list of triples that reference the resource with params applied
+	 * Get a batch of triples that reference the resource with params applied. 
+	 * The RMapTriple result batch includes a List of RMapTriples and some details
+	 * of the contents of the batch (size, starting point, whether you can retrieve next etc.)
 	 *
 	 * @param uri URI of Resource to be matched in triples
 	 * @param params the search filters
-	 * @return the resource related triples
+	 * @return a batch of resource-related RMapTriples
 	 * @throws RMapException an RMap exception
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<RMapTriple>getResourceRelatedTriples(URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	public ResultBatch<RMapTriple> getResourceRelatedTriples(URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
-
 	/**
-	 * Get the list of triples that reference the resource with params applied and that are within the context provided.  
+	 * Get the list of triples that reference the resource with params applied and that are within
+	 * the context provided.  The RMapTriple result batch includes a List of RMapTriples and some 
+	 * details of the contents of the batch (size, starting point, whether you can retrieve next etc.)
 	 *
 	 * @param uri URI of Resource to be matched in triples
 	 * @param uri URI of graph to constrain by
 	 * @param params the search filters
-	 * @return the resource related triples
+	 * @return a batch of resource-related RMapTriples
 	 * @throws RMapException an RMap exception
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<RMapTriple>getResourceRelatedTriplesInContext(URI uri, URI context, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	public ResultBatch<RMapTriple> getResourceRelatedTriples(URI uri, URI context, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	
 	/**
-	 * Get all RMapEvents related to a Resource URI that match the filters provided.
+	 * Get batch of RMapEvents related to a Resource URI that match the filters provided.
+	 * Batch object includes information about where in complete results set this subset falls
 	 *
 	 * @param uri URI of a Resource
 	 * @param params the search filters
-	 * @return A list of of URIs for the Events related to the Resource provided
+	 * @return A batch of URIs for the Events related to the Resource provided
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getResourceRelatedEvents (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	public ResultBatch<URI> getResourceRelatedEvents (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Gets the URIs for all RMapDiSCOs that reference the Resource URI and that match the filters provided.
+	 * Gets batch of URIs for all RMapDiSCOs that reference the Resource URI and that match the filters provided.
+	 * Batch object includes information about where in complete results set this subset falls
 	 *
 	 * @param uri URI of a Resource
 	 * @param params the search filters
@@ -92,10 +98,11 @@ public interface RMapService {
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getResourceRelatedDiSCOs (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	public ResultBatch<URI> getResourceRelatedDiSCOs (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Get all RMapAgents that that reference the Resource URI and that match the filters provided.
+	 * Get batch of URIs for all RMapAgents that that reference the Resource URI and that match the filters provided.
+	 * Batch object includes information about where in complete results set this subset falls
 	 *
 	 * @param uri URI of a Resource
 	 * @param params the search filters
@@ -103,7 +110,7 @@ public interface RMapService {
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getResourceAssertingAgents (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	public ResultBatch<URI> getResourceAssertingAgents (URI uri, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Determine what types are associated with a given resource within a specific DiSCO
@@ -114,7 +121,7 @@ public interface RMapService {
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public Set<URI> getResourceRdfTypesInDiSCO(URI resourceUri, URI discoUri) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRdfTypesInDiSCO(URI resourceUri, URI discoUri) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Determine what types are associated with a given resource in any DiSCO.
@@ -140,7 +147,7 @@ public interface RMapService {
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, RMapSearchParams params) 
+	public ResultBatch<URI> getStatementRelatedDiSCOs(URI subject, URI predicate, RMapValue object, RMapSearchParams params) 
 							throws RMapException, RMapDefectiveArgumentException;
 
 	/**
@@ -154,7 +161,7 @@ public interface RMapService {
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getStatementAssertingAgents(URI subject, URI predicate, RMapValue object, RMapSearchParams params) 
+	public ResultBatch<URI> getStatementAssertingAgents(URI subject, URI predicate, RMapValue object, RMapSearchParams params) 
 							throws RMapException, RMapDefectiveArgumentException;
 	
 	
@@ -467,7 +474,7 @@ public interface RMapService {
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getAgentEventsInitiated(URI agentId, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	public ResultBatch<URI> getAgentEventsInitiated(URI agentId, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Retrieves a list of URIs for DiSCOs created by the Agent filtered by the search parameters provided.
@@ -478,7 +485,7 @@ public interface RMapService {
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getAgentDiSCOs(URI agentId, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
+	public ResultBatch<URI> getAgentDiSCOs(URI agentId, RMapSearchParams params) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Gets the Agent status.

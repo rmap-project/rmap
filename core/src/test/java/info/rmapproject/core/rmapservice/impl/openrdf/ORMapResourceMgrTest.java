@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -103,7 +104,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 		
-			Set <IRI> discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
+			List <IRI> discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
 			
 			assertTrue(discoIris.size()==1);
 			
@@ -153,7 +154,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 		
-			Set <IRI> agentIris = resourcemgr.getResourceAssertingAgents(ORAdapter.uri2OpenRdfIri(disco.getId().getIri()), params, triplestore);
+			List<IRI> agentIris = resourcemgr.getResourceAssertingAgents(ORAdapter.uri2OpenRdfIri(disco.getId().getIri()), params, triplestore);
 			
 			assertTrue(agentIris.size()==1);
 			
@@ -199,7 +200,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setStatusCode(RMapStatusFilter.ALL);
 			
-			Set <IRI> eventIris = resourcemgr.getResourceRelatedEvents(iri, params, triplestore);
+			List<IRI> eventIris = resourcemgr.getResourceRelatedEvents(iri, params, triplestore);
 			
 			assertTrue(eventIris.size()==2);
 
@@ -244,7 +245,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 	
-			Set <Statement> matchingStmts = resourcemgr.getRelatedTriples(iri, params, triplestore);
+			List <Statement> matchingStmts = resourcemgr.getRelatedTriples(iri, params, triplestore);
 			
 			assertTrue(matchingStmts.size()==6);
 
@@ -280,7 +281,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			
 			Statement s1 = ORAdapter.getValueFactory().createStatement(resource01, RDF.TYPE, RMAP.DISCO, resource01);
 			triplestore.addStatement(s1);
-			Set<IRI> iris = resourcemgr.getResourceRdfTypes(resource01, resource01, triplestore);
+			List<IRI> iris = resourcemgr.getResourceRdfTypes(resource01, resource01, triplestore);
 			assertNotNull(iris);
 			assertEquals(1,iris.size());
 			for (IRI iri:iris){

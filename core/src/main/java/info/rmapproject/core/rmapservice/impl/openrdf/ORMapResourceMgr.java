@@ -29,6 +29,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -77,7 +78,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public Set<IRI> getResourceRelatedDiSCOS(IRI resource, RMapSearchParams params, SesameTriplestore ts)
+	public List<IRI> getResourceRelatedDiSCOS(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
 		
 	//query gets discoIds and startDates of created DiSCOs that contain Resource
@@ -100,12 +101,12 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		  }
 		*/
 
-		Set<IRI> discos = getRelatedObjects(resource, params, ts, RMAP.DISCO);
+		List<IRI> discos = getRelatedObjects(resource, params, ts, RMAP.DISCO);
 		return discos;			
 	}
 	
 	/**
-	 * Get set of RMap Agent IRIs that have a statement containing the resource.  
+	 * Get list of RMap Agent IRIs that have a statement containing the resource.  
 	 *
 	 * @param resource a Resource IRI
 	 * @param the search filter parameters
@@ -114,16 +115,16 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public Set<IRI> getResourceAssertingAgents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
+	public List<IRI> getResourceAssertingAgents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 					throws RMapException, RMapDefectiveArgumentException {		
 				
-		Set<IRI> assertingAgents = new HashSet<IRI>();
-		Set<IRI> orDiscoIds = this.getRelatedObjects(resource, params, ts, RMAP.DISCO);
+		List<IRI> assertingAgents = new ArrayList<IRI>();
+		List<IRI> orDiscoIds = getRelatedObjects(resource, params, ts, RMAP.DISCO);
 		for (IRI discoId : orDiscoIds) {
 			IRI discoasserter=discomgr.getDiSCOAssertingAgent(discoId, ts);
 			if (discoasserter!=null){
 				assertingAgents.add(discoasserter);
-			}		
+			}
 		}		
 		return assertingAgents;
 
@@ -140,7 +141,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	protected Set<IRI> getRelatedObjects(IRI resource, RMapSearchParams params, SesameTriplestore ts, IRI rmapType)
+	protected List<IRI> getRelatedObjects(IRI resource, RMapSearchParams params, SesameTriplestore ts, IRI rmapType)
 					throws RMapException, RMapDefectiveArgumentException {	
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("Null value provided for the Resource IRI");
@@ -148,7 +149,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		
 		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 	
-		Set<IRI> rmapObjectIds = new HashSet<IRI>();
+		List<IRI> rmapObjectIds = new ArrayList<IRI>();
 		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
 		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
@@ -215,12 +216,12 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public Set<IRI> getResourceRelatedEvents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
+	public List<IRI> getResourceRelatedEvents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("null IRI");
 		}
-		Set<IRI> events = new HashSet<IRI>();
+		List<IRI> events = new ArrayList<IRI>();
 		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
 		
 		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
@@ -306,7 +307,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Set<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, SesameTriplestore ts) {
+	public List<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, SesameTriplestore ts) {
 		return getRelatedTriples(resource, null, params, ts);
 	}
 	
@@ -322,12 +323,12 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Set<Statement> getRelatedTriples(IRI resource, IRI context, RMapSearchParams params, SesameTriplestore ts) 
+	public List<Statement> getRelatedTriples(IRI resource, IRI context, RMapSearchParams params, SesameTriplestore ts) 
 			throws RMapDefectiveArgumentException, RMapException {
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("null URI");
 		}
-		Set<Statement> relatedStmts = new HashSet<Statement>();	
+		List<Statement> relatedStmts = new ArrayList<Statement>();	
 
 		Set<IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
 		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
@@ -451,7 +452,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public Set<IRI> getResourceRdfTypes(IRI rIri, IRI cIri,  SesameTriplestore ts)
+	public List<IRI> getResourceRdfTypes(IRI rIri, IRI cIri,  SesameTriplestore ts)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (rIri==null || cIri == null || ts == null){
 			throw new RMapDefectiveArgumentException ("Null parameter");
@@ -462,9 +463,9 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		} catch (Exception e) {
 			throw new RMapException (e);
 		}	
-		Set<IRI> returnSet = null;
+		List<IRI> returnSet = null;
 		if (triples!=null && triples.size()>0){
-			returnSet = new HashSet<IRI>();
+			returnSet = new ArrayList<IRI>();
 			for (Statement stmt:triples){
 				Value object = stmt.getObject();
 				if (object instanceof IRI){

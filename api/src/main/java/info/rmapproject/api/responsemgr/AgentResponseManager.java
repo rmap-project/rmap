@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Link;
@@ -41,8 +40,8 @@ import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.api.utils.PathUtils;
+import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
@@ -53,6 +52,7 @@ import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.response.ResultBatch;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 
@@ -332,31 +332,24 @@ public class AgentResponseManager extends ResponseManager {
 			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
 			
 			Integer currPage = QueryParamHandler.extractPage(queryParams);
-			Integer limit=params.getLimit();
-			//we are going to get one extra record to see if we need a "next"
-			params.setLimit(limit+1);
-						 	
+
 			String path = PathUtils.makeAgentUrl(agentUri);
 			
-			List <URI> uriList = null;
+			ResultBatch<URI> resultbatch = null;
 			switch (rmapObjType) {
             case EVENT:
-				uriList = rmapService.getAgentEventsInitiated(uriAgentUri, params);	
+				resultbatch = rmapService.getAgentEventsInitiated(uriAgentUri, params);	
 				path=path+"/events";
 				break;
             case DISCO:
-				uriList = rmapService.getAgentDiSCOs(uriAgentUri, params);	
+				resultbatch = rmapService.getAgentDiSCOs(uriAgentUri, params);	
 				path=path+"/discos";
 				break;
-            default: //default to DiSCO
-				uriList = rmapService.getAgentDiSCOs(uriAgentUri, params);	
-				path=path+"/discos";
-				break;
+            default: //shouldnt go here
+            	throw new RMapApiException(ErrorCode.ER_AGENT_OBJECT_TYPE_REQUEST_NOT_VALID);
 			}
-			//now that we've run the query, set the limit back to correct value
-			params.setLimit(limit);
 						
-			if (uriList==null || uriList.size()==0)	{ 
+			if (resultbatch==null || resultbatch.size()==0)	{ 
 				//if the object is found, should always have at least one event
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_URILIST_EMPTY); 
 			}	
@@ -365,9 +358,9 @@ public class AgentResponseManager extends ResponseManager {
 			
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
 			if (!queryParams.containsKey(Constants.PAGE_PARAM)
-					&& uriList.size()>limit){  
+					&& resultbatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String seeOtherUrl = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+				String seeOtherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				seeOtherUrl = seeOtherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -379,25 +372,20 @@ public class AgentResponseManager extends ResponseManager {
 						.type(HttpTypeMediator.getResponseNonRdfMediaType(returnType));		
 
 				//are we doing page links?
-				if (uriList.size()>limit || currPage>1) {
+				if (resultbatch.hasNext() || currPage>1) {
 					String pageLinkTemplate = 
-							QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
-					boolean showNextLink=uriList.size()>limit;
+							QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 					Link[] pageLinks = 
-							QueryParamHandler.generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+							QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
 					responseBldr.links(pageLinks);
-					if (showNextLink){
-						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
-						uriList.remove(uriList.size()-1);			
-					}
 				}
 				
 				String outputString="";		
 				if (returnType==NonRdfType.PLAIN_TEXT)	{		
-					outputString= URIListHandler.uriListToPlainText(uriList);
+					outputString= URIListHandler.uriListToPlainText(resultbatch.getResultList());
 				}
 				else	{
-					outputString= URIListHandler.uriListToJson(uriList, rmapObjType.getPath().toString());		
+					outputString= URIListHandler.uriListToJson(resultbatch.getResultList(), rmapObjType.getPath().toString());		
 				}
 				responseBldr.entity(outputString.toString());
 			}

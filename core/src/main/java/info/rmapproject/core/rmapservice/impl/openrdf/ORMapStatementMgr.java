@@ -19,6 +19,15 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.BindingSet;
+
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -28,16 +37,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUt
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BindingSet;
 
 /**
  * A concrete class for managing RMap Statements using the openrdf API.
@@ -232,7 +231,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public Set<IRI> getAssertingAgents (IRI subject, IRI predicate, Value object, RMapSearchParams params,
+	public List<IRI> getAssertingAgents (IRI subject, IRI predicate, Value object, RMapSearchParams params,
 					SesameTriplestore ts) throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
 			throw new RMapDefectiveArgumentException ("Null value provided for the subject parameter");
@@ -244,7 +243,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapDefectiveArgumentException ("Null value provided for the object parameter");
 		}
 		
-		Set<IRI> agents = new HashSet<IRI>();
+		List<IRI> agents = new ArrayList<IRI>();
 		String sSubject = SesameSparqlUtils.convertIriToSparqlParam(subject);
 		String sPredicate = SesameSparqlUtils.convertIriToSparqlParam(predicate);
 		String sObject = SesameSparqlUtils.convertValueToSparqlParam(object);	

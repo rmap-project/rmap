@@ -685,7 +685,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					break;
 				}
 			}
-			Set<IRI>events = eventmgr.getDiscoRelatedEventIds(iri, ts);
+			List<IRI>events = eventmgr.getDiscoRelatedEventIds(iri, ts);
            //For each event associated with DiSCOID, return AssociatedAgent
 			for (IRI event:events){
 				IRI assocAgent = eventmgr.getEventAssocAgent(event, ts);
