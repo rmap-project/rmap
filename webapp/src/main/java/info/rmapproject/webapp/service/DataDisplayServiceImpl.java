@@ -235,7 +235,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
     	List<RMapTriple> triples = triplebatch.getResultList();
     	
     	//generate resource description
-    	ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, false);	    
+    	ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, true, false);	    
     	    		
 	    resourceDTO.setResourceDescription(resourceDescription);
 	    
@@ -269,7 +269,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uri, params);
 		List<RMapTriple> triples = triplebatch.getResultList(); 
 		
-		ResourceDescription resourceDescription = getResourceDescription(resourceUri, triples, true);
+		ResourceDescription resourceDescription = getResourceDescription(resourceUri, triples, false, true);
 		rmapService.closeConnection();
 		return resourceDescription;
 	}
@@ -291,7 +291,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		
 		ResultBatch<RMapTriple> resultbatch = rmapService.getResourceRelatedTriples(resourceUri, graphUri, params);
 		List<RMapTriple> triples = resultbatch.getResultList();
-		ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, true);
+		ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, false, true);
 		rmapService.closeConnection();
 		return resourceDescription;
 	}
@@ -302,25 +302,33 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 * Generate resource description for resource based on triples provided. Will filter out triples that
 	 * do not have a subject URI that matches the resource in question.
 	 * @param resource
-	 * @param triples
+	 * @param triples 
+	 * @param includeBothDirections - true when matching resource based on subject or object. False for subject matching only.
+	 * @param includeLiteralsOnly - true to return only literals for the resource.
 	 * @return resource description
 	 */
-	private ResourceDescription getResourceDescription(String resource, List<RMapTriple> triples, boolean literalsOnly) throws RMapWebException{
+	private ResourceDescription getResourceDescription(String resource, List<RMapTriple> triples, boolean includeBothDirections, boolean includeLiteralsOnly) throws RMapWebException{
 
     	//start new resource description
     	ResourceDescription resourceDescription = new ResourceDescription(resource.toString());	  
     	
     	try {
 	    	for (RMapTriple triple : triples) { 
-	    		if (triple.getPredicate().toString().equals(RDF.TYPE.toString()) 
-	    				&& triple.getSubject().toString().equals(resource.toString()))	{
-	    			resourceDescription.addResourceType(triple.getObject().toString());
-	    		}
-	    		else if (!literalsOnly || triple.getObject() instanceof RMapLiteral) {
-	    			//only include this if it's either a literal, or we aren't filtering by literals.
-		    		TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
-	    			resourceDescription.addPropertyValue(tripleDF);		
-	    		}
+	    		boolean objectIsLiteral = (triple.getObject() instanceof RMapLiteral);
+	    		boolean subjMatchesResource = triple.getSubject().toString().equals(resource.toString());
+	    		boolean objMatchesResource = !objectIsLiteral && triple.getObject().toString().equals(resource.toString());
+	    		boolean predicateIsType = triple.getPredicate().toString().equals(RDF.TYPE.toString());
+	    		
+	    		if (subjMatchesResource && predicateIsType)	{
+		    		resourceDescription.addResourceType(triple.getObject().toString());
+		    	}
+		    	else if ((subjMatchesResource || (objMatchesResource && includeBothDirections))
+		    			&& (!includeLiteralsOnly || objectIsLiteral)) {
+		    		//only include this if subj or object matches resource
+		    		//and it's either a literal, or we aren't filtering by literals.
+			    	TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
+		    		resourceDescription.addPropertyValue(tripleDF);		
+		    	}
 	    	}
     	} catch (UnsupportedEncodingException ex){
     		RMapWebException.wrap(ex);
@@ -347,7 +355,8 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	}
 
 	/**
-	 * Gets the resource descriptions.
+	 * Gets list of Resource Descriptions based on key resource list. Each Resource Description represents a single resource 
+	 * from the key resources list. Matches triples based on subject only, does not batch together those whose object field matches.
 	 *
 	 * @param keyResources the key resources
 	 * @param triples the triples
@@ -369,7 +378,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    
 	    //now get resource description for each resource
 	    for (String resource : resourcesDescribed) {
-	    	ResourceDescription resDescrip = getResourceDescription(resource, triples, false);
+	    	ResourceDescription resDescrip = getResourceDescription(resource, triples, false, false);
 	    	resourceDescriptions.add(resDescrip);	    	
 	    }
 
