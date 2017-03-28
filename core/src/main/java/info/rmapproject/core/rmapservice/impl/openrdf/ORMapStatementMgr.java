@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 
 		// see getRelatedDiSCOs and getRelatedAgents for example queries  
 		StringBuilder sparqlQuery = 
@@ -249,7 +249,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		String sObject = SesameSparqlUtils.convertValueToSparqlParam(object);	
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");	
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 		
 		/*
 		 * select DISTINCT ?agentId ?startDate

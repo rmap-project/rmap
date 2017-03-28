@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.model.response.ResultBatch;
+import info.rmapproject.core.model.request.ResultBatch;
 
 /**
  * The Interface for an RMapService, the main point of access for RMap core functionality.

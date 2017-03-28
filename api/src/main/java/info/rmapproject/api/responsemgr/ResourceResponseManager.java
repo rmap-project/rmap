@@ -46,7 +46,7 @@ import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.model.response.ResultBatch;
+import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,10 +138,14 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		System.out.println("Running test: testGetRelatedAgents()");
 		
 		try {
-					
-			//create disco		
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			
+			//create disco				
+			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event1 = discomgr.createDiSCO(disco1, requestAgent, triplestore);
+
+			//create duplicate disco, same agent - we want to make sure agents only come through once.				
+			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
 		
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
@@ -152,9 +156,9 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		
 			RMapSearchParams params = new RMapSearchParams();
 			params.setDateRange(dateFrom, dateTo);
-			params.setSystemAgents(sysAgents);
-		
-			List<IRI> agentIris = resourcemgr.getResourceAssertingAgents(ORAdapter.uri2OpenRdfIri(disco.getId().getIri()), params, triplestore);
+
+			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+			List<IRI> agentIris = resourcemgr.getResourceAssertingAgents(iri, params, triplestore);
 			
 			assertTrue(agentIris.size()==1);
 			
@@ -228,11 +232,15 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		try {
 			
 			//create disco				
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
-		
+			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event1 = discomgr.createDiSCO(disco1, requestAgent, triplestore);
+
+			//create duplicate disco - we want to make sure triples only come through once.				
+			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
+			
 			//get related triples			
-			IRI iri = ORAdapter.getValueFactory().createIRI("http://ieeexplore.ieee.org/example/000000-mm.zip");
+			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 			
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
@@ -247,7 +255,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	
 			List <Statement> matchingStmts = resourcemgr.getRelatedTriples(iri, params, triplestore);
 			
-			assertTrue(matchingStmts.size()==6);
+			assertTrue(matchingStmts.size()==25);
 
 			Iterator<Statement> iter = matchingStmts.iterator();
 			Statement stmt = iter.next();

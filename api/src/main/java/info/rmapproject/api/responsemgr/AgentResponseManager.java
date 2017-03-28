@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.model.response.ResultBatch;
+import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 

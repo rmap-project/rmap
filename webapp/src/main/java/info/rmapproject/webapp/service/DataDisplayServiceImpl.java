@@ -53,7 +53,7 @@ import info.rmapproject.core.model.event.RMapEventUpdate;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapStatusFilter;
-import info.rmapproject.core.model.response.ResultBatch;
+import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.ConfigUtils;
 import info.rmapproject.core.utils.Terms;

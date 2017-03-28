@@ -17,38 +17,46 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.core.model.response;
+package info.rmapproject.core.model.request;
 
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Data transfer package to simplify handover of results list. Rather than just passing back a List of 
+ * results, this allows you to indicate where in the total set of results this set was positioned.
+ * Allows some of the burden of pagination to be lifted from client apps.
+ * @author khanson
+ *
+ */
 public interface ResultBatch<T> {
 
 	/**
+	 * Returns the list of results to match the request.
 	 * @return batch of results
 	 */
 	public List<T> getResultList();
 	
 	/**
-	 * 
+	 * True if there is a batch available after this one
 	 * @return true if there are more records that could be retrieved after this point
 	 */
 	public boolean hasNext();
 	
 	/**
-	 * 
+	 * True if there is a batch available prior to this one.
 	 * @return true if there are more records that could be retrieved before this point
 	 */
 	public boolean hasPrevious();
 	
 	/**
-	 * 
+	 * Returns the offset of the batch
 	 * @return starting position of recordset
 	 */
 	public int getStartPosition();
 	
 	/**
-	 * 
+	 * Returns the final position of the batch
 	 * @return end position of recordset
 	 */
 	public int getEndPosition();

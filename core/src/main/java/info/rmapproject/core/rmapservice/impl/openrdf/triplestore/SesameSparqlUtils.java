@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,21 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.request.DateRange;
-import info.rmapproject.core.model.request.RMapStatusFilter;
-import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
+import org.openrdf.query.BindingSet;
+
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.request.DateRange;
+import info.rmapproject.core.model.request.RMapStatusFilter;
+import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
  * Some common conversions from openrdf model to SPARQL query pieces.
@@ -182,6 +186,37 @@ public class SesameSparqlUtils {
 		
 	}
 	
-
 	
+	/**
+	 * Supporting method that runs a sparql query and binds result to an IRI list.
+	 * @param query query to run
+	 * @param ts current triplestore instance
+	 * @param fieldname name of field to bind as IRI
+	 * @return list of IRIs
+	 */
+	public static List<IRI> bindQueryToIriList(String query, SesameTriplestore ts, String fieldname){
+
+		List<IRI> iris = new ArrayList<IRI>();
+		
+		List<BindingSet> resultset = null;
+		try {
+			resultset = ts.getSPARQLQueryResults(query);
+		}
+		catch (Exception e) {
+			throw new RMapException("Could not retrieve SPARQL query results using " + query, e);
+		}
+		
+		try{
+			for (BindingSet bindingSet:resultset) {
+				IRI iri = (IRI) bindingSet.getBinding(fieldname).getValue();
+				iris.add(iri);
+			}
+		}	
+		catch (Exception e){
+			throw new RMapException("Could not process SPARQL results as IRI list", e);
+		}
+	
+		return iris;				
+	}
+		
 }

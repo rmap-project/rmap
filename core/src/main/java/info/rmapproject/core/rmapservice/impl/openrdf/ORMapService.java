@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,8 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.model.response.ResultBatch;
-import info.rmapproject.core.model.response.ResultBatchImpl;
+import info.rmapproject.core.model.request.ResultBatch;
+import info.rmapproject.core.model.request.ResultBatchImpl;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 
@@ -154,11 +154,10 @@ public class ORMapService implements RMapService {
 		}
 		org.openrdf.model.IRI mIri = ORAdapter.uri2OpenRdfIri(uri);
 		org.openrdf.model.IRI mContextIri = ORAdapter.uri2OpenRdfIri(context);
-		
-		//set limit+1 to check whether this batch includes all records or a subset
-		params.setLimit(params.getLimit()+1);
-		
+				
 		List<Statement> stmts;
+		
+		params.setCheckNext(true);
 		
 		if (context!=null){
 			stmts = resourcemgr.getRelatedTriples(mIri, mContextIri, params, triplestore);
@@ -172,13 +171,12 @@ public class ORMapService implements RMapService {
 			triples.add(triple);
 		}
 		
-		//if records go up to limit, there are more records to be retrieved
-		boolean hasNext = (triples.size()==params.getLimit());
+		//if records go over limit, there are more records to be retrieved
+		boolean hasNext = (triples.size()>params.getLimit());
 		//remove the extra record if there is one
 		if (hasNext){
 			triples.remove(triples.size()-1);					
 		}
-		params.setLimit(params.getLimit()-1);
 		
 		ResultBatch<RMapTriple> resultbatch = new ResultBatchImpl<RMapTriple>(triples, hasNext, params.getOffset());
 		
@@ -228,10 +226,10 @@ public class ORMapService implements RMapService {
 		if (discoUri==null){
 			throw new RMapDefectiveArgumentException("Null context URI");
 		}
-		org.openrdf.model.IRI rUri = ORAdapter.uri2OpenRdfIri(resourceUri);
-		org.openrdf.model.IRI cUri = ORAdapter.uri2OpenRdfIri(discoUri);
+		org.openrdf.model.IRI resourceIri = ORAdapter.uri2OpenRdfIri(resourceUri);
+		org.openrdf.model.IRI contextIri = ORAdapter.uri2OpenRdfIri(discoUri);
 		
-		List<org.openrdf.model.IRI> uris = resourcemgr.getResourceRdfTypes(rUri,cUri, triplestore);
+		List<org.openrdf.model.IRI> uris = resourcemgr.getResourceRdfTypes(resourceIri, contextIri, triplestore);
 		if (uris == null){
 			return null;
 		}
@@ -287,8 +285,6 @@ public class ORMapService implements RMapService {
 		return getStmtUriBatch(subject,predicate,object,params,uriBatchReq);
 	}
 	
-	
-
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#readDiSCO(java.net.URI)
 	 */
@@ -333,7 +329,6 @@ public class ORMapService implements RMapService {
 		RMapStatus status = discomgr.getDiSCOStatus(ORAdapter.uri2OpenRdfIri(discoId), triplestore);
 		return status;
 	}
-
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#updateDiSCO(java.net.URI, java.net.URI, RMapDiSCO, java.net.URI)
@@ -894,27 +889,25 @@ public class ORMapService implements RMapService {
 			params = new RMapSearchParams();
 		}
 		org.openrdf.model.IRI resource = ORAdapter.uri2OpenRdfIri(uri);
-		//set limit+1 to check whether this batch includes all records or a subset
-		params.setLimit(params.getLimit()+1);
+		
+		//set flag to check for next batch (this will get one extra record over requested amount)
+		params.setCheckNext(true);
 		
 		List<org.openrdf.model.IRI> iris = uriBatchRequest.retrieve(resource, params, triplestore);
 		
 		List<URI> uris = ORAdapter.openRdfIriList2UriList(iris);
 		
 		//if records go up to limit, there are more records to be retrieved
-		boolean hasNext = (uris.size()==params.getLimit());
+		boolean hasNext = (uris.size()>params.getLimit());
 		//remove the extra record if there is one
 		if (hasNext){
 			uris.remove(uris.size()-1);					
 		}
-		params.setLimit(params.getLimit()-1);
 		
 		ResultBatch<URI> resultbatch = new ResultBatchImpl<URI>(uris, hasNext, params.getOffset());		
 		
 		return resultbatch;				
 	}
-
-
 
 	/**
 	 * Functional interface to support passing of method name to getStmtUriBatch function
@@ -954,19 +947,18 @@ public class ORMapService implements RMapService {
 		IRI orPredicate = ORAdapter.uri2OpenRdfIri(predicate);
 		Value orObject = ORAdapter.rMapValue2OpenRdfValue(object);
 		
-		//set limit+1 to check whether this batch includes all records or a subset
-		params.setLimit(params.getLimit()+1);
+		//set flag to check for next
+		params.setCheckNext(true);
 
 		List<org.openrdf.model.IRI> iris = uriBatchRequest.retrieve(orSubject, orPredicate, orObject, params, triplestore);
 		List<URI> uris = ORAdapter.openRdfIriList2UriList(iris);
 		
-		//if records go up to limit, there are more records to be retrieved
-		boolean hasNext = (uris.size()==params.getLimit());
+		//if records are greater than limit, there are more records to be retrieved
+		boolean hasNext = (uris.size()>params.getLimit());
 		//remove the extra record if there is one
 		if (hasNext){
 			uris.remove(uris.size()-1);					
 		}
-		params.setLimit(params.getLimit()-1);
 		
 		ResultBatch<URI> resultbatch = new ResultBatchImpl<URI>(uris, hasNext, params.getOffset());		
 		

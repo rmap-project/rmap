@@ -17,15 +17,13 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.core.model.response;
+package info.rmapproject.core.model.request;
 
 import java.util.Date;
 import java.util.List;
 
 /**
- * Data transfer package to simplify handover of triple list. Rather than just passing back a set of 
- * triples, this allows you to indicate where in the total set of results this set was positioned.
- * Useful for shifting some of the logic of pagination from client apps.
+ * Generic implementation of ResultBatch<T>
  * @author khanson
  *
  */
@@ -42,6 +40,14 @@ public class ResultBatchImpl<T> implements ResultBatch<T> {
 	/** indicates date the batch was retrieved from triplestore */
 	private Date batchDate;
 	
+	/**
+	 * Constructor requires the list of results, whether there is another batch after this one
+	 * and the start position of the batch, other values are calculated from this.
+	 * 
+	 * @param resultlist
+	 * @param hasNext
+	 * @param startPosition
+	 */
 	public ResultBatchImpl(List<T> resultlist, boolean hasNext, int startPosition){
 		if (resultlist==null){
 			throw new IllegalArgumentException("Triples cannot be null");
