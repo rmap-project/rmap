@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,13 @@ public class RMapSearchParams  {
 	 * For more information on the ORDER BY options, see the OrderBy class.
 	 */
 	OrderBy orderBy;
+	
+	/**
+	 * Flag set to determine whether to get an extra record. When this is set, the limit will be 
+	 * an extra record can be retrieved then there are more records available.
+	 */
+	boolean checkNext = false;
+	
 	
 	/**
 	 * Instantiates a new RMap search params.
@@ -469,5 +476,39 @@ public class RMapSearchParams  {
 		}
 		return maxLimit;	
 	}
+	
+	/**
+	 * Sets flag for whether to check next record.
+	 * @param boolean true if request needs to check whether there is a next set of values
+	 */
+	public void setCheckNext(boolean checkNext){
+		this.checkNext = checkNext;
+	}
+	
+	/**
+	 * Returns check next value
+	 * @return boolean true if request needs to check whether there is a next set of values
+	 */
+	public boolean checkNext(){
+		return checkNext();
+	}
+	
+	
+	
+	/**
+	 * Returns limit to be used in query - may equal limit provided, or if checking for the 
+	 * next record batch, will be limit+1. If this is used, it's important to check the extra 
+	 * record is removed from the set afterwards.
+	 * @return limit value
+	 */
+	public Integer getLimitForQuery(){
+		if (checkNext){
+			return getLimit()+1;
+		} else {
+			return getLimit();
+		}
+	}
+	
+	
 		
 }

@@ -126,7 +126,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			params.setSystemAgents(sysAgents);
 						
 			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-			Set <IRI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, params, triplestore);
+			List<IRI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, params, triplestore);
 			
 			assertTrue(agentIds.size()==1);
 

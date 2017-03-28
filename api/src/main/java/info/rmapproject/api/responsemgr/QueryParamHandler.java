@@ -58,7 +58,7 @@ public class QueryParamHandler {
 	 * @return the paginated link template
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getPaginatedLinkTemplate(String path, MultivaluedMap<String,String> queryParams, Integer defaultLimit) 
+	public static String getPageLinkTemplate(String path, MultivaluedMap<String,String> queryParams, Integer defaultLimit) 
 			throws RMapApiException{
 		try {
 			//First build a template query string to return to the user.
@@ -120,7 +120,7 @@ public class QueryParamHandler {
 	 * @return pagination links 
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static Link[] generatePaginationLinks(String pageUrlTemplate, Integer pageNum, boolean includeNext) throws RMapApiException{
+	public static Link[] generatePageLinks(String pageUrlTemplate, Integer pageNum, boolean includeNext) throws RMapApiException{
 		
 		try {
 			//now build the pagination links

@@ -20,8 +20,6 @@
 package info.rmapproject.api.responsemgr;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Link;
@@ -37,13 +35,14 @@ import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.api.utils.PathUtils;
+import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.Terms;
@@ -160,27 +159,23 @@ public class StatementResponseManager extends ResponseManager {
 			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/discos";
 			
 			Integer currPage = QueryParamHandler.extractPage(queryParams);
-			Integer limit=params.getLimit();
-			//we are going to get one extra record to see if we need a "next"
-			params.setLimit(limit+1);
 						
-			List<URI> matchingObjects = rmapService.getStatementRelatedDiSCOs(rmapSubject, rmapPredicate, rmapObject, params);
+			ResultBatch<URI> resultbatch = rmapService.getStatementRelatedDiSCOs(rmapSubject, rmapPredicate, rmapObject, params);
 
-			if (matchingObjects == null){
+			if (resultbatch == null){
 				throw new RMapApiException(ErrorCode.ER_CORE_COULDNT_RETRIEVE_STMT_RELATEDDISCOS);
 			}
 			
-			if (matchingObjects.size()==0){
+			if (resultbatch.size()==0){
 				throw new RMapApiException(ErrorCode.ER_STMT_NOT_FOUND);
 			}
 			
 			ResponseBuilder responseBldr = null;
 			
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
-			if (!queryParams.containsKey(Constants.PAGE_PARAM)
-					&& matchingObjects.size()>limit){  
+			if (!queryParams.containsKey(Constants.PAGE_PARAM) && resultbatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String otherUrl = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+				String otherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				otherUrl = otherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -190,24 +185,19 @@ public class StatementResponseManager extends ResponseManager {
 				responseBldr = Response.status(Response.Status.OK)
 						.type(HttpTypeMediator.getResponseNonRdfMediaType(returnType));	
 				
-				if (matchingObjects.size()>limit || (currPage!=null && currPage>1)) {
-					boolean showNextLink=matchingObjects.size()>limit;
-					String pageLinkTemplate = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
-					Link[] pageLinks = QueryParamHandler.generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+				if (resultbatch.hasNext() || (currPage!=null && currPage>1)) {
+					String pageLinkTemplate = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+					Link[] pageLinks = QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
 					responseBldr.links(pageLinks);
-					if (showNextLink){
-						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
-						matchingObjects.remove(matchingObjects.size()-1);			
-					}
 				}
 				
 				//show results list as normal
 				String outputString="";		
 				if (returnType==NonRdfType.PLAIN_TEXT)	{		
-					outputString= URIListHandler.uriListToPlainText(matchingObjects);
+					outputString= URIListHandler.uriListToPlainText(resultbatch.getResultList());
 				}
 				else	{
-					outputString= URIListHandler.uriListToJson(matchingObjects, Terms.RMAP_DISCO_PATH);		
+					outputString= URIListHandler.uriListToJson(resultbatch.getResultList(), Terms.RMAP_DISCO_PATH);		
 				}
 				responseBldr.entity(outputString);
 
@@ -273,16 +263,12 @@ public class StatementResponseManager extends ResponseManager {
 			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/agents";
 			
 			Integer currPage = QueryParamHandler.extractPage(queryParams);
-			Integer limit=params.getLimit();
-			//we are going to get one extra record to see if we need a "next"
-			params.setLimit(limit+1);
 			
-			List<URI> matchingObjects = new ArrayList<URI>();
-			matchingObjects = rmapService.getStatementAssertingAgents(rmapSubject, rmapPredicate, rmapObject, params);
-			if (matchingObjects == null){
+			ResultBatch<URI> resultbatch = rmapService.getStatementAssertingAgents(rmapSubject, rmapPredicate, rmapObject, params);
+			if (resultbatch == null){
 				throw new RMapApiException(ErrorCode.ER_CORE_COULDNT_RETRIEVE_STMT_ASSERTINGAGTS);
 			}
-			if (matchingObjects.size()==0){
+			if (resultbatch.size()==0){
 				throw new RMapApiException(ErrorCode.ER_STMT_NOT_FOUND);
 			}
 
@@ -290,9 +276,9 @@ public class StatementResponseManager extends ResponseManager {
 			
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
 			if (!queryParams.containsKey(Constants.PAGE_PARAM)
-					&& matchingObjects.size()>limit){  
+					&& resultbatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String seeOtherUrl = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+				String seeOtherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				seeOtherUrl = seeOtherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -302,26 +288,19 @@ public class StatementResponseManager extends ResponseManager {
 				responseBldr = Response.status(Response.Status.OK)
 						.type(HttpTypeMediator.getResponseNonRdfMediaType(returnType));	
 
-				if (matchingObjects.size()>limit || (currPage!=null && currPage>1)) {
-					boolean showNextLink=matchingObjects.size()>limit;
-
-					String pageLinkTemplate = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
-					Link[] pageLinks = QueryParamHandler.generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+				if (resultbatch.hasNext() || (currPage!=null && currPage>1)) {
+					String pageLinkTemplate = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+					Link[] pageLinks = QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
 					responseBldr.links(pageLinks);
-
-					if (showNextLink){
-						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
-						matchingObjects.remove(matchingObjects.size()-1);			
-					}
 				}
 				
 				//show results list as normal
 				String outputString="";		
 				if (returnType==NonRdfType.PLAIN_TEXT)	{		
-					outputString= URIListHandler.uriListToPlainText(matchingObjects);
+					outputString= URIListHandler.uriListToPlainText(resultbatch.getResultList());
 				}
 				else	{
-					outputString= URIListHandler.uriListToJson(matchingObjects, Terms.RMAP_AGENT_PATH);		
+					outputString= URIListHandler.uriListToJson(resultbatch.getResultList(), Terms.RMAP_AGENT_PATH);		
 				}
 				responseBldr.entity(outputString);
 

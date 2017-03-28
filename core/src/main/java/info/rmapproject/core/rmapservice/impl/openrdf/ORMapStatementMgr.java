@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,15 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.BindingSet;
+
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -28,16 +37,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUt
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BindingSet;
 
 /**
  * A concrete class for managing RMap Statements using the openrdf API.
@@ -168,7 +167,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 
 		// see getRelatedDiSCOs and getRelatedAgents for example queries  
 		StringBuilder sparqlQuery = 
@@ -232,7 +231,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public Set<IRI> getAssertingAgents (IRI subject, IRI predicate, Value object, RMapSearchParams params,
+	public List<IRI> getAssertingAgents (IRI subject, IRI predicate, Value object, RMapSearchParams params,
 					SesameTriplestore ts) throws RMapException, RMapDefectiveArgumentException {
 		if (subject==null){
 			throw new RMapDefectiveArgumentException ("Null value provided for the subject parameter");
@@ -244,13 +243,13 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			throw new RMapDefectiveArgumentException ("Null value provided for the object parameter");
 		}
 		
-		Set<IRI> agents = new HashSet<IRI>();
+		List<IRI> agents = new ArrayList<IRI>();
 		String sSubject = SesameSparqlUtils.convertIriToSparqlParam(subject);
 		String sPredicate = SesameSparqlUtils.convertIriToSparqlParam(predicate);
 		String sObject = SesameSparqlUtils.convertValueToSparqlParam(object);	
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");	
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 		
 		/*
 		 * select DISTINCT ?agentId ?startDate

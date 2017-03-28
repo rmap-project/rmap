@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,19 @@
  * 
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.FOAF;
+import org.openrdf.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -44,21 +57,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUt
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.FOAF;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BindingSet;
 
 /**
  * A concrete class for managing RMap Agents, implemented using openrdf
@@ -395,7 +393,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitFiltersSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		String limitFiltersSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 		
 		StringBuilder sparqlQuery = 
 				new StringBuilder("SELECT DISTINCT ?rmapObjId "
@@ -421,27 +419,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitFiltersSparql);
 		
-		List<BindingSet> resultset = null;
-		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
-		}
-		catch (Exception e) {
-			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
-		}
-		
-		List<IRI> discos = new ArrayList<IRI>();
-		
-		try{
-			for (BindingSet bindingSet : resultset) {
-				IRI discoid = (IRI) bindingSet.getBinding("rmapObjId").getValue();
-				discos.add(discoid);
-			}
-		}	
-		catch (RMapException r){throw r;}
-		catch (Exception e){
-			throw new RMapException("Could not process SPARQL results for DiSCOs created by Agent", e);
-		}
-				
+		List<IRI> discos = SesameSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "rmapObjId");
 		return discos;
 	}
 	
@@ -463,7 +441,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 
 		String sAgentId = SesameSparqlUtils.convertIriToSparqlParam(agentId);
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimit(), params.getOffset());
+		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 		
 		//query gets eventIds and startDates of Events initiated by agent
 		/*  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -497,27 +475,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitOffsetSparql);
 		
-		List<BindingSet> resultset = null;
-		try {
-			resultset = ts.getSPARQLQueryResults(sparqlQuery.toString());
-		}
-		catch (Exception e) {
-			throw new RMapException("Could not retrieve SPARQL query results using " + sparqlQuery, e);
-		}
-		
-		List<IRI> events = new ArrayList<IRI>();
-		
-		try{
-			for (BindingSet bindingSet:resultset) {
-				IRI eventId = (IRI) bindingSet.getBinding("eventId").getValue();
-				events.add(eventId);
-			}
-		}	
-		catch (RMapException r){throw r;}
-		catch (Exception e){
-			throw new RMapException("Could not process results for Agent's initiated Events", e);
-		}
-
+		List<IRI> events = SesameSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "eventId");
 		return events;		
 	}
 	

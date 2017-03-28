@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -685,7 +685,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					break;
 				}
 			}
-			Set<IRI>events = eventmgr.getDiscoRelatedEventIds(iri, ts);
+			List<IRI>events = eventmgr.getDiscoRelatedEventIds(iri, ts);
            //For each event associated with DiSCOID, return AssociatedAgent
 			for (IRI event:events){
 				IRI assocAgent = eventmgr.getEventAssocAgent(event, ts);

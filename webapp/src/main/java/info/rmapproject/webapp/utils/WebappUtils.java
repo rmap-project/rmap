@@ -22,8 +22,8 @@ package info.rmapproject.webapp.utils;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * WebApp helper utilities
@@ -128,7 +128,7 @@ public class WebappUtils {
 	 * @param types the RDF types
 	 * @return the Node type
 	 */
-	public static String getNodeType(Set<URI> types){
+	public static String getNodeType(List<URI> types){
 		if (types==null || types.size()==0){
 			return Constants.NODETYPE_UNCATEGORIZED;
 		}

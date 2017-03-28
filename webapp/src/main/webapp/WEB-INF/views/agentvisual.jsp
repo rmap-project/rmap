@@ -5,7 +5,6 @@
 <c:set var="currPage" value="search"/>
 <%@include file="/includes/headstart.inc" %>
 <%@include file="/includes/js/nodesedges.js" %> 
-<%@include file="/includes/js/popupnav.js" %>       
 </head>       
 <body onload="drawgraph();">
 <div class="largecontainer">

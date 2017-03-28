@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -103,7 +104,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 		
-			Set <IRI> discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
+			List <IRI> discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
 			
 			assertTrue(discoIris.size()==1);
 			
@@ -137,10 +138,14 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		System.out.println("Running test: testGetRelatedAgents()");
 		
 		try {
-					
-			//create disco		
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			
+			//create disco				
+			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event1 = discomgr.createDiSCO(disco1, requestAgent, triplestore);
+
+			//create duplicate disco, same agent - we want to make sure agents only come through once.				
+			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
 		
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
@@ -151,9 +156,9 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		
 			RMapSearchParams params = new RMapSearchParams();
 			params.setDateRange(dateFrom, dateTo);
-			params.setSystemAgents(sysAgents);
-		
-			Set <IRI> agentIris = resourcemgr.getResourceAssertingAgents(ORAdapter.uri2OpenRdfIri(disco.getId().getIri()), params, triplestore);
+
+			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+			List<IRI> agentIris = resourcemgr.getResourceAssertingAgents(iri, params, triplestore);
 			
 			assertTrue(agentIris.size()==1);
 			
@@ -199,7 +204,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setStatusCode(RMapStatusFilter.ALL);
 			
-			Set <IRI> eventIris = resourcemgr.getResourceRelatedEvents(iri, params, triplestore);
+			List<IRI> eventIris = resourcemgr.getResourceRelatedEvents(iri, params, triplestore);
 			
 			assertTrue(eventIris.size()==2);
 
@@ -227,11 +232,15 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		try {
 			
 			//create disco				
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
-		
+			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event1 = discomgr.createDiSCO(disco1, requestAgent, triplestore);
+
+			//create duplicate disco - we want to make sure triples only come through once.				
+			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
+			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
+			
 			//get related triples			
-			IRI iri = ORAdapter.getValueFactory().createIRI("http://ieeexplore.ieee.org/example/000000-mm.zip");
+			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 			
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
@@ -244,9 +253,9 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 	
-			Set <Statement> matchingStmts = resourcemgr.getRelatedTriples(iri, params, triplestore);
+			List <Statement> matchingStmts = resourcemgr.getRelatedTriples(iri, params, triplestore);
 			
-			assertTrue(matchingStmts.size()==6);
+			assertTrue(matchingStmts.size()==25);
 
 			Iterator<Statement> iter = matchingStmts.iterator();
 			Statement stmt = iter.next();
@@ -280,7 +289,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			
 			Statement s1 = ORAdapter.getValueFactory().createStatement(resource01, RDF.TYPE, RMAP.DISCO, resource01);
 			triplestore.addStatement(s1);
-			Set<IRI> iris = resourcemgr.getResourceRdfTypes(resource01, resource01, triplestore);
+			List<IRI> iris = resourcemgr.getResourceRdfTypes(resource01, resource01, triplestore);
 			assertNotNull(iris);
 			assertEquals(1,iris.size());
 			for (IRI iri:iris){

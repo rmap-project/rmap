@@ -22,8 +22,8 @@ package info.rmapproject.webapp.utils;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -58,10 +58,11 @@ public class WebappUtilsTest {
 		String nodeType = WebappUtils.getNodeType(new URI(url));
 		assertTrue(nodeType.equals("DiSCO"));
 
-		Set<URI> uris = new HashSet<URI>();
+		List<URI> uris = new ArrayList<URI>();
 		uris.add(new URI("http://rmap-project.org/rmap/terms/DiSCO"));
 		uris.add(new URI("http://purl.org/dc/terms/Agent"));
 		uris.add(new URI("http://purl.org/dc/dcmitype/Text"));
+		uris.add(new URI("http://purl.org/spar/fabio/JournalArticle"));
 		uris.add(new URI("http://purl.org/spar/fabio/JournalArticle"));
 		nodeType = WebappUtils.getNodeType(uris);
 		assertTrue(nodeType.equals("Text"));

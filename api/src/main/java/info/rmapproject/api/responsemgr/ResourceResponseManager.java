@@ -38,14 +38,15 @@ import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.api.utils.PathUtils;
+import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 
@@ -152,33 +153,30 @@ public class ResourceResponseManager extends ResponseManager {
 			String path = PathUtils.makeResourceUrl(strResourceUri);
 			
 			Integer currPage = QueryParamHandler.extractPage(queryParams);
-			Integer limit=params.getLimit();
-			//we are going to get one extra record to see if we need a "next"
-			params.setLimit(limit+1);
 			
-			List <URI> uriList = null;
+			ResultBatch <URI> uribatch = null;
 			String outputString="";
 						
 			switch (objType) {
 	            case DISCO:
-					uriList = rmapService.getResourceRelatedDiSCOs(uriResourceUri, params);
+					uribatch = rmapService.getResourceRelatedDiSCOs(uriResourceUri, params);
 					path = path +"/discos";
 					break;
 	            case AGENT:
-					uriList = rmapService.getResourceAssertingAgents(uriResourceUri, params);
+					uribatch = rmapService.getResourceAssertingAgents(uriResourceUri, params);
 					path = path +"/agents";
 					break;
 	            case EVENT:
-					uriList = rmapService.getResourceRelatedEvents(uriResourceUri, params);
+					uribatch = rmapService.getResourceRelatedEvents(uriResourceUri, params);
 					path = path +"/events";
 					break;
 	            default:
-					uriList = rmapService.getResourceRelatedDiSCOs(uriResourceUri, params);
+					uribatch = rmapService.getResourceRelatedDiSCOs(uriResourceUri, params);
 					path = path +"/discos";
 					break;
 			}
 			 
-			if (uriList==null)	{ 
+			if (uribatch==null||uribatch.size()==0)	{ 
 				//if the object is found, should always have at least one object
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_URILIST_EMPTY); 
 			}	
@@ -186,10 +184,9 @@ public class ResourceResponseManager extends ResponseManager {
 			ResponseBuilder responseBldr = null;
 			
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
-			if (!queryParams.containsKey(Constants.PAGE_PARAM)
-					&& uriList.size()>limit){  
+			if (!queryParams.containsKey(Constants.PAGE_PARAM) && uribatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String seeOtherUrl = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
+				String seeOtherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				seeOtherUrl = seeOtherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -203,23 +200,17 @@ public class ResourceResponseManager extends ResponseManager {
 							.type(HttpTypeMediator.getResponseNonRdfMediaType(returnType));	
 				
 				//are we showing page links?
-				if (uriList.size()>limit) {
-					boolean showNextLink=uriList.size()>limit;
-					String pageLinkTemplate = QueryParamHandler.getPaginatedLinkTemplate(path, queryParams, limit);
-					Link[] pageLinks = 
-							QueryParamHandler.generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+				if (uribatch.hasNext()) {
+					String pageLinkTemplate = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+					Link[] pageLinks = QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, uribatch.hasNext());
 					responseBldr.links(pageLinks);
-					if (showNextLink){
-						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
-						uriList.remove(uriList.size()-1);		
-					}
 				}
 								
 				if (returnType==NonRdfType.PLAIN_TEXT)	{		
-					outputString= URIListHandler.uriListToPlainText(uriList);
+					outputString= URIListHandler.uriListToPlainText(uribatch.getResultList());
 				}
 				else	{
-					outputString= URIListHandler.uriListToJson(uriList, objType.getPath().toString());		
+					outputString= URIListHandler.uriListToJson(uribatch.getResultList(), objType.getPath().toString());		
 				}
 				
 				responseBldr.entity(outputString.toString());
@@ -278,27 +269,24 @@ public class ResourceResponseManager extends ResponseManager {
 			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
 
 			Integer currPage = QueryParamHandler.extractPage(queryParams);
-			Integer limit=params.getLimit();
-			//we are going to get one extra record to see if we need a "next"
-			params.setLimit(limit+1);
 			
 			//get resource triples
-			List <RMapTriple> stmtList = rmapService.getResourceRelatedTriples(uriResourceUri, params);
-			if (stmtList==null)	{ 
-				//if the object is found, should always have at least one event
+			ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uriResourceUri, params);
+			if (triplebatch==null)	{ 
+				//should return size()=0 not null... null implies something went wrong.
 				throw new RMapApiException(ErrorCode.ER_CORE_GET_RDFSTMTLIST_EMPTY); 
 			}	
-			if (stmtList.size() == 0)	{
+			if (triplebatch.size() == 0)	{
 				throw new RMapApiException(ErrorCode.ER_NO_STMTS_FOUND_FOR_RESOURCE); 				
 			}			
+			List<RMapTriple> triples = triplebatch.getResultList();
 			
 			ResponseBuilder responseBldr = null;
 			
-			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
-			if (!queryParams.containsKey(Constants.PAGE_PARAM)
-					&& stmtList.size()>limit){  
+			//if there is currently no page defined, and there is the option to get the next batch then do 303 with pagination
+			if (!queryParams.containsKey(Constants.PAGE_PARAM) && triplebatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String otherUrl = QueryParamHandler.getPaginatedLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, limit);
+				String otherUrl = QueryParamHandler.getPageLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, params.getLimit());
 				otherUrl = otherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -307,21 +295,17 @@ public class ResourceResponseManager extends ResponseManager {
 			else { 			
 				responseBldr = Response.status(Response.Status.OK);	
 				
-				if (stmtList.size()>limit || (currPage!=null && currPage>1)) {
-					boolean showNextLink=stmtList.size()>limit;
+				if (triplebatch.hasNext() || (currPage!=null && currPage>1)) {
 					String pageLinkTemplate = 
-							QueryParamHandler.getPaginatedLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, limit);
+							QueryParamHandler.getPageLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, params.getLimit());
 					Link[] pageLinks =  
-							QueryParamHandler.generatePaginationLinks(pageLinkTemplate, currPage, showNextLink);
+							QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, triplebatch.hasNext());
 					responseBldr.links(pageLinks);
-					if (showNextLink){
-						//gone over limit so remove the last record since it was only added to check for record that would spill to next page
-						stmtList.remove(stmtList.size()-1);		
-					}
+
 				}
 				
 				//convert to RDF
-				OutputStream rdf = rdfHandler.triples2Rdf(stmtList, returnType.getRdfType());
+				OutputStream rdf = rdfHandler.triples2Rdf(triples, returnType.getRdfType());
 				if (rdf == null){
 					throw new RMapApiException(ErrorCode.ER_CORE_CANT_CREATE_STMT_RDF);					
 				}

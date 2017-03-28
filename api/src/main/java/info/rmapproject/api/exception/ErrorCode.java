@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -231,6 +231,9 @@ public enum ErrorCode {
 	/** Error code for when failed to initiate RDF handler service. */
 	ER_FAILED_TO_INIT_RDFHANDLER_SERVICE (Status.INTERNAL_SERVER_ERROR,50010020),
 	
+	/** Error code for when an invalid Agent-related object type is requested. */
+	ER_AGENT_OBJECT_TYPE_REQUEST_NOT_VALID(Status.INTERNAL_SERVER_ERROR, 50010021),
+	
 	//5002*** Internal Server Errors due to uncaught error in Core RMap Service
 	/** Error code for when read Agent returned null. */
 	ER_CORE_READ_AGENT_RETURNED_NULL (Status.INTERNAL_SERVER_ERROR,5002001),
@@ -334,6 +337,7 @@ public enum ErrorCode {
 	
 	/** Error code for when invalid keyURI provided for user. */
 	ER_INVALID_KEYURI_FOR_USER(Status.INTERNAL_SERVER_ERROR, 5003003),
+	
 	
 	/** Error code for when there is a generic RMap Exception. */
 	//5009*** Generic Internal Server Errors

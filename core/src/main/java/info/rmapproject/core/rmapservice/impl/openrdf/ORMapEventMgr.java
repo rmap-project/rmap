@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -584,9 +584,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap di SCO not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Set<IRI> getDiscoRelatedEventIds(IRI discoid, SesameTriplestore ts) 
+	public List<IRI> getDiscoRelatedEventIds(IRI discoid, SesameTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
-		Set<IRI> events = null;
+		List<IRI> events = null;
 		if (discoid==null){
 			throw new RMapException ("Null DiSCO IRI");
 		}
@@ -606,7 +606,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				if (eventStmts.isEmpty()){
 					break;
 				}
-				events = new HashSet<IRI>();
+				events = new ArrayList<IRI>();
 				for (Statement stmt:eventStmts){
 					IRI eventId = (IRI)stmt.getSubject();
 					if (this.isEventId(eventId,ts)){
@@ -637,9 +637,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 */
-	public Set<IRI> getAgentRelatedEventIds(IRI agentid, SesameTriplestore ts) 
+	public List<IRI> getAgentRelatedEventIds(IRI agentid, SesameTriplestore ts) 
 			throws RMapAgentNotFoundException, RMapException {
-		Set<IRI> events = null;
+		List<IRI> events = null;
 		if (agentid==null){
 			throw new RMapException ("Null Agent IRI");
 		}
@@ -657,7 +657,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 				if (eventStmts.isEmpty()){
 					break;
 				}
-				events = new HashSet<IRI>();
+				events = new ArrayList<IRI>();
 				for (Statement stmt:eventStmts){
 					IRI eventId = (IRI)stmt.getSubject();
 					if (this.isEventId(eventId,ts)){

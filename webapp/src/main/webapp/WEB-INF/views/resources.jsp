@@ -5,7 +5,6 @@
 <c:set var="currPage" value="search"/>
 <%@include file="/includes/headstart.inc" %>
 <%@include file="/includes/js/nodesedges.js" %>  
-<%@include file="/includes/js/popupnav.js" %>        
 </head>
 <body onload="drawgraph();">
 <%@include file="/includes/bodystart.inc" %> 
@@ -26,13 +25,10 @@
 </h2>
 <c:if test="${resource_types.size()>0}">
 	<h3>
-		A resource of type<c:if test="${resource_types.size()>1}">s</c:if>
-		:&nbsp;
+		A resource of type<c:if test="${resource_types.size()>1}">s</c:if>:&nbsp;
 		<em>
 			<c:forEach var="resource_type" items="${resource_types}">
-				<a href="${resource_type.getKey()}">
-					${resource_type.getValue()}
-				</a>;&nbsp;
+				<a href="${resource_type.getKey()}">${resource_type.getValue()}</a>;&nbsp;
 			</c:forEach>
 		</em>
 	</h3>
