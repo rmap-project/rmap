@@ -130,7 +130,7 @@ public class ORMapService implements RMapService {
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriplesBatch(URI, RMapSearchParams)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriples(URI, RMapSearchParams)
 	 */
 	@Override
 	public ResultBatch<RMapTriple> getResourceRelatedTriples(URI uri, RMapSearchParams params)

@@ -320,14 +320,22 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
 		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
 		String limitOffsetFilterSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String objectTypeFilterSparql = SesameSparqlUtils.convertObjectExclusionsToFilter(params.excludeIRIs(), params.excludeLiterals());
+		String excludeTypesFilterSparql = SesameSparqlUtils.convertTypeExclusionToFilter(params.excludeTypes());
 		
 		//query gets eventIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?s ?p ?o ?startDate 
 			WHERE {
 			GRAPH ?rmapObjId 
 			 {
-				 {?s ?p <http://dx.doi.org/10.1109/InPar.2012.6339604>} UNION 
-				 {<http://dx.doi.org/10.1109/InPar.2012.6339604> ?p ?o} .	
+				 {
+                 ?s ?p ?o
+          		 FILTER (?s=<http://dx.doi.org/10.1145/357456.357463>)
+       			 }	UNION 
+				 {
+                 ?s ?p ?o
+          		 FILTER (?o=<http://dx.doi.org/10.1145/357456.357463>)
+       			 }	
 			  } .
 			GRAPH ?eventId {
 			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
@@ -354,8 +362,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 							+ "WHERE { "
 							+ " GRAPH ?rmapObjId "
 							+ "	  {"
-							+ "		{?s ?p " + sResource + "} UNION "
-							+ "		{" + sResource + " ?p ?o} ."						
+							+ "	  	{?s ?p ?o FILTER (?s=" + sResource + ")}	UNION "
+							+ "	  	{?s ?p ?o FILTER (?o=" + sResource + ")} . "
 							+ "	  } . "
 							+ " GRAPH ?eventId {"
 							+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."
@@ -369,6 +377,8 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 							+ "  } "
 							+ dateFilterSparql
 							+ statusFilterSparql
+							+ excludeTypesFilterSparql
+							+ objectTypeFilterSparql
 							+ "} ");
 
 		if (params.getOrderBy()==OrderBy.SELECT_ORDER){
@@ -393,26 +403,11 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		
 		try{
 			for (BindingSet bindingSet : resultset){
-				// subject or object will come in as empty where the resource matched, so need to 
-				// fill in empty field with resource being searched for
-				Resource subj = null;
 				Binding subjBinding = bindingSet.getBinding("s");
-				if (subjBinding==null || subjBinding.toString().length()==0) {
-					subj = resource;
-				}
-				else {					
-					subj = (Resource) subjBinding.getValue();
-				}
+				Resource subj = (Resource) subjBinding.getValue();
 				IRI pred = (IRI) bindingSet.getBinding("p").getValue();
-				Value obj = null;
 				Binding objBinding = bindingSet.getBinding("o");
-				if (objBinding==null || objBinding.toString().length()==0) {
-					obj = resource;
-				}
-				else {					
-					obj = objBinding.getValue();
-				}				
-
+				Value obj = objBinding.getValue();
 				Statement stmt = ORAdapter.getValueFactory().createStatement(subj, pred, obj);	
 				relatedStmts.add(stmt);
 			}
@@ -520,7 +515,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 									+ "WHERE { "
 									+ " GRAPH ?rmapObjId "
 									+ "	  {"
-									+ "		{" + sResourceIri + " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type} ."						
+									+ "		{" + sResourceIri + " <" + RDF.TYPE.toString() + "> ?type} ."						
 									+ "	  } . "
 									+ " GRAPH ?eventId {"
 									+ "   ?eventId <" + RDF.TYPE + "> <" + RMAP.EVENT + "> ."

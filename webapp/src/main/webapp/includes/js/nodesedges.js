@@ -5,7 +5,7 @@ var nodes, edges, network;
 function drawgraph(){
 	nodes = new vis.DataSet([
 			 <c:forEach var="node" items="${OBJECT_NODES}" varStatus="loop">
-			 {id: ${node.getId()}, title: '<em>Click to see info</em>', uri: '${node.getName()}', label: '${node.getShortname()}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
+			 {id: ${node.getId()}, title: '${my:ellipsize(node.getName(),50)}<br/><em>Click to see info</em>', uri: '${node.getName()}', label: '${node.getShortname()}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
 	edges = new vis.DataSet([
@@ -13,7 +13,6 @@ function drawgraph(){
 			 {from: ${edge.getSource()}, to: ${edge.getTarget()}, title:'${edge.getLabel()}', label:'${edge.getShortlabel()}', arrows:'to', targetgroup:'${edge.getTargetNodeType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
-			
 	
 	var container = document.getElementById('mynetwork');
 	var data = {
@@ -76,7 +75,7 @@ function drawgraph(){
 			  var url = window.location.href;
 			  
 			  if (url.indexOf("/resources/")==-1){ //if we are not on a resources page!
-				  nodeinfopath = nodeinfopath + "/" + encodeURIComponent("${RESOURCEURI.toString()}"); 
+				  nodeinfopath = nodeinfopath + "/" + encodeURIComponent("${RESOURCEURI.toString()}");
 			  }
 			  nodeinfopath = nodeinfopath + "?viewmode=" + "${VIEWMODE}";
 			  

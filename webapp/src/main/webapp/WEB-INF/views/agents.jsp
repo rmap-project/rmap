@@ -1,49 +1,37 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="my" uri="/WEB-INF/tld/rmapTagLibrary.tld" %>
+<%@ taglib prefix="tl" tagdir="/WEB-INF/tags"%>
+
 <c:set var="pageTitle" value="RMap Agent Summary | RMap Project"/>
 <c:set var="currPage" value="search"/>
 <%@include file="/includes/headstart.inc" %>
 <%@include file="/includes/js/nodesedges.js" %> 
+<%@include file="/includes/js/pagecontrol.js" %>   
 </head>       
 <body onload="drawgraph();">
 <%@include file="/includes/bodystart.inc" %> 
 
-<c:set var="agentUri" value="${AGENT.getUri().toString()}"/>     
-<c:set var="agentUriEncoded" value="${my:httpEncodeStr(agentUri)}"/>       
+<c:set var="agentUri" value="${AGENT.getUri().toString()}"/>  
 <article class="twelve columns main-content">
-	<h1>RMap Agent Summary</h1>
-	<h2>URI: <a href="<c:url value='/agents/${agentUriEncoded}'/>">${agentUri}</a></h2>
+	<span class="tab">
+		<a class="tablinks" id="graphviewlink" href="javascript:openView('graphview')">graph view <i class="fa fa-share-alt"></i></a>&nbsp;|&nbsp;
+		<a class="tablinks" id="tableviewlink" href="javascript:openView('tableview')">table view <i class="fa fa-table"></i></a>
+	</span>
 
-	<a href="<c:url value='/agents/${agentUriEncoded}/visual'/>">View larger visualization</a>&nbsp;|&nbsp;
-	<a href="<c:url value='/resources/${agentUriEncoded}?resview=1'/>">View Agent as Resource</a> <br/>
-	
+	<h1>RMap Agent Summary</h1>
+	<h2>URI: ${agentUri}</h2>
+
+	<c:set var="visualuri" value="/agents/${my:httpEncodeStr(agentUri)}/visual"/>	
+	<div id="graphview" class="tabcontent">
 	<%@include file="/includes/standardViewGraph.inc" %>
-	<br/>
-	<h2>Agent details</h2>
-	<div class="CSSTableGenerator">
-		<table>
-			<tr>
-				<td colspan="2">Agent Details</td>
-			</tr>		
-					
-		<c:if test="${AGENT.getName().length()>0}">
-			<tr>
-				<td>Name</td>
-				<td>${AGENT.getName()}</td>
-			</tr>
-		</c:if>	
-		<tr>
-			<td>ID Provider</td>
-			<td><a href="<c:url value='/resources/${my:httpEncodeStr(AGENT.getIdProvider())}'/>">${AGENT.getIdProvider()}</a></td>
-		</tr>	
-		<tr>
-			<td>User Authentication ID</td>
-			<td><a href="<c:url value='/resources/${my:httpEncodeStr(AGENT.getAuthId())}'/>">${AGENT.getAuthId()}</a></td>
-		</tr>	
-		
-		</table>
 	</div>
+	<div id="tableview" class="tabcontent">
+		<div id="loading">
+		  <img id="loading-image" src="<c:url value='/includes/images/loading.gif'/>" alt="Loading..." />
+		</div>
+	</div>
+	<br/>
 
 	<c:set var="discos" value="${AGENT.getDiscos()}"/>
 	<c:set var="numdiscos" value="${AGENT.getNumDiscos()}"/>
@@ -63,9 +51,7 @@
 			<c:if test="${numdiscos>0}">			
 				<c:forEach var="discoId" items="${discos}" begin="0" end="49">
 					<tr>
-						<td>
-							<a href="<c:url value='/discos/${my:httpEncodeUri(discoId)}'/>">${discoId}</a>
-						</td>
+						<td><tl:displayRMapLink uri="${discoId}" type="disco"/></td>
 					</tr>
 				</c:forEach>	
 			</c:if>
@@ -74,14 +60,11 @@
 			</c:if>
 		</table>
 	</div>
-	<br/>
-	<br/>
 </article>
 
 <!-- End main Content -->
 	    
 <aside class="four columns right-sidebar">
-     
 	<div class="sidebar-widget">
 		<div class="status${AGENT.getStatus()}"><h1>${AGENT.getStatus()}</h1></div>
 		<h2>Agent Events</h2>
@@ -90,7 +73,7 @@
 		</c:if>
 		<ul>
 			<c:forEach var="eventId" items="${AGENT.getEvents()}" begin="0" end="19">
-				<li><a href="<c:url value='/events/${my:httpEncodeUri(eventId)}'/>">${eventId}</a></li>
+				<li><tl:displayRMapLink uri="${eventId}" type="event"/></li>
 			</c:forEach>
 		</ul>
 	</div>

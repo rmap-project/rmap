@@ -82,6 +82,24 @@ public class RMapSearchParams  {
 	OrderBy orderBy;
 	
 	/**
+	 * Used when retrieving triples only. True if you want to exclude object=literal from the result set. 
+	 * Defaults to false.
+	 */
+	boolean excludeLiterals = false;
+
+	/**
+	 * Used when retrieving triples only. True if you want to exclude object=IRI from the result set. 
+	 * Defaults to false.  
+	 */
+	boolean excludeIRIs = false;
+
+	/**
+	 * Used when retrieving triples only. True if you want to exclude predicate=RDF.TYPE from the result set. 
+	 * Defaults to false.  
+	 */
+	boolean excludeTypes = false;
+	
+	/**
 	 * Flag set to determine whether to get an extra record. When this is set, the limit will be 
 	 * an extra record can be retrieved then there are more records available.
 	 */
@@ -490,10 +508,56 @@ public class RMapSearchParams  {
 	 * @return boolean true if request needs to check whether there is a next set of values
 	 */
 	public boolean checkNext(){
-		return checkNext();
+		return checkNext;
 	}
 	
+	/**
+	 * Sets flag for whether to exclude object=literal from triple resultset.
+	 * @param boolean true if object=literal to be excluded from resultset
+	 */
+	public void setExcludeLiterals(boolean excludeLiterals){
+		this.excludeLiterals = excludeLiterals;
+	}
 	
+	/**
+	 * Returns exclude literal value
+	 * @return boolean true if query should exclude object=literal
+	 */
+	public boolean excludeLiterals(){
+		return excludeLiterals;
+	}
+	
+	/**
+	 * Sets flag for whether to exclude object=IRI from triple resultset.
+	 * @param boolean true if object=IRI to be excluded from resultset
+	 */
+	public void setExcludeIRIs(boolean excludeIRIs){
+		this.excludeIRIs = excludeIRIs;
+	}
+
+	/**
+	 * Returns exclude IRIs value
+	 * @return boolean true if query should exclude object=literal
+	 */
+	public boolean excludeIRIs(){
+		return excludeIRIs;
+	}
+	
+	/**
+	 * Sets flag for whether to exclude predicate=RDF.type from triple resultset.
+	 * @param boolean true if predicate=RDF.type to be excluded from resultset
+	 */
+	public void setExcludeTypes(boolean excludeTypes){
+		this.excludeTypes = excludeTypes;
+	}
+
+	/**
+	 * Returns excludeTypes value
+	 * @return boolean true if query should exclude predicate=RDF.type
+	 */
+	public boolean excludeTypes(){
+		return excludeTypes;
+	}
 	
 	/**
 	 * Returns limit to be used in query - may equal limit provided, or if checking for the 

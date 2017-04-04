@@ -14,4 +14,19 @@
 		<function-class>info.rmapproject.webapp.utils.CustomELFunctions</function-class>
 		<function-signature>java.lang.String httpEncode(java.net.URI)</function-signature>
 	</function>
+	<function>
+		<name>isUrl</name>
+		<function-class>info.rmapproject.webapp.utils.CustomELFunctions</function-class>
+		<function-signature>java.lang.Boolean isUrl(java.lang.String)</function-signature>
+	</function>
+	<function>
+		<name>isUri</name>
+		<function-class>info.rmapproject.webapp.utils.CustomELFunctions</function-class>
+		<function-signature>java.lang.Boolean isUri(java.lang.String)</function-signature>
+	</function>
+	<function>
+		<name>ellipsize</name>
+		<function-class>info.rmapproject.webapp.utils.CustomELFunctions</function-class>
+		<function-signature>String ellipsize(java.lang.String, int)</function-signature>
+	</function>
 </taglib>

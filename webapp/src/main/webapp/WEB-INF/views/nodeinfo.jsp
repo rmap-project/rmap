@@ -4,6 +4,7 @@
 <%@ taglib prefix="my" uri="/WEB-INF/tld/rmapTagLibrary.tld"%>
 
 <body>
+
 <span class="reload">
 <c:choose>
 	<c:when test="${VIEWMODE.equals('standard')}">
@@ -67,6 +68,13 @@
 	</span>
 </c:if>
 
-
+<c:if test="${REFERER.contains('/discos/')}">
+	<hr style="margin-bottom:1px;"/>
+	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the DiSCO. To discover other references to the resource, click the <em>Redraw</em> button.</span>
+</c:if>
+<c:if test="${REFERER.contains('/agents/')}">
+	<hr style="margin-bottom:1px;"/>
+	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the Agent. To discover other references to the resource, click the <em>Redraw</em> button.</span>
+</c:if>
 
 </body>

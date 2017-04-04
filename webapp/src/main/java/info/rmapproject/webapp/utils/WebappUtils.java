@@ -53,6 +53,7 @@ public class WebappUtils {
 			URI uri = new URI(url);
 			String path = null;
 			String term = null;
+			String newUrl = url;
 
 			if (url.contains("#")){
 				term = uri.getFragment();
@@ -66,12 +67,12 @@ public class WebappUtils {
 			if (term!=null && path!=null && term.length()>0 && path.length()>0) {
 				String prefix = prefixes.get(path);
 				if (prefix!=null && prefix.length()>0){
-					url = prefix + ":" + term;
+					newUrl = prefix + ":" + term;
 				} else {
-					url = "x" + ":" + term;
+					newUrl = "x" + ":" + term;
 				}
 			}
-			return url;
+			return newUrl;
 		} catch (URISyntaxException e){
 			//it's not a uri... that's OK, send it back...
 			return url;

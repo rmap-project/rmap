@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,6 +73,9 @@ public class DataDisplayController {
 
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
+
+	/**  term for table data view, used in VIEWMODE. */
+	private static final String TABLEDATA_VIEW = "tabledata";
 		
 	/**
 	 * path parameter for the edit view 
@@ -99,6 +103,7 @@ public class DataDisplayController {
 	    model.addAttribute("OBJECT_EDGES", discoDTO.getGraph().getEdges());
 	    model.addAttribute("OBJECT_NODETYPES", discoDTO.getGraph().getNodeTypes());
 	    model.addAttribute("RESOURCEURI", discoDTO.getUri());
+	    model.addAttribute("PAGEPATH", "discos");
 	    model.addAttribute("VIEWMODE", STANDARD_VIEW);
 	    
 		return "discos";
@@ -132,7 +137,9 @@ public class DataDisplayController {
 	    } else if (view.equals(WIDGET_VIEW)) {
 	    	return "discowidget";	    	
 	    } else if (view.equals(EDIT_VIEW)) {
-			return "discoedit";
+			return "discoedit";    	
+	    } else if (view.equals(TABLEDATA_VIEW)) {
+			return "discotable";
 	    } else {
 	    	return "discos";
 	    }	    
@@ -155,6 +162,7 @@ public class DataDisplayController {
 	    model.addAttribute("OBJECT_EDGES", agentDTO.getGraph().getEdges());
 	    model.addAttribute("OBJECT_NODETYPES", agentDTO.getGraph().getNodeTypes()); 
 	    model.addAttribute("RESOURCEURI", agentDTO.getUri());
+	    model.addAttribute("PAGEPATH", "agents");
 	    model.addAttribute("VIEWMODE", STANDARD_VIEW);
 	    
 		return "agents";
@@ -189,6 +197,8 @@ public class DataDisplayController {
 	    	return "agentvisual";
 	    } else if (view.equals(WIDGET_VIEW)) {
 	    	return "agentwidget";	
+	    } else if (view.equals(TABLEDATA_VIEW)){
+	    	return "agenttable";
 	    } else {
 			return "agents";
 	    }	    
@@ -234,6 +244,7 @@ public class DataDisplayController {
 		    model.addAttribute("OBJECT_EDGES", resourceDTO.getGraph().getEdges());
 		    model.addAttribute("OBJECT_NODETYPES", resourceDTO.getGraph().getNodeTypes());
 		    model.addAttribute("RESOURCEURI", resourceDTO.getUri());
+		    model.addAttribute("PAGEPATH", "resources");
 		    model.addAttribute("VIEWMODE", STANDARD_VIEW);
 
 		} catch (URISyntaxException|IllegalArgumentException ex){
@@ -302,6 +313,8 @@ public class DataDisplayController {
 			return "resourcewidget";	    	
 	    } else if (view.equals(VISUAL_VIEW)){
 	    	return "resourcevisual";
+	    } else if (view.equals(TABLEDATA_VIEW)){
+	    	return "resourcetable";
 	    } else {
 	    	return "resources";
 	    }
@@ -335,12 +348,14 @@ public class DataDisplayController {
 	 * @param resourceUri a resource uri
 	 * @param model the Spring model
 	 * @param view the current page view
+	 * @param referer - the page that called the popup
 	 * @return the resource literals popup box
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/nodeinfo/{resource}", method = RequestMethod.GET)
 	public String resourceLiterals(@PathVariable(value="resource") String resourceUri, 
-				Model model, @RequestParam(value="viewmode", required=false) String view) throws Exception {
+				Model model, @RequestParam(value="viewmode", required=false) String view,
+				@RequestHeader("referer") String referer) throws Exception {
 		if (view==null || view.length()==0){
 			view=STANDARD_VIEW;
 		}
@@ -351,7 +366,8 @@ public class DataDisplayController {
 									|| resourceLiterals.getResourceTypes().containsKey(Terms.RMAP_EVENT_PATH);
 			model.addAttribute("ISRMAPTYPE",isRMapType);	  
 			model.addAttribute("RESDES",resourceLiterals);	  
-		    model.addAttribute("VIEWMODE", view);	 
+		    model.addAttribute("VIEWMODE", view); 
+		    model.addAttribute("REFERER",referer);
 		} catch (Exception e) {
 			//we need to mark this as a nodeinfo error - it needs to load a smaller custom exception page
 			throw new RMapWebException(e,ErrorCode.ER_PROBLEM_LOADING_NODEINFO);
@@ -367,16 +383,19 @@ public class DataDisplayController {
 	 * @param contextUri a context uri - uri of graph to limit results by
 	 * @param model the Spring model
 	 * @param view the current page view
+	 * @param referer - the page that called the popup
 	 * @return the resource literals popup box
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/nodeinfo/{resource}/{context}", method = RequestMethod.GET)
 	public String resourceLiteralsInContext(@PathVariable(value="resource") String resourceUri, 
 			@PathVariable(value="context") String contextUri, Model model, 
-			@RequestParam(value="viewmode", required=false) String view) throws Exception {
+			@RequestParam(value="viewmode", required=false) String view,
+			@RequestHeader("referer") String referer) throws Exception {
 		if (view==null || view.length()==0){
 			view=STANDARD_VIEW;
 		}
+		
 		try {
 			ResourceDescription resourceLiterals = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri);
 
@@ -386,7 +405,8 @@ public class DataDisplayController {
 			
 			model.addAttribute("ISRMAPTYPE",isRMapType);	  
 			model.addAttribute("RESDES",resourceLiterals);	
-		    model.addAttribute("VIEWMODE", view);	  
+		    model.addAttribute("VIEWMODE", view);	 
+		    model.addAttribute("REFERER",referer);
 		} catch (Exception e) {
 			//we need to mark this as a nodeinfo error - it needs to load a smaller custom exception page
 			throw new RMapWebException(e,ErrorCode.ER_PROBLEM_LOADING_NODEINFO);

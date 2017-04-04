@@ -20,9 +20,11 @@
 /* #Header
 ================================================== */
 
-#header { border-bottom: 1px solid #E3E3E8; margin-bottom: 30px; }
+#header { border-bottom: 1px solid #E3E3E8; margin-bottom: 8px; }
 h1 a { text-indent: -9999px; }
-#site-title { padding-top: 20px; }
+#site-title { padding-top:3px; }
+#rmaplogo {height:60px;width:120px;}
+#visualheader{float:left; padding-top:3px; width:150px;}
 
 /* #Navigation
 ================================================== */
@@ -30,7 +32,7 @@ h1 a { text-indent: -9999px; }
 #main-nav { float: right; }
 #main-nav ul, #main-nav li { list-style: none; padding: 0; margin: 0; display: inline; } 
 #main-nav ul li { float: left; position: relative; }
-#main-nav ul li a { display: inline-block; padding: 48px 10px 48px 10px; margin: 0 5px; text-decoration: none; font-size: 14px; border-bottom: 3px solid transparent; }
+#main-nav ul li a { display: inline-block; padding: 32px 10px 28px 10px; margin: 0 5px; text-decoration: none; font-size: 14px; border-bottom: 3px solid transparent; }
 #main-nav ul li:hover { border-bottom: 3px solid #0000C1 !important; }
 .current { font-weight: bold !important; color: #444 !important; border-bottom: 3px solid #0000C1 !important; }
 
@@ -42,7 +44,7 @@ h1 a { text-indent: -9999px; }
        position: absolute;
        z-index: 999;
        left: 0;
-       top: 90px;
+       top: 83px;
    }
       
 #main-nav ul li:hover ul.dropdown-menu{
@@ -65,15 +67,13 @@ h1 a { text-indent: -9999px; }
        position: absolute;
        z-index: 999;
        left: 0;
-       top: 90px;
+       top: 83px;
    }
 #main-nav ul li:hover .signin-menu{
        display: block;	/* Display the dropdown */
    }
    
 #main-nav ul li .signin-menu a { display: inline-block; padding: 3px 0px 0px 6px; margin: 0px;}
-
-
 
 
 /* #Site Styles
@@ -83,12 +83,15 @@ a, a:visited { text-decoration: none; color: #0000C1; transition: color 0.3s lin
 a:hover { color: #aaccff; }
 
 h1, h2, h3, h4, h5, h6 { font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; color: #003c67; font-weight: bold; overflow-wrap: break-word; word-wrap: break-word; }
-h1 { font-size: 28px; line-height: 32px; color: #4C5B5C; }
-h2 { font-size: 20px; line-height: 22px; color: #5e7071; margin: 0 0 20px 0; }
-h3 { font-size: 16px; line-height: 20px; color: #5e7071; }
+h1 { font-size: 24px; line-height: 28px; color: #5e7071; margin: 10px 0px 5px 0;}
+h2 { font-size: 18px; line-height: 20px; color: #5e7071; margin: 5px 0 5px 0; }
+h3 { font-size: 14px; line-height: 18px; color: #5e7071; }
 h4 { font-size: 14px; line-height: 18px; color: #5e7071; }
 h5 { font-size: 12px; line-height: 18px; color: #5e7071; }
 h6 { font-size: 10px; line-height: 16px; color: #5e7071; }
+
+p { line-height:24px;}
+
 
 .rounded { background: #003c67; -webkit-border-radius: 100px; -moz-border-radius: 100px; border-radius: 100px; display: inline-block; width: 40px !important; height: 40px; color: white; text-align: center; vertical-align: middle; font-size: 20px; line-height: 40px; margin-right: 5px; }
 
@@ -209,9 +212,7 @@ acronym { border-bottom:1px dotted #ccc; }
 	border:1px solid #ffffff;
 	border-width:0px 1px 1px 0px;
 	text-align:left;
-	padding:10px;
-	font-size:14px;
-	font-family:Arial;
+	padding:6px;
 	font-weight:normal;
 	color:#000000;
 }.CSSTableGenerator tr:last-child td{
@@ -279,11 +280,11 @@ acronym { border-bottom:1px dotted #ccc; }
 .largecontainer {position: absolute; width: 98%; margin: 0px 0px 0px 10px; padding: 0; }
 .widgetcontainer {width: 100%; height:100%; margin: 0 auto; padding: 0; }
 
-.loadbarSmall {height:472px;}
+.loadbarSmall {height:466px;}
 #loadbar {
 	position:absolute;
-	top:0px;
-	left:0px;
+	top:1px;
+	left:1px;
 	width: 100%;
 	background-color:rgba(200,200,200,0.8);
 	-webkit-transition: all 0.5s ease;
@@ -296,7 +297,8 @@ acronym { border-bottom:1px dotted #ccc; }
 #visualWrapperSmall {
 	position:relative;
 	width:100%;
-	height:470px;
+	height:463px;
+	margin-bottom:20px;
 }
 
 .loadbarBig {height:802px;}
@@ -371,14 +373,18 @@ div.loadbarOuterBorder {
 
 
 
-/**graph legend formatting*/
-.graphlegend{
-	z-index:1;
-	position:absolute;
+/**graph controls formatting*/
+.graphcontrol{
+	z-index:2;
 	padding:5px;
 	margin:5px;
 	border: 1px solid gray;
 	background:white;
+	position:absolute;
+}
+
+.graphresize{
+	right:0;
 }
 
 .square {
@@ -420,11 +426,13 @@ div.loadbarOuterBorder {
 	color:#91CC00;
 	text-align:center;
 	border:1px solid #91CC00;
+	margin-top:25px;
 }
 .statusINACTIVE h1 {
 	color:#CC0017;
 	text-align:center;
 	border:2px solid #CC0017;
+	margin-top:25px;
 }
 
 .toggle {
@@ -631,4 +639,55 @@ input[readonly]{background-color:#f0f0f0;}
   color: #4036ff;
 }
 
+.tab {
+	width: 100%; 
+	display:block;
+	padding:0px 0px 3px 0px; 
+	border-bottom: 1px solid #ccc; 
+	margin-bottom:5px;
+	margin-left:0;
+}
 
+.tab .active {
+	font-weight:bold;
+	color:black;
+}
+
+#tableview {
+	display: none;
+	padding: 0px;
+}
+
+
+
+
+/**link options formatting*/
+
+
+
+#tableview .fa-share-alt {
+	margin:4px 2px 2px 2px;
+    text-decoration: none;
+    padding: 1px 2px 1px 2px;
+    background: #f5f5f5;
+	-webkit-box-shadow: 1px 1px 1px #a6a1a6;
+	-moz-box-shadow: 1px 1px 1px #a6a1a6;
+	box-shadow: 1px 1px 1px #a6a1a6;
+	border: solid #72828c 1px;
+	font-size:11px;
+}
+
+#tableview .fa-share-alt:hover {
+  background: #e3e3e3;
+  color:grey;
+}
+
+
+#loading {
+  text-align: center;
+}
+#loading-image {
+  height:125px;
+  width:125px; 
+  z-index: 100;
+}

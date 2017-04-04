@@ -19,7 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -224,10 +223,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 
 		RMapSearchParams params = new RMapSearchParams();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		params.setExcludeLiterals(true);
+		params.setExcludeTypes(true);
 		
 		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(resourceUri, params);
     	
 		//if there are no triples, don't load an empty screen, show a not found error.
+		//note that because only connected graphs are allowed, every URI should have at
+		//least one uri link.
     	if (triplebatch.size()==0)	{
     		throw new RMapObjectNotFoundException();
     	}
@@ -235,7 +238,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
     	List<RMapTriple> triples = triplebatch.getResultList();
     	
     	//generate resource description
-    	ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, true, false);	    
+    	ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, true);	    
     	    		
 	    resourceDTO.setResourceDescription(resourceDescription);
 	    
@@ -265,11 +268,15 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setLimit(ConfigUtils.getPropertyValue(info.rmapproject.core.utils.Constants.RMAPCORE_PROPFILE, 
 				info.rmapproject.core.utils.Constants.MAX_QUERY_LIMIT_KEY));
+		params.setExcludeIRIs(true);
+		params.setExcludeTypes(true);
 		
 		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uri, params);
 		List<RMapTriple> triples = triplebatch.getResultList(); 
 		
-		ResourceDescription resourceDescription = getResourceDescription(resourceUri, triples, false, true);
+		ResourceDescription resourceDescription = getResourceDescription(resourceUri, triples, false);
+		
+		
 		rmapService.closeConnection();
 		return resourceDescription;
 	}
@@ -288,10 +295,11 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setLimit(ConfigUtils.getPropertyValue(info.rmapproject.core.utils.Constants.RMAPCORE_PROPFILE, 
 									info.rmapproject.core.utils.Constants.MAX_QUERY_LIMIT_KEY));
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		params.setExcludeIRIs(true);
 		
 		ResultBatch<RMapTriple> resultbatch = rmapService.getResourceRelatedTriples(resourceUri, graphUri, params);
 		List<RMapTriple> triples = resultbatch.getResultList();
-		ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, false, true);
+		ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, false);
 		rmapService.closeConnection();
 		return resourceDescription;
 	}
@@ -304,33 +312,32 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 * @param resource
 	 * @param triples 
 	 * @param includeBothDirections - true when matching resource based on subject or object. False for subject matching only.
-	 * @param includeLiteralsOnly - true to return only literals for the resource.
 	 * @return resource description
 	 */
-	private ResourceDescription getResourceDescription(String resource, List<RMapTriple> triples, boolean includeBothDirections, boolean includeLiteralsOnly) throws RMapWebException{
+	private ResourceDescription getResourceDescription(String resource, List<RMapTriple> triples, boolean includeBothDirections) throws RMapWebException{
 
     	//start new resource description
     	ResourceDescription resourceDescription = new ResourceDescription(resource.toString());	  
     	
     	try {
-	    	for (RMapTriple triple : triples) { 
+
+    		List<URI> resourceTypes = getResourceRDFTypes(new URI(resource));
+    		resourceDescription.addResourceTypes(resourceTypes);
+    		
+    		for (RMapTriple triple : triples) { 
 	    		boolean objectIsLiteral = (triple.getObject() instanceof RMapLiteral);
 	    		boolean subjMatchesResource = triple.getSubject().toString().equals(resource.toString());
 	    		boolean objMatchesResource = !objectIsLiteral && triple.getObject().toString().equals(resource.toString());
-	    		boolean predicateIsType = triple.getPredicate().toString().equals(RDF.TYPE.toString());
 	    		
-	    		if (subjMatchesResource && predicateIsType)	{
-		    		resourceDescription.addResourceType(triple.getObject().toString());
-		    	}
-		    	else if ((subjMatchesResource || (objMatchesResource && includeBothDirections))
-		    			&& (!includeLiteralsOnly || objectIsLiteral)) {
+	    		if (subjMatchesResource || (objMatchesResource && includeBothDirections)) {
 		    		//only include this if subj or object matches resource
-		    		//and it's either a literal, or we aren't filtering by literals.
 			    	TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
 		    		resourceDescription.addPropertyValue(tripleDF);		
 		    	}
 	    	}
-    	} catch (UnsupportedEncodingException ex){
+    	} catch (RMapWebException ex){
+    		throw ex;
+    	} catch (Exception ex){
     		RMapWebException.wrap(ex);
     	}
     	
@@ -378,7 +385,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    
 	    //now get resource description for each resource
 	    for (String resource : resourcesDescribed) {
-	    	ResourceDescription resDescrip = getResourceDescription(resource, triples, false, false);
+	    	ResourceDescription resDescrip = getResourceDescription(resource, triples, false);
 	    	resourceDescriptions.add(resDescrip);	    	
 	    }
 
@@ -417,7 +424,21 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			graph.addEdge(sDiscoUri, aggregate.toString(),Terms.ORE_AGGREGATES_PATH, discoNodeType, targetNodeType);
 		}
 
-		graph = addTriplesToGraph(graph, triples, discoUri);
+		List<RMapTriple> filteredTriples = new ArrayList<RMapTriple>();
+		
+		//remove literals and types from disco graph
+		for (RMapTriple triple:triples){
+			RMapIri pred = triple.getPredicate();
+			RMapValue obj = triple.getObject();
+			
+			if (!pred.toString().equals(RDF.TYPE.toString())
+					&& !(obj instanceof RMapLiteral)){
+				filteredTriples.add(triple);
+			}
+		}
+		
+		triples = null;
+		graph = addTriplesToGraph(graph, filteredTriples, discoUri);
 		
 		rmapService.closeConnection();
 		return graph;
@@ -478,29 +499,25 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 				String sourceNodeType = null;
 				String targetNodeType = null;	
 				
-				//types and literals do not go in the graph
-				if (!(object instanceof RMapLiteral) 
-						&& !(predicate.toString().equals(RDF.TYPE.toString()))) {
-				
-					//don't call database again if the subject has not changed
-					if (lastSubject!=null && lastSubject.equals(subject)){
-						sourceNodeType = lastSourceNodeType;
-					}
-					
-					if (sourceNodeType==null){
-						List <URI> sourceRdfTypes = getResourceRDFTypes(subject, contextUri);
-						sourceNodeType = WebappUtils.getNodeType(sourceRdfTypes);
-					}
-					if (object instanceof RMapIri && targetNodeType==null){
-						List <URI> targetRdfTypes = getResourceRDFTypes(new URI(object.toString()), contextUri);		
-						targetNodeType = WebappUtils.getNodeType(targetRdfTypes);			
-					}						
-					
-					graph.addEdge(subject.toString(), object.toString(), predicate.toString(), sourceNodeType, targetNodeType);
-					
-					lastSubject = subject;
-					lastSourceNodeType = sourceNodeType;
+				//don't call database again if the subject has not changed
+				if (lastSubject!=null && lastSubject.equals(subject)){
+					sourceNodeType = lastSourceNodeType;
 				}
+				
+				if (sourceNodeType==null){
+					List <URI> sourceRdfTypes = getResourceRDFTypes(subject, contextUri);
+					sourceNodeType = WebappUtils.getNodeType(sourceRdfTypes);
+				}
+				
+				if (object instanceof RMapIri && targetNodeType==null){
+					List <URI> targetRdfTypes = getResourceRDFTypes(new URI(object.toString()), contextUri);		
+					targetNodeType = WebappUtils.getNodeType(targetRdfTypes);			
+				}						
+				
+				graph.addEdge(subject.toString(), object.toString(), predicate.toString(), sourceNodeType, targetNodeType);
+				
+				lastSubject = subject;
+				lastSourceNodeType = sourceNodeType;
 			}
 			return graph;
 		}

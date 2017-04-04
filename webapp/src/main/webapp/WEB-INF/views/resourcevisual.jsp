@@ -8,17 +8,16 @@
 </head>
 <body onload="drawgraph();">
 <div class="largecontainer">
-	<div style="float:left; padding-top:10px; width:200px;">
+	<div id="visualheader">
 		<a href="<c:url value='/home'/>" id="logo">
-		<img src="<c:url value='/includes/images/rmap_logo_small.png'/>" alt="RMap logo" height="80" width="160" />
+		<img src="<c:url value='/includes/images/rmap_logo_small.png'/>" alt="RMap logo" id="rmaplogo" />
 		</a>
-	</div>	
-	<div style="padding-top:15px;">
+	</div>
+	<div>
 		<h1>RMap Resource</h1>
 		<h2>${RESOURCE.getUri()}</h2>
 	</div>
-	<a href="<c:url value='/resources/${my:httpEncodeUri(RESOURCE.getUri())}?resview=1'/>">Return to summary</a>
-	<br/>
+	<c:set var="summaryview" value="/resources/${my:httpEncodeUri(RESOURCE.getUri())}?resview=1"/>
 	<%@include file="/includes/visualViewGraph.inc" %>
 </div>
 

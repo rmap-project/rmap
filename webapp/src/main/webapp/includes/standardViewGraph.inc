@@ -1,7 +1,7 @@
 
 <!--standard embedded graph for data pages-->
 
-	<div class="graphlegend" title="Click on a node type to remove &#10;it from the visualization.">	
+	<div class="graphlegend graphcontrol" title="Click on a node type to remove &#10;it from the visualization.">	
 	 <c:forEach var="nodeType" items="${OBJECT_NODETYPES}" varStatus="loop">
 	 	<c:choose> 
 	 		<c:when test="${nodeType.getShape().equals('image')}">	 		
@@ -15,6 +15,9 @@
 	 </c:forEach>	
 	</div>
 	<div id="visualWrapperSmall">
+		<a href="<c:url value='${visualuri}'/>">
+			<div class="graphcontrol graphresize" title="View full page visualization">&nbsp;<i class="fa fa-expand"></i>&nbsp;</div>
+		</a>
 		<div id="mynetwork" class="cysmall"></div>
 		<div id="loadbar" class="loadbarSmall">
 			<div class="loadbarOuterBorder">

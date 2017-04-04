@@ -1,7 +1,7 @@
 
 <!--visual view embedded graph for data pages-->
 
-	<div class="graphlegend" title="Click on a node type to remove &#10;it from the visualization.">	
+	<div class="graphlegend graphcontrol" title="Click on a node type to remove &#10;it from the visualization.">	
 	 <c:forEach var="nodeType" items="${OBJECT_NODETYPES}" varStatus="loop">
 	 	<c:choose> 
 	 		<c:when test="${nodeType.getShape().equals('image')}">	 		
@@ -14,6 +14,9 @@
 		<div class="legendlabel label${nodeType.getName()}">${nodeType.getDisplayName()}</div>
 	 </c:forEach>
 	</div>
+	<a href="<c:url value='${summaryview}'/>">
+		<div class="graphcontrol graphresize" title="View full page visualization">&nbsp<i class="fa fa-compress"></i>&nbsp;view summary</div>
+	</a>
 	<div id="visualWrapperBig">
 	    <div id="mynetwork" class="cybig"></div>
 	    <div id="loadbar" class="loadbarBig">

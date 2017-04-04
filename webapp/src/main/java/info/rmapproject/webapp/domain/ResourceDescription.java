@@ -19,12 +19,10 @@
  *******************************************************************************/
 package info.rmapproject.webapp.domain;
 
-import info.rmapproject.webapp.exception.ErrorCode;
-import info.rmapproject.webapp.exception.RMapWebException;
-import info.rmapproject.webapp.utils.WebappUtils;
-
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -32,6 +30,10 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.model.vocabulary.RDFS;
+
+import info.rmapproject.webapp.exception.ErrorCode;
+import info.rmapproject.webapp.exception.RMapWebException;
+import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
  * Holds a description of a single Resource to support the display of the data about that Resource.
@@ -58,11 +60,18 @@ public class ResourceDescription implements Serializable {
 	 * of the Resource */
 	private Map<String, TripleDisplayFormat> propertyValues;
 	
-	/** Indicates where there may be more properties that have not been loaded into to the properties 
-	 * list. This gives a way for webpage to determine whether it should give a next option, or display
-	 * a warning that not all data is shown. **/
-	private boolean hasMoreProperties = false;
-		
+	/** Indicates where there is another batch of results available after this one **/
+	private boolean hasNext = false;
+	
+	/** Indicates there is another batch of results prior to this one. **/
+	private boolean hasPrevious = false;
+	
+	/** Position of first record in batch. **/
+	private int startPosition = 0;
+	
+	/** Position of last record in batch. **/
+	private int endPosition = 0;
+	
 	/**
 	 * Instantiates a new resource description.
 	 */
@@ -113,10 +122,10 @@ public class ResourceDescription implements Serializable {
 	/**
 	 * Retrieves the flag for whether there are more properties that weren't loaded to the ResourceDescription.
 	 *
-	 * @return the hasMoreProperties flag
+	 * @return the hasNext flag
 	 */
-	public boolean getHasMoreProperties() {
-		return hasMoreProperties;
+	public boolean hasNext() {
+		return hasNext;
 	}
 
 	/**
@@ -124,8 +133,8 @@ public class ResourceDescription implements Serializable {
 	 *
 	 * @param hasMoreProperties flag
 	 */
-	public void setHasMoreProperties(boolean hasMoreProperties) {
-		this.hasMoreProperties = hasMoreProperties;
+	public void setHasNext(boolean hasNext) {
+		this.hasNext = hasNext;
 	}
 	
 
@@ -205,6 +214,24 @@ public class ResourceDescription implements Serializable {
 		if (type!=null) {
 			String typeDisplay = WebappUtils.replaceNamespace(type);
 			this.resourceTypes.put(type, typeDisplay);
+		}
+		else {
+			throw new RMapWebException(ErrorCode.ER_RESOURCE_TYPE_NULL);
+		}		
+	}
+
+	
+	/**
+	 * Adds Resource types.
+	 *
+	 * @param tripleDF the triple display format
+	 * @throws RMapWebException the RMap web exception
+	 */
+	public void addResourceTypes(List<URI> types) throws RMapWebException {
+		if (types!=null) {
+			for (URI type:types){
+				addResourceType(type.toString());
+			}
 		}
 		else {
 			throw new RMapWebException(ErrorCode.ER_RESOURCE_TYPE_NULL);
