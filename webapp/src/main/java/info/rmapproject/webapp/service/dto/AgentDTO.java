@@ -19,14 +19,13 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service.dto;
 
-import info.rmapproject.core.model.RMapStatus;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.webapp.domain.Graph;
-
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapValue;
 
 /**
  * Used to hold the information about a Agent needed to for representation on a webpage.
@@ -46,18 +45,12 @@ public class AgentDTO {
 	
 	/** A list of Events for the Agent. */
 	private List <URI> events;
-	
-	/** List of DiSCO URIs created by the Agent. */
-	private List <URI> discos;
-	
+		
 	/** The Agent's ID provider. */
 	private String idProvider;
 	
 	/** The Agent's Auth id. */
 	private String authId;
-	
-	/** The graph representing the Agent. */
-	private Graph graph;
 	
 	/**
 	 * Gets the Agent URI.
@@ -148,29 +141,7 @@ public class AgentDTO {
 	    events.addAll(uniqueEvents);
 		this.events = events;
 	}
-	
-	/**
-	 * Gets the list of DiSCOs created by the Agent.
-	 *
-	 * @return the list of DiSCOs created by the Agent
-	 */
-	public List <URI> getDiscos() {
-		return discos;
-	}
-	
-	/**
-	 * Sets the list of DiSCOs created by the Agent.
-	 *
-	 * @param discos the new list of DiSCOs created by the Agent
-	 */
-	public void setDiscos(List <URI> discos) {
-	    Set <URI> uniqueDiSCOs = new HashSet<URI>();
-	    uniqueDiSCOs.addAll(discos);
-	    discos.clear();
-	    discos.addAll(uniqueDiSCOs);
-		this.discos = discos;
-	}
-	
+
 	/**
 	 * Gets the Agent ID provider.
 	 *
@@ -208,24 +179,6 @@ public class AgentDTO {
 	}
 	
 	/**
-	 * Gets the Agent graph.
-	 *
-	 * @return the Agent graph
-	 */
-	public Graph getGraph() {
-		return graph;
-	}
-
-	/**
-	 * Sets the Agent graph.
-	 *
-	 * @param graph the new Agent graph
-	 */
-	public void setGraph(Graph graph) {
-		this.graph = graph;
-	}
-	
-	/**
 	 * Gets the num Agent-related Events.
 	 *
 	 * @return the num events
@@ -234,14 +187,5 @@ public class AgentDTO {
 		int numEvents = events.size();
 		return numEvents;
 	}
-	
-	/**
-	 * Gets the num Agent-related DiSCOs.
-	 *
-	 * @return the num discos
-	 */
-	public int getNumDiscos() {
-		int numDiSCOs = discos.size();
-		return numDiSCOs;
-	}
+
 }

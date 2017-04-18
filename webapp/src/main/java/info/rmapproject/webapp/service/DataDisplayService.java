@@ -20,12 +20,16 @@
 package info.rmapproject.webapp.service;
 
 import java.net.URI;
+import java.util.List;
 
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.request.ResultBatch;
+import info.rmapproject.webapp.domain.Graph;
+import info.rmapproject.webapp.domain.PageStatus;
 import info.rmapproject.webapp.domain.ResourceDescription;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
 import info.rmapproject.webapp.service.dto.EventDTO;
-import info.rmapproject.webapp.service.dto.ResourceDTO;
 
 /**
  * Service to retrieve packages of data to be used in webpage display.
@@ -41,7 +45,75 @@ public interface DataDisplayService {
 	 * @return the DiSCO DTO
 	 * @throws Exception the exception
 	 */
-	public DiSCODTO getDiSCODTO(String discoUri) throws Exception;
+	public DiSCODTO getDiSCODTO(String sDiscoUri) throws Exception;
+
+	/**
+	 * Gets a graph of the DiSCO. If DiSCO too large will return null.
+	 * @param discoDTO
+	 * @return
+	 * @throws Exception
+	 */
+	public Graph getDiSCOGraph(DiSCODTO discoDTO) throws Exception;
+
+	/**
+	 * Gets list of Resource Descriptions based on DiSCO DTO. Each Resource Description represents a single resource 
+	 * from the key resources list. Matches triples based on subject only, does not batch together those whose object field matches.
+	 *
+	 * @param discoDTO the DiSCO DTO object
+	 * @param offset for large discos, this will start the list at row number offset.
+	 * @return the resource descriptions
+	 * @throws Exception the exception
+	 */
+	public List<ResourceDescription> getDiSCOTableData(DiSCODTO discoDTO, Integer offset) throws Exception;
+
+	/**
+	 * Determines page status to be used in pagination
+	 * @param triples
+	 * @param offset
+	 * @return
+	 */
+	public PageStatus getDiSCOPageStatus(List<RMapTriple> triples, Integer offset);
+	
+	/**
+	 * Get page status from result batch for use in page paginator
+	 * @param results
+	 * @param page type - graph or table
+	 * @return
+	 */
+	public PageStatus getPageStatus(ResultBatch<?> results, String pageType);
+	
+	/**
+	 * Get resource batch
+	 */
+	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, Integer offset, String view) throws Exception;
+	
+	/**
+	 * Get Resource graph for URI provided. 
+	 *
+	 * @param resourceUri the Resource URI
+	 * @return the Resource DTO
+	 * @throws Exception the exception
+	 */
+	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch) throws Exception;
+	
+	/**
+	 * Get Resource table data for URI provided. 
+	 * @param resourceUri
+	 * @param offset
+	 * @return
+	 * @throws Exception
+	 */
+	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch) throws Exception;
+		
+	/**
+	 * Retrieves list of DiSCOs that mention the resource
+	 * @param resourceUri
+	 * @param offset
+	 * @return
+	 * @throws Exception
+	 */
+	public ResultBatch<URI> getResourceRelatedDiSCOs(String resourceUri, Integer offset) throws Exception;
+	
 	
 	/**
 	 * Get Agent data package for URI provided. Data package contains elements used on web page views
@@ -53,14 +125,32 @@ public interface DataDisplayService {
 	public AgentDTO getAgentDTO(String agentUri) throws Exception;
 	
 	/**
-	 * Get Resource data package for URI provided. Data package contains elements used on web page views
+	 * Get Agent graph based on Agent DTO provided
 	 *
-	 * @param resourceUri the Resource URI
-	 * @return the Resource DTO
+	 * @param agentDTO
+	 * @return the Agent Graph
 	 * @throws Exception the exception
 	 */
-	public ResourceDTO getResourceDTO(String resourceUri) throws Exception;
-
+	public Graph getAgentGraph(AgentDTO agentDTO) throws Exception;
+	
+	/**
+	 * Get Resource table data for URI provided. 
+	 * @param resourceUri
+	 * @param offset
+	 * @return
+	 * @throws Exception
+	 */
+	public ResourceDescription getAgentTableData(AgentDTO agentDTO) throws Exception;		
+		
+	/**
+	 * Retrieve list of DiSCOs created by the Agent provided
+	 * @param agentUri
+	 * @param offset
+	 * @return result batch of URIs
+	 * @throws Exception
+	 */
+	public ResultBatch<URI>  getAgentDiSCOs(String agentUri, Integer offset) throws Exception;
+	
 	/**
 	 * Get Event data package for URI provided. Data package contains elements used on web page views
 	 *
@@ -84,20 +174,30 @@ public interface DataDisplayService {
 	 * Retrieve basic resource description only (used in popup data)
 	 *
 	 * @param resourceUri the resource URI
+	 * @param offset number of rows to offset returned recordset
 	 * @return resource description
 	 * @throws Exception the exception
 	 */
-	public ResourceDescription getResourceLiterals(String resourceUri) throws Exception;
-	
+	public ResultBatch<RMapTriple> getResourceLiterals(String resourceUri, Integer offset) throws Exception;
+
 	/**
 	 * Retrieve basic resource description only (used in popup data). Limits to a specific graph URI / context
 	 * e.g. only retrieves triples within an Agent, DiSCO or Event.
 	 *
 	 * @param resourceUri the resource URI
 	 * @param graphUri the context URI to filter the graph data by (e.g. DiSCO URI, Agent URI or Event URI).
+	 * @param offset number of rows to offset returned recordset
 	 * @return resource description
 	 * @throws Exception the exception
 	 */
-	public ResourceDescription getResourceLiteralsInContext(String resourceUri, String graphUri) throws Exception;
+	public ResultBatch<RMapTriple> getResourceLiteralsInContext(String resourceUri, String graphUri, Integer offset) throws Exception;
 	
+	
+	/**
+	 * Retrieve list of RDF types as URIs.
+	 * @param resource
+	 * @return
+	 * @throws Exception
+	 */
+	public List<URI> getResourceRDFTypes(URI resource) throws Exception;
 }

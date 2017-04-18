@@ -19,14 +19,17 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
-import info.rmapproject.webapp.service.DataDisplayService;
-import info.rmapproject.webapp.service.dto.ResourceDTO;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.request.ResultBatch;
+import info.rmapproject.webapp.service.DataDisplayService;
 
 /**
  * Tests for ResourceController class
@@ -44,12 +47,12 @@ public class ResourceControllerTest {
 	 *
 	 * @throws Exception the exception
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void testGetResourceDTO() throws Exception{
 		
 		String resourceUri = "http://dx.doi.org/10.1109/InPar.2012.6339604";	
-		ResourceDTO resourceDTO = dataDisplayService.getResourceDTO(resourceUri);
+		ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(resourceUri, 20, "table");
+		assertTrue(resultbatch.getResultList().size()>0);
 		
 	}
 

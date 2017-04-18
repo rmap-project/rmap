@@ -19,17 +19,16 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service.dto;
 
-import info.rmapproject.core.model.RMapStatus;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.webapp.domain.Graph;
-import info.rmapproject.webapp.domain.ResourceDescription;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapStatus;
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.RMapValue;
 
 /** 
  * Used to hold the information about a DiSCO needed to for representation on a webpage.
@@ -64,12 +63,9 @@ public class DiSCODTO {
 	/** The DiSCO's aggregated resources. */
 	private List <URI> aggregatedResources; 
 	
-	/** The DiSCO graph. */
-	private Graph graph;
+	/** The DiSCO's related statements as a list of RMapTriples. */
+	private List <RMapTriple> relatedStatements; 
 	
-	/** The resource descriptions. */
-	private List<ResourceDescription> resourceDescriptions;
-
 	/**
 	 * Gets the DiSCO URI.
 	 *
@@ -311,40 +307,21 @@ public class DiSCODTO {
 	}
 	
 	/**
-	 * Gets the DiSCO's resource descriptions.
+	 * Gets the DiSCO's related statements
 	 *
-	 * @return the DiSCO's resource descriptions
+	 * @return the DiSCO's related resources
 	 */
-	public List<ResourceDescription> getResourceDescriptions() {
-		return resourceDescriptions;
+	public List<RMapTriple> getRelatedStatements() {
+		return relatedStatements;
 	}
 	
 	/**
-	 * Sets the DiSCO's resource descriptions.
+	 * Sets the DiSCO's related statements
 	 *
-	 * @param resourceDescriptions the DiSCO's new resource descriptions
+	 * @param aggregatedResources the new list of related statements
 	 */
-	public void setResourceDescriptions(
-			List<ResourceDescription> resourceDescriptions) {
-		this.resourceDescriptions = resourceDescriptions;
-	}
-
-	/**
-	 * Gets the DiSCO graph.
-	 *
-	 * @return the DiSCO graph
-	 */
-	public Graph getGraph() {
-		return graph;
-	}
-
-	/**
-	 * Sets the DiSCO graph.
-	 *
-	 * @param graph the new DiSCO graph
-	 */
-	public void setGraph(Graph graph) {
-		this.graph = graph;
-	}
-		
+	public void setRelatedStatements(List<RMapTriple> relatedStatements) {
+		this.relatedStatements = relatedStatements;
+	}	
+	
 }

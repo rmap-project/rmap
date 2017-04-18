@@ -1,4 +1,3 @@
-<%@ tag body-content="empty" %> 
 <%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <%@ attribute name="link" rtexprvalue="true" required="true" type="java.lang.String" description="URI to form link from" %> 

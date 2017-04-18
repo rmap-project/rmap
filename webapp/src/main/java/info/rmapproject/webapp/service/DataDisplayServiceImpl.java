@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,19 @@
 package info.rmapproject.webapp.service;
 
 import java.net.URI;
-import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapIri;
@@ -57,13 +57,14 @@ import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.ConfigUtils;
 import info.rmapproject.core.utils.Terms;
 import info.rmapproject.webapp.domain.Graph;
+import info.rmapproject.webapp.domain.PageStatus;
 import info.rmapproject.webapp.domain.ResourceDescription;
 import info.rmapproject.webapp.domain.TripleDisplayFormat;
 import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
 import info.rmapproject.webapp.service.dto.EventDTO;
-import info.rmapproject.webapp.service.dto.ResourceDTO;
+import info.rmapproject.webapp.utils.Constants;
 import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
@@ -73,7 +74,6 @@ import info.rmapproject.webapp.utils.WebappUtils;
  */
 
 @Service("dataDisplayService")
-@Transactional
 public class DataDisplayServiceImpl implements DataDisplayService {
 
 	//private static final Logger logger = LoggerFactory.getLogger(DiSCOServiceImpl.class);
@@ -87,6 +87,24 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	/** The Agent Node Type. */
 	private String agentNodeType;
 	
+	/** Max relationships in an object graph to display*/
+	private int maxObjGraphRelationships=60;
+
+	/** Max relationships in a resource graph to display*/
+	private int maxResGraphRelationships=50;
+	
+	/** Max Agent DiSCOs to display on Agent page*/
+	private int maxAgentDiSCOs = 50;
+	
+	/** Max number of table rows to display on one page*/
+	private int maxTableRows = 50;
+
+	/** Max number of resource related DiSCOs to display on one page*/
+	private int maxResRelatedDiSCOs = 20;
+	
+	/** Max number of rows to show in node info popup **/
+	private int maxNodeInfoRows = 8;
+		
 	/**
 	 * Instantiates a new data display service implementation.
 	 *
@@ -105,6 +123,38 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			discoNodeType = "Undefined";
 			agentNodeType = "Undefined";
 		}
+		
+		String maxObjGraphRelationships = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_OBJECT_GRAPH_RELATIONSHIPS_PROPKEY);
+		if (maxObjGraphRelationships!=null && maxObjGraphRelationships.length()>0){
+			this.maxObjGraphRelationships =  Integer.parseInt(maxObjGraphRelationships);
+		}
+		
+		String maxResGraphRelationships = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_RESOURCE_GRAPH_RELATIONSHIPS_PROPKEY);
+		if (maxResGraphRelationships!=null && maxResGraphRelationships.length()>0){
+			this.maxResGraphRelationships =  Integer.parseInt(maxResGraphRelationships);
+		}
+
+		String maxAgentDiSCOs = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_AGENT_DISCOS_PROPKEY);
+		if (maxAgentDiSCOs!=null && maxAgentDiSCOs.length()>0){
+			this.maxAgentDiSCOs =  Integer.parseInt(maxAgentDiSCOs);
+		}
+		
+		String maxTableRows = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_TABLE_ROWS_PROPKEY);
+		if (maxTableRows!=null && maxTableRows.length()>0){
+			this.maxTableRows =  Integer.parseInt(maxTableRows);
+		}
+		
+		String maxResRelatedDiSCOs = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_RESOURCE_RELATED_DISCOS_PROPKEY);
+		if (maxResRelatedDiSCOs!=null && maxResRelatedDiSCOs.length()>0){
+			this.maxResRelatedDiSCOs =  Integer.parseInt(maxResRelatedDiSCOs);
+		}
+		
+		String maxNodeInfoRows = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_NODE_INFO_ROWS_PROPKEY);
+		if (maxNodeInfoRows!=null && maxNodeInfoRows.length()>0){
+			this.maxNodeInfoRows =  Integer.parseInt(maxNodeInfoRows);
+		}
+		
+				
 	}
 		
 	/* (non-Javadoc)
@@ -114,8 +164,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	public DiSCODTO getDiSCODTO(String sDiscoUri) throws Exception {
 				
 		DiSCODTO discoDTO = new DiSCODTO();
-		
-		sDiscoUri = URLDecoder.decode(sDiscoUri, "UTF-8");
 		
 		URI discoUri = new URI(sDiscoUri);	
 		discoDTO.setUri(discoUri);
@@ -133,17 +181,286 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		discoDTO.setStatus(rmapService.getDiSCOStatus(discoUri));
 		discoDTO.setEvents(rmapService.getDiSCOEvents(discoUri));
     	discoDTO.setAggregatedResources(aggregatedResources);
-    	
-	    List <RMapTriple> triples = disco.getRelatedStatements();    
+	    discoDTO.setRelatedStatements(disco.getRelatedStatements());
 	    
-	    Graph graph = createDiSCOGraph(discoUri, discoDTO.getCreator(), aggregatedResources, triples);	  
-	    discoDTO.setGraph(graph);
-	    
-	    List<ResourceDescription> resourceDescriptions = getResourceDescriptions(aggregatedResources, triples);
-	    discoDTO.setResourceDescriptions(resourceDescriptions);
-
 	    rmapService.closeConnection();
-		return discoDTO;
+		return discoDTO;		
+	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#createDiSCOGraph(...)
+	 */
+	public Graph getDiSCOGraph(DiSCODTO discoDTO) throws Exception {
+		Graph graph = new Graph();
+		String sDiscoUri = discoDTO.getUri().toString();
+						
+		if (discoDTO.getCreator().length()>0) {
+			graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
+		}
+
+		RMapSearchParams params = new RMapSearchParams();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		
+		for (URI aggregate : discoDTO.getAggregatedResources()) {
+			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(aggregate, discoDTO.getUri());
+			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
+			graph.addEdge(sDiscoUri, aggregate.toString(),Terms.ORE_AGGREGATES_PATH, discoNodeType, targetNodeType);
+		}
+
+		List<RMapTriple> filteredTriples = new ArrayList<RMapTriple>();
+		
+		List<RMapTriple> triples = discoDTO.getRelatedStatements();
+		//remove literals and types from disco graph
+		for (RMapTriple triple:triples){
+			RMapIri pred = triple.getPredicate();
+			RMapValue obj = triple.getObject();
+			
+			if (!pred.toString().equals(RDF.TYPE.toString())
+					&& !(obj instanceof RMapLiteral)){
+				filteredTriples.add(triple);
+			}
+		}
+		
+		triples = null;
+
+		if ((filteredTriples.size()+graph.getEdges().size())<=maxObjGraphRelationships){
+			graph = addTriplesToGraph(graph, filteredTriples, discoDTO.getUri());
+		} else {
+			//don't do graph because it's too large and will just be an unbearable mess!!
+			graph = null;
+		}
+		rmapService.closeConnection();
+		return graph;
+	}	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getDiSCOTableData(java.lang.String, java.lang.Integer)
+	 */
+	public List<ResourceDescription> getDiSCOTableData(DiSCODTO discoDTO, Integer offset) throws Exception {
+
+		List<URI> aggregatedResources = discoDTO.getAggregatedResources(); 
+		List<RMapTriple> triples = discoDTO.getRelatedStatements(); 
+		
+	    List<ResourceDescription> resourceDescriptions = new ArrayList<ResourceDescription>();
+	    
+	    //first put other resources into an ordered sets (TreeSet)
+	    Set<String> nonAggregatedResourcesDescribed = new TreeSet<String>();
+	    for (RMapTriple stmt:triples) {
+	    	nonAggregatedResourcesDescribed.add(stmt.getSubject().toString());
+	    }
+	    
+	    Set<String> aggregatedResourcesDescribed = new TreeSet<String>();
+	    for (URI aggregate : aggregatedResources) {
+	    	aggregatedResourcesDescribed.add(aggregate.toString());
+	    }
+	    
+	    //Now put into a list that will maintain ordering (LinkedHashSet). 
+	    //we want the aggregates list first then other resources
+	    Set<String> resourcesDescribed = new LinkedHashSet<String>();
+	    resourcesDescribed.addAll(aggregatedResourcesDescribed);
+	    resourcesDescribed.addAll(nonAggregatedResourcesDescribed);
+	    
+	    int position = 0;
+	    int count = 0;
+	    int remainingRows = maxTableRows;
+	    
+	    //now get resource description for each resource, truncate according to offset and max rows
+	    for (String resource : resourcesDescribed) {	    	
+	    	ResourceDescription resDescrip = getObjectResourceDescription(resource, triples);  	
+	    	Map<String, TripleDisplayFormat> tripleMap = resDescrip.getPropertyValues(); 
+	    	//keep getting new resource descriptions til we hit the offset
+	    	if (position < offset) {
+	    		if (tripleMap.size() <= offset){
+	    			position = position + tripleMap.size();
+	    			tripleMap.clear();
+	    		} else {
+	    			position = offset;
+	    			tripleMap.keySet().removeAll(Arrays.asList(tripleMap.keySet().toArray()).subList(0, offset-1));
+	    		}
+	    	} 
+	    	//once we're at offset, keep adding resdes until we reach max
+	    	if (position >= offset) {
+		    	if (tripleMap.size()>remainingRows) {
+		    		Map<String, TripleDisplayFormat> truncatedMap = new HashMap<String,TripleDisplayFormat>();
+		    		for (Map.Entry<String, TripleDisplayFormat> entry:tripleMap.entrySet()) {
+		    		     if (count >= remainingRows) break;
+		    		     truncatedMap.put(entry.getKey(), entry.getValue());
+		    		     count++;
+		    		  }
+		    		resDescrip.setPropertyValues(truncatedMap);
+		    		remainingRows=0;
+		    	} else {
+		    		remainingRows= remainingRows - tripleMap.size();
+		    	}
+	    	resourceDescriptions.add(resDescrip);	
+	    	}    
+	    	if (remainingRows==0){break;}
+	    }
+
+	    return resourceDescriptions;
+	}
+		
+	public PageStatus getDiSCOPageStatus(List<RMapTriple> triples, Integer offset) {
+	    PageStatus pageStatus = new PageStatus();
+	    List<RMapTriple> triplesNoTypes = new ArrayList<RMapTriple>();
+	    for (RMapTriple triple : triples){
+	    	if (!triple.getPredicate().toString().equals(RDF.TYPE.toString())) {
+	    		triplesNoTypes.add(triple);
+	    	}
+	    }
+	    
+	    if (offset==null){offset=0;}
+	    boolean hasNext = triplesNoTypes.size()>(offset + maxTableRows);
+	    boolean hasPrevious = offset>0;
+	    int endposition = triplesNoTypes.size();
+		if ((offset+maxTableRows)<triplesNoTypes.size()) {
+			endposition = offset+maxTableRows;
+		}
+		pageStatus.setHasNext(hasNext);
+		pageStatus.setHasPrevious(hasPrevious);
+		pageStatus.setStartPosition(offset+1);
+		pageStatus.setEndPosition(endposition);  
+		pageStatus.setSize(triplesNoTypes.size());
+		pageStatus.setLimit(maxTableRows);
+		return pageStatus;
+	}
+	
+	/**
+	 * Generate resource description for resource based on triples provided. Assumes all triples have been returned, unlike for
+	 * plain resource description where it may be truncate Truncation happens here instead. Will filter out triples that
+	 * do not have a subject URI that matches the resource in question.
+	 * @param resource
+	 * @param triples 
+	 * @return resource description
+	 */
+	private ResourceDescription getObjectResourceDescription(String resource, List<RMapTriple> triples) throws RMapWebException{
+    	//start new resource description
+    	ResourceDescription rd = new ResourceDescription(resource);	  
+    	
+    	try {
+    		List<URI> resourceTypes = getResourceRDFTypes(new URI(resource));
+    		rd.addResourceTypes(resourceTypes);
+    		    		
+    		for (RMapTriple triple : triples) { 
+	    		boolean subjMatchesResource = triple.getSubject().toString().equals(resource.toString());
+	    		boolean predIsRdfType = triple.getPredicate().toString().equals(RDF.TYPE.toString());
+	    		
+	    		if (subjMatchesResource && !predIsRdfType) {
+		    		//only include this if subj matches resource and isn't a type, types are displayed separately
+			    	TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
+		    		rd.addPropertyValue(tripleDF);		
+		    	}
+	    	}
+    	} catch (RMapWebException ex){
+    		throw ex;
+    	} catch (Exception ex){
+    		RMapWebException.wrap(ex);
+    	}
+    	
+    	return rd;
+	}
+	
+	
+	
+	
+	
+	/*************************************************************
+	 * RESOURCE PATH METHODS
+	 */
+	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceBatch(java.lang.String, java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, Integer offset, String view) throws Exception {
+		URI uri = new URI(resourceUri);
+
+		RMapSearchParams params = new RMapSearchParams();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		params.setExcludeTypes(true);	
+		params.setOffset(offset);
+		if (view.equals("graph")){
+			params.setExcludeLiterals(true);	
+			params.setLimit(maxResGraphRelationships);
+		} else {
+			params.setLimit(maxTableRows);
+		}
+		
+		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uri, params);
+    	
+		//if there are no triples, don't load an empty screen, show a not found error.
+		//note that because only connected graphs are allowed, every URI should have at
+		//least one uri link.
+    	if (triplebatch.size()==0)	{
+    		throw new RMapObjectNotFoundException();
+    	}
+    	return triplebatch;
+	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceGraph(info.rmapproject.core.model.request.ResultBatch<RMapTriple>)
+	 */
+	@Override
+	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch) throws Exception {
+		Graph graph = new Graph();
+		graph = addTriplesToGraph(graph, triplebatch.getResultList());  	
+		rmapService.closeConnection();
+		return graph;
+	    
+	}
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceTableData(java.lang.String, info.rmapproject.core.model.request.ResultBatch<RMapTriple>)
+	 */
+	@Override
+	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch) throws Exception {
+		ResourceDescription rd = getResourceDescription(resourceUri, triplebatch, true);
+	    rmapService.closeConnection();
+		return rd;
+	}			
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceRelatedDiSCOs(java.lang.String, java.lang.Integer)
+	 */
+	@Override
+	public ResultBatch<URI> getResourceRelatedDiSCOs(String resourceUri, Integer offset) throws Exception {
+		RMapSearchParams params = new RMapSearchParams();
+		params.setLimit(maxResRelatedDiSCOs);
+		params.setOffset(offset);
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		ResultBatch<URI> relatedDiSCOs = rmapService.getResourceRelatedDiSCOs(new URI(resourceUri), params);
+		return relatedDiSCOs;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getPageStatus(info.rmapproject.core.model.request.ResultBatch<?>)
+	 */
+	@Override
+	public PageStatus getPageStatus(ResultBatch<?> results, String pageType) {
+		PageStatus pageStatus = new PageStatus();
+		pageStatus.setHasNext(results.hasNext());
+		pageStatus.setHasPrevious(results.hasPrevious());
+		pageStatus.setStartPosition(results.getStartPosition());
+		pageStatus.setEndPosition(results.getEndPosition());  
+		pageStatus.setSize(results.getResultList().size());
+		if (pageType.equals("resource_graph")) {
+			pageStatus.setLimit(this.maxResGraphRelationships);
+		} else if (pageType.equals("resource_table")){
+			pageStatus.setLimit(this.maxTableRows);
+		} else if (pageType.equals("resource_discos")){
+			pageStatus.setLimit(this.maxResRelatedDiSCOs);
+		} else if (pageType.equals("agent_discos")) {
+			pageStatus.setLimit(this.maxAgentDiSCOs);
+		} else if (pageType.equals("node_info")) {
+			pageStatus.setLimit(this.maxNodeInfoRows);
+		} else {
+			pageStatus.setLimit(this.maxResGraphRelationships);
+		}
+		
+		
+		return pageStatus;
 	}
 
 
@@ -155,7 +472,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 				
 		AgentDTO agentDTO = new AgentDTO();
 		
-		sAgentUri = URLDecoder.decode(sAgentUri, "UTF-8");
 		URI agentUri = new URI(sAgentUri);	
 		agentDTO.setUri(agentUri);
 		
@@ -165,18 +481,43 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		agentDTO.setEvents(rmapService.getAgentEvents(agentUri));
 		agentDTO.setIdProvider(agent.getIdProvider().getStringValue());
 		agentDTO.setAuthId(agent.getAuthId().getStringValue());
-		
-		RMapSearchParams params = new RMapSearchParams();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
-		agentDTO.setDiscos(rmapService.getAgentDiSCOs(agentUri, params).getResultList());
-		
-	    Graph graph = createAgentGraph(agentUri,  agentDTO.getName(),  agentDTO.getIdProvider(), agentDTO.getAuthId());	  
-	    agentDTO.setGraph(graph);
-	    	  	    	    
+			    	  	    	    
 	    rmapService.closeConnection();
 		
 		return agentDTO;
 	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getAgentDTO(info.rmapproject.webapp.service.dto.AgentDTOg)
+	 */
+	@Override
+	public Graph getAgentGraph(AgentDTO agentDTO) throws Exception{
+		Graph graph = new Graph();
+		String sAgentUri = agentDTO.getUri().toString();
+		
+		graph.addEdge(sAgentUri, agentDTO.getIdProvider(),Terms.RMAP_IDENTITYPROVIDER_PATH, agentNodeType, agentNodeType);
+		graph.addEdge(sAgentUri, agentDTO.getAuthId(),Terms.RMAP_USERAUTHID_PATH, agentNodeType, WebappUtils.getNodeType(new URI(Terms.RMAP_USERAUTHID_PATH)));
+
+		return graph;			
+	}
+
+	public ResourceDescription getAgentTableData(AgentDTO agentDTO) throws Exception {
+		ResourceDescription rd = new ResourceDescription();
+		
+		return rd;
+	}
+	
+	
+	public ResultBatch<URI> getAgentDiSCOs(String agentUri, Integer offset) throws Exception {
+		RMapSearchParams params = new RMapSearchParams();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);	   
+		params.setOffset(offset);
+		params.setLimit(maxAgentDiSCOs);
+	    rmapService.closeConnection();
+		ResultBatch<URI> agentDiSCOs = rmapService.getAgentDiSCOs(new URI(agentUri), params);
+		return agentDiSCOs;
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.webapp.service.DataDisplayService#getEventDTO(java.lang.String)
@@ -185,7 +526,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			
 		EventDTO eventDTO = new EventDTO();
 
-		sEventUri = URLDecoder.decode(sEventUri, "UTF-8");
 		URI eventUri = new URI(sEventUri);
 		eventDTO.setUri(eventUri);
 		
@@ -210,58 +550,12 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    return eventDTO;
 	}
 	
-	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceDTO(java.lang.String)
-	 */
-	public ResourceDTO getResourceDTO(String sResourceUri) throws Exception{
-		ResourceDTO resourceDTO = new ResourceDTO();
-
-		sResourceUri = URLDecoder.decode(sResourceUri, "UTF-8");
-
-		URI resourceUri = new URI(sResourceUri);
-		resourceDTO.setUri(resourceUri);
-
-		RMapSearchParams params = new RMapSearchParams();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
-		params.setExcludeLiterals(true);
-		params.setExcludeTypes(true);
-		
-		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(resourceUri, params);
-    	
-		//if there are no triples, don't load an empty screen, show a not found error.
-		//note that because only connected graphs are allowed, every URI should have at
-		//least one uri link.
-    	if (triplebatch.size()==0)	{
-    		throw new RMapObjectNotFoundException();
-    	}
-
-    	List<RMapTriple> triples = triplebatch.getResultList();
-    	
-    	//generate resource description
-    	ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, true);	    
-    	    		
-	    resourceDTO.setResourceDescription(resourceDescription);
-	    
-	    ResultBatch<URI> relatedDiscoBatch = rmapService.getResourceRelatedDiSCOs(resourceUri, params);
-	    resourceDTO.setRelatedDiSCOs(relatedDiscoBatch.getResultList());
-	    
-	    //used to create visual graph
-
-	    Graph graph = new Graph();
-		graph = addTriplesToGraph(graph, triples);  
-	    resourceDTO.setGraph(graph);
-	    	    
-	    rmapService.closeConnection();
-		return resourceDTO;
-	}
-	
-	
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLiterals(java.lang.String)
 	 */
-	public ResourceDescription getResourceLiterals(String resourceUri) throws Exception{
-		resourceUri = URLDecoder.decode(resourceUri, "UTF-8");
+	public ResultBatch<RMapTriple> getResourceLiterals(String resourceUri, Integer offset) throws Exception{
+
 		URI uri = new URI(resourceUri);
 		
 		RMapSearchParams params = new RMapSearchParams();
@@ -270,24 +564,21 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 				info.rmapproject.core.utils.Constants.MAX_QUERY_LIMIT_KEY));
 		params.setExcludeIRIs(true);
 		params.setExcludeTypes(true);
+		params.setOffset(offset);
+		params.setLimit(maxNodeInfoRows);
 		
 		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uri, params);
-		List<RMapTriple> triples = triplebatch.getResultList(); 
-		
-		ResourceDescription resourceDescription = getResourceDescription(resourceUri, triples, false);
-		
-		
+				
 		rmapService.closeConnection();
-		return resourceDescription;
+		return triplebatch;
 	}
 	
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLiteralsInContext(java.lang.String,java.lang.String)
 	 */
-	public ResourceDescription getResourceLiteralsInContext(String sResourceUri, String sGraphUri) throws Exception{
-		sResourceUri = URLDecoder.decode(sResourceUri, "UTF-8");
-		sGraphUri = URLDecoder.decode(sGraphUri, "UTF-8");
+	public ResultBatch<RMapTriple> getResourceLiteralsInContext(String sResourceUri, String sGraphUri, Integer offset) throws Exception{
+
 		URI resourceUri = new URI(sResourceUri);
 		URI graphUri = new URI(sGraphUri);
 		
@@ -296,14 +587,16 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 									info.rmapproject.core.utils.Constants.MAX_QUERY_LIMIT_KEY));
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setExcludeIRIs(true);
+		params.setOffset(offset);
+		params.setLimit(maxNodeInfoRows);
 		
 		ResultBatch<RMapTriple> resultbatch = rmapService.getResourceRelatedTriples(resourceUri, graphUri, params);
-		List<RMapTriple> triples = resultbatch.getResultList();
-		ResourceDescription resourceDescription = getResourceDescription(sResourceUri, triples, false);
 		rmapService.closeConnection();
-		return resourceDescription;
+		return resultbatch;
 	}
 	
+	
+
 	
 	
 	/**
@@ -314,15 +607,17 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 * @param includeBothDirections - true when matching resource based on subject or object. False for subject matching only.
 	 * @return resource description
 	 */
-	private ResourceDescription getResourceDescription(String resource, List<RMapTriple> triples, boolean includeBothDirections) throws RMapWebException{
+	private ResourceDescription getResourceDescription(String resource, ResultBatch<RMapTriple> triplebatch, boolean includeBothDirections) throws RMapWebException{
 
     	//start new resource description
-    	ResourceDescription resourceDescription = new ResourceDescription(resource.toString());	  
+    	ResourceDescription rd = new ResourceDescription(resource);	  
     	
     	try {
 
     		List<URI> resourceTypes = getResourceRDFTypes(new URI(resource));
-    		resourceDescription.addResourceTypes(resourceTypes);
+    		rd.addResourceTypes(resourceTypes);
+    		
+    		List<RMapTriple> triples = triplebatch.getResultList();    		
     		
     		for (RMapTriple triple : triples) { 
 	    		boolean objectIsLiteral = (triple.getObject() instanceof RMapLiteral);
@@ -332,7 +627,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    		if (subjMatchesResource || (objMatchesResource && includeBothDirections)) {
 		    		//only include this if subj or object matches resource
 			    	TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
-		    		resourceDescription.addPropertyValue(tripleDF);		
+		    		rd.addPropertyValue(tripleDF);		
 		    	}
 	    	}
     	} catch (RMapWebException ex){
@@ -341,131 +636,11 @@ public class DataDisplayServiceImpl implements DataDisplayService {
     		RMapWebException.wrap(ex);
     	}
     	
-    	return resourceDescription;
+    	return rd;
 	}
 	
-	
-	
-	/**
-	 * Gets the resource descriptions.
-	 *
-	 * @param keyResource the key resource
-	 * @param triples the triples
-	 * @return the resource descriptions
-	 * @throws Exception the exception
-	 */
-	@SuppressWarnings("unused")
-	private List<ResourceDescription> getResourceDescriptions(URI keyResource, List<RMapTriple> triples) throws Exception  {
-		List<URI> keyResources = new ArrayList<URI>();
-		keyResources.add(keyResource);
-		return getResourceDescriptions(keyResources, triples);		
-	}
+		
 
-	/**
-	 * Gets list of Resource Descriptions based on key resource list. Each Resource Description represents a single resource 
-	 * from the key resources list. Matches triples based on subject only, does not batch together those whose object field matches.
-	 *
-	 * @param keyResources the key resources
-	 * @param triples the triples
-	 * @return the resource descriptions
-	 * @throws Exception the exception
-	 */
-	private List<ResourceDescription> getResourceDescriptions(List<URI> keyResources, List<RMapTriple> triples) throws Exception {
-		
-	    List<ResourceDescription> resourceDescriptions = new ArrayList<ResourceDescription>();
-
-	    //first extract unique list of resources mentioned in subject	
-	    Set<String> resourcesDescribed = new LinkedHashSet<String>();
-	    for (URI aggregate : keyResources) {
-	    	resourcesDescribed.add(aggregate.toString());
-	    }
-	    for (RMapTriple stmt:triples) {
-	    	resourcesDescribed.add(stmt.getSubject().toString());
-	    }
-	    
-	    //now get resource description for each resource
-	    for (String resource : resourcesDescribed) {
-	    	ResourceDescription resDescrip = getResourceDescription(resource, triples, false);
-	    	resourceDescriptions.add(resDescrip);	    	
-	    }
-
-	    return resourceDescriptions;
-	}
-	
-	
-	/**
-	 * Creates the DiSCO graph.
-	 *
-	 * @param discoUri the DiSCO URI
-	 * @param discoDescription the DiSCO description
-	 * @param discoCreator the DiSCO creator
-	 * @param aggregatedResources the aggregated resources
-	 * @param triples the triples
-	 * @return the graph
-	 * @throws Exception the exception
-	 */
-	private Graph createDiSCOGraph(URI discoUri, 
-			String discoCreator,
-			List<URI> aggregatedResources,
-			List<RMapTriple> triples) throws Exception {
-		Graph graph = new Graph();
-		String sDiscoUri = discoUri.toString();
-						
-		if (discoCreator.length()>0) {
-			graph.addEdge(sDiscoUri, discoCreator, DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
-		}
-
-		RMapSearchParams params = new RMapSearchParams();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
-		
-		for (URI aggregate : aggregatedResources) {
-			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(aggregate, discoUri);
-			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
-			graph.addEdge(sDiscoUri, aggregate.toString(),Terms.ORE_AGGREGATES_PATH, discoNodeType, targetNodeType);
-		}
-
-		List<RMapTriple> filteredTriples = new ArrayList<RMapTriple>();
-		
-		//remove literals and types from disco graph
-		for (RMapTriple triple:triples){
-			RMapIri pred = triple.getPredicate();
-			RMapValue obj = triple.getObject();
-			
-			if (!pred.toString().equals(RDF.TYPE.toString())
-					&& !(obj instanceof RMapLiteral)){
-				filteredTriples.add(triple);
-			}
-		}
-		
-		triples = null;
-		graph = addTriplesToGraph(graph, filteredTriples, discoUri);
-		
-		rmapService.closeConnection();
-		return graph;
-		}	
-		
-		/**
-		 * Creates the Agent graph.
-		 *
-		 * @param agentUri the Agent URI
-		 * @param agentName the Agent name
-		 * @param idProvider the ID provider
-		 * @param authId the auth ID
-		 * @return the graph
-		 * @throws Exception the exception
-		 */
-		private Graph createAgentGraph(URI agentUri, 
-				String agentName,
-				String idProvider,
-				String authId) throws Exception {
-	
-			Graph graph = new Graph();
-			String sAgentUri = agentUri.toString();
-			
-			graph.addEdge(sAgentUri, idProvider,Terms.RMAP_IDENTITYPROVIDER_PATH, agentNodeType, agentNodeType);
-			graph.addEdge(sAgentUri, authId,Terms.RMAP_USERAUTHID_PATH, agentNodeType, WebappUtils.getNodeType(new URI(Terms.RMAP_USERAUTHID_PATH)));
-			return graph;
-		}	
 			
 		/**
 		 * Adds triples to the graph.
@@ -548,7 +723,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		 * @return the Resource RDF types
 		 * @throws Exception the exception
 		 */
-		private List<URI> getResourceRDFTypes(URI resource) throws Exception{
+		public List<URI> getResourceRDFTypes(URI resource) throws Exception{
 			List<URI> rdfTypes = new ArrayList<URI>();
 			
 			RMapSearchParams params=new RMapSearchParams();
@@ -683,6 +858,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			//otherwise
 			return "";
 		}
-				
+
 		
 }

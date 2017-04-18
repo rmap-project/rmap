@@ -1,15 +1,15 @@
-<script>
+<script onload="drawgraph();">
 
 var nodes, edges, network;
 
 function drawgraph(){
 	nodes = new vis.DataSet([
-			 <c:forEach var="node" items="${OBJECT_NODES}" varStatus="loop">
+			 <c:forEach var="node" items="${nodes}" varStatus="loop">
 			 {id: ${node.getId()}, title: '${my:ellipsize(node.getName(),50)}<br/><em>Click to see info</em>', uri: '${node.getName()}', label: '${node.getShortname()}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
 	edges = new vis.DataSet([
-			 <c:forEach var="edge" items="${OBJECT_EDGES}" varStatus="loop">
+			 <c:forEach var="edge" items="${edges}" varStatus="loop">
 			 {from: ${edge.getSource()}, to: ${edge.getTarget()}, title:'${edge.getLabel()}', label:'${edge.getShortlabel()}', arrows:'to', targetgroup:'${edge.getTargetNodeType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
@@ -54,7 +54,7 @@ function drawgraph(){
 				  keyboard: true
 				},
 	        groups: {
-				 <c:forEach var="nodeType" items="${OBJECT_NODETYPES}" varStatus="loop">
+				 <c:forEach var="nodeType" items="${nodeTypes}" varStatus="loop">
 				 	${nodeType.getName()}: {
 				 		shape: '${nodeType.getShape()}',
 				 		image: '<c:url value="${nodeType.getImage()}"/>',
@@ -71,13 +71,14 @@ function drawgraph(){
 		var linkpopup = document.getElementById('nodeInfoPopup');
 		nodes.forEach(function (node) {
 		  if (node.id==params.nodes && node.group!='Literal' && node.group!='Type'){
-			  var nodeinfopath = "<c:url value='/nodeinfo/'/>" + encodeURIComponent(node.uri);
+			  var nodeinfopath = "<c:url value='/resources/'/>" + encodeURIComponent(node.uri) + "/nodeinfo";
 			  var url = window.location.href;
 			  
-			  if (url.indexOf("/resources/")==-1){ //if we are not on a resources page!
-				  nodeinfopath = nodeinfopath + "/" + encodeURIComponent("${RESOURCEURI.toString()}");
+			  if (url.indexOf("/resources/")==-1){ 
+				  //if we are not on a resources page need to also pass in the context URI
+				  nodeinfopath = nodeinfopath + "/" + encodeURIComponent("${resourceUri}");
 			  }
-			  nodeinfopath = nodeinfopath + "?viewmode=" + "${VIEWMODE}";
+			  nodeinfopath = nodeinfopath + "?view=" + "${VIEWMODE}&offset=0&referer=" + url;
 			  
 			  $.get(nodeinfopath, function( data ) {
 				  linkpopup.style.visibility = "visible";
@@ -85,10 +86,9 @@ function drawgraph(){
 				  linkpopup.style.position = 'absolute';
 				  linkpopup.style.left = params.pointer.DOM.x + "px";
 				  linkpopup.style.top = params.pointer.DOM.y + "px";
+				  linkpopup.dataset.nodeUri = node.uri;
 				  found = true;
-				  loadFirstProps();
-				});
-			  
+				});			  
 		    }
 		});
 		if (!found) {
@@ -171,79 +171,4 @@ function addNodeType(type){
 	});
 }
 
-
-//popup node info controls
-var nodeinfoLimit = 8;
-var nodeinfoOffset = 0;
-
-
-function showNext() {
-	hideAll();
-	nodeinfoOffset = nodeinfoOffset+nodeinfoLimit;
-	var listData = Array.prototype.slice.call(document.querySelectorAll('#properties li:not(.shown)')).slice(nodeinfoOffset, nodeinfoOffset+nodeinfoLimit);
-	for (var i=0; i < listData.length; i++)  {
-		listData[i].className  = 'shown';
-	  }
-	switchButtons();
-}
-
-function showPrevious() {
-	hideAll();
-	nodeinfoOffset = nodeinfoOffset-nodeinfoLimit;
-	var listData = Array.prototype.slice.call(document.querySelectorAll('#properties li:not(.shown)')).slice(nodeinfoOffset, nodeinfoOffset+nodeinfoLimit);
-	for (var i=0; i < listData.length; i++)	{
-		listData[i].className  = 'shown';
-	}
-	switchButtons();
-}
-
-function hideAll() {
-	var listData = Array.prototype.slice.call(document.querySelectorAll('#properties li:not(.hiddenproperty)')).slice(-nodeinfoLimit);
-	for (var i=0; i < listData.length; i++)  {
-		listData[i].className  = 'hiddenproperty';
-	}
-}
-
-
-function switchButtons() {
-	var listLength = Array.prototype.slice.call(document.querySelectorAll('#properties li')).length;
-	var currLastRow = nodeinfoOffset+nodeinfoLimit;
-		
-	if(currLastRow>=listLength) {
-		document.getElementsByClassName('next')[0].style.display = 'none';
-	}
-	else	{
-		document.getElementsByClassName('next')[0].style.display = 'block';
-	}
-		
-	if(currLastRow==nodeinfoLimit){
-		document.getElementsByClassName('previous')[0].style.display = 'none';
-	}
-	else {
-		document.getElementsByClassName('previous')[0].style.display = 'block';
-	}
-}
-
-function loadFirstProps() {
-	nodeinfoOffset=0;
-	var listData = Array.prototype.slice.call(document.querySelectorAll('#properties li:not(.shown)')).slice(nodeinfoOffset, nodeinfoOffset+nodeinfoLimit);
-	for (var i=0; i < listData.length; i++)  {
-		listData[i].className  = 'shown';
-	  }
-	switchButtons();
-}
-
-
-
 </script>
-<style>
-
-
-<c:forEach var="nodeType" items="${OBJECT_NODETYPES}" varStatus="loop">
-	<c:if test="${!nodeType.getShape().equals('image')}">
-		.legend${nodeType.getName()} {
-			background: ${nodeType.getColor()};
-			}
-	</c:if>
-</c:forEach>	
-</style>

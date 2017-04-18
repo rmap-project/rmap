@@ -20,7 +20,6 @@
 package info.rmapproject.webapp.domain;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import org.jsoup.Jsoup;
 
@@ -29,11 +28,12 @@ import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.webapp.utils.Constants;
 import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
  * Used to hold the details of triples relevant to display them in the webpage
+ * Provides opportunity to manipulate values before they are displayed e.g. to truncate,
+ * or to remove syntax from triplestore
  * @author khanson
  */
 public class TripleDisplayFormat {
@@ -44,28 +44,18 @@ public class TripleDisplayFormat {
 	/** The subject to display. */
 	private String subjectDisplay;
 	
-	/** The subject link URL. */
-	private String subjectLink;
-	
 	/** The predicate. */
 	private RMapIri predicate;
 	
 	/** The predicate to display. */
 	private String predicateDisplay;
 	
-	/** The predicate link URL. */
-	private String predicateLink;
-	
 	/** The object. */
 	private RMapValue object;
 	
 	/** The object to display. */
 	private String objectDisplay;
-	
-	/** The object link URL. */
-	private String objectLink;
-	
-	
+		
 	/**
 	 * Instantiates a new triple display format.
 	 */
@@ -81,15 +71,11 @@ public class TripleDisplayFormat {
 		
 		RMapResource subj = rmapTriple.getSubject();
 		String subjDisplay = subj.toString();
-		String subjLink = Constants.RESOURCE_PATH_PREFIX + URLEncoder.encode(subj.toString(), "UTF-8");
 		
 		RMapIri pred = rmapTriple.getPredicate();
 		String predDisplay = WebappUtils.removeNamespace(pred.toString());
-		String predLink = pred.toString();
 		
-
 		String objDisplay = "";
-		String objLink = "";
 		
 		RMapValue obj = rmapTriple.getObject();
 		if (obj instanceof RMapLiteral){
@@ -99,28 +85,14 @@ public class TripleDisplayFormat {
 			objDisplay = obj.toString();
 		}
 		
-					    			
-		if (predDisplay.contains("rdf:type"))	{
-			objLink = obj.toString();  
-		}
-		else {
-			//no link it the object is a literal or bnode.
-			if (obj instanceof RMapIri)	{
-				objLink = Constants.RESOURCE_PATH_PREFIX + URLEncoder.encode(obj.toString(), "UTF-8");
-			}
-		}
-		
 		this.subject=subj;
 		this.subjectDisplay=subjDisplay;
-		this.subjectLink=subjLink;
 		
 		this.predicate=pred;
 		this.predicateDisplay=predDisplay;
-		this.predicateLink=predLink;
 		
 		this.object=obj;
 		this.objectDisplay=objDisplay;
-		this.objectLink=objLink;		
 	}	
 
 	/**
@@ -128,26 +100,20 @@ public class TripleDisplayFormat {
 	 *
 	 * @param subject the subject
 	 * @param subjectDisplay the subject display
-	 * @param subjectLink the subject link
 	 * @param predicate the predicate
 	 * @param predicateDisplay the predicate display
-	 * @param predicateLink the predicate link
 	 * @param object the object
 	 * @param objectDisplay the object display
-	 * @param objectLink the object link
 	 */
-	public TripleDisplayFormat(RMapIri subject, String subjectDisplay, String subjectLink, 
-								RMapIri predicate, String predicateDisplay, String predicateLink, 
-								RMapValue object, String objectDisplay, String objectLink) {
+	public TripleDisplayFormat(RMapIri subject, String subjectDisplay, 
+								RMapIri predicate, String predicateDisplay,
+								RMapValue object, String objectDisplay) {
 		this.subject=subject;
 		this.subjectDisplay=subjectDisplay;
-		this.subjectLink=subjectLink;
 		this.predicate=predicate;
 		this.predicateDisplay=predicateDisplay;
-		this.predicateLink=predicateLink;
 		this.object=object;
 		this.objectDisplay=objectDisplay;
-		this.objectLink=objectLink;		
 	}	
 	
 	/**
@@ -185,24 +151,6 @@ public class TripleDisplayFormat {
 	public void setSubjectDisplay(String subjectDisplay) {
 		this.subjectDisplay = subjectDisplay;
 	}
-
-	/**
-	 * Gets the subject link.
-	 *
-	 * @return the subject link
-	 */
-	public String getSubjectLink() {
-		return subjectLink;
-	}
-
-	/**
-	 * Sets the subject link.
-	 *
-	 * @param subjectLink the new subject link
-	 */
-	public void setSubjectLink(String subjectLink) {
-		this.subjectLink = subjectLink;
-	}		
 	
 	/**
 	 * Gets the predicate.
@@ -239,25 +187,7 @@ public class TripleDisplayFormat {
 	public void setPredicateDisplay(String predicateDisplay) {
 		this.predicateDisplay = predicateDisplay;
 	}
-	
-	/**
-	 * Gets the predicate link.
-	 *
-	 * @return the predicate link
-	 */
-	public String getPredicateLink() {
-		return predicateLink;
-	}
-	
-	/**
-	 * Sets the predicate link.
-	 *
-	 * @param predicateLink the new predicate link
-	 */
-	public void setPredicateLink(String predicateLink) {
-		this.predicateLink = predicateLink;
-	}
-	
+		
 	/**
 	 * Gets the object.
 	 *
@@ -292,24 +222,6 @@ public class TripleDisplayFormat {
 	 */
 	public void setObjectDisplay(String objectDisplay) {
 		this.objectDisplay = objectDisplay;
-	}
-	
-	/**
-	 * Gets the object link.
-	 *
-	 * @return the object link
-	 */
-	public String getObjectLink() {
-		return objectLink;
-	}
-	
-	/**
-	 * Sets the object link.
-	 *
-	 * @param objectLink the new object link
-	 */
-	public void setObjectLink(String objectLink) {
-		this.objectLink = objectLink;
 	}
 
 }

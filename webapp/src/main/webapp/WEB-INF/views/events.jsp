@@ -1,14 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="my" uri="/WEB-INF/tld/rmapTagLibrary.tld" %>
 <%@ taglib prefix="tl" tagdir="/WEB-INF/tags"%>
 
-<c:set var="pageTitle" value="RMap Event Summary | RMap Project"/>
-<c:set var="currPage" value="search"/>
-<%@include file="/includes/headstart.inc" %>       
-</head>
-<body>
-<%@include file="/includes/bodystart.inc" %> 
+<tl:pageStartStandard user="${user}" pageTitle="RMap Event"/>
 
 <h1>RMap Event Summary</h1>
 <h2>URI: ${EVENT.getUri()}</h2>
@@ -19,7 +13,7 @@
 		</tr>
 		<tr>
 			<td>Initiating Agent</td>
-			<td><tl:displayRMapLink type="agent" uri="${EVENT.getAssociatedAgent().toString()}"/></td>
+			<td><tl:linkRMapInternal type="agent" uri="${EVENT.getAssociatedAgent().toString()}"/></td>
 		</tr>
 		<tr>
 			<td>Start time</td><td>${EVENT.getStartTime().toString()}</td>
@@ -57,7 +51,7 @@
 		</tr>
 		<c:forEach var="affected_resource" items="${EVENT.getResourcesAffected()}">
 			<tr>
-				<td><tl:displayRMapLink type="resource" uri="${affected_resource.getKey()}"/></td>
+				<td><tl:linkRMapInternal type="resource" uri="${affected_resource.getKey()}"/></td>
 				<td>${affected_resource.getValue()}</td>
 			</tr>
 		</c:forEach>
@@ -70,5 +64,4 @@
 </div>
 	
 <br/>
-
-<%@include file="/includes/footer.inc" %>
+<tl:pageEndStandard/>

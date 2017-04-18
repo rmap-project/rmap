@@ -19,11 +19,16 @@
  *******************************************************************************/
 package info.rmapproject.webapp.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 
 /**
  * WebApp helper utilities
@@ -162,5 +167,124 @@ public class WebappUtils {
 			return Constants.NODETYPE_UNCATEGORIZED;
 		}
 	}
+	
+
+	/**
+	 * HTTP encode a string.
+	 *
+	 * @param value the value to encode
+	 * @return the encoded HTTP string
+	 * @throws UnsupportedEncodingException the unsupported encoding exception
+	 */
+	public static String httpEncode(String value)  throws UnsupportedEncodingException{
+		if (value==null){
+			return "";
+		}
+		return URLEncoder.encode(value, "UTF-8"); 
+	}
+	
+	/**
+	 * HTTP encode a URI
+	 *
+	 * @param value the URI to encode
+	 * @return the encoded HTTP string
+	 * @throws UnsupportedEncodingException the unsupported encoding exception
+	 */
+	public static String httpEncode(URI value)   throws UnsupportedEncodingException{
+		if (value==null){
+			return "";
+		}
+		return URLEncoder.encode(value.toString(), "UTF-8"); 
+	}
+	
+	/**
+	 * Checks whether a string is a valid URL. Can be used to determined whether 
+	 * a string should be a link.
+	 * @param str
+	 * @return
+	 */
+	public static Boolean isUrl(String str){
+	    try {
+	        new URL(str);
+	        new URI(str);
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
+	
+	/**
+	 * Checks whether a string is a valid URI. Can be used to determined whether 
+	 * a string should be graphable.
+	 * @param str
+	 * @return
+	 */
+	public static Boolean isUri(String str){
+	    try {
+	        new java.net.URI(str);
+	        //TODO: build a better URI checker that doesnt depend on openrdf implementation?
+	        ORAdapter.getValueFactory().createIRI(str);
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
+	
+	
+	
+	/* **************************/
+	/* STRING TRUNCATE FUNCTION */
+	/* **************************/
+	
+	/**
+	 * Defines narrow characters
+	 */
+	private final static String NON_THIN = "[^iIl1\\.,']";
+
+	/**
+	 * Calculates width of text taking into account narrow characters
+	 * @param str
+	 * @return
+	 */
+	private static int textWidth(String str) {
+	    return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
+	}
+
+	/**
+	 * Truncates text to defined size and adds ellipsis. Attempts to avoid breaking in mid-word if 
+	 * possible (i.e. the text parameter isn't just one long word).
+	 * @param text
+	 * @param max
+	 * @return
+	 */
+	public static String ellipsize(String text, int max) {
+
+	    if (textWidth(text) <= max || max==0)
+	        return text;
+
+	    // Start by chopping off at the word before max
+	    // This is an over-approximation due to thin-characters...
+	    int end = text.lastIndexOf(' ', max - 3);
+
+	    // Just one long word. Chop it off.
+	    if (end == -1)
+	        return text.substring(0, max-3) + "...";
+
+	    // Step forward as long as textWidth allows.
+	    int newEnd = end;
+	    do {
+	        end = newEnd;
+	        newEnd = text.indexOf(' ', end + 1);
+
+	        // No more spaces.
+	        if (newEnd == -1)
+	            newEnd = text.length();
+
+	    } while (textWidth(text.substring(0, newEnd) + "...") < max);
+
+	    return text.substring(0, end) + "...";
+	}	
+	
+	
 	
 }

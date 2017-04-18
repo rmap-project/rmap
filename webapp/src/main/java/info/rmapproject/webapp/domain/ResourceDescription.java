@@ -21,6 +21,7 @@ package info.rmapproject.webapp.domain;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,6 @@ import org.openrdf.model.vocabulary.RDFS;
 
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
-import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
  * Holds a description of a single Resource to support the display of the data about that Resource.
@@ -52,25 +52,13 @@ public class ResourceDescription implements Serializable {
 	
 	/**List of rdf:types associated with the Resource. Typically the String key is
 	 * the full type path. The value is shortened path with prefix  */
-	private Map<String, String> resourceTypes;
+	private List<String> resourceTypes;
 	
 	/**List of triples associated with the Resource. Typically the String KV is
 	 * a concatenation of sub-pred-obj. The TripleDisplayFormat contains triples 
 	 * describing the Resources along with additional information to support display 
 	 * of the Resource */
 	private Map<String, TripleDisplayFormat> propertyValues;
-	
-	/** Indicates where there is another batch of results available after this one **/
-	private boolean hasNext = false;
-	
-	/** Indicates there is another batch of results prior to this one. **/
-	private boolean hasPrevious = false;
-	
-	/** Position of first record in batch. **/
-	private int startPosition = 0;
-	
-	/** Position of last record in batch. **/
-	private int endPosition = 0;
 	
 	/**
 	 * Instantiates a new resource description.
@@ -84,7 +72,7 @@ public class ResourceDescription implements Serializable {
 	 */
 	public ResourceDescription(String resourceName) {
 		this.resourceName = resourceName;
-		this.resourceTypes = new TreeMap<String,String>();
+		this.resourceTypes = new ArrayList<String>();
 		this.propertyValues = new TreeMap<String, TripleDisplayFormat>();
 	}
 	
@@ -95,7 +83,7 @@ public class ResourceDescription implements Serializable {
 	 * @param resourceTypes the Resource types
 	 * @param propertyValues the property values (triples describing resource)
 	 */
-	public ResourceDescription(String resourceName, Map<String, String> resourceTypes, Map<String, TripleDisplayFormat> propertyValues) {
+	public ResourceDescription(String resourceName, List<String> resourceTypes, Map<String, TripleDisplayFormat> propertyValues) {
 		this.resourceName = resourceName;
 		this.resourceTypes = resourceTypes;
 		this.propertyValues = propertyValues;		
@@ -119,31 +107,14 @@ public class ResourceDescription implements Serializable {
 		this.resourceName = resourceName;
 	}
 	
-	/**
-	 * Retrieves the flag for whether there are more properties that weren't loaded to the ResourceDescription.
-	 *
-	 * @return the hasNext flag
-	 */
-	public boolean hasNext() {
-		return hasNext;
-	}
 
-	/**
-	 * Sets the flag for whether there are more properties that weren't loaded to the ResourceDescription
-	 *
-	 * @param hasMoreProperties flag
-	 */
-	public void setHasNext(boolean hasNext) {
-		this.hasNext = hasNext;
-	}
-	
 
 	/**
 	 * Gets the Resource types.
 	 *
 	 * @return the Resource types
 	 */
-	public Map<String, String> getResourceTypes() {
+	public List<String> getResourceTypes() {
 		return resourceTypes;
 	}
 
@@ -152,7 +123,7 @@ public class ResourceDescription implements Serializable {
 	 *
 	 * @param resourceTypes the Resource types
 	 */
-	public void setResourceTypes(Map<String, String> resourceTypes) {
+	public void setResourceTypes(List<String> resourceTypes) {
 		this.resourceTypes = resourceTypes;
 	}
 
@@ -189,7 +160,7 @@ public class ResourceDescription implements Serializable {
 									DCTERMS.IDENTIFIER.toString()};
 			
 			String listKey;
-			String predicate= tripleDF.getPredicateLink();
+			String predicate= tripleDF.getPredicate().toString();
 			//if it's a title, name or label, bubble to top of list.
 			if (Arrays.asList(bubbleToTop).contains(predicate)){
 				listKey = tripleDF.getSubjectDisplay()+"______a" + tripleDF.getPredicateDisplay()+tripleDF.getObjectDisplay();	
@@ -212,8 +183,7 @@ public class ResourceDescription implements Serializable {
 	 */
 	public void addResourceType(String type) throws RMapWebException {
 		if (type!=null) {
-			String typeDisplay = WebappUtils.replaceNamespace(type);
-			this.resourceTypes.put(type, typeDisplay);
+			this.resourceTypes.add(type);
 		}
 		else {
 			throw new RMapWebException(ErrorCode.ER_RESOURCE_TYPE_NULL);

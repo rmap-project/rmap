@@ -1,25 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="my" uri="/WEB-INF/tld/rmapTagLibrary.tld" %>
-<c:set var="pageTitle" value="Visualization | RMap Agent | RMap Project"/>
-<c:set var="currPage" value="search"/>
-<%@include file="/includes/headstart.inc" %>
-<%@include file="/includes/js/nodesedges.js" %> 
-</head>       
-<body onload="drawgraph();">
-<div class="largecontainer">
-	<div id="visualheader">
-		<a href="<c:url value='/home'/>" id="logo">
-			<img src="<c:url value='/includes/images/rmap_logo_small.png'/>" alt="RMap logo" id="rmaplogo"/>
-		</a>
-	</div>	
+<%@ taglib prefix="tl" tagdir="/WEB-INF/tags"%>
+
+<tl:pageStartGraph pageTitle="Visualization | RMap Agent" user="${user}" pageType="agent"  
+			viewMode="visual" resourceUri="${RESOURCEURI.toString()}"/>
+
 	<div>
 		<h1>RMap Agent</h1>
 		<h2>${AGENT.getUri()}</h2>
 	</div>
-	<c:set var="summaryview" value="/agents/${my:httpEncodeUri(AGENT.getUri())}"/>
-	<%@include file="/includes/visualViewGraph.inc" %>
-</div>
+	
+	<tl:graphLarge nodeTypes="${GRAPH.getNodeTypes()}" summaryview="/agents/${my:httpEncodeUri(AGENT.getUri())}"/>
 
-</body>
+<tl:pageEndShort/>
 	
