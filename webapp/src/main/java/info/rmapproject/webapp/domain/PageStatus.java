@@ -19,6 +19,12 @@
  *******************************************************************************/
 package info.rmapproject.webapp.domain;
 
+/**
+ * Captures current status of a page that displays paginated data.  This includes start/end position of recordset, 
+ * size limit, and whether there is a previous or next set of records available in the database.
+ * @author khanson
+ *
+ */
 public class PageStatus {
 	
 	/** Indicates where there is another batch of results available after this one **/

@@ -43,8 +43,7 @@ import info.rmapproject.webapp.service.DataDisplayService;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
 
 /**
- * Handles requests for the data visualization pages.
- *
+ * Handles requests for the DiSCO data visualization pages.
  * @author khanson
  */
 
@@ -65,13 +64,13 @@ public class DiSCODataController {
 	/**
 	 * GET details of a DiSCO.
 	 *
-	 * @param discoUri the disco uri	 * @param model the Spring model
-	 * @return the discos page
+	 * @param discoUri the DiSCO uri	 
+	 * @param model the Spring model
+	 * @return the DiSCO summary page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/discos/{uri}", method = RequestMethod.GET)
-	public String disco(@PathVariable(value="uri") String discoUri, 
-				Model model, @RequestParam(value="offset", required=false) Integer offset) throws Exception {
+	public String disco(@PathVariable(value="uri") String discoUri, Model model) throws Exception {
 		log.info("DiSCO requested: " + discoUri);
 
 		discoUri = URLDecoder.decode(discoUri, "UTF-8");
@@ -90,7 +89,7 @@ public class DiSCODataController {
 	 * accessing a webpage by defining the DiSCO URI as a request param
 	 *
 	 * @param sDiSCOUri the DiSCO URI
-	 * @return the resources page or redirect back to search on error
+	 * @return redirect to the appropriate DiSCO path
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/discos", method = RequestMethod.GET)
@@ -99,16 +98,15 @@ public class DiSCODataController {
 	}
 	
 	/**
-	 * GET details of a DiSCO in non-default view.
+	 * GET the DiSCO visual page format
 	 *
-	 * @param discoUri the disco uri
+	 * @param discoUri the DiSCO URI
 	 * @param model the Spring model
-	 * @return the discos page
+	 * @return the DiSCO visual page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/discos/{uri}/visual", method = RequestMethod.GET)
-	public String discoGraphVisual(@PathVariable(value="uri") String discoUri,  Model model, 
-			@RequestParam(value="offset", required=false) Integer offset) throws Exception {
+	public String discoGraphVisual(@PathVariable(value="uri") String discoUri,  Model model) throws Exception {
 		log.info("DiSCO visualization requested: " + discoUri);
 
 		discoUri = URLDecoder.decode(discoUri, "UTF-8");
@@ -122,16 +120,15 @@ public class DiSCODataController {
 	}
 
 	/**
-	 * GET details of a DiSCO in non-default view.
+	 * GET the DiSCO widget page format
 	 *
-	 * @param discoUri the disco uri
+	 * @param discoUri the DiSCO URI
 	 * @param model the Spring model
-	 * @return the discos page
+	 * @return the DiSCO widget page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/discos/{uri}/widget", method = RequestMethod.GET)
-	public String discoGraphWidget(@PathVariable(value="uri") String discoUri, 
-			Model model, @RequestParam(value="offset", required=false) Integer offset) throws Exception {
+	public String discoGraphWidget(@PathVariable(value="uri") String discoUri, Model model) throws Exception {
 		log.info("DiSCO visualization requested: " + discoUri);
 
 		discoUri = URLDecoder.decode(discoUri, "UTF-8");
@@ -145,12 +142,12 @@ public class DiSCODataController {
 	}
 
 	/**
-	 * GET details of a DiSCO in non-default view.
+	 * GET the graphdata for a DiSCO
 	 *
-	 * @param discoUri the disco uri
-	 * @param view the view
+	 * @param discoUri the DiSCO URI
+	 * @param view the current page view (visual, widget or standard)
 	 * @param model the Spring model
-	 * @return the discos page
+	 * @return the DiSCO graph data page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/discos/{uri}/graphdata", method = RequestMethod.GET)
@@ -179,12 +176,12 @@ public class DiSCODataController {
 	}	
 	
 	/**
-	 * GET details of a DiSCO in non-default view.
+	 * GET table data for DiSCO
 	 *
-	 * @param discoUri the disco uri
-	 * @param view the view
+	 * @param discoUri the DiSCO URI
+	 * @param view the current page view (visual, widget or standard)
 	 * @param model the Spring model
-	 * @return the discos page
+	 * @return the DiSCO table data page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/discos/{uri}/tabledata", method = RequestMethod.GET)

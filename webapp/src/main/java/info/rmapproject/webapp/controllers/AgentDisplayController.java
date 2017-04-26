@@ -37,14 +37,14 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
+import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.DataDisplayService;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 
 /**
- * Handles requests for the data visualization pages.
- *
+ * Handles requests for the Agent data visualization pages.
  * @author khanson
  */
 
@@ -99,11 +99,11 @@ public class AgentDisplayController {
 	
 	
 	/**
-	 * GET details of a Agent in non-default view.
+	 * GET details of a Agent for the visual view.
 	 *
 	 * @param agentUri the agent uri
 	 * @param model the Spring model
-	 * @return the agents page
+	 * @return the agents visual page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/agents/{uri}/visual", method = RequestMethod.GET)
@@ -121,11 +121,11 @@ public class AgentDisplayController {
 	}
 
 	/**
-	 * GET details of a Agent in non-default view.
+	 * GET details of a Agent for the widget view.
 	 *
 	 * @param agentUri the agent uri
 	 * @param model the Spring model
-	 * @return the agents page
+	 * @return the agents widget page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/agents/{uri}/widget", method = RequestMethod.GET)
@@ -140,13 +140,13 @@ public class AgentDisplayController {
 	    
 	    return "agentwidget";
 	}
+	
 	/**
-	 * GET details of a Agent in non-default view.
+	 * GET details of a Agent for the tabular view.
 	 *
 	 * @param agentUri the agent uri
-	 * @param view the view
 	 * @param model the Spring model
-	 * @return the agents page
+	 * @return the Agent table data page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/agents/{uri}/tabledata", method = RequestMethod.GET)
@@ -167,13 +167,13 @@ public class AgentDisplayController {
 	
 
 	/**
-	 * GET details of a Agent in non-default view.
+	 * GET the graph data for the Agent
 	 *
 	 * @param agentUri the agent uri
-	 * @param view the view
+	 * @param view the current page view (visual, widget or standard)
 	 * @param model the Spring model
-	 * @return the agents page
-	 * @throws Exception the exception
+	 * @return the Agent graph data 
+	 * @throws Exception The exception
 	 */
 	@RequestMapping(value="/agents/{uri}/graphdata", method = RequestMethod.GET)
 	public String agentGraphData(@PathVariable(value="uri") String agentUri, 
@@ -199,14 +199,13 @@ public class AgentDisplayController {
 	}
 
 	/**
-	 * GET details of a Agent in non-default view.
-	 *
-	 * @param agentUri the agent uri
-	 * @param view the view
+	 * GET the list of DiSCOs created by the Agent
+	 * 
+	 * @param agentUri the Agent URI
 	 * @param model the Spring model
-	 * @param offset 
-	 * @return the agents page
-	 * @throws Exception the exception
+	 * @param offset the record offset for the URI list
+	 * @return the Agent DiSCO list page
+	 * @throws Exception
 	 */
 	@RequestMapping(value="/agents/{uri}/discos", method = RequestMethod.GET)
 	public String agentRelatedDiSCOs(@PathVariable(value="uri") String agentUri, Model model,
@@ -219,7 +218,7 @@ public class AgentDisplayController {
 			agentUri = URLDecoder.decode(agentUri, "UTF-8");
 			
 			ResultBatch<URI> agentDiSCOs = dataDisplayService.getAgentDiSCOs(agentUri, offset);
-			PageStatus pageStatus = dataDisplayService.getPageStatus(agentDiSCOs, "agent_discos");
+			PageStatus pageStatus = dataDisplayService.getPageStatus(agentDiSCOs, PaginatorType.AGENT_DISCOS);
 		    model.addAttribute("PAGINATOR", pageStatus);
 		    model.addAttribute("AGENT_DISCOS", agentDiSCOs.getResultList());
 		} catch (Exception e){

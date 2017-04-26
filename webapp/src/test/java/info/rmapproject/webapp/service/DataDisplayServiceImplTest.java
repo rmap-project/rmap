@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.After;
@@ -60,8 +59,8 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
+import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.domain.ResourceDescription;
-import info.rmapproject.webapp.domain.TripleDisplayFormat;
 import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
@@ -173,7 +172,7 @@ public class DataDisplayServiceImplTest {
 
 		String resourceid = "rmap:rmd18mdd3r";
 		try{
-			ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(resourceid, 20, "graph");
+			ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(resourceid, 20, PaginatorType.RESOURCE_GRAPH);
 			assertTrue(resultbatch.getResultList().size()>0);
 		} catch (Exception e) {
 			fail(e.getMessage());

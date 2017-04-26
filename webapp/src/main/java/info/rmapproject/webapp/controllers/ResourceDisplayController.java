@@ -42,6 +42,7 @@ import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
+import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.domain.ResourceDescription;
 import info.rmapproject.webapp.domain.SearchCommand;
 import info.rmapproject.webapp.exception.ErrorCode;
@@ -49,8 +50,7 @@ import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.DataDisplayService;
 
 /**
- * Handles requests for the resource data visualization pages.
- *
+ * Handles requests for the Resource data visualization pages.
  * @author khanson
  */
 
@@ -72,7 +72,7 @@ public class ResourceDisplayController {
 	 * GET details of a resource.
 	 *
 	 * @param sResourceUri the resource uri
-	 * @param resview - This is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
+	 * @param resview this is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
 	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
 	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
 	 * 					the /resources page will be displayed by default. Default is 0
@@ -100,7 +100,7 @@ public class ResourceDisplayController {
 			}
 			
 			//do this to trigger not found error
-			dataDisplayService.getResourceBatch(sResourceUri, 0, "graph");
+			dataDisplayService.getResourceBatch(sResourceUri, 0, PaginatorType.RESOURCE_GRAPH);
 			
 			List<URI> resourceTypes = dataDisplayService.getResourceRDFTypes(new URI(sResourceUri));
 		    
@@ -126,7 +126,11 @@ public class ResourceDisplayController {
 	 * accessing a webpage by defining the resource URI as a request param
 	 *
 	 * @param sResourceUri the resource uri
-	 * @return the resources page or redirect back to search on error
+	 * @param resview this is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
+	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
+	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
+	 * 					the /resources page will be displayed by default. Default is 0
+	 * @return redirect to the appropriate Resource path
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/resources", method = RequestMethod.GET)
@@ -143,10 +147,11 @@ public class ResourceDisplayController {
 	 * GET details of a resource and return the visual view (full page visualization)
 	 *
 	 * @param resourceUri the resource uri
-	 * @param resview - This is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
+	 * @param resview this is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
 	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
 	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
 	 * 					the /resources page will be displayed by default.
+	 * @param offset starting position within matching triple records from which to start.  Default is 0.
 	 * @param model the Spring model
 	 * @return the resources page
 	 * @throws Exception the exception
@@ -170,7 +175,7 @@ public class ResourceDisplayController {
 			}
 		}  
 		//do this to trigger not found error
-		dataDisplayService.getResourceBatch(reqUri, 0, "graph");
+		dataDisplayService.getResourceBatch(reqUri, 0, PaginatorType.RESOURCE_GRAPH);
 				
 	    model.addAttribute("RESOURCEURI", reqUri);
 
@@ -180,7 +185,7 @@ public class ResourceDisplayController {
 	/**
 	 * GET details of a resource and return data relevant to RMap widget
 	 *
-	 * @param resourceUri the resource uri
+	 * @param reqUri the resource uri
 	 * @param resview - This is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
 	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
 	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
@@ -207,7 +212,7 @@ public class ResourceDisplayController {
 			}
 		}    	
 
-		ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, 0, "graph");
+		ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, 0, PaginatorType.RESOURCE_GRAPH);
 		Graph resourceGraph = dataDisplayService.getResourceGraph(triplebatch);
 		
 		model.addAttribute("RESOURCEURI", decodedUri);
@@ -218,14 +223,10 @@ public class ResourceDisplayController {
 	
 
 	/**
-	 * GET details of a resource and return in specific view format.
+	 * GET table data for resource
 	 *
-	 * @param resourceUri the resource uri
-	 * @param view - determines the kind of view that will be returned - widget or visualize
-	 * @param resview - This is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
-	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
-	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
-	 * 					the /resources page will be displayed by default.
+	 * @param reqUri the resource URI
+	 * @param offset the start position for the table data (when paginating). Default is 0.
 	 * @param model the Spring model
 	 * @return the resources page
 	 * @throws Exception the exception
@@ -243,9 +244,9 @@ public class ResourceDisplayController {
 			offset = 0;
 		}
 		try {
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, offset, "table");
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, offset, PaginatorType.RESOURCE_TABLE);
 			ResourceDescription rd = dataDisplayService.getResourceTableData(decodedUri, triplebatch);
-			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, "resource_table");
+			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.RESOURCE_TABLE);
 	
 			model.addAttribute("RESOURCEURI", decodedUri);
 			model.addAttribute("TABLEDATA", rd);
@@ -260,12 +261,9 @@ public class ResourceDisplayController {
 	/**
 	 * GET details of a resource and return in specific view format.
 	 *
-	 * @param resourceUri the resource uri
+	 * @param reqUri the resource URI
+	 * @param offset the start position for the graph data (when paginating). Default is 0.
 	 * @param view - determines the kind of view that will be returned - widget or visualize
-	 * @param resview - This is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
-	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
-	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
-	 * 					the /resources page will be displayed by default.
 	 * @param model the Spring model
 	 * @return the resources page
 	 * @throws Exception the exception
@@ -287,9 +285,9 @@ public class ResourceDisplayController {
 			offset = 0;
 		}
 		try {
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, offset, "graph");
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, offset, PaginatorType.RESOURCE_GRAPH);
 			Graph resourceGraph = dataDisplayService.getResourceGraph(triplebatch);
-		    PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, "resource_graph");
+		    PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.RESOURCE_GRAPH);
 			model.addAttribute("RESOURCEURI", decodedUri);
 		    model.addAttribute("GRAPH", resourceGraph);
 		    model.addAttribute("PAGINATOR", pageStatus);
@@ -303,12 +301,8 @@ public class ResourceDisplayController {
 	/**
 	 * GET details of a resource's related DiSCOs
 	 *
-	 * @param resourceUri the resource uri
-	 * @param view - determines the kind of view that will be returned - widget or visualize
-	 * @param resview - This is for when a URI is passed in that may be an RMap object URI (Agent, DiSCO, Event).
-	 * 					When resview==0, it will check for an RMap type, and where one is found the appropriate 
-	 * 					RMap object page will be displayed instead of the generic resources page. When resview==1, 
-	 * 					the /resources page will be displayed by default.
+	 * @param reqUri the resource URI
+	 * @param offset the start position for the list of URIs (when paginating). Default is 0.
 	 * @param model the Spring model
 	 * @return the resources page
 	 * @throws Exception the exception
@@ -327,7 +321,7 @@ public class ResourceDisplayController {
 				offset = 0;
 			}
 			ResultBatch<URI> resourceDiscos = dataDisplayService.getResourceRelatedDiSCOs(decodedUri, offset);
-		    PageStatus resDiscoPageStatus = dataDisplayService.getPageStatus(resourceDiscos, "resource_discos");
+		    PageStatus resDiscoPageStatus = dataDisplayService.getPageStatus(resourceDiscos, PaginatorType.RESOURCE_DISCOS);
 	
 		    model.addAttribute("RESOURCEURI", decodedUri);
 		    model.addAttribute("URILIST", resourceDiscos.getResultList());
@@ -345,9 +339,10 @@ public class ResourceDisplayController {
 	/**
 	 * Retrieves information about the node to be formatted in a popup
 	 *
-	 * @param resourceUri a resource uri
+	 * @param resourceUri a resource URI
+	 * @param offset the start position for the node data (when paginating). Default is 0.
+	 * @param view the current page view (visual, widget or standard)
 	 * @param model the Spring model
-	 * @param view the current page view
 	 * @param referer - the page that called the popup
 	 * @return the resource literals popup box
 	 * @throws Exception the exception
@@ -366,7 +361,7 @@ public class ResourceDisplayController {
 						
 			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiterals(resourceUri, offset);
 			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch);
-			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, "node_info");
+			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.NODE_INFO);
 			
 			model.addAttribute("RESDES",resourceDescription);	
 		    model.addAttribute("VIEWMODE", view);	 
@@ -383,10 +378,11 @@ public class ResourceDisplayController {
 	/**
 	 * Retrieves information about the node to be formatted in a popup
 	 *
-	 * @param resourceUri a resource uri
-	 * @param contextUri a context uri - uri of graph to limit results by
+	 * @param resourceUri a resource URI
+	 * @param contextUri a context URI - URI of graph to limit results by
 	 * @param model the Spring model
-	 * @param view the current page view
+	 * @param view the current page view (visual, widget or standard)
+	 * @param offset the start position for the node data (when paginating). Default is 0.
 	 * @param referer - the page that called the popup
 	 * @return the resource literals popup box
 	 * @throws Exception the exception
@@ -394,7 +390,7 @@ public class ResourceDisplayController {
 	@RequestMapping(value="/resources/{resource}/nodeinfo/{context}", method = RequestMethod.GET)
 	public String resourceLiteralsInContext(@PathVariable(value="resource") String resourceUri, 
 			@PathVariable(value="context") String contextUri, Model model, 
-			@RequestParam(value="viewmode", required=false) String view,
+			@RequestParam(value="view", required=false) String view,
 			@RequestParam(value="offset", required=false) Integer offset,
 			@RequestHeader("referer") String referer) throws Exception {
 		if (offset==null){offset=0;}
@@ -407,8 +403,8 @@ public class ResourceDisplayController {
 			contextUri = URLDecoder.decode(contextUri, "UTF-8");
 			
 			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri, offset);
-			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch);
-			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, "node_info");
+			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch, contextUri);
+			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.NODE_INFO);
 			
 			model.addAttribute("RESDES",resourceDescription);	
 		    model.addAttribute("VIEWMODE", view);	 

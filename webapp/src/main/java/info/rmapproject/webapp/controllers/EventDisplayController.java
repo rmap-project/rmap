@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,7 @@ import info.rmapproject.webapp.service.DataDisplayService;
 import info.rmapproject.webapp.service.dto.EventDTO;
 
 /**
- * Handles requests for the data visualization pages.
- *
+ * Handles requests for the Event data pages.
  * @author khanson
  */
 
@@ -80,7 +79,7 @@ public class EventDisplayController {
 	 * accessing a webpage by defining the Event URI as a request param
 	 *
 	 * @param sEventUri the Event URI
-	 * @return the resources page or redirect back to search on error
+	 * @return redirect to appropriate event path
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(value="/events", method = RequestMethod.GET)
