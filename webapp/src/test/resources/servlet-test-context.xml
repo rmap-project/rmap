@@ -24,11 +24,7 @@
     <bean id="rmapIdService" class="info.rmapproject.core.idservice.ArkIdService"/>
     <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/> 
 	<beans:bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore"/>
--->	<!--  live triplestore for tests-->
-	<beans:bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype"/>
-    <beans:bean id="rmapIdService" class="info.rmapproject.core.idservice.RandomStringIdService"/>
- 	
-
+-->	
 	<!-- OAUTH Configuration -->		
 	<!-- twitter oauth config -->	
 	<beans:bean id="twitterOAuthConfig" class="info.rmapproject.webapp.auth.OAuthProviderConfig">

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,18 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
-import info.rmapproject.webapp.service.DataDisplayService;
-import info.rmapproject.webapp.service.dto.ResourceDTO;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.request.ResultBatch;
+import info.rmapproject.webapp.domain.PaginatorType;
+import info.rmapproject.webapp.service.DataDisplayService;
 
 /**
  * Tests for ResourceController class
@@ -44,12 +48,12 @@ public class ResourceControllerTest {
 	 *
 	 * @throws Exception the exception
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void testGetResourceDTO() throws Exception{
 		
 		String resourceUri = "http://dx.doi.org/10.1109/InPar.2012.6339604";	
-		ResourceDTO resourceDTO = dataDisplayService.getResourceDTO(resourceUri);
+		ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(resourceUri, 20, PaginatorType.RESOURCE_TABLE);
+		assertTrue(resultbatch.getResultList().size()>0);
 		
 	}
 

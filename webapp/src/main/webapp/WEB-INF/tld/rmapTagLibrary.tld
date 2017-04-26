@@ -6,12 +6,37 @@
 	<uri>/WEB-INF/tld/rmapTagLibrary</uri>
 	<function>
 		<name>httpEncodeStr</name>
-		<function-class>info.rmapproject.webapp.utils.CustomELFunctions</function-class>
+		<function-class>info.rmapproject.webapp.utils.WebappUtils</function-class>
 		<function-signature>java.lang.String httpEncode(java.lang.String)</function-signature>
 	</function>
 	<function>
 		<name>httpEncodeUri</name>
-		<function-class>info.rmapproject.webapp.utils.CustomELFunctions</function-class>
+		<function-class>info.rmapproject.webapp.utils.WebappUtils</function-class>
 		<function-signature>java.lang.String httpEncode(java.net.URI)</function-signature>
+	</function>
+	<function>
+		<name>isUrl</name>
+		<function-class>info.rmapproject.webapp.utils.WebappUtils</function-class>
+		<function-signature>java.lang.Boolean isUrl(java.lang.String)</function-signature>
+	</function>
+	<function>
+		<name>isUri</name>
+		<function-class>info.rmapproject.webapp.utils.WebappUtils</function-class>
+		<function-signature>java.lang.Boolean isUri(java.lang.String)</function-signature>
+	</function>
+	<function>
+		<name>ellipsize</name>
+		<function-class>info.rmapproject.webapp.utils.WebappUtils</function-class>
+		<function-signature>java.lang.String ellipsize(java.lang.String, int)</function-signature>
+	</function>	
+	<function>
+		<name>replaceNamespace</name>
+		<function-class>info.rmapproject.webapp.utils.WebappUtils</function-class>
+		<function-signature>java.lang.String replaceNamespace(java.lang.String)</function-signature>
+	</function>
+	<function>
+		<name>removeNamespace</name>
+		<function-class>info.rmapproject.webapp.utils.WebappUtils</function-class>
+		<function-signature>java.lang.String removeNamespace(java.lang.String)</function-signature>
 	</function>
 </taglib>

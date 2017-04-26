@@ -26,8 +26,10 @@ import java.util.Set;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
 
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.request.DateRange;
@@ -186,6 +188,42 @@ public class SesameSparqlUtils {
 		
 	}
 	
+	/**
+	 * Creates sparql filter for object field type. Allows exclusion from results of
+	 * objects whose values are IRIs or Literals, depending on information provided.
+	 * If both are true this will return an error
+	 *
+	 * @param excludeIris true if object=IRI should be excluded from results
+	 * @param excludeLiterals true if object=IRI should be excluded from results
+	 * @return SPARQL snippet to filter by object type
+	 */
+	public static String convertObjectExclusionsToFilter(boolean excludeIris, boolean excludeLiterals) {
+		if (excludeIris && excludeLiterals){
+			throw new RMapDefectiveArgumentException("SPARQL query build failed. Cannot exclude both IRIs and Literals from SPARQL query. This will return no results.");
+		}
+		String filterSparql = "";
+		if (excludeIris){
+			filterSparql = " FILTER (!isIri(?o)) .";
+		}
+		if (excludeLiterals){
+			filterSparql = " FILTER (!isLiteral(?o)) .";
+		}
+		return filterSparql;
+	}
+	
+	/**
+	 * Creates sparql filter to omit RDF.TYPE declarations from resultset
+	 *
+	 * @param excludeTypes true if predicate=RDF.TYPE should be excluded from results
+	 * @return SPARQL snippet to filter by object type
+	 */
+	public static String convertTypeExclusionToFilter(boolean excludeTypes) {
+		String filterSparql = "";
+		if (excludeTypes){
+			filterSparql = " FILTER NOT EXISTS {?s <" + RDF.TYPE.toString() + "> ?o} .";
+		}
+		return filterSparql;
+	}
 	
 	/**
 	 * Supporting method that runs a sparql query and binds result to an IRI list.

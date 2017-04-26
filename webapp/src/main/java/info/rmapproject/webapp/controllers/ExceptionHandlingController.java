@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2016 Johns Hopkins University
+ * Copyright 2017 Johns Hopkins University
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -92,11 +95,18 @@ public class ExceptionHandlingController {
 	 */
 	@ExceptionHandler({RMapWebException.class,RMapException.class, Exception.class})
 	 public String genericError(Exception exception) {	
+		List<Integer> embeddedErrors = 
+				Arrays.asList(ErrorCode.ER_PROBLEM_LOADING_AGENTDISCOS.getNumber(), ErrorCode.ER_PROBLEM_LOADING_AGENTGRAPH.getNumber(),		
+						ErrorCode.ER_PROBLEM_LOADING_AGENTTABLE.getNumber(), ErrorCode.ER_PROBLEM_LOADING_DISCOGRAPH.getNumber(),
+						ErrorCode.ER_PROBLEM_LOADING_DISCOTABLE.getNumber(), ErrorCode.ER_PROBLEM_LOADING_NODEINFO.getNumber(),
+						ErrorCode.ER_PROBLEM_LOADING_RESOURCEDISCOS.getNumber(), ErrorCode.ER_PROBLEM_LOADING_RESOURCEGRAPH.getNumber(),
+						ErrorCode.ER_PROBLEM_LOADING_RESOURCETABLE.getNumber());		
+		
 		if (exception instanceof RMapWebException){
 			RMapWebException ex = (RMapWebException) exception;
-			if (ex.getErrorCode().equals(ErrorCode.ER_PROBLEM_LOADING_NODEINFO)){
+			if (embeddedErrors.contains(ex.getErrorCode().getNumber())){
 				logger.error(exception.getMessage(), exception);
-				return "nodeinfoerror";
+				return "embeddederror";
 			}
 		}
 		

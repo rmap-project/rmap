@@ -130,7 +130,7 @@ public class ORMapService implements RMapService {
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriplesBatch(URI, RMapSearchParams)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRelatedTriples(URI, RMapSearchParams)
 	 */
 	@Override
 	public ResultBatch<RMapTriple> getResourceRelatedTriples(URI uri, RMapSearchParams params)
@@ -178,7 +178,7 @@ public class ORMapService implements RMapService {
 			triples.remove(triples.size()-1);					
 		}
 		
-		ResultBatch<RMapTriple> resultbatch = new ResultBatchImpl<RMapTriple>(triples, hasNext, params.getOffset());
+		ResultBatch<RMapTriple> resultbatch = new ResultBatchImpl<RMapTriple>(triples, hasNext, params.getOffset()+1);
 		
 		return resultbatch;
 	}
@@ -904,7 +904,7 @@ public class ORMapService implements RMapService {
 			uris.remove(uris.size()-1);					
 		}
 		
-		ResultBatch<URI> resultbatch = new ResultBatchImpl<URI>(uris, hasNext, params.getOffset());		
+		ResultBatch<URI> resultbatch = new ResultBatchImpl<URI>(uris, hasNext, params.getOffset()+1);		
 		
 		return resultbatch;				
 	}
@@ -960,7 +960,7 @@ public class ORMapService implements RMapService {
 			uris.remove(uris.size()-1);					
 		}
 		
-		ResultBatch<URI> resultbatch = new ResultBatchImpl<URI>(uris, hasNext, params.getOffset());		
+		ResultBatch<URI> resultbatch = new ResultBatchImpl<URI>(uris, hasNext, params.getOffset()+1);		
 		
 		return resultbatch;				
 		
