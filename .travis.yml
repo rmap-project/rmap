@@ -6,4 +6,5 @@ jdk:
 - oraclejdk8
 script: mvn verify
 after_failure:
+- mvn help:system
 - cat api/target/surefire-reports/*.txt
