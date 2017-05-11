@@ -75,7 +75,10 @@ public class HttpHeaderDateUtilsTest {
 			assertTrue(mementodate2.equals(dTestdate2));
 
 			//now use convertDateToString to switch back.
+			System.err.printf("!! Converting mementodate2 %s to string\n", mementodate2);
 			String smementodate = HttpHeaderDateUtils.convertDateToString(mementodate2);
+			System.err.printf("!! smementodate: %s\n", smementodate);
+			System.err.printf("!! sTdestdate2: %s\n", sTestdate2);
 			assertTrue(smementodate.equals(sTestdate2));	
 			
 		} catch (Exception ex){

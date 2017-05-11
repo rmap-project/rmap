@@ -52,8 +52,11 @@ public class HttpHeaderDateUtils {
 	 */
 	public static String convertDateToString(Date date)
 	throws NullPointerException, IllegalArgumentException {
+		System.err.printf("  !! date: %s\n", date);
 		DateFormat format = new SimpleDateFormat(Constants.HTTP_HEADER_DATE_FORMAT);
+		System.err.printf("  !! format: %s\n", format);
 		String dateString = format.format(date);
+		System.err.printf("  !! dateString: %s\n", dateString);
 		return dateString;
 	}
 }
