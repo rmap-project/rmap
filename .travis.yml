@@ -5,3 +5,5 @@ cache:
 jdk:
 - oraclejdk8
 script: mvn verify
+after_failure:
+- cat api/target/surefire-reports/*.txt
