@@ -11,12 +11,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author khanson5
  *
  */
+@Ignore("TODO: Pending resolution of #46")
 public class HttpHeaderDateUtilsTest {
 
 	private Date dTestdate1;
