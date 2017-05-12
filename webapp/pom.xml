@@ -2,84 +2,75 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>info.rmapproject</groupId>
+
+    <parent>
+        <groupId>info.rmapproject</groupId>
+        <artifactId>rmap-parent</artifactId>
+        <version>1.0.1-beta-SNAPSHOT</version>
+    </parent>
+
     <artifactId>rmap-webapp</artifactId>
-    <name>webapp</name>
+    <name>RMap Webapp</name>
     <packaging>war</packaging>
-    <version>1.0.1-beta-SNAPSHOT</version>
-    <properties>
-        <java-version>1.8</java-version>
-        <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
-        <org.aspectj-version>1.6.10</org.aspectj-version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+
     <dependencies>
         <dependency>
             <groupId>info.rmapproject</groupId>
             <artifactId>rmap-core</artifactId>
-            <version>1.0.1-beta-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>info.rmapproject</groupId>
             <artifactId>rmap-auth</artifactId>
-            <version>1.0.1-beta-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <!-- logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.1.7</version>
         </dependency>
         
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${org.springframework-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${org.springframework-version}</version>
         </dependency>
         
         
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20151123</version>
         </dependency>
         
         <!-- oauth plugin -->
         <dependency>
             <groupId>com.github.scribejava</groupId>
             <artifactId>scribejava-apis</artifactId>
-            <version>2.1.0</version>
         </dependency>
         
         <!-- Servlet -->
 		<dependency>
 		    <groupId>javax.servlet</groupId>
 		    <artifactId>javax.servlet-api</artifactId>
-		    <version>3.1.0</version>
             <scope>provided</scope>
 		</dependency>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
-            <version>2.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <version>1.2</version>
         </dependency>
         <!-- used for parsing string to remove html tags. -->
 		<dependency>
 		    <groupId>org.jsoup</groupId>
 		    <artifactId>jsoup</artifactId>
-		    <version>1.8.3</version>
 		</dependency>
         
         
@@ -87,14 +78,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
             <scope>test</scope>
         </dependency>     
         <dependency>
         	<groupId>info.rmapproject</groupId>
         	<artifactId>rmap-testdata</artifactId>
-            <version>1.0.1-beta-SNAPSHOT</version>
-        	<scope>test</scope>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
         </dependency>	
     </dependencies>
     
@@ -103,17 +93,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
             </plugin>
             <!--  temp -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
                 <configuration>
                     <skipTests>true</skipTests>
                 </configuration>
