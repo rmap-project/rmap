@@ -3,6 +3,7 @@
  */
 package info.rmapproject.api.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -23,6 +24,8 @@ public class HttpHeaderDateUtilsTest {
 	private String sTestdate1;
 	private Date dTestdate2;
 	private String sTestdate2;
+	private Date dTestdate3;
+	private String sTestdate3;
 
 	@Before
 	public void setUp() throws Exception {
@@ -37,6 +40,10 @@ public class HttpHeaderDateUtilsTest {
 			sdate = "Wed Feb 08 18:41:30 EST 2017";
 			this.dTestdate2 = df.parse(sdate); 
 			this.sTestdate2 = "Wed, 08 Feb 2017 18:41:30 EST";
+
+			sdate = "Wed Feb 08 18:41:30 UTC 2017";
+			this.dTestdate3 = df.parse(sdate);
+			this.sTestdate3 = "Wed, 08 Feb 2017 18:41:30 UTC";
 			
 		} catch (Exception ex){
 			fail("Problem while populating properties during test startup");
@@ -69,21 +76,29 @@ public class HttpHeaderDateUtilsTest {
 	public void testConvertStringToDate() {
 		try {
 			Date mementodate = HttpHeaderDateUtils.convertStringToDate(sTestdate1);
-			assertTrue(mementodate.equals(dTestdate1));		
-			
+			assertTrue(mementodate.equals(dTestdate1));
+
+			System.err.printf("!! Converting string %s to date\n", sTestdate2);
 			Date mementodate2 = HttpHeaderDateUtils.convertStringToDate(sTestdate2);
+			System.err.printf("!! Converted: %s\n", mementodate2);
 			assertTrue(mementodate2.equals(dTestdate2));
 
 			//now use convertDateToString to switch back.
+			//  Wed Feb 08 23:41:30 UTC 2017
 			System.err.printf("!! Converting mementodate2 %s to string\n", mementodate2);
 			String smementodate = HttpHeaderDateUtils.convertDateToString(mementodate2);
 			System.err.printf("!! smementodate: %s\n", smementodate);
 			System.err.printf("!! sTdestdate2: %s\n", sTestdate2);
-			assertTrue(smementodate.equals(sTestdate2));	
+			assertEquals(sTestdate2, smementodate);
 			
 		} catch (Exception ex){
 			fail("Problem while testing convertStringToDate(String)");			
 		}
 	}
 
+	@Test
+	public void testConvertStringToDateDifferentTimezone() throws Exception {
+		Date memento = HttpHeaderDateUtils.convertStringToDate(sTestdate3);
+		assertEquals(dTestdate3, memento);
+	}
 }
