@@ -29,6 +29,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Implements the RMapAuthServices by combining several other service implementations
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author khanson
  *
  */
+@Component
 public class RMapAuthServiceImpl implements RMapAuthService {
 	
 	/**References the Service implementation for ApiKeys related methods*/

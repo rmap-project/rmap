@@ -97,7 +97,16 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
-
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <rmapcore.idservice.impl>info.rmapproject.core.idservice.RandomStringIdService</rmapcore.idservice.impl>
+                        <rmapcore.triplestore.impl>info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore</rmapcore.triplestore.impl>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 </project>

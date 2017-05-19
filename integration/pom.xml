@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>info.rmapproject</groupId>
+        <artifactId>rmap-parent</artifactId>
+        <version>1.0.1-beta-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>rmap-integration</artifactId>
+    <name>RMap Integration</name>
+    <packaging>jar</packaging>
+
+    <properties>
+        <rmap.webapp.context>/app</rmap.webapp.context>
+        <rmap.api.context>/api</rmap.api.context>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-webapp</artifactId>
+            <version>${project.parent.version}</version>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-api</artifactId>
+            <version>${project.parent.version}</version>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+
+    </dependencies>
+    
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>reserve-port</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <configuration>
+                            <portNames>
+                                <portName>rmap.webapp.test.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <configuration>
+                    <!-- Container configuration -->
+                    <container>
+                        <containerId>jetty9x</containerId>
+                        <type>installed</type>
+                        <systemProperties>
+                            <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</cargo.jvmargs> -->
+                            <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
+                            <derby.system.home>${project.build.directory}/derby</derby.system.home>
+                            <rmapcore.idservice.impl>info.rmapproject.core.idservice.RandomStringIdService</rmapcore.idservice.impl>
+                            <rmapcore.triplestore.impl>info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore</rmapcore.triplestore.impl>
+                            <authdb.driverClassName>org.apache.derby.jdbc.EmbeddedDriver</authdb.driverClassName>
+                            <authdb.testOnBorrow>true</authdb.testOnBorrow>
+                            <authdb.validationQuery>values 1</authdb.validationQuery>
+                            <authdb.url>jdbc:derby:testdb;create=true</authdb.url>
+                            <authdb.username></authdb.username>
+                            <authdb.password></authdb.password>
+                            <authdb.hibernate.dialect>org.hibernate.dialect.DerbyTenSevenDialect</authdb.hibernate.dialect>
+                            <authdb.hibernate.show_sql>true</authdb.hibernate.show_sql>
+                            <logback.configurationFile>${project.build.outputDirectory}/logback.xml</logback.configurationFile>
+                        </systemProperties>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.derby</groupId>
+                                <artifactId>derby</artifactId>
+                            </dependency>
+                        </dependencies>
+                    </container>
+                    <deployables>
+
+                        <deployable>
+                            <groupId>info.rmapproject</groupId>
+                            <artifactId>rmap-webapp</artifactId>
+                            <type>war</type>
+                            <properties>
+                                <context>${rmap.webapp.context}</context>
+                            </properties>
+                        </deployable>
+
+                        <deployable>
+                            <groupId>info.rmapproject</groupId>
+                            <artifactId>rmap-api</artifactId>
+                            <type>war</type>
+                            <properties>
+                                <context>${rmap.api.context}</context>
+                            </properties>
+                        </deployable>
+
+
+                    </deployables>
+
+                    <configuration>
+                        <properties>
+                            <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</cargo.jvmargs> -->
+                            <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
+                        </properties>
+                    </configuration>
+
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-container</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <configuration>
+                            <container>
+                                <systemProperties>
+                                    <hibernate.hbm2ddl.auto>create</hibernate.hbm2ddl.auto>
+                                    <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
+                                </systemProperties>
+                            </container>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <rmap.webapp.test.port>${rmap.webapp.test.port}</rmap.webapp.test.port>
+                        <rmap.webapp.context>${rmap.webapp.context}</rmap.webapp.context>
+                        <rmap.api.context>${rmap.api.context}</rmap.api.context>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
