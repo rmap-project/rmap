@@ -34,3 +34,23 @@ Each component should be compiled using mvn install. If tests are to be run duri
 mvn clean install
 ``` 
 .war files will be found in the /target folder of webapp and api. These can be installed per the [installation documentation](https://rmap-project.atlassian.net/wiki/display/RMAPPS/Installation).
+
+### Developer runtime
+
+Developers can run a local instance of RMap by running:
+
+- `mvn clean install`
+- then `cd` into the `integration` directory and run `mvn validate cargo:run`
+ 
+The RMap API and web interface will start on a random, high-numbered port (e.g. `55349`, actual port is output to the console), available at the `/api` and `/app` contexts, respectively.
+ 
+A local Apache Derby database will be created under `target/derby` named `testdb`.  In-memory implementations of various services are used, including an in-memory triplestore, id and user service.
+
+To customize supported properties of the developer runtime, edit `integration/src/main/resoures/rmap.properties` before executing `mvn validate cargo:run`.
+
+### Production runtime
+
+Deployers of RMap can choose to place `/rmap.properties` on the classpath, or specify a location to a configuration file.  Any supported RMap configuration property can be specified in this file.
+
+To specify a location for a configuration file, define a system property named `rmap.configFile`, which should be a `file:///` url that references a Java properties file.  If `rmap.configFile` is not defined, the classpath resource `/rmap.properties` is used by default.  
+

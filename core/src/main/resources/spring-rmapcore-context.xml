@@ -2,27 +2,24 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:p="http://www.springframework.org/schema/p"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-   <context:component-scan base-package="info.rmapproject.core"/>
+	<context:property-placeholder location="classpath:/rmapcore.properties"/>
    
-   	<bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService" scope="prototype"/>
-   
-    <!--  random number class (for tests)
-    <bean id="rmapIdService" class="info.rmapproject.core.idservice.impl.randomnumber.RandomStringIdService"/>
-    -->
-    <bean id="rmapIdService" class="info.rmapproject.core.idservice.HttpUrlIdService"/>
+   	<bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService" scope="prototype">
+		<constructor-arg ref="resourcemgr"/>
+		<constructor-arg ref="discomgr"/>
+		<constructor-arg ref="agentmgr"/>
+		<constructor-arg ref="statementmgr"/>
+		<constructor-arg ref="triplestore"/>
+	</bean>
+
+    <bean id="rmapIdService" class="${rmapcore.idservice.impl}"/>
     
     <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/>
-        
-	<!--  in memory triplestore for tests
-	<bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore" scope="prototype"/>
-	-->
-    <bean id="triplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype"/> 
+
+    <bean id="triplestore" class="${rmapcore.triplestore.impl}"  scope="prototype"/>
  	
  	<bean id="resourcemgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapResourceMgr" scope="prototype"/>
  	<bean id="discomgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr" scope="prototype"/>

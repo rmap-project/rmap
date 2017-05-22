@@ -3,19 +3,22 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:property-placeholder
+			location="classpath*:/rmapauth.properties, classpath*:/rmapcore.properties, classpath:/rmapweb.properties"
+			ignore-unresolvable="false" ignore-resource-not-found="false"/>
+
+	<beans:import resource="classpath*:/spring-rmapauth-context.xml" />
+	<beans:import resource="classpath*:/spring-rmapcore-context.xml" />
 
 	<!-- Enables the Spring MVC @Controller programming model -->
 	<annotation-driven />
-	<context:component-scan base-package="info.rmapproject.webapp" />
-	
-    <beans:import resource="classpath:spring-rmapcore-context.xml" />
-    <beans:import resource="classpath*:spring-rmapauth-context.xml" />
-    
+	<context:component-scan base-package="info.rmapproject" />
+
+
 	<beans:bean id="userMgtService" class="info.rmapproject.webapp.service.UserMgtServiceImpl"/>
 	<beans:bean id="dataDisplayService" class="info.rmapproject.webapp.service.DataDisplayServiceImpl"/>
 
