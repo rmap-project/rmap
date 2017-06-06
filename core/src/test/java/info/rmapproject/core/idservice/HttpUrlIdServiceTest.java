@@ -34,10 +34,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Test class for {@link info.rmapproject.core.idservice.HttpUrlIdService}.
@@ -45,12 +53,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @SuppressWarnings("static-access") //need to make sure modified idservices take, which involves resetting a static value
 @RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:/spring-rmapcore-context.xml")
 @PrepareForTest({HttpUrlIdService.class})
+@ActiveProfiles({"default","http-idservice","inmemory-triplestore"})
 public class HttpUrlIdServiceTest {
 
-	static final String ID_PROPFILE_RMAPFORMAT = "rmapidservice";
-	static final String ID_PROPFILE_ARKFORMAT = "arkidservice";	
-	
 	/** Contains two identifiers to simulate what you would get from the NOID service */
 	static final String NOIDS_2 = "/noids/noids_2.txt"; 
 
@@ -58,17 +66,17 @@ public class HttpUrlIdServiceTest {
 	static final String NOIDS_5 = "/noids/noids_5.txt"; 
 
 	/** Contains 1000 unique identifiers to simulate what you would get from the NOID service */
-	static final String NOIDS_1000 = "/noids/noids_1000.txt"; 
-		
+	static final String NOIDS_1000 = "/noids/noids_1000.txt";
+
+	@Autowired
+	private HttpUrlIdService idService;
+
 	/**
 	 * Tests valid IDs using properties set in rmapidservice.properties.
 	 */
 	@Test
 	public void validRmapIdsAreIdentifiedAsValid() {
 		try {
-			HttpUrlIdService idService = new HttpUrlIdService(ID_PROPFILE_RMAPFORMAT);
-			idService.setInstance(idService);
-			
 			URI validID1 = new URI("rmap:fj29dk93jf");	
 			URI validID2 = new URI("rmap:i23jfksdjj");	
 			
@@ -91,9 +99,6 @@ public class HttpUrlIdServiceTest {
 	@Test
 	public void invalidRmapIdsAreIdentifiedAsInvalid() {
 		try {
-			HttpUrlIdService idService = new HttpUrlIdService(ID_PROPFILE_RMAPFORMAT);
-			idService.setInstance(idService);
-			
 			URI invalidID1 = new URI("rmp:fj29dk93jf");
 			URI invalidID2 = new URI("rmap:fj29-k93jf");
 			URI invalidID3 = new URI("rmap:fj29");
@@ -117,11 +122,14 @@ public class HttpUrlIdServiceTest {
 	 * Tests valid and invalid IDs using properties set in arkidservice.properties.
 	 */
 	@Test
+	@DirtiesContext
 	public void validArkIdsAreIdentifiedAsValid() {
 		try {
-			HttpUrlIdService idService = new HttpUrlIdService(ID_PROPFILE_ARKFORMAT);
-			idService.setInstance(idService);
-			
+			idService.setIdPrefix("ark:/12345/");
+			idService.setReplaceString("id: ");
+			idService.setIdLength(21);
+			idService.setIdRegex("ark:\\/\\d{5}\\/[a-z0-9]{10}");
+
 			URI validID1 = new URI("ark:/29292/fkasd90kes");
 			URI validID2 = new URI("ark:/29292/fkasd90kes");
 			
@@ -142,11 +150,14 @@ public class HttpUrlIdServiceTest {
 	 * Tests invalid IDs using properties set in arkidservice.properties.
 	 */
 	@Test
+	@DirtiesContext
 	public void invalidArkIdsAreIdentifiedAsInvalid() {
 		try {
-			HttpUrlIdService idService = new HttpUrlIdService(ID_PROPFILE_ARKFORMAT);
-			idService.setInstance(idService);
-			
+			idService.setIdPrefix("ark:/12345/");
+			idService.setReplaceString("id: ");
+			idService.setIdLength(21);
+			idService.setIdRegex("ark:\\/\\d{5}\\/[a-z0-9]{10}");
+
 			URI invalidID1 = new URI("rmp:fj29dk93jf");
 			URI invalidID2 = new URI("ark:29292/fkasd90kes");
 			URI invalidID3 = new URI("ark:/9292/fkasd90kes");
@@ -179,6 +190,7 @@ public class HttpUrlIdServiceTest {
 	 * Tests createId() 6 times, which requires a list refill.
 	 * Ensures returned IDs are formatted as expected.  Checks IDs are unique.**/
 	@Test
+	@DirtiesContext
 	public void multipleUniqueIdsCreatedUsingOneThread() {
 		try {
 			Set<String> ids = new HashSet<String>();
@@ -195,9 +207,12 @@ public class HttpUrlIdServiceTest {
 			when(url.openConnection()).thenReturn(httpUrlConnection);
 			when(httpUrlConnection.getInputStream()).thenReturn(inputstream1);
 			when(httpUrlConnection.getResponseCode()).thenReturn(200);
-			
-			HttpUrlIdService idService = new HttpUrlIdService(ID_PROPFILE_ARKFORMAT);
-			idService.setInstance(idService);
+
+			idService.setIdPrefix("ark:/12345/");
+			idService.setReplaceString("id: ");
+			idService.setIdLength(21);
+			idService.setIdRegex("ark:\\/\\d{5}\\/[a-z0-9]{10}");
+
 			URI newArkId = idService.createId();
 			assertTrue(idService.isValidId(newArkId));	
 			ids.add(newArkId.toString());
@@ -240,6 +255,7 @@ public class HttpUrlIdServiceTest {
 	 * Tests createId() three times, including a forced fail due to retrieval of an empty list.
 	 * Ensures returned IDs are formatted as expected.**/
 	@Test
+	@DirtiesContext
 	public void exceptionWhenNoIdsInList() {
 		try {			
 			String str = "";
@@ -255,9 +271,12 @@ public class HttpUrlIdServiceTest {
 			when(url.openConnection()).thenReturn(httpUrlConnection);
 			when(httpUrlConnection.getInputStream()).thenReturn(inputstream);
 			when(httpUrlConnection.getResponseCode()).thenReturn(HTTP_OK_RESPONSE);
-			
-			HttpUrlIdService idService = new HttpUrlIdService(ID_PROPFILE_ARKFORMAT);
-			idService.setInstance(idService);
+
+			idService.setIdPrefix("ark:/12345/");
+			idService.setReplaceString("id: ");
+			idService.setIdLength(21);
+			idService.setIdRegex("ark:\\/\\d{5}\\/[a-z0-9]{10}");
+
 			try {
 				//input file is empty, try to create id and see it fails
 				idService.createId();

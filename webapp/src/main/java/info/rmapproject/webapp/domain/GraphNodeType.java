@@ -21,7 +21,12 @@ package info.rmapproject.webapp.domain;
 
 import info.rmapproject.webapp.utils.ConfigUtils;
 import info.rmapproject.webapp.utils.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -35,7 +40,9 @@ public class GraphNodeType {
 	private static final String NODETYPE_PROPFILE = "nodetypes";
 	
 	/** The colors list. */
-	private static Map<String, String> colors = ConfigUtils.getPropertyValues(NODETYPE_PROPFILE);
+	@Autowired
+	@Qualifier("typemappings")
+	private MessageSource colors;
 		
 	/** The node type name. */
 	private String name = "";
@@ -57,13 +64,19 @@ public class GraphNodeType {
 	 *
 	 * @param name the nodetype name
 	 */
-	public GraphNodeType(String name){
+	public GraphNodeType(String name, MessageSource colors){
 		//just pass in name, the rest is constructed using configuration
 		if (name!=null){
 			this.name=name;
 			this.displayName=name.replace("_", " ");
 
-			String nodeProps = colors.get(name);
+			String nodeProps = null;
+			try {
+				nodeProps = colors.getMessage(name, null, Locale.ENGLISH);
+			} catch (NoSuchMessageException e) {
+				// null nodeProps handled below
+			}
+
 			if (nodeProps!=null && nodeProps.contains("|")) {
 				String[] props = nodeProps.split("\\|");
 				this.color = props[0];

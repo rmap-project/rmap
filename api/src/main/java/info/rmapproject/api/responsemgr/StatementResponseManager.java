@@ -53,6 +53,9 @@ import info.rmapproject.core.utils.Terms;
  * @author khanson
  */
 public class StatementResponseManager extends ResponseManager {
+
+	@Autowired
+	private QueryParamHandler queryParamHandler;
 	
 	/**
 	 * Constructor autowires the RMapService and RDFHandler.
@@ -80,7 +83,7 @@ public class StatementResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 				
 			reqSuccessful=true;
@@ -108,7 +111,7 @@ public class StatementResponseManager extends ResponseManager {
 		try {		
 			response = Response.status(Response.Status.OK)
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 		reqSuccessful=true;
@@ -154,11 +157,11 @@ public class StatementResponseManager extends ResponseManager {
 			URI rmapPredicate = PathUtils.convertPathStringToURI(predicate);
 			RMapValue rmapObject = PathUtils.convertPathStringToRMapValue(object);
 			
-			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
+			RMapSearchParams params = queryParamHandler.generateSearchParamObj(queryParams);
 
-			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/discos";
+			String path = pathUtils.makeStmtUrl(subject,predicate,object) + "/discos";
 			
-			Integer currPage = QueryParamHandler.extractPage(queryParams);
+			Integer currPage = queryParamHandler.extractPage(queryParams);
 						
 			ResultBatch<URI> resultbatch = rmapService.getStatementRelatedDiSCOs(rmapSubject, rmapPredicate, rmapObject, params);
 
@@ -175,7 +178,7 @@ public class StatementResponseManager extends ResponseManager {
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
 			if (!queryParams.containsKey(Constants.PAGE_PARAM) && resultbatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String otherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+				String otherUrl = queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				otherUrl = otherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -186,8 +189,8 @@ public class StatementResponseManager extends ResponseManager {
 						.type(HttpTypeMediator.getResponseNonRdfMediaType(returnType));	
 				
 				if (resultbatch.hasNext() || (currPage!=null && currPage>1)) {
-					String pageLinkTemplate = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
-					Link[] pageLinks = QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
+					String pageLinkTemplate = queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+					Link[] pageLinks = queryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
 					responseBldr.links(pageLinks);
 				}
 				
@@ -258,11 +261,11 @@ public class StatementResponseManager extends ResponseManager {
 			URI rmapPredicate = PathUtils.convertPathStringToURI(predicate);
 			RMapValue rmapObject = PathUtils.convertPathStringToRMapValue(object);
 			
-			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
+			RMapSearchParams params = queryParamHandler.generateSearchParamObj(queryParams);
 
-			String path = PathUtils.makeStmtUrl(subject,predicate,object) + "/agents";
+			String path = pathUtils.makeStmtUrl(subject,predicate,object) + "/agents";
 			
-			Integer currPage = QueryParamHandler.extractPage(queryParams);
+			Integer currPage = queryParamHandler.extractPage(queryParams);
 			
 			ResultBatch<URI> resultbatch = rmapService.getStatementAssertingAgents(rmapSubject, rmapPredicate, rmapObject, params);
 			if (resultbatch == null){
@@ -278,7 +281,7 @@ public class StatementResponseManager extends ResponseManager {
 			if (!queryParams.containsKey(Constants.PAGE_PARAM)
 					&& resultbatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String seeOtherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+				String seeOtherUrl = queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				seeOtherUrl = seeOtherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -289,8 +292,8 @@ public class StatementResponseManager extends ResponseManager {
 						.type(HttpTypeMediator.getResponseNonRdfMediaType(returnType));	
 
 				if (resultbatch.hasNext() || (currPage!=null && currPage>1)) {
-					String pageLinkTemplate = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
-					Link[] pageLinks = QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
+					String pageLinkTemplate = queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+					Link[] pageLinks = queryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
 					responseBldr.links(pageLinks);
 				}
 				

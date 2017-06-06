@@ -23,11 +23,6 @@
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import info.rmapproject.core.utils.ConfigUtils;
-import info.rmapproject.core.utils.Constants;
 
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
@@ -54,19 +49,8 @@ public class SesameSailMemoryTriplestore extends SesameTriplestore {
 	/**
 	 * Instantiates a new Sesame Sail memory triplestore.
 	 */
-	public SesameSailMemoryTriplestore()	{
-		this(Constants.RMAPCORE_PROPFILE);
-	}
+	public SesameSailMemoryTriplestore() {
 
-	/**
-	 * Instantiates a new Sesame Sail memory triplestore.
-	 *
-	 * @param propertyFileName the property file name
-	 */
-	public SesameSailMemoryTriplestore(String propertyFileName) {	
-		Map<String, String> properties = new HashMap<String, String>();
-		properties = ConfigUtils.getPropertyValues(propertyFileName);
-		dataDirectory = properties.get(DATA_DIRECTORY_PROPERTY);
 	}
 
 	/* (non-Javadoc)
@@ -102,4 +86,11 @@ public class SesameSailMemoryTriplestore extends SesameTriplestore {
 		return repository;
 	}
 
+	public String getDataDirectory() {
+		return dataDirectory;
+	}
+
+	public void setDataDirectory(String dataDirectory) {
+		this.dataDirectory = dataDirectory;
+	}
 }

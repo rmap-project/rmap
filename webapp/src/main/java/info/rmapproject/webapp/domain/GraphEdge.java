@@ -48,11 +48,12 @@ public class GraphEdge implements Serializable {
 	
 	/** The target node type. */
 	private String targetNodeType;
-	
+
 	/**
 	 * Instantiates a new graph edge.
 	 */
-	public GraphEdge(){
+	public GraphEdge() {
+
 	}
 	
 	/**
@@ -62,7 +63,7 @@ public class GraphEdge implements Serializable {
 	 * @param target the target node ID
 	 * @param label the edge label
 	 */
-	public GraphEdge(Integer source, Integer target, String label){
+	public GraphEdge(Integer source, Integer target, String label) {
 		setSource(source);
 		setTarget(target);
 		setLabel(label);

@@ -44,6 +44,8 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	/** The API User Service. */
 	private ApiUserService apiUserService;
 
+	private RMapApiExceptionHandler exceptionHandler;
+
 	/**
 	 * Autowired from Spring configuration - sets ApiUserService class.
 	 *
@@ -96,11 +98,17 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	    	
 	    } catch (RMapApiException ex){ 
 	    	//generate a response to intercept default message
-	    	RMapApiExceptionHandler exceptionhandler = new RMapApiExceptionHandler();
-	    	Response response = exceptionhandler.toResponse(ex);
+	    	Response response = exceptionHandler.toResponse(ex);
 	    	message.getExchange().put(Response.class, response);   	
 	    }
 		
     }
-		
+
+	public RMapApiExceptionHandler getExceptionHandler() {
+		return exceptionHandler;
+	}
+
+	public void setExceptionHandler(RMapApiExceptionHandler exceptionHandler) {
+		this.exceptionHandler = exceptionHandler;
+	}
 }

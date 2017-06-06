@@ -32,6 +32,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
 import info.rmapproject.api.exception.ErrorCode;
@@ -49,11 +51,12 @@ import info.rmapproject.core.model.RMapObjectType;
  */
 
 @Path("/resources")
+@Component
 public class ResourceApiService {
 
     /** Web Application context to retrieve bean values (must use WebApplicationContext to avoid thread issues). */
     @Autowired
-    private WebApplicationContext context;
+    private ApplicationContext context;
 	//private ResourceResponseManager resourceResponseManager = null;
 
     /**

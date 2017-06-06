@@ -5,26 +5,65 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:property-placeholder location="classpath:/rmapcore.properties"/>
-   
-   	<bean id="rmapService" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapService" scope="prototype">
-		<constructor-arg ref="resourcemgr"/>
-		<constructor-arg ref="discomgr"/>
-		<constructor-arg ref="agentmgr"/>
-		<constructor-arg ref="statementmgr"/>
-		<constructor-arg ref="triplestore"/>
-	</bean>
+	<context:property-placeholder location="classpath:/rmapcore.properties" ignore-unresolvable="true"/>
+	<context:component-scan base-package="info.rmapproject.core"/>
 
-    <bean id="rmapIdService" class="${rmapcore.idservice.impl}"/>
-    
     <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/>
-
-    <bean id="triplestore" class="${rmapcore.triplestore.impl}"  scope="prototype"/>
  	
  	<bean id="resourcemgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapResourceMgr" scope="prototype"/>
  	<bean id="discomgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr" scope="prototype"/>
  	<bean id="statementmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr" scope="prototype"/>
  	<bean id="eventmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr" scope="prototype"/>
  	<bean id="agentmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr" scope="prototype"/>
-	
+	<bean id="rmapSearchParams" class="info.rmapproject.core.model.request.RMapSearchParams" scope="prototype"/>
+
+	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<bean class="info.rmapproject.core.model.RMapStatusFilterConverter"/>
+				<bean class="info.rmapproject.core.model.OrderByConverter"/>
+			</set>
+		</property>
+	</bean>
+
+	<beans profile="http-triplestore">
+		<context:property-placeholder location="classpath*:/http-triplestore.properties" ignore-unresolvable="true"/>
+		<bean primary="true" id="httpTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype">
+			<property name="sesameUrl" value="${sesamehttp.url}"/>
+			<property name="sesameReposName" value="${sesamehttp.repositoryName}"/>
+			<property name="sesameUserName" value="${sesamehttp.user}"/>
+			<property name="sesamePassword" value="${sesamehttp.password}"/>
+		</bean>
+	</beans>
+
+	<beans profile="http-idservice">
+		<context:property-placeholder location="classpath*:/http-idservice.properties" ignore-unresolvable="true"/>
+		<bean id="httpUrlIdService" class="info.rmapproject.core.idservice.HttpUrlIdService">
+			<property name="serviceUrl" value="${idservice.idMinterUrl}"/>
+			<property name="idPrefix" value="${idservice.idPrefix}"/>
+			<property name="maxRetryAttempts" value="${idservice.maxRetries}"/>
+			<property name="replaceString" value="${idservice.replaceString}"/>
+			<property name="userName" value="${idservice.userName}"/>
+			<property name="userPassword" value="${idservice.userPassword}"/>
+			<property name="idLength" value="${idservice.idLength}"/>
+			<property name="idRegex" value="${idservice.idRegex}"/>
+		</bean>
+	</beans>
+
+	<beans profile="inmemory-idservice">
+		<context:property-placeholder location="classpath*:/inmemory-idservice.properties" ignore-unresolvable="true"/>
+		<bean primary="true" id="inMemoryIdService" class="info.rmapproject.core.idservice.RandomStringIdService">
+			<property name="idPrefix" value="${idservice.idPrefix}"/>
+			<property name="idLength" value="${idservice.idLength}"/>
+			<property name="idRegex" value="${idservice.idRegex}"/>
+		</bean>
+	</beans>
+
+	<beans profile="inmemory-triplestore">
+		<context:property-placeholder location="classpath*:/inmemory-triplestore.properties" ignore-unresolvable="true"/>
+		<bean primary="true" id="inMemoryTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore">
+			<property name="dataDirectory" value="${sesamesail.dataDirectory}"/>
+		</bean>
+	</beans>
+
 </beans>

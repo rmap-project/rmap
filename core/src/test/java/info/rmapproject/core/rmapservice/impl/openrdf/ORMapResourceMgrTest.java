@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +67,9 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	
 	@Autowired 
 	ORMapDiSCOMgr discomgr;
+
+	@Autowired
+	RMapSearchParamsFactory paramsFactory;
 
 	@Before
 	public void setUp() throws Exception {
@@ -100,7 +104,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 		
@@ -154,7 +158,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setDateRange(dateFrom, dateTo);
 
 			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
@@ -200,7 +204,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setDateRange(dateFrom, dateTo);
 			params.setStatusCode(RMapStatusFilter.ALL);
 			
@@ -249,7 +253,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 	
@@ -326,7 +330,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			requestAgent.setAgentKeyId(new java.net.URI(TestConstants.SYSAGENT_KEY));
 			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
 		
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
 			
 			URI uri = new URI(TestConstants.TEST_DISCO_DOI);

@@ -28,6 +28,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.model.vocabulary.RDF;
@@ -52,6 +53,9 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 	/** The statement response manager. */
 	@Autowired
 	protected StatementResponseManager statementResponseManager;
+
+	@Autowired
+	RMapSearchParamsFactory paramsFactory;
 		
 	/* (non-Javadoc)
 	 * @see info.rmapproject.api.responsemgr.ResponseManagerTest#setUp()
@@ -122,7 +126,7 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 	        assertNotNull(discoURI);
 			rmapService.createDiSCO(rmapDisco, requestAgent);
 			
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
 
 
@@ -158,7 +162,7 @@ public class StatementResponseManagerTest extends ResponseManagerTest {
 	        assertNotNull(discoURI);
 			rmapService.createDiSCO(rmapDisco, requestAgent);
 			
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
 
 

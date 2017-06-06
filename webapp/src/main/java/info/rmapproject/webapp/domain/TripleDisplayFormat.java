@@ -68,7 +68,7 @@ public class TripleDisplayFormat {
 	 * @throws Exception the exception
 	 */
 	public TripleDisplayFormat(RMapTriple rmapTriple) throws UnsupportedEncodingException {
-		
+
 		RMapResource subj = rmapTriple.getSubject();
 		String subjDisplay = subj.toString();
 		

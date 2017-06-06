@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
@@ -62,33 +63,44 @@ import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.model.request.ResultBatchImpl;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import org.springframework.stereotype.Component;
 
 /**
  * The concrete class for RMap Service, implemented using openrdf
  *
  * @author khanson, smorrissey
  */
+@Component
 public class ORMapService implements RMapService {
 
 	/** Instance of the RMap Resource Manager */
+	@Autowired
 	private ORMapResourceMgr resourcemgr;
 
 	/** Instance of the RMap DiSCO Manager */
+	@Autowired
 	private ORMapDiSCOMgr discomgr;
 
 	/** Instance of the RMap Agent Manager */
+	@Autowired
 	private ORMapAgentMgr agentmgr;
 
 	/** Instance of the RMap Statement Manager */
+	@Autowired
 	private ORMapStatementMgr statementmgr;
 
 	/** Instance of the RMap Event Manager */
+	@Autowired
 	private ORMapEventMgr eventmgr;
 	
 	/** An instance of the sesame triplestore for database changes.
 	 * It is declared in the ORMapService so that it can be passed to multiple functions
 	 * across a single interaction */
+	@Autowired
 	private SesameTriplestore triplestore;
+
+	@Autowired
+	private RMapSearchParamsFactory paramsFactory;
 
 	/**
 	 * Instantiates a new RMap Service using the various managers
@@ -150,7 +162,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("Null URI");
 		}
 		if (params==null){
-			params = new RMapSearchParams();
+			params = paramsFactory.newInstance();
 		}
 		org.openrdf.model.IRI mIri = ORAdapter.uri2OpenRdfIri(uri);
 		org.openrdf.model.IRI mContextIri = ORAdapter.uri2OpenRdfIri(context);
@@ -248,7 +260,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("Null resource URI");
 		}
 		if (params==null){
-			params = new RMapSearchParams();
+			params = paramsFactory.newInstance();
 		}
 		IRI rUri = ORAdapter.uri2OpenRdfIri(resourceUri);
 		Map<URI, Set<URI>> map = null;
@@ -886,7 +898,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("Null URI");
 		}
 		if (params==null){
-			params = new RMapSearchParams();
+			params = paramsFactory.newInstance();
 		}
 		org.openrdf.model.IRI resource = ORAdapter.uri2OpenRdfIri(uri);
 		
@@ -941,7 +953,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("Null object");
 		}
 		if (params==null){
-			params = new RMapSearchParams();
+			params = paramsFactory.newInstance();
 		}
 		IRI orSubject = ORAdapter.uri2OpenRdfIri(subject);
 		IRI orPredicate = ORAdapter.uri2OpenRdfIri(predicate);

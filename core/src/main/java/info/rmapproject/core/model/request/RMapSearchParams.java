@@ -24,8 +24,8 @@ package info.rmapproject.core.model.request;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.utils.ConfigUtils;
-import info.rmapproject.core.utils.Constants;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.net.URI;
 import java.util.Date;
@@ -46,12 +46,19 @@ public class RMapSearchParams  {
 	 * the start date of the event that created each DiSCO.
 	 **/
 	DateRange dateRange;
-	
+
+	/**
+	 * The default status filter.
+	 */
+	@Value("${rmapcore.defaultStatusFilter}")
+	RMapStatusFilter defaultStatusFilter;
+
 	/**
 	 * Where searches involve returning DiSCO lists or the contents of DiSCOs, a status parameter 
 	 * will filter according to the status of the DiSCO. For example, if you are retrieving a list 
 	 * of triples that reference a resource, you can choose to only include triples from ACTIVE DiSCOs.
 	 */
+	@Value("${rmapcore.defaultStatusFilter}")
 	RMapStatusFilter status;
 
 	/**
@@ -61,11 +68,25 @@ public class RMapSearchParams  {
 	 * by a specific set of System Agents.
 	 */
 	Set<URI> systemAgents;
-	
+
+	/**
+	 * Hard limit to how many results can be returned in the search.  {@link #limit} cannot be set to a value greater
+	 * than the maxLimit.
+	 */
+	@Value("${rmapcore.maxQueryLimit}")
+	Integer maxLimit;
+
+	/**
+	 * The default query limit.
+	 */
+	@Value("${rmapcore.defaultQueryLimit}")
+	Integer defaultLimit;
+
 	/**
 	 * The limit determines how many results will be returned in the search.  Where no limit is set a default
 	 * limit will be used retrieved from the config properties
 	 */
+	@Value("${rmapcore.defaultQueryLimit}")
 	Integer limit;
 	
 	/** 
@@ -74,11 +95,18 @@ public class RMapSearchParams  {
 	 * requesting offset of 192 will return records 192-391. 
 	 */
 	Integer offset;
-	
+
+	/**
+	 * The default can be set in the rmapcore properties file.
+	 */
+	@Value("${rmapcore.defaultOrderBy}")
+	OrderBy defaultOrderBy;
+
 	/** 
 	 * Defines ORDER BY instructions.  The default can be set in the rmapcore properties file.
 	 * For more information on the ORDER BY options, see the OrderBy class.
 	 */
+	@Value("${rmapcore.defaultOrderBy}")
 	OrderBy orderBy;
 	
 	/**
@@ -107,30 +135,12 @@ public class RMapSearchParams  {
 	
 	
 	/**
-	 * Instantiates a new RMap search params.
+	 * Instantiates a new RMap search params.  Package-private access <em>only</em>.  Instances are acquired by
+	 * implementations of {@link RMapSearchParamsFactory}.
 	 */
-	public RMapSearchParams() {
+	RMapSearchParams() {
+		// package-private to prevent public instantiation
 	}
-
-	/**
-	 * Instantiates a new RMap search params.
-	 *
-	 * @param from the from date
-	 * @param until the until date
-	 * @param status the status filter
-	 * @param systemAgentsCsv the CSV of system agent URIs to filter by
-	 * @param limit the maximum number of records to retrieve
-	 * @param offset the position of the first record to be retrieved
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	public RMapSearchParams(String from, String until, String status, String systemAgentsCsv, String limit, String offset) 
-			throws RMapException, RMapDefectiveArgumentException {
-		setDateRange(new DateRange(from, until));
-		setStatusCode(status); 
-		setSystemAgents(systemAgentsCsv);	
-		setLimit(limit);
-		setOffset(offset);
-		}
 	
 	/**
 	 *  
@@ -140,12 +150,11 @@ public class RMapSearchParams  {
 	 * @return the limit
 	 */
 	public Integer getLimit() throws RMapException{		
-		if (this.limit==null){
-			return getDefaultLimit();
+		if (this.limit==null) {
+			throw new IllegalStateException("Retrieval limit is null.  Is 'rmapcore.defaultQueryLimit' set?");
 		}
-		else {
-			return this.limit;
-		}
+
+		return this.limit;
 	}
 
 	/**
@@ -303,12 +312,10 @@ public class RMapSearchParams  {
 	 * @throws RMapException the RMap exception
 	 */
 	public RMapStatusFilter getStatusCode() throws RMapException {
-		if (this.status!=null){
-			return this.status;
+		if (status == null) {
+			throw new IllegalStateException("RMapStatusFilter is null.  Is 'rmapcore.defaultStatusFilter' set?");
 		}
-		else {
-			return getDefaultStatusCode();
-		}
+		return this.status;
 	}
 
 	/**
@@ -317,6 +324,9 @@ public class RMapSearchParams  {
 	 * @param status the new status code
 	 */
 	public void setStatusCode(RMapStatusFilter status) {
+		if (status == null) {
+			throw new IllegalArgumentException("Status must not be null.");
+		}
 		this.status = status;
 	}
 
@@ -427,16 +437,17 @@ public class RMapSearchParams  {
 	 * @throws RMapException the RMap exception
 	 */
 	public Integer getDefaultLimit() throws RMapException{
-		Integer limit= null;
-		try{
-			String sLimit= ConfigUtils.getPropertyValue(Constants.RMAPCORE_PROPFILE, Constants.DEFAULT_QUERY_LIMIT_KEY);
-			sLimit=sLimit.trim();
-			limit = Integer.parseInt(sLimit);
+		if (this.defaultLimit == null) {
+			throw new RMapException ("The default limit property in not configured correctly: is " +
+					"'rmapcore.defaultQueryLimit' defined?");
 		}
-		catch (Exception ex) {
-			throw new RMapException ("The default limit property in not configured correctly.", ex);
+
+		if (this.defaultLimit > getMaxQueryLimit()) {
+			throw new IllegalStateException(String.format("The default query limit %s must be less than the max " +
+					"query limit %s", defaultLimit, maxLimit));
 		}
-		return limit;	
+
+		return this.defaultLimit;
 	}
 
 	/**
@@ -446,15 +457,12 @@ public class RMapSearchParams  {
 	 * @throws RMapException the RMap exception
 	 */
 	public RMapStatusFilter getDefaultStatusCode() throws RMapException {
-		try {
-			String defaultStatus = ConfigUtils.getPropertyValue(Constants.RMAPCORE_PROPFILE, Constants.DEFAULT_STATUS_FILTER_KEY);
-			if (defaultStatus==null){
-				throw new RMapException("Default Status Code property is incorrectly configured");			
-			}		
-			return RMapStatusFilter.getStatusFromTerm(defaultStatus);		
-		} catch (Exception ex){
-			throw new RMapException("Default Status Code property is incorrectly configured", ex);
+		if (defaultStatusFilter == null) {
+			throw new RMapException("Default Status Code property is incorrectly configured: is " +
+					"'rmapcore.defaultStatusFilter' defined?");
 		}
+
+		return defaultStatusFilter;
 	}
 	
 	/**
@@ -464,15 +472,12 @@ public class RMapSearchParams  {
 	 * @throws RMapException the RMap exception
 	 */
 	public OrderBy getDefaultOrderBy() throws RMapException {
-		try {
-			String defaultOrderBy = ConfigUtils.getPropertyValue(Constants.RMAPCORE_PROPFILE, Constants.DEFAULT_ORDERBY_FILTER_KEY);
-			if (defaultOrderBy == null){
-				throw new RMapException("Default OrderBy property is incorrectly configured");
-			}
-			return OrderBy.getOrderByFromProperty(defaultOrderBy);		
-		} catch (Exception ex){
-			throw new RMapException("Default OrderBy property is incorrectly configured", ex);
+		if (this.defaultOrderBy == null) {
+			throw new RMapException("Default OrderBy property is incorrectly configured: is 'rmapcore.defaultOrderBy'" +
+					"defined?");
 		}
+
+		return defaultOrderBy;
 	}
 	
 	/**
@@ -483,21 +488,20 @@ public class RMapSearchParams  {
 	 * @throws RMapException the RMap exception
 	 */
 	public Integer getMaxQueryLimit() throws RMapException {
-		Integer maxLimit= null;
-		try{
-			String sLimit= ConfigUtils.getPropertyValue(Constants.RMAPCORE_PROPFILE, Constants.MAX_QUERY_LIMIT_KEY);
-			sLimit=sLimit.trim();
-			maxLimit = Integer.parseInt(sLimit);
+		if (maxLimit == null) {
+			throw new IllegalStateException("Maximum retrieval limit is null.  Is 'rmapcore.maxQueryLimit' set?");
 		}
-		catch (Exception ex) {
-			throw new RMapException ("The maximum query limit property in not configured correctly.", ex);
+
+		if (maxLimit < 1) {
+			throw new RMapException("The maximum query limit must be greater than 0.");
 		}
-		return maxLimit;	
+
+		return maxLimit;
 	}
 	
 	/**
 	 * Sets flag for whether to check next record.
-	 * @param boolean true if request needs to check whether there is a next set of values
+	 * @param checkNext true if request needs to check whether there is a next set of values
 	 */
 	public void setCheckNext(boolean checkNext){
 		this.checkNext = checkNext;
@@ -513,7 +517,7 @@ public class RMapSearchParams  {
 	
 	/**
 	 * Sets flag for whether to exclude object=literal from triple resultset.
-	 * @param boolean true if object=literal to be excluded from resultset
+	 * @param excludeLiterals true if object=literal to be excluded from resultset
 	 */
 	public void setExcludeLiterals(boolean excludeLiterals){
 		this.excludeLiterals = excludeLiterals;
@@ -529,7 +533,7 @@ public class RMapSearchParams  {
 	
 	/**
 	 * Sets flag for whether to exclude object=IRI from triple resultset.
-	 * @param boolean true if object=IRI to be excluded from resultset
+	 * @param excludeIRIs true if object=IRI to be excluded from resultset
 	 */
 	public void setExcludeIRIs(boolean excludeIRIs){
 		this.excludeIRIs = excludeIRIs;
@@ -545,7 +549,7 @@ public class RMapSearchParams  {
 	
 	/**
 	 * Sets flag for whether to exclude predicate=RDF.type from triple resultset.
-	 * @param boolean true if predicate=RDF.type to be excluded from resultset
+	 * @param excludeTypes true if predicate=RDF.type to be excluded from resultset
 	 */
 	public void setExcludeTypes(boolean excludeTypes){
 		this.excludeTypes = excludeTypes;

@@ -90,6 +90,12 @@
 		    <artifactId>mockito-core</artifactId>
         	<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -102,11 +108,33 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <rmapcore.idservice.impl>info.rmapproject.core.idservice.RandomStringIdService</rmapcore.idservice.impl>
-                        <rmapcore.triplestore.impl>info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore</rmapcore.triplestore.impl>
+                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-userservice</spring.profiles.active>
+						<derby.system.home>${project.build.directory}/derby</derby.system.home>
                     </systemProperties>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-resource</id>
+						<goals>
+							<goal>add-resource</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>src/main/webapp/WEB-INF</directory>
+									<includes>
+										<include>beans.xml</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
         </plugins>
 	</build>
 </project>

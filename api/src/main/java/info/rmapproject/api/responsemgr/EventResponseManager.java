@@ -81,7 +81,7 @@ public class EventResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)
 					.build();
 			
 			reqSuccessful = true;
@@ -108,7 +108,7 @@ public class EventResponseManager extends ResponseManager {
 		try {				
 			response = Response.status(Response.Status.OK)
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)
 					.build();
 			
 			reqSuccessful = true;
@@ -162,7 +162,7 @@ public class EventResponseManager extends ResponseManager {
 
 			response = Response.status(Response.Status.OK)
 						.entity(eventOutput.toString())
-						.location(new URI(PathUtils.makeEventUrl(strEventUri)))
+						.location(new URI(pathUtils.makeEventUrl(strEventUri)))
         				.type(HttpTypeMediator.getResponseRMapMediaType("event", returnType.getRdfType())) //TODO move version number to constants
 						.build();
 			
@@ -259,7 +259,7 @@ public class EventResponseManager extends ResponseManager {
     		if (outputString.length()>0){			    			
 				response = Response.status(Response.Status.OK)
 							.entity(outputString.toString())
-							.location(new URI (PathUtils.makeEventUrl(strEventUri)))
+							.location(new URI (pathUtils.makeEventUrl(strEventUri)))
 							.build();    			
 	        }
 			

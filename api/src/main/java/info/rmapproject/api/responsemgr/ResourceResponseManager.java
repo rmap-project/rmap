@@ -56,7 +56,7 @@ import info.rmapproject.core.rmapservice.RMapService;
  * @author khanson
  */
 public class ResourceResponseManager extends ResponseManager {
-	
+
 	/**
 	 * Constructor autowires the RMapService and RDFHandler.
 	 *
@@ -82,7 +82,7 @@ public class ResourceResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 					.entity("{\"description\":\"Follow header link to read documentation.\"}")
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -110,7 +110,7 @@ public class ResourceResponseManager extends ResponseManager {
 		try {			
 			response = Response.status(Response.Status.OK)
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-					.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+					.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
 			
 			reqSuccessful = true;
@@ -148,11 +148,11 @@ public class ResourceResponseManager extends ResponseManager {
 			if (returnType==null) {returnType = Constants.DEFAULT_NONRDF_TYPE;}
 						
 			URI uriResourceUri = PathUtils.convertPathStringToURI(strResourceUri);
-			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
+			RMapSearchParams params = queryParamHandler.generateSearchParamObj(queryParams);
 
-			String path = PathUtils.makeResourceUrl(strResourceUri);
+			String path = pathUtils.makeResourceUrl(strResourceUri);
 			
-			Integer currPage = QueryParamHandler.extractPage(queryParams);
+			Integer currPage = queryParamHandler.extractPage(queryParams);
 			
 			ResultBatch <URI> uribatch = null;
 			String outputString="";
@@ -186,7 +186,7 @@ public class ResourceResponseManager extends ResponseManager {
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
 			if (!queryParams.containsKey(Constants.PAGE_PARAM) && uribatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String seeOtherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+				String seeOtherUrl = queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				seeOtherUrl = seeOtherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -201,8 +201,8 @@ public class ResourceResponseManager extends ResponseManager {
 				
 				//are we showing page links?
 				if (uribatch.hasNext()) {
-					String pageLinkTemplate = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
-					Link[] pageLinks = QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, uribatch.hasNext());
+					String pageLinkTemplate = queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+					Link[] pageLinks = queryParamHandler.generatePageLinks(pageLinkTemplate, currPage, uribatch.hasNext());
 					responseBldr.links(pageLinks);
 				}
 								
@@ -266,9 +266,9 @@ public class ResourceResponseManager extends ResponseManager {
 			if (returnType == null)	{returnType = Constants.DEFAULT_RDF_TYPE;}
 			
 			URI uriResourceUri = PathUtils.convertPathStringToURI(strResourceUri);
-			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
+			RMapSearchParams params = queryParamHandler.generateSearchParamObj(queryParams);
 
-			Integer currPage = QueryParamHandler.extractPage(queryParams);
+			Integer currPage = queryParamHandler.extractPage(queryParams);
 			
 			//get resource triples
 			ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uriResourceUri, params);
@@ -286,7 +286,7 @@ public class ResourceResponseManager extends ResponseManager {
 			//if there is currently no page defined, and there is the option to get the next batch then do 303 with pagination
 			if (!queryParams.containsKey(Constants.PAGE_PARAM) && triplebatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String otherUrl = QueryParamHandler.getPageLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, params.getLimit());
+				String otherUrl = queryParamHandler.getPageLinkTemplate(pathUtils.makeResourceUrl(strResourceUri), queryParams, params.getLimit());
 				otherUrl = otherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -296,10 +296,10 @@ public class ResourceResponseManager extends ResponseManager {
 				responseBldr = Response.status(Response.Status.OK);	
 				
 				if (triplebatch.hasNext() || (currPage!=null && currPage>1)) {
-					String pageLinkTemplate = 
-							QueryParamHandler.getPageLinkTemplate(PathUtils.makeResourceUrl(strResourceUri), queryParams, params.getLimit());
-					Link[] pageLinks =  
-							QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, triplebatch.hasNext());
+					String pageLinkTemplate =
+							queryParamHandler.getPageLinkTemplate(pathUtils.makeResourceUrl(strResourceUri), queryParams, params.getLimit());
+					Link[] pageLinks =
+							queryParamHandler.generatePageLinks(pageLinkTemplate, currPage, triplebatch.hasNext());
 					responseBldr.links(pageLinks);
 
 				}

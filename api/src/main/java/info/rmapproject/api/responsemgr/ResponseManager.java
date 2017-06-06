@@ -21,15 +21,18 @@ package info.rmapproject.api.responsemgr;
 
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Abstract class containing generic declarations for response managers. Response managers generate 
  * HTTP responses for different kinds of REST API requests.
  * @author khanson
  */
-public abstract class ResponseManager {
+public class ResponseManager {
 
 	//TODO: evaluate whether this abstract class is worthwhile
 	 
@@ -38,7 +41,10 @@ public abstract class ResponseManager {
 	/** The RDF handler. */
 	protected RDFHandler rdfHandler;
 	/** Query Param Handler */
+	// TODO: fix duplicate query param handler member variables in class hierarchy
 	protected QueryParamHandler queryParamHandler;
+
+	protected PathUtils pathUtils;
 	
 	/**
 	 * Constructor receives RMapService and RDFHandler.
@@ -47,6 +53,7 @@ public abstract class ResponseManager {
 	 * @param rdfHandler the RDF handler
 	 * @throws RMapApiException the RMap API exception
 	 */
+	@Autowired
 	protected ResponseManager(RMapService rmapService, RDFHandler rdfHandler) throws RMapApiException {
 		if (rmapService ==null){
 			throw new RMapApiException(ErrorCode.ER_FAILED_TO_INIT_RMAP_SERVICE);
@@ -56,8 +63,21 @@ public abstract class ResponseManager {
 		}
 		this.rmapService = rmapService;
 		this.rdfHandler = rdfHandler;
-		this.queryParamHandler = new QueryParamHandler();
 	}
-	
-	
+
+	public QueryParamHandler getQueryParamHandler() {
+		return queryParamHandler;
+	}
+
+	public void setQueryParamHandler(QueryParamHandler queryParamHandler) {
+		this.queryParamHandler = queryParamHandler;
+	}
+
+	public PathUtils getPathUtils() {
+		return pathUtils;
+	}
+
+	public void setPathUtils(PathUtils pathUtils) {
+		this.pathUtils = pathUtils;
+	}
 }

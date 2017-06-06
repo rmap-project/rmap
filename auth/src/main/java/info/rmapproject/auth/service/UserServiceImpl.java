@@ -27,13 +27,13 @@ import info.rmapproject.auth.model.UserIdentityProvider;
 import info.rmapproject.auth.utils.Constants;
 import info.rmapproject.auth.utils.Sha256HashGenerator;
 import info.rmapproject.core.idservice.IdService;
-import info.rmapproject.core.utils.ConfigUtils;
 
 import java.net.URI;
 import java.util.Date;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +60,10 @@ public class UserServiceImpl {
 	
 	/** Users table data access component. */
 	@Autowired
-	UserDao userDao; 	
+	UserDao userDao;
+
+	@Value("${rmapauth.baseUrl}")
+	private String rmapBaseUrl;
 	
 	/**
 	 * Create a new user. Auto generates the authkey from the IdProvider and the IdProvider public ID
@@ -108,9 +111,8 @@ public class UserServiceImpl {
 				String idpName=idp.getIdentityProvider();
 				String idpAccountId=idp.getProviderAccountPublicId();
 				String sha256IdHash = Sha256HashGenerator.getSha256Hash(idpName + idpAccountId);
-					
-				String baseUrl = ConfigUtils.getPropertyValue(Constants.RMAP_AUTH_PROPFILE, Constants.RMAP_BASE_URL_KEY);
-				String authKeyUri = baseUrl + Constants.AUTH_ID_FOLDER + "/" + sha256IdHash;
+
+				String authKeyUri = rmapBaseUrl + Constants.AUTH_ID_FOLDER + "/" + sha256IdHash;
 						
 				User dupUser = getUserByAuthKeyUri(authKeyUri);
 				if (dupUser!=null){
@@ -209,6 +211,35 @@ public class UserServiceImpl {
 	public User getUserByKeySecret(String key, String secret) throws RMapAuthException{
 		return userDao.getUserByKeySecret(key, secret);
 	}
-	
-	
+
+	/**
+	 * This is the public base URL associated with the RMap web application.  May be configured using the {@code
+	 * rmapauth.baseUrl} property.  Used to construct a unique Auth ID associated with a specific form of authentication
+	 * used by the user.  Should <em>not</em> end with a trailing slash.
+	 *
+	 * @return the public base URL associated with the RMap web application
+	 */
+	public String getRmapBaseUrl() {
+		return rmapBaseUrl;
+	}
+
+	/**
+	 * This is the public base URL associated with the RMap web application.  May be configured using the {@code
+	 * rmapauth.baseUrl} property.  Used to construct a unique Auth ID associated with a specific form of authentication
+	 * used by the user.  Should <em>not</em> end with a trailing slash.
+	 *
+	 * @param rmapBaseUrl the public base URL associated with the RMap web application
+	 * @throws IllegalArgumentException if {@code rmapBaseUrl} is empty, {@code null}, or ends with a slash
+	 */
+	public void setRmapBaseUrl(String rmapBaseUrl) {
+		if (rmapBaseUrl == null || rmapBaseUrl.trim().equals("")) {
+			throw new IllegalArgumentException("RMap base url must not be empty or null.");
+		}
+
+		if (rmapBaseUrl.trim().endsWith("/")) {
+			throw new IllegalArgumentException("RMap base url must not end with a slash.");
+		}
+
+		this.rmapBaseUrl = rmapBaseUrl;
+	}
 }

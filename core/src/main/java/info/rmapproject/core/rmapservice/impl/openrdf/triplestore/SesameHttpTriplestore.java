@@ -19,13 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
-
-import info.rmapproject.core.utils.ConfigUtils;
-import info.rmapproject.core.utils.Constants;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.http.HTTPRepository;
@@ -65,21 +58,7 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
      * Instantiates a new Sesame HTTP triplestore.
      */
     public SesameHttpTriplestore()	{
-		this(Constants.RMAPCORE_PROPFILE);
-	}
-	
-	/**
-     * Instantiates a new Sesame HTTP triplestore.
-	 *
-	 * @param propertyFileName the property file name
-	 */
-	public SesameHttpTriplestore(String propertyFileName) {	
-		Map<String, String> properties = new HashMap<String, String>();
-		properties = ConfigUtils.getPropertyValues(propertyFileName);
-		sesameUrl = properties.get(URL_PROPERTY);
-		sesameReposName = properties.get(REPOS_NAME_PROPERTY);
-		sesameUserName = properties.get(USER_PROPERTY);
-		sesamePassword = properties.get(PASSWORD_PROPERTY);
+
 	}
 
 	/* (non-Javadoc)
@@ -96,7 +75,36 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
     	}
     	return repository;
 	}
-		
 
-	  
+	public String getSesameUrl() {
+		return sesameUrl;
+	}
+
+	public void setSesameUrl(String sesameUrl) {
+		this.sesameUrl = sesameUrl;
+	}
+
+	public String getSesameReposName() {
+		return sesameReposName;
+	}
+
+	public void setSesameReposName(String sesameReposName) {
+		this.sesameReposName = sesameReposName;
+	}
+
+	public String getSesameUserName() {
+		return sesameUserName;
+	}
+
+	public void setSesameUserName(String sesameUserName) {
+		this.sesameUserName = sesameUserName;
+	}
+
+	public String getSesamePassword() {
+		return sesamePassword;
+	}
+
+	public void setSesamePassword(String sesamePassword) {
+		this.sesamePassword = sesamePassword;
+	}
 }

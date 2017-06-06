@@ -48,6 +48,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>	
         <dependency>
             <groupId>org.springframework</groupId>
@@ -74,6 +75,21 @@
 		    <artifactId>powermock-module-junit4</artifactId>
             <scope>test</scope>
 		</dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -86,8 +102,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <rmapcore.idservice.impl>info.rmapproject.core.idservice.RandomStringIdService</rmapcore.idservice.impl>
-                        <rmapcore.triplestore.impl>info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore</rmapcore.triplestore.impl>
+                        <spring.profiles.active>default,inmemory-idservice,inmemory-triplestore</spring.profiles.active>
                     </systemProperties>
                 </configuration>
             </plugin>

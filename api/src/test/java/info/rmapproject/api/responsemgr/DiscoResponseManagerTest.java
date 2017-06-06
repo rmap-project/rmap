@@ -348,21 +348,12 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	 * Test create DiSCO using JSONLD RDF
 	 */
 	@Test
-	public void testCreateJSONLDDisco() {
-		Response response = null;
-		try {			
-			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_JSONLD);
-			response = discoResponseManager.createRMapDiSCO(stream, RDFType.JSONLD);
-			
-		} catch (Exception e) {
-			System.out.print(e.getMessage());
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
-	
+	public void testCreateJSONLDDisco() throws RMapApiException {
+		InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_JSONLD);
+		Response response = discoResponseManager.createRMapDiSCO(stream, RDFType.JSONLD);
+
 		assertNotNull(response);
 		assertEquals(201, response.getStatus());
-		
 	}
 
 	

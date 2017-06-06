@@ -38,7 +38,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.context.ApplicationContext;
 
 /**
  * REST API service for RMap Events.
@@ -50,7 +50,7 @@ public class EventApiService {
 
     @Autowired
     /** Web Application context to retrieve bean values (must use WebApplicationContext to avoid thread issues). */
-    private WebApplicationContext context;
+    private ApplicationContext context;
 	//private EventResponseManager eventResponseManager = null;	
 
     /**

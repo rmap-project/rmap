@@ -26,12 +26,21 @@ import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapValue;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openrdf.model.vocabulary.XMLSchema;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Tests for RestApiUtils class
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:/beans.xml")
 public class PathUtilsTest {
+
+	@Autowired
+	private PathUtils underTest;
 
 	/**
 	 * Test retrieval of base URL
@@ -40,7 +49,7 @@ public class PathUtilsTest {
 	 */
 	@Test
 	public void testGetBaseUrl() throws RMapApiException {
-		String baseURL = PathUtils.getApiPath();
+		String baseURL = underTest.getApiPath();
 		assertFalse(baseURL.endsWith("/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -52,7 +61,7 @@ public class PathUtilsTest {
 	 */
 	@Test
 	public void testGetStmtBaseUrl() throws RMapApiException {
-		String baseURL = PathUtils.getStmtBaseUrl();
+		String baseURL = underTest.getStmtBaseUrl();
 		assertFalse(baseURL.endsWith("/stmt/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -64,7 +73,7 @@ public class PathUtilsTest {
 	 */
 	@Test
 	public void testGetDiscoBaseUrl() throws RMapApiException {
-		String baseURL = PathUtils.getDiscoBaseUrl();
+		String baseURL = underTest.getDiscoBaseUrl();
 		assertFalse(baseURL.endsWith("/disco/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -76,7 +85,7 @@ public class PathUtilsTest {
 	 */
 	@Test
 	public void testGetAgentBaseUrl() throws RMapApiException {
-		String baseURL = PathUtils.getAgentBaseUrl();
+		String baseURL = underTest.getAgentBaseUrl();
 		assertFalse(baseURL.endsWith("/agent/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
@@ -88,7 +97,7 @@ public class PathUtilsTest {
 	 */
 	@Test
 	public void testGetResourceBaseUrl() throws RMapApiException {
-		String baseURL = PathUtils.getResourceBaseUrl();
+		String baseURL = underTest.getResourceBaseUrl();
 		assertFalse(baseURL.endsWith("/resource/"));
 		assertTrue(baseURL.startsWith("http"));		
 	}
