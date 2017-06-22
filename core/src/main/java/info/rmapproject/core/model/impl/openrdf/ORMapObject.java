@@ -25,8 +25,6 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -35,6 +33,12 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.utils.Constants;
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+import java.util.stream.Stream;
+
+import static org.springframework.core.env.AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME;
+import static org.springframework.core.env.AbstractEnvironment.DEFAULT_PROFILES_PROPERTY_NAME;
 
 /**
  * Base class for OpenRDF implementation classes of RMapObjects.
@@ -63,10 +67,14 @@ public abstract class ORMapObject implements RMapObject  {
 	protected ORMapObject() throws RMapException {
 		super();
 		//TODO: This is not great, need to rethink this in a refactor, but for now doing dependency injection here 
-		//means we would need to convert all ORMapObject extensions to managed beans.  
-		@SuppressWarnings("resource")
-		ApplicationContext appContext = new ClassPathXmlApplicationContext(Constants.SPRING_CONFIG_FILEPATH);
-		this.rmapIdService = (IdService) appContext.getBean(Constants.ID_SERVICE_BEAN_NAME); 
+		//means we would need to convert all ORMapObject extensions to managed beans.
+		final GenericXmlApplicationContext appContext = new GenericXmlApplicationContext();
+		final String defaultProfiles = System.getProperty(DEFAULT_PROFILES_PROPERTY_NAME, "");
+		final String activeProfiles = System.getProperty(ACTIVE_PROFILES_PROPERTY_NAME, defaultProfiles);
+		Stream.of(activeProfiles.split(",")).forEach((p) -> appContext.getEnvironment().addActiveProfile(p));
+		appContext.load(Constants.SPRING_CONFIG_FILEPATH);
+		appContext.refresh();
+		this.rmapIdService = appContext.getBean(IdService.class);
 		//this.setId();	
 	}
 	

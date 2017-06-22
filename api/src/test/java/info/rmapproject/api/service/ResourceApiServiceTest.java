@@ -26,6 +26,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +41,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import info.rmapproject.api.exception.RMapApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,57 +62,50 @@ public class ResourceApiServiceTest extends ApiServiceTest{
 	 * Test the RMap Resource RDF stmts API call
 	 */
 	@Test
-	public void getRMapResourceRdfStmts() {
+	public void getRMapResourceRdfStmts() throws FileNotFoundException, UnsupportedEncodingException, RMapApiException {
 		Response response = null;
-		try {
-			//create 1 disco
-			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco,requestAgent);
-			
-			String resourceUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
-			HttpHeaders httpheaders = mock(HttpHeaders.class);
-			UriInfo uriInfo = mock(UriInfo.class);
-			
-			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
-			params.add(Constants.LIMIT_PARAM, "2");
-			
-			List<MediaType> mediatypes = new ArrayList<MediaType>();
-			mediatypes.add(MediaType.APPLICATION_XML_TYPE);
-			
-			when (uriInfo.getQueryParameters()).thenReturn(params);
-			when (httpheaders.getAcceptableMediaTypes()).thenReturn(mediatypes);
-			
-			response = resourceApiService.apiGetRMapResourceTriples(httpheaders, resourceUri, uriInfo);
+		//create 1 disco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		String discoURI = rmapDisco.getId().toString();
+		assertNotNull(discoURI);
+		rmapService.createDiSCO(rmapDisco,requestAgent);
 
-			assertNotNull(response);
-			String body = response.getEntity().toString();
-			
-			assertEquals(303, response.getStatus());	
-			assertTrue(body.contains("page number"));
+		String resourceUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
+		HttpHeaders httpheaders = mock(HttpHeaders.class);
+		UriInfo uriInfo = mock(UriInfo.class);
 
-			URI location = response.getLocation();
-			MultiValueMap<String, String> parameters =
-			            UriComponentsBuilder.fromUri(location).build().getQueryParams();
-			String untildate = parameters.getFirst(Constants.UNTIL_PARAM);
-			
-			//check page 2 just has one statement
-			params.add(Constants.PAGE_PARAM, "1");	
-			params.add(Constants.UNTIL_PARAM, untildate);
+		MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
+		params.add(Constants.LIMIT_PARAM, "2");
 
-			response = resourceApiService.apiGetRMapResourceTriples(httpheaders, resourceUri, uriInfo);
+		List<MediaType> mediatypes = new ArrayList<MediaType>();
+		mediatypes.add(MediaType.APPLICATION_XML_TYPE);
 
-			assertEquals(200,response.getStatus());
-			body = response.getEntity().toString();
-			int numMatches = StringUtils.countMatches(body, "xmlns=");
-			assertEquals(2,numMatches);
-						
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
+		when (uriInfo.getQueryParameters()).thenReturn(params);
+		when (httpheaders.getAcceptableMediaTypes()).thenReturn(mediatypes);
 
+		response = resourceApiService.apiGetRMapResourceTriples(httpheaders, resourceUri, uriInfo);
+
+		assertNotNull(response);
+		String body = response.getEntity().toString();
+
+		assertEquals(303, response.getStatus());
+		assertTrue(body.contains("page number"));
+
+		URI location = response.getLocation();
+		MultiValueMap<String, String> parameters =
+					UriComponentsBuilder.fromUri(location).build().getQueryParams();
+		String untildate = parameters.getFirst(Constants.UNTIL_PARAM);
+
+		//check page 2 just has one statement
+		params.add(Constants.PAGE_PARAM, "1");
+		params.add(Constants.UNTIL_PARAM, untildate);
+
+		response = resourceApiService.apiGetRMapResourceTriples(httpheaders, resourceUri, uriInfo);
+
+		assertEquals(200,response.getStatus());
+		body = response.getEntity().toString();
+		int numMatches = StringUtils.countMatches(body, "xmlns=");
+		assertEquals(2,numMatches);
 	}
 
 }

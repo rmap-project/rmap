@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import info.rmapproject.api.utils.PathUtilsFactory;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,8 @@ public class RMapApiExceptionHandler implements ExceptionMapper<RMapApiException
 	
 	/** The log. */
 	private static final Logger log = LoggerFactory.getLogger(RMapApiExceptionHandler.class);
+
+	private PathUtils pathUtils;
 	
 	/**
 	 * Converts RMap Transform API Exceptions to HTTP responses.
@@ -102,7 +105,7 @@ public class RMapApiExceptionHandler implements ExceptionMapper<RMapApiException
     		try {
 				String discoUrl = exMsg;
 				discoUrl = discoUrl.substring(discoUrl.lastIndexOf("<") + 1, discoUrl.lastIndexOf(">"));
-				discoUrl = PathUtils.makeDiscoUrl(discoUrl);
+				discoUrl = pathUtils.makeDiscoUrl(discoUrl);
 	    		response = Response.status(errType)
 		    						.link(new URI(discoUrl), "latest-version") 
 		    						.type("text/plain")
@@ -120,4 +123,12 @@ public class RMapApiExceptionHandler implements ExceptionMapper<RMapApiException
     	log.error(errMsg.toString(), exception);
     	return response;
     }
+
+	public PathUtils getPathUtils() {
+		return pathUtils;
+	}
+
+	public void setPathUtils(PathUtils pathUtils) {
+		this.pathUtils = pathUtils;
+	}
 }

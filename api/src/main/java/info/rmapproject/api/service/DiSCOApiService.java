@@ -36,7 +36,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.context.ApplicationContext;
 
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
@@ -56,7 +56,7 @@ public class DiSCOApiService {
 
     /** Web Application context to retrieve bean values (must use WebApplicationContext to avoid thread issues). */
     @Autowired
-    private WebApplicationContext context;
+    private ApplicationContext context;
 	//private DiscoResponseManager discoResponseManager;	
 
     /**

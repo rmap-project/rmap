@@ -56,24 +56,18 @@
             <artifactId>okhttp</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-core</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
     
     <build>
 
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -107,17 +101,8 @@
                             <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</cargo.jvmargs> -->
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
                             <derby.system.home>${project.build.directory}/derby</derby.system.home>
-                            <rmapcore.idservice.impl>info.rmapproject.core.idservice.RandomStringIdService</rmapcore.idservice.impl>
-                            <rmapcore.triplestore.impl>info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore</rmapcore.triplestore.impl>
-                            <authdb.driverClassName>org.apache.derby.jdbc.EmbeddedDriver</authdb.driverClassName>
-                            <authdb.testOnBorrow>true</authdb.testOnBorrow>
-                            <authdb.validationQuery>values 1</authdb.validationQuery>
-                            <authdb.url>jdbc:derby:testdb;create=true</authdb.url>
-                            <authdb.username></authdb.username>
-                            <authdb.password></authdb.password>
-                            <authdb.hibernate.dialect>org.hibernate.dialect.DerbyTenSevenDialect</authdb.hibernate.dialect>
-                            <authdb.hibernate.show_sql>true</authdb.hibernate.show_sql>
                             <logback.configurationFile>${project.build.outputDirectory}/logback.xml</logback.configurationFile>
+                            <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,persistent-userservice</spring.profiles.active>
                         </systemProperties>
                         <dependencies>
                             <dependency>
@@ -152,6 +137,8 @@
                     <configuration>
                         <properties>
                             <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</cargo.jvmargs> -->
+                            <!--<cargo.runtime.args>&#45;&#45;ini &#45;&#45;module=client &#45;&#45;module=annotations &#45;&#45;module=jmx &#45;&#45;module=server &#45;&#45;module=deploy &#45;&#45;module=websocket &#45;&#45;module=jsp &#45;&#45;module=ext &#45;&#45;module=resources &#45;&#45;module=http &#45;&#45;module=plus</cargo.runtime.args>-->
+                            <cargo.jvmargs>-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.properties</cargo.jvmargs>
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
                         </properties>
                     </configuration>
@@ -177,8 +164,10 @@
                         <configuration>
                             <container>
                                 <systemProperties>
+                                    <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,persistent-userservice</spring.profiles.active>
                                     <hibernate.hbm2ddl.auto>create</hibernate.hbm2ddl.auto>
                                     <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
+                                    <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
                                 </systemProperties>
                             </container>
                         </configuration>
@@ -194,8 +183,17 @@
                         <rmap.webapp.test.port>${rmap.webapp.test.port}</rmap.webapp.test.port>
                         <rmap.webapp.context>${rmap.webapp.context}</rmap.webapp.context>
                         <rmap.api.context>${rmap.api.context}</rmap.api.context>
+                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,persistent-userservice</spring.profiles.active>
                     </systemProperties>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>

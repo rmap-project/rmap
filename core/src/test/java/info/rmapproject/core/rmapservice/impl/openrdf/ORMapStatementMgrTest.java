@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.Test;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
@@ -54,6 +55,9 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 	
 	@Autowired
 	ORMapStatementMgr stmtmgr;
+
+	@Autowired
+	RMapSearchParamsFactory paramsFactory;
 	
 	@Test
 	public void testGetRelatedDiSCOs() {
@@ -77,7 +81,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
 			Value object = ORAdapter.getValueFactory().createLiteral("storage management");
 			
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
 			params.setDateRange(dateFrom, dateTo);
 			
@@ -121,7 +125,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 			IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
 			Value object = ORAdapter.getValueFactory().createLiteral("storage management");
-			RMapSearchParams params = new RMapSearchParams();
+			RMapSearchParams params = paramsFactory.newInstance();
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 						

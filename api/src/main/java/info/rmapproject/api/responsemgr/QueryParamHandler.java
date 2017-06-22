@@ -35,19 +35,25 @@ import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.model.request.DateRange;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Class containing static methods to handle query params. 
  * @author khanson5
  *
  */
-
+@Component
 public class QueryParamHandler {
 
 	// TODO: This class needs to be refactored - could do more to reduce code in response managers.
 	
 	/** The date format as a string. */
 	private static final String DATE_STRING_FORMAT = "yyyyMMddHHmmss";
+
+	@Autowired
+	private RMapSearchParamsFactory paramsFactory;
 
 	/**
 	 * Creates URL path with a placeholder for the page number to be used in pagination links.
@@ -58,7 +64,7 @@ public class QueryParamHandler {
 	 * @return the paginated link template
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getPageLinkTemplate(String path, MultivaluedMap<String,String> queryParams, Integer defaultLimit) 
+	public String getPageLinkTemplate(String path, MultivaluedMap<String,String> queryParams, Integer defaultLimit)
 			throws RMapApiException{
 		try {
 			//First build a template query string to return to the user.
@@ -120,7 +126,7 @@ public class QueryParamHandler {
 	 * @return pagination links 
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static Link[] generatePageLinks(String pageUrlTemplate, Integer pageNum, boolean includeNext) throws RMapApiException{
+	public Link[] generatePageLinks(String pageUrlTemplate, Integer pageNum, boolean includeNext) throws RMapApiException{
 		
 		try {
 			//now build the pagination links
@@ -155,8 +161,8 @@ public class QueryParamHandler {
 	 * @return the RMap search params object
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static RMapSearchParams generateSearchParamObj(MultivaluedMap<String,String> queryParams) throws RMapApiException{
-		RMapSearchParams params = new RMapSearchParams();
+	public RMapSearchParams generateSearchParamObj(MultivaluedMap<String,String> queryParams) throws RMapApiException{
+		RMapSearchParams params = paramsFactory.newInstance();
 		if (queryParams==null || queryParams.size()==0){
 			return params; //default params
 		}
@@ -201,7 +207,7 @@ public class QueryParamHandler {
 	 * @return the page number
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static Integer extractPage(MultivaluedMap<String,String> queryParams) throws RMapApiException {
+	public Integer extractPage(MultivaluedMap<String,String> queryParams) throws RMapApiException {
 		Integer iPage = null;
 		
 		if (queryParams.containsKey(Constants.PAGE_PARAM)) {
@@ -224,7 +230,7 @@ public class QueryParamHandler {
 	 * @return the limit
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static Integer extractLimit(MultivaluedMap<String,String> queryParams) throws RMapApiException {
+	public Integer extractLimit(MultivaluedMap<String,String> queryParams) throws RMapApiException {
 		Integer iLimit = null;
 		if (!queryParams.containsKey(Constants.LIMIT_PARAM)) {
 			try{
@@ -237,6 +243,12 @@ public class QueryParamHandler {
 		}
 		return iLimit;
 	}
-	
-	
+
+	public RMapSearchParamsFactory getParamsFactory() {
+		return paramsFactory;
+	}
+
+	public void setParamsFactory(RMapSearchParamsFactory paramsFactory) {
+		this.paramsFactory = paramsFactory;
+	}
 }

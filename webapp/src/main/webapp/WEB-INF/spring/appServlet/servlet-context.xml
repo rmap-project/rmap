@@ -9,20 +9,64 @@
 
 	<!-- Enables the Spring MVC @Controller programming model -->
 	<context:property-placeholder location="${rmap.configFile}" ignore-resource-not-found="true" ignore-unresolvable="true"/>
-	<context:property-placeholder location="classpath*:/rmapcore.properties, classpath*:/rmapauth.properties, classpath*:/rmapweb.properties"/>
+	<context:property-placeholder location="classpath*:/rmapcore.properties, classpath*:/rmapauth.properties, classpath*:/rmapweb.properties" ignore-unresolvable="true"/>
 	<annotation-driven />
 	<context:component-scan base-package="info.rmapproject" />
 
-	<beans:import resource="classpath:/spring-rmapcore-context.xml" />
 	<beans:import resource="classpath:/spring-rmapauth-context.xml" />
 
 	<!-- Handles HTTP GET requests for /includes/** by efficiently serving up static resources in the ${webappRoot}/includes directory -->
 	<resources mapping="/includes/**" location="/includes/" />
 
+	<beans:bean id="typemappingsBundle" name="typemappings" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<beans:property name="basename" value="typemappings"/>
+	</beans:bean>
+
+	<beans:bean id="nodetypesBundle" name="nodetypes" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<beans:property name="basename" value="nodetypes"/>
+	</beans:bean>
+
+	<beans:bean id="ontologyprefixesBundle" name="ontologyprefixes" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<beans:property name="basename" value="ontologyprefixes"/>
+	</beans:bean>
+
+	<beans:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<beans:property name="staticMethod" value="info.rmapproject.webapp.utils.WebappUtils.setPrefixes"/>
+		<beans:property name="arguments">
+			<beans:list>
+				<beans:ref bean="ontologyprefixesBundle"/>
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
+	<beans:bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<beans:property name="staticMethod" value="info.rmapproject.webapp.utils.WebappUtils.setTypeMappings"/>
+		<beans:property name="arguments">
+			<beans:list>
+				<beans:ref bean="typemappingsBundle"/>
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
+	<beans:bean id="graphFactory" class="info.rmapproject.webapp.service.SpringGraphFactory">
+		<beans:property name="ontologies" ref="ontologyprefixes"/>
+		<beans:property name="typemappings" ref="typemappings"/>
+		<beans:property name="nodeTypes" ref="nodetypes"/>
+	</beans:bean>
+
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<beans:property name="prefix" value="/WEB-INF/views/" />
 		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<beans:bean id="dataDisplayService" class="info.rmapproject.webapp.service.DataDisplayServiceImpl">
+		<beans:property name="maxObjGraphRelationships" value="${rmapweb.max-object-graph-relationships}"/>
+		<beans:property name="maxResGraphRelationships" value="${rmapweb.max-resource-graph-relationships}"/>
+		<beans:property name="maxAgentDiSCOs" value="${rmapweb.max-agent-discos}"/>
+		<beans:property name="maxTableRows" value="${rmapweb.max-table-rows}"/>
+		<beans:property name="maxResRelatedDiSCOs" value="${rmapweb.max-resource-related-discos}"/>
+		<beans:property name="maxNodeInfoRows" value="${rmapweb.max-node-info-rows}"/>
 	</beans:bean>
 
 	<!-- OAUTH Configuration -->		

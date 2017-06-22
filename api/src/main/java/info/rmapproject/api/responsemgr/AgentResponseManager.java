@@ -88,7 +88,7 @@ public class AgentResponseManager extends ResponseManager {
 			response = Response.status(Response.Status.OK)
 						.entity("{\"description\":\"Follow header link to read documentation.\"}")
 						.allow(HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.GET)
-						.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+						.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)
 						.build();
 			reqSuccessful = true;
 		}
@@ -114,7 +114,7 @@ public class AgentResponseManager extends ResponseManager {
 		try {				
 			response = Response.status(Response.Status.OK)
 						.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
-						.link(PathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
+						.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)
 						.build();
 			reqSuccessful = true;
 		}
@@ -144,7 +144,7 @@ public class AgentResponseManager extends ResponseManager {
 			}		
 			if (returnType==null)	{returnType=Constants.DEFAULT_RDF_TYPE;}
 
-			URI uriAgentId = PathUtils.convertPathStringToURI(strAgentUri);			
+			URI uriAgentId = PathUtils.convertPathStringToURI(strAgentUri);
 			
     		RMapAgent rmapAgent = rmapService.readAgent(uriAgentId);
 			if (rmapAgent ==null){
@@ -163,7 +163,7 @@ public class AgentResponseManager extends ResponseManager {
     		
 		    response = Response.status(Response.Status.OK)
 						.entity(agentOutput.toString())
-						.location(new URI(PathUtils.makeAgentUrl(strAgentUri)))
+						.location(new URI(pathUtils.makeAgentUrl(strAgentUri)))
 						.link(status.getPath().toString(),LinkRels.HAS_STATUS)  
         				.type(HttpTypeMediator.getResponseRMapMediaType("agent", returnType.getRdfType())) //TODO move version number to a property?
 						.build();   
@@ -234,7 +234,7 @@ public class AgentResponseManager extends ResponseManager {
     		}
 
 		    response = Response.status(Response.Status.OK)
-						.location(new URI(PathUtils.makeAgentUrl(strAgentUri)))
+						.location(new URI(pathUtils.makeAgentUrl(strAgentUri)))
 						.link(status.getPath().toString(),LinkRels.HAS_STATUS)  
 						.build();   
 
@@ -329,11 +329,11 @@ public class AgentResponseManager extends ResponseManager {
 			if (returnType==null)	{returnType=Constants.DEFAULT_NONRDF_TYPE;}
 			
 			URI uriAgentUri = PathUtils.convertPathStringToURI(agentUri);
-			RMapSearchParams params = QueryParamHandler.generateSearchParamObj(queryParams);
+			RMapSearchParams params = queryParamHandler.generateSearchParamObj(queryParams);
 			
-			Integer currPage = QueryParamHandler.extractPage(queryParams);
+			Integer currPage = queryParamHandler.extractPage(queryParams);
 
-			String path = PathUtils.makeAgentUrl(agentUri);
+			String path = pathUtils.makeAgentUrl(agentUri);
 			
 			ResultBatch<URI> resultbatch = null;
 			switch (rmapObjType) {
@@ -360,7 +360,7 @@ public class AgentResponseManager extends ResponseManager {
 			if (!queryParams.containsKey(Constants.PAGE_PARAM)
 					&& resultbatch.hasNext()){  
 				//start See Other response to indicate need for pagination
-				String seeOtherUrl = QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+				String seeOtherUrl = queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 				seeOtherUrl = seeOtherUrl.replace(Constants.PAGENUM_PLACEHOLDER, Constants.FIRST_PAGE);
 				responseBldr = Response.status(Response.Status.SEE_OTHER)
 						.entity(ErrorCode.ER_RESPONSE_TOO_LONG_NEED_PAGINATION.getMessage())
@@ -373,10 +373,10 @@ public class AgentResponseManager extends ResponseManager {
 
 				//are we doing page links?
 				if (resultbatch.hasNext() || currPage>1) {
-					String pageLinkTemplate = 
-							QueryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
-					Link[] pageLinks = 
-							QueryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
+					String pageLinkTemplate =
+							queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
+					Link[] pageLinks =
+							queryParamHandler.generatePageLinks(pageLinkTemplate, currPage, resultbatch.hasNext());
 					responseBldr.links(pageLinks);
 				}
 				

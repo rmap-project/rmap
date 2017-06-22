@@ -19,6 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.webapp.domain;
 
+import info.rmapproject.webapp.service.GraphEdgeFactory;
+import info.rmapproject.webapp.service.GraphNodeFactory;
+import info.rmapproject.webapp.service.GraphNodeTypeFactory;
 import info.rmapproject.webapp.utils.Constants;
 
 import java.util.ArrayList;
@@ -52,18 +55,27 @@ public class Graph {
     //Each node must be assigned a number that is unique within the context of the graph
     /** The counter. */
     //The counter keeps track of an incrementing number that is assigned to each node as it is added to the graph
-    private Integer counter = 0; 
+    private Integer counter = 0;
+
+    private GraphNodeTypeFactory nodeTypeFactory;
+
+    private GraphNodeFactory nodeFactory;
+
+    private GraphEdgeFactory edgeFactory;
 
 	/**
 	 * Instantiates a new graph.
 	 */
-	public Graph(){
+	public Graph(GraphNodeFactory nodeFactory, GraphEdgeFactory edgeFactory, GraphNodeTypeFactory nodeTypeFactory){
 		//initiate lists.
 		this.uniqueNodes = new HashSet<String>();
 		this.uniqueNodeTypes = new HashSet<String>();
 		this.nodes = new ArrayList<GraphNode>();
 		this.edges = new ArrayList<GraphEdge>();
 		this.nodeTypes = new ArrayList<GraphNodeType>();
+		this.nodeTypeFactory = nodeTypeFactory;
+		this.nodeFactory = nodeFactory;
+		this.edgeFactory = edgeFactory;
 	}
 	
 	/**
@@ -133,7 +145,7 @@ public class Graph {
 		if (!uniqueNodes.contains(sNode) || nodeType.equals(Constants.NODETYPE_LITERAL)) {
 			id = getNextId();
 			uniqueNodes.add(sNode);	
-			nodes.add(new GraphNode(id, sNode, Constants.NODE_WEIGHT_INCREMENT, nodeType));
+			nodes.add(nodeFactory.newGraphNode(id, sNode, Constants.NODE_WEIGHT_INCREMENT, nodeType));
 			addNodeType(nodeType); //only if it's a new value
 		}
 		else {
@@ -169,7 +181,7 @@ public class Graph {
 	 */
 	public void addEdge(String sourceKey, String targetKey, String label, 
 							String sourceNodeType, String targetNodeType) throws Exception {
-		GraphEdge edge = new GraphEdge();
+		GraphEdge edge = edgeFactory.newGraphEdge();
 		targetKey = targetKey.replaceAll("[\n\r]", "");
 		targetKey = targetKey.replaceAll("[ ]+", " ");
 		Integer source = addNode(sourceKey, sourceNodeType);
@@ -200,7 +212,7 @@ public class Graph {
 	private void addNodeType(String sType) {
 		if (sType!=null && sType.length()>0
 				&& !uniqueNodeTypes.contains(sType)){
-			GraphNodeType type = new GraphNodeType(sType);
+			GraphNodeType type = nodeTypeFactory.newGraphNodeType(sType);
 			this.nodeTypes.add(type);
 			this.uniqueNodeTypes.add(sType);//for detecting duplicates
 		}

@@ -21,8 +21,10 @@ package info.rmapproject.api.exception;
 
 import javax.ws.rs.core.Response.Status;
 
-import info.rmapproject.api.utils.ConfigUtils;
 import info.rmapproject.api.utils.Constants;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Manages custom error codes for RMap API. 
@@ -395,8 +397,10 @@ public enum ErrorCode {
 	public String getMessage() {
         if (message == null) {
         	String key = this.getStatus().getStatusCode() + "_" + this.toString();
-    		try {	
-    	        message = (String) ConfigUtils.getPropertyValue(Constants.ERROR_MSGS_PROPS_FILE, key);
+    		try {
+				ResourceBundle resources = ResourceBundle.getBundle(
+						Constants.ERROR_MSGS_PROPS_FILE, Locale.getDefault());
+				message = resources.getString(key);
     		} 
     		catch(Exception e){
     			message = getDefaultText(this);

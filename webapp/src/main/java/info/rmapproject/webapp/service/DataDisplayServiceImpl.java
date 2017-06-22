@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapIri;
@@ -54,7 +54,6 @@ import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.utils.ConfigUtils;
 import info.rmapproject.core.utils.Terms;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
@@ -65,7 +64,6 @@ import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
 import info.rmapproject.webapp.service.dto.EventDTO;
-import info.rmapproject.webapp.utils.Constants;
 import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
@@ -73,8 +71,6 @@ import info.rmapproject.webapp.utils.WebappUtils;
  *
  * @author khanson
  */
-
-@Service("dataDisplayService")
 public class DataDisplayServiceImpl implements DataDisplayService {
 
 	//private static final Logger logger = LoggerFactory.getLogger(DiSCOServiceImpl.class);
@@ -105,7 +101,16 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	
 	/** Max number of rows to show in node info popup **/
 	private int maxNodeInfoRows = 8;
-		
+
+	@Autowired
+	private RMapSearchParamsFactory paramsFactory;
+
+	@Autowired
+	private GraphFactory graphFactory;
+
+	@Autowired
+	private TripleDisplayFormatFactory tripleDisplayFactory;
+
 	/**
 	 * Instantiates a new data display service implementation.
 	 *
@@ -124,38 +129,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			discoNodeType = "Undefined";
 			agentNodeType = "Undefined";
 		}
-		
-		String maxObjGraphRelationships = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_OBJECT_GRAPH_RELATIONSHIPS_PROPKEY);
-		if (maxObjGraphRelationships!=null && maxObjGraphRelationships.length()>0){
-			this.maxObjGraphRelationships =  Integer.parseInt(maxObjGraphRelationships);
-		}
-		
-		String maxResGraphRelationships = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_RESOURCE_GRAPH_RELATIONSHIPS_PROPKEY);
-		if (maxResGraphRelationships!=null && maxResGraphRelationships.length()>0){
-			this.maxResGraphRelationships =  Integer.parseInt(maxResGraphRelationships);
-		}
-
-		String maxAgentDiSCOs = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_AGENT_DISCOS_PROPKEY);
-		if (maxAgentDiSCOs!=null && maxAgentDiSCOs.length()>0){
-			this.maxAgentDiSCOs =  Integer.parseInt(maxAgentDiSCOs);
-		}
-		
-		String maxTableRows = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_TABLE_ROWS_PROPKEY);
-		if (maxTableRows!=null && maxTableRows.length()>0){
-			this.maxTableRows =  Integer.parseInt(maxTableRows);
-		}
-		
-		String maxResRelatedDiSCOs = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_RESOURCE_RELATED_DISCOS_PROPKEY);
-		if (maxResRelatedDiSCOs!=null && maxResRelatedDiSCOs.length()>0){
-			this.maxResRelatedDiSCOs =  Integer.parseInt(maxResRelatedDiSCOs);
-		}
-		
-		String maxNodeInfoRows = ConfigUtils.getPropertyValue(Constants.RMAPWEB_PROPSFILE, Constants.MAX_NODE_INFO_ROWS_PROPKEY);
-		if (maxNodeInfoRows!=null && maxNodeInfoRows.length()>0){
-			this.maxNodeInfoRows =  Integer.parseInt(maxNodeInfoRows);
-		}
-		
-				
 	}
 		
 	/* (non-Javadoc)
@@ -193,14 +166,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public Graph getDiSCOGraph(DiSCODTO discoDTO) throws Exception {
-		Graph graph = new Graph();
+		Graph graph = graphFactory.newGraph();
 		String sDiscoUri = discoDTO.getUri().toString();
 						
 		if (discoDTO.getCreator().length()>0) {
 			graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
 		}
 
-		RMapSearchParams params = new RMapSearchParams();
+		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		
 		for (URI aggregate : discoDTO.getAggregatedResources()) {
@@ -354,8 +327,8 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    		
 	    		if (subjMatchesResource && !predIsRdfType) {
 		    		//only include this if subj matches resource and isn't a type, types are displayed separately
-			    	TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
-		    		rd.addPropertyValue(tripleDF);		
+					TripleDisplayFormat tripleDF = tripleDisplayFactory.newTripleDisplayFormat(triple);
+					rd.addPropertyValue(tripleDF);
 		    	}
 	    	}
     	} catch (RMapWebException ex){
@@ -383,7 +356,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, Integer offset, PaginatorType view) throws Exception {
 		URI uri = new URI(resourceUri);
 
-		RMapSearchParams params = new RMapSearchParams();
+		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setExcludeTypes(true);	
 		params.setOffset(offset);
@@ -410,7 +383,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch) throws Exception {
-		Graph graph = new Graph();
+		Graph graph = graphFactory.newGraph();
 		graph = addTriplesToGraph(graph, triplebatch.getResultList());  	
 		rmapService.closeConnection();
 		return graph;
@@ -443,7 +416,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public ResultBatch<URI> getResourceRelatedDiSCOs(String resourceUri, Integer offset) throws Exception {
-		RMapSearchParams params = new RMapSearchParams();
+		RMapSearchParams params = paramsFactory.newInstance();
 		params.setLimit(maxResRelatedDiSCOs);
 		params.setOffset(offset);
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
@@ -517,7 +490,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public Graph getAgentGraph(AgentDTO agentDTO) throws Exception{
-		Graph graph = new Graph();
+		Graph graph = graphFactory.newGraph();
 		String sAgentUri = agentDTO.getUri().toString();
 		
 		graph.addEdge(sAgentUri, agentDTO.getIdProvider(),Terms.RMAP_IDENTITYPROVIDER_PATH, agentNodeType, agentNodeType);
@@ -531,7 +504,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public ResultBatch<URI> getAgentDiSCOs(String agentUri, Integer offset) throws Exception {
-		RMapSearchParams params = new RMapSearchParams();
+		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);	   
 		params.setOffset(offset);
 		params.setLimit(maxAgentDiSCOs);
@@ -581,10 +554,8 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 
 		URI uri = new URI(resourceUri);
 		
-		RMapSearchParams params = new RMapSearchParams();
+		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
-		params.setLimit(ConfigUtils.getPropertyValue(info.rmapproject.core.utils.Constants.RMAPCORE_PROPFILE, 
-				info.rmapproject.core.utils.Constants.MAX_QUERY_LIMIT_KEY));
 		params.setExcludeIRIs(true);
 		params.setExcludeTypes(true);
 		params.setOffset(offset);
@@ -606,9 +577,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		URI resourceUri = new URI(sResourceUri);
 		URI graphUri = new URI(sGraphUri);
 		
-		RMapSearchParams params = new RMapSearchParams();
-		params.setLimit(ConfigUtils.getPropertyValue(info.rmapproject.core.utils.Constants.RMAPCORE_PROPFILE, 
-									info.rmapproject.core.utils.Constants.MAX_QUERY_LIMIT_KEY));
+		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setExcludeIRIs(true);
 		params.setOffset(offset);
@@ -651,7 +620,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    		
 	    		if (subjMatchesResource || (objMatchesResource && includeBothDirections)) {
 		    		//only include this if subj or object matches resource
-			    	TripleDisplayFormat tripleDF = new TripleDisplayFormat(triple);
+			    	TripleDisplayFormat tripleDF = tripleDisplayFactory.newTripleDisplayFormat(triple);
 		    		rd.addPropertyValue(tripleDF);		
 		    	}
 	    	}
@@ -708,7 +677,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			
 			if (object instanceof RMapIri && targetNodeType==null){
 				List <URI> targetRdfTypes = getResourceRDFTypes(new URI(object.toString()), contextUri);		
-				targetNodeType = WebappUtils.getNodeType(targetRdfTypes);			
+				targetNodeType = WebappUtils.getNodeType(targetRdfTypes);
 			}						
 			
 			graph.addEdge(subject.toString(), object.toString(), predicate.toString(), sourceNodeType, targetNodeType);
@@ -743,7 +712,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	public List<URI> getResourceRDFTypes(URI resourceUri) throws Exception{
 		List<URI> rdfTypes = new ArrayList<URI>();
 		
-		RMapSearchParams params=new RMapSearchParams();
+		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 
 		Map <URI, Set<URI>> types = rmapService.getResourceRdfTypesAllContexts(resourceUri, params);
@@ -874,5 +843,90 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		return "";
 	}
 
-		
+	/**
+	 * This set of properties determines how many rows are displayed in different parts of the page Maximum number of
+	 * relationships to be shown in an Agent or DiSCO graph. If the object contains more than this limit, the graph will
+	 * be replaced with a notice saying the object graph is too large to be visualized.  May be configured using the
+	 * {@code rmapweb.max-object-graph-relationships} property.
+	 *
+	 * @return
+	 */
+	public int getMaxObjGraphRelationships() {
+		return maxObjGraphRelationships;
+	}
+
+	public void setMaxObjGraphRelationships(int maxObjGraphRelationships) {
+		this.maxObjGraphRelationships = maxObjGraphRelationships;
+	}
+
+	/**
+	 * Maximum number of relationships shown in resource graph. Because everything comes out from the center of this
+	 * graph, a lower number of relationships than the object graph is best.  May be configured by setting the
+	 * {@code rmapweb.max-resource-graph-relationships} property.
+	 *
+	 * @return
+	 */
+	public int getMaxResGraphRelationships() {
+		return maxResGraphRelationships;
+	}
+
+	public void setMaxResGraphRelationships(int maxResGraphRelationships) {
+		this.maxResGraphRelationships = maxResGraphRelationships;
+	}
+
+	/**
+	 * Maximum number of Agent DiSCOs to display at bottom of RMap Agent view.  May be configured by setting the
+	 * {@code rmapweb.max-agent-discos} property
+	 *
+	 * @return
+	 */
+	public int getMaxAgentDiSCOs() {
+		return maxAgentDiSCOs;
+	}
+
+	public void setMaxAgentDiSCOs(int maxAgentDiSCOs) {
+		this.maxAgentDiSCOs = maxAgentDiSCOs;
+	}
+
+	/**
+	 * Maximum number of rows to be displayed in object or resource table view.  May be configured by setting the {@code
+	 * rmapweb.max-table-rows} property.
+	 *
+	 * @return
+	 */
+	public int getMaxTableRows() {
+		return maxTableRows;
+	}
+
+	public void setMaxTableRows(int maxTableRows) {
+		this.maxTableRows = maxTableRows;
+	}
+
+	/**
+	 * Maximum number of DiSCOs that reference a resource to display in right margin.  May be configured by setting the
+	 * {@code rmapweb.max-resource-related-discos} property
+	 *
+	 * @return
+	 */
+	public int getMaxResRelatedDiSCOs() {
+		return maxResRelatedDiSCOs;
+	}
+
+	public void setMaxResRelatedDiSCOs(int maxResRelatedDiSCOs) {
+		this.maxResRelatedDiSCOs = maxResRelatedDiSCOs;
+	}
+
+	/**
+	 * Maximum number of rows of literals to display in the node info popup on the graph.  May be configured by setting
+	 * the {@code rmapweb.max-node-info-rows} property.
+	 *
+	 * @return
+	 */
+	public int getMaxNodeInfoRows() {
+		return maxNodeInfoRows;
+	}
+
+	public void setMaxNodeInfoRows(int maxNodeInfoRows) {
+		this.maxNodeInfoRows = maxNodeInfoRows;
+	}
 }

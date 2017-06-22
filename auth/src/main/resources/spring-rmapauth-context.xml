@@ -7,22 +7,19 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
-    <context:property-placeholder location="classpath:/rmapauth.properties"/>
+    <context:property-placeholder location="classpath:/rmapauth.properties" ignore-unresolvable="true"/>
+    <context:component-scan base-package="info.rmapproject" />
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="${authdb.driverClassName}" />
-        <property name="url" value="${authdb.url}" />
-        <property name="username" value="${authdb.username}" />
-        <property name="password" value="${authdb.password}" />
-		<property name="validationQuery" value="${authdb.validationQuery}"/>
-		<property name="testOnBorrow" value="${authdb.testOnBorrow}"/>
+    <import resource="classpath:/spring-rmapcore-context.xml" />
+
+    <bean id="transactionManager" autowire="byType"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
     </bean>
-		
+
     <!-- Hibernate 4 SessionFactory Bean definition -->
-    <bean id="sessionFactory"
+    <bean abstract="true" id="sessionFactory" autowire="byType"
         class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
         <property name="annotatedClasses">
             <list>
                 <value>info.rmapproject.auth.model.ApiKey</value>
@@ -37,10 +34,43 @@
                 <prop key="hibernate.show_sql">${authdb.hibernate.show_sql}</prop>
             </props>
         </property>
-    </bean>	
-    
-	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-	   <property name="sessionFactory" ref="sessionFactory"/>
-	</bean>
+    </bean>
+
+    <beans profile="inmemory-db">
+        <context:property-placeholder location="classpath*:/inmemory-db.properties" ignore-unresolvable="true"/>
+
+        <bean id="inmemoryDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+            <property name="driverClassName" value="${authdb.driverClassName}" />
+            <property name="url" value="${authdb.url}" />
+            <property name="username" value="${authdb.username}" />
+            <property name="password" value="${authdb.password}" />
+            <property name="validationQuery" value="${authdb.validationQuery}"/>
+            <property name="testOnBorrow" value="${authdb.testOnBorrow}"/>
+        </bean>
+
+        <bean id="inmemorySessionFactory" parent="sessionFactory">
+            <property name="dataSource" ref="inmemoryDatasource"/>
+        </bean>
+
+        <!-- TODO: schema load -->
+    </beans>
+
+    <beans profile="persistent-db">
+        <context:property-placeholder location="classpath*:/persistent-db.properties" ignore-unresolvable="true"/>
+
+        <bean id="persistentDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+            <property name="driverClassName" value="${authdb.driverClassName}" />
+            <property name="url" value="${authdb.url}" />
+            <property name="username" value="${authdb.username}" />
+            <property name="password" value="${authdb.password}" />
+            <property name="validationQuery" value="${authdb.validationQuery}"/>
+            <property name="testOnBorrow" value="${authdb.testOnBorrow}"/>
+        </bean>
+
+        <bean id="persistentSessionFactory" parent="sessionFactory">
+            <property name="dataSource" ref="persistentDatasource"/>
+        </bean>
+
+    </beans>
         
 </beans>

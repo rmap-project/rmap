@@ -51,7 +51,7 @@ import info.rmapproject.testdata.service.TestConstants;
  * @author khanson
  */
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:/spring-rmapapi-context.xml" })
+@ContextConfiguration({ "classpath:/beans.xml" })
 @WebAppConfiguration
 public abstract class ApiServiceTest {
 	

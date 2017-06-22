@@ -38,7 +38,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.context.ApplicationContext;
 
 /**
  * REST API service for RMap Stmts.
@@ -51,7 +51,7 @@ public class StatementApiService {
 
     /** Web Application context to retrieve bean values (must use WebApplicationContext to avoid thread issues). */
     @Autowired
-    private WebApplicationContext context;
+    private ApplicationContext context;
 	//private StatementResponseManager statementResponseManager = null;
 
     /**

@@ -25,18 +25,25 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Tests for WebappUtils class.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:/servlet-context.xml")
 public class WebappUtilsTest {
 
 	/**
 	 * Test ontology prefixes.
 	 */
 	@Test
-	public void testOntologyPrefixes(){
+	public void testOntologyPrefixes() {
 		String url = "http://rmap-project.org/rmap/terms/DiSCO";
 		String newUrl = WebappUtils.replaceNamespace(url);
 		assertTrue(newUrl.equals("rmap:DiSCO"));
@@ -45,7 +52,7 @@ public class WebappUtilsTest {
 		newUrl = WebappUtils.replaceNamespace(url);
 		assertTrue(newUrl.equals("frbr:test"));
 	}
-	
+
 
 	/**
 	 * Test node type retrieval.
@@ -53,7 +60,7 @@ public class WebappUtilsTest {
 	 * @throws Exception the exception
 	 */
 	@Test
-	public void testNodeTypeRetrieval() throws Exception{
+	public void testNodeTypeRetrieval() throws Exception {
 		String url = "http://rmap-project.org/rmap/terms/DiSCO";
 		String nodeType = WebappUtils.getNodeType(new URI(url));
 		assertTrue(nodeType.equals("DiSCO"));
@@ -67,6 +74,6 @@ public class WebappUtilsTest {
 		nodeType = WebappUtils.getNodeType(uris);
 		assertTrue(nodeType.equals("Text"));
 	}
-	
-	
+
+
 }

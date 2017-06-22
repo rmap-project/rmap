@@ -10,4 +10,7 @@
   <root level="WARN">
     <appender-ref ref="STDERR" />
   </root>
+  <logger name="org.springframework" additivity="false" level="WARN">
+    <appender-ref ref="STDERR"/>
+  </logger>
 </configuration>

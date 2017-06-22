@@ -24,7 +24,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.MissingResourceException;
 
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
@@ -40,32 +39,10 @@ import info.rmapproject.core.model.RMapValue;
 public class PathUtils {
 	
 	/** The API URL path. */
-	private static String apiPath;
+	private String apiPath;
 	
 	/** The API documentation path. */
-	private static String documentationPath;
-	
-    /**
-     * True if APi properties are initialized
-     */
-    private static boolean isInitialized = false;
-    
-	/**
-	 * Initializes the API properties
-	 *
-	 * @throws RMapApiException the RMap API exception
-	 */
-	protected static void init() throws RMapApiException{
-		try {
-			apiPath = ConfigUtils.getPropertyValue(Constants.RMAP_API_PROPS_FILE, Constants.API_PATH_KEY);
-			documentationPath = ConfigUtils.getPropertyValue(Constants.RMAP_API_PROPS_FILE, Constants.DOCUMENTATION_PATH_KEY);
-			isInitialized=true;
-		}
-		catch(MissingResourceException me){
-			throw new RMapApiException(ErrorCode.ER_RMAP_API_PROPERTIES_FILENOTFOUND);
-			}
-		catch (Exception e){RMapApiException.wrap(e, ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);}
-	}
+	private String documentationPath;
 		
 	/**
 	 * Get Base URL from properties file.
@@ -73,9 +50,10 @@ public class PathUtils {
 	 * @return the api path
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getApiPath() throws RMapApiException {
-		if (!isInitialized){
-			init();
+	public String getApiPath() throws RMapApiException {
+		if (apiPath == null || apiPath.trim().length() == 0) {
+			throw new IllegalStateException("API path must not be empty or null.  Has the 'rmapapi.path' property" +
+					"been set?");
 		}
 		return apiPath;
 	}
@@ -86,7 +64,7 @@ public class PathUtils {
 	 * @return the stmt base URL
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getStmtBaseUrl() throws RMapApiException {
+	public String getStmtBaseUrl() throws RMapApiException {
 		String stmtBaseUrl = getApiPath() + "/stmts/";
 		return stmtBaseUrl;
 	}
@@ -97,7 +75,7 @@ public class PathUtils {
 	 * @return the DiSCO base URL
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getDiscoBaseUrl() throws RMapApiException {
+	public String getDiscoBaseUrl() throws RMapApiException {
 		String discoBaseUrl = getApiPath() + "/discos/";
 		return discoBaseUrl;
 	}
@@ -109,7 +87,7 @@ public class PathUtils {
 	 * @return the Event base URL
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getEventBaseUrl() throws RMapApiException {
+	public String getEventBaseUrl() throws RMapApiException {
 		String eventBaseUrl = getApiPath() + "/events/";
 		return eventBaseUrl;
 	}
@@ -120,7 +98,7 @@ public class PathUtils {
 	 * @return the Agent base URL
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getAgentBaseUrl() throws RMapApiException {
+	public String getAgentBaseUrl() throws RMapApiException {
 		String agentBaseUrl = getApiPath() + "/agents/";
 		return agentBaseUrl;
 	}	
@@ -132,7 +110,7 @@ public class PathUtils {
 	 * @return the Resource base URL
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getResourceBaseUrl() throws RMapApiException {
+	public String getResourceBaseUrl() throws RMapApiException {
 		String resourceBaseUrl = getApiPath() + "/resources/";
 		return resourceBaseUrl;
 	}
@@ -144,7 +122,7 @@ public class PathUtils {
 	 * @return the RMap URL for the DiSCO
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeDiscoUrl(String uri) throws RMapApiException {
+	public String makeDiscoUrl(String uri) throws RMapApiException {
 		String discoUrl = appendEncodedUriToURL(getDiscoBaseUrl(),uri);
 		return discoUrl;
 	}
@@ -157,7 +135,7 @@ public class PathUtils {
 	 * @return the RMap URL for the DiSCO
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeDiscoUrl(URI uri) throws RMapApiException {
+	public String makeDiscoUrl(URI uri) throws RMapApiException {
 		return makeDiscoUrl(uri.toString());
 	}
 
@@ -169,7 +147,7 @@ public class PathUtils {
 	 * @return the path for latest version of the DIsco
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeDiscoLatestUrl(URI uri) throws RMapApiException {
+	public String makeDiscoLatestUrl(URI uri) throws RMapApiException {
 		String discourl = makeDiscoUrl(uri.toString());
 		return discourl + "/latest";
 	}
@@ -181,7 +159,7 @@ public class PathUtils {
 	 * @return the path to the DiSCO timemap
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeDiscoTimemapUrl(URI uri) throws RMapApiException {
+	public String makeDiscoTimemapUrl(URI uri) throws RMapApiException {
 		String discourl = makeDiscoUrl(uri.toString());
 		return discourl + "/timemap";
 	}
@@ -193,7 +171,7 @@ public class PathUtils {
 	 * @return the path for DiSCO Events
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeDiscoEventsUrl(URI uri) throws RMapApiException {
+	public String makeDiscoEventsUrl(URI uri) throws RMapApiException {
 		String discourl = makeDiscoUrl(uri.toString());
 		return discourl + "/events";
 	}
@@ -206,7 +184,7 @@ public class PathUtils {
 	 * @return the RMap URL for the Event
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeEventUrl(String uri) throws RMapApiException {
+	public String makeEventUrl(String uri) throws RMapApiException {
 		String eventUrl = appendEncodedUriToURL(getEventBaseUrl(),uri);
 		return eventUrl;
 	}
@@ -219,7 +197,7 @@ public class PathUtils {
 	 * @return the RMap URL for the Event
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeEventUrl(URI uri) throws RMapApiException {
+	public String makeEventUrl(URI uri) throws RMapApiException {
 		return makeEventUrl(uri.toString());
 	}
 	
@@ -231,7 +209,7 @@ public class PathUtils {
 	 * @return the RMap URL for the Agent
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeAgentUrl(String uri) throws RMapApiException {
+	public String makeAgentUrl(String uri) throws RMapApiException {
 		String agentUrl = appendEncodedUriToURL(getAgentBaseUrl(),uri);
 		return agentUrl;
 	}
@@ -243,7 +221,7 @@ public class PathUtils {
 	 * @return the RMap URL for the Resource 
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeResourceUrl(String uri) throws RMapApiException {
+	public String makeResourceUrl(String uri) throws RMapApiException {
 		String resourceUrl = appendEncodedUriToURL(getResourceBaseUrl(),uri);
 		return resourceUrl;
 	}
@@ -258,7 +236,7 @@ public class PathUtils {
 	 * @return the URL containing the triple parameters
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String makeStmtUrl(String s, String p, String o) throws RMapApiException {
+	public String makeStmtUrl(String s, String p, String o) throws RMapApiException {
 		String stmtUrl = appendEncodedUriToURL(getStmtBaseUrl(),s) + "/";
 		stmtUrl = appendEncodedUriToURL(stmtUrl,p) + "/";
 		stmtUrl = appendEncodedUriToURL(stmtUrl,o);
@@ -274,7 +252,7 @@ public class PathUtils {
 	 * @return a URL as string
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String appendEncodedUriToURL(String baseURL, String objUri) throws RMapApiException {
+	public String appendEncodedUriToURL(String baseURL, String objUri) throws RMapApiException {
 		String url = null;
 		try {
 			//may already been encoded, so let's decode first to make sure we aren't double encoding
@@ -294,9 +272,10 @@ public class PathUtils {
 	 * @return the documentation URL
 	 * @throws RMapApiException the RMap API exception
 	 */
-	public static String getDocumentationPath() throws RMapApiException{
-		if (!isInitialized){
-			init();
+	public String getDocumentationPath() throws RMapApiException{
+		if (documentationPath == null || documentationPath.trim().length() == 0) {
+			throw new IllegalStateException("Documentation path must not be empty or null.  Has the " +
+					"'rmapapi.documentationPath' property been set?");
 		}
 		return documentationPath;
 	}
@@ -393,9 +372,20 @@ public class PathUtils {
 	
 		return object;
 	}
-	
-	
-	
 
-	
+	public void setApiPath(String apiPath) {
+		if (apiPath == null || apiPath.trim().length() == 0) {
+			throw new IllegalArgumentException("API path must not be null or empty.  It can be configured using the" +
+					"'rmapapi.path' system property.");
+		}
+		this.apiPath = apiPath;
+	}
+
+	public void setDocumentationPath(String documentationPath) {
+		if (documentationPath == null || documentationPath.trim().length() == 0) {
+			throw new IllegalArgumentException("Documentation path must not be null or empty.  It can be configured" +
+					"using the 'rmapapi.documentationPath' system property.");
+		}
+		this.documentationPath = documentationPath;
+	}
 }

@@ -19,18 +19,13 @@
  *******************************************************************************/
 package info.rmapproject.core.idservice;
 
-import info.rmapproject.core.utils.ConfigUtils;
-import info.rmapproject.core.utils.Constants;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,46 +42,12 @@ public class HttpUrlIdService implements IdService {
 	
 	/** The log. */
 	private static final Logger log = LoggerFactory.getLogger(HttpUrlIdService.class);
-	
-	/**  The property key for the ARK service URL. */
-	private static final String URL_PROPERTY = "idservice.idMinterUrl";
-	
-	/**  The property key for prefix. */
-	private static final String PREFIX_PROPERTY = "idservice.idPrefix";
 
-	/**  The property key that determines how many retries are attempted after a failed service call. */
-	private static final String MAX_RETRY_PROPERTY = "idservice.maxRetries";
-	
-	/**  The property key that defines any string of characters to be removed from the id generator output. */
-	private static final String REPLACE_STRING_PROPERTY = "idservice.replaceString";
-
-	/**  The property key that defines user name required for basic auth access. */
-	private static final String USER_NAME_PROPERTY = "idservice.userName";
-	
-	/**  The property key that defines password required for basic auth access. */
-	private static final String USER_PASSWORD_PROPERTY = "idservice.userPassword";
-	
-	/**  The property key to retrieve the ID length for validation. */
-	private static final String ID_LENGTH_PROPERTY = "idservice.idLength";
-	
 	/**  The property key to retrieve a regex to validate the ID against validation. */
 	private static final String ID_REGEX_PROPERTY = "idservice.idRegex";
-	
-	
-	/**  Default ID prefix. */
-	private static final String DEFAULT_PREFIX = "rmap:";
-	
-	/**  Default number of retries attempted after a failed service call. */
-	private static final String DEFAULT_MAX_RETRY = "2";
-
-	/**  Default ID length (-1 means no length defined). */
-	private static final String DEFAULT_ID_LENGTH = "-1";
 
 	/**  Wait time to retry when ID retrieval unsuccessful (5 seconds). */
 	private static final int RETRY_WAIT_TIME = 5000;
-	
-	/**  An instance of the HttpIdService. */
-	private static HttpUrlIdService instance = new HttpUrlIdService();
 
 	/**  List of available noids. */
 	private final List<String> noids = new ArrayList<String>();
@@ -120,28 +81,9 @@ public class HttpUrlIdService implements IdService {
 	 * Instantiates a new ARK ID service.
 	 */
 	public HttpUrlIdService() {
-		this(Constants.RMAPCORE_PROPFILE);
+
 	}
 
-	/**
-	 * Instantiates a new ID service with properties.
-	 *
-	 * @param propertyFileName the property file name
-	 */
-	public HttpUrlIdService(String propertyFileName) {		
-		Map<String, String> properties = new HashMap<String, String>();
-		properties = ConfigUtils.getPropertyValues(propertyFileName);
-		serviceUrl = properties.get(URL_PROPERTY);
-		idPrefix = properties.getOrDefault(PREFIX_PROPERTY, DEFAULT_PREFIX);
-		maxRetryAttempts = Integer.parseInt(properties.getOrDefault(MAX_RETRY_PROPERTY,DEFAULT_MAX_RETRY));
-		replaceString = properties.get(REPLACE_STRING_PROPERTY);
-		userName = properties.get(USER_NAME_PROPERTY);
-		userPassword = properties.get(USER_PASSWORD_PROPERTY);
-		idLength = Integer.parseInt(properties.getOrDefault(ID_LENGTH_PROPERTY, DEFAULT_ID_LENGTH));
-		idRegex = properties.get(ID_REGEX_PROPERTY);
-		
-	}
-	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.idservice.IdService#isValidId(java.net.URI)
 	 */
@@ -304,33 +246,223 @@ public class HttpUrlIdService implements IdService {
 		}
 	}
 
-	/**
-	 * Gets the current instance of HttpUrlIdService.
-	 *
-	 * @return instance of HttpUrlIdService
-	 */
-	public static HttpUrlIdService getInstance() {
-		return instance;
-	}
-
-	/**
-	 * Sets the current HttpUrlIdService instance.
-	 *
-	 * @param instance the new HTTP URL service instance
-	 */
-	public static void setInstance(HttpUrlIdService instance) {
-		HttpUrlIdService.instance = instance;
-	}
-
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.idservice.IdService#createId()
 	 */
 	public URI createId() throws Exception {
 			try {
-				return new URI(HttpUrlIdService.getInstance().getNoidId());
+				return new URI(getNoidId());
 				// need to instead return configured per Component.getInstance("noidServiceImpl")
 			} catch (Exception e) {
 				throw new Exception("Failed to create a new ID.", e);
 			}
+	}
+
+	/**
+	 * Specifies the url for minting identifiers.  Can be configured using the {@code idservice.idMinterUrl}
+	 * property.  Example values:
+	 * <ul>
+	 *     <li>http://localhost:8080/noid/noid.sh?2</li>
+	 * </ul>
+	 *
+	 * @return the url used to mint new identifiers
+	 */
+	public String getServiceUrl() {
+		return serviceUrl;
+	}
+
+	/**
+	 * Specifies the url for minting identifiers.  Can be configured using the {@code idservice.idMinterUrl}
+	 * property.  Example values:
+	 * <ul>
+	 *     <li>http://localhost:8080/noid/noid.sh?2</li>
+	 * </ul>
+	 *
+	 * @param serviceUrl the url used to mint new identifiers
+	 */
+	public void setServiceUrl(String serviceUrl) {
+		this.serviceUrl = serviceUrl;
+	}
+
+	/**
+	 * Prefixed added to identifiers returned by {@link #getServiceUrl() the underlying identifier service}.  Can be
+	 * configured using the {@code idservice.idPrefix} property.  Example values:
+	 * <ul>
+	 *     <li>rmap:</li>
+	 *     <li>ark:/12345/</li>
+	 * </ul>
+	 * <p>
+	 * If you are using an ARK ID service, for example, this would be {@code ark:/} followed by the Name Assigning
+	 * Authority Number (NAAN) e.g. "ark:/12345/".  For ARK, see http://www.cdlib.org/uc3/naan_table.html for a
+	 * registry of NAAN.
+	 * </p>
+	 *
+	 * @return the prefix added to generated identifiers, may be empty or {@code null}
+	 */
+	public String getIdPrefix() {
+		return idPrefix;
+	}
+
+	/**
+	 * Prefixed added to identifiers returned by {@link #getServiceUrl() the underlying identifier service}.  Can be
+	 * configured using the {@code idservice.idPrefix} property.  Example values:
+	 * <ul>
+	 *     <li>rmap:</li>
+	 *     <li>ark:/12345/</li>
+	 * </ul>
+	 * <p>
+	 * If you are using an ARK ID service, for example, this would be {@code ark:/} followed by the Name Assigning
+	 * Authority Number (NAAN) e.g. "ark:/12345/".  For ARK, see http://www.cdlib.org/uc3/naan_table.html for a
+	 * registry of NAAN.
+	 * </p>
+	 *
+	 * @param idPrefix the prefix added to generated identifiers, may be empty or {@code null}
+	 */
+	public void setIdPrefix(String idPrefix) {
+		this.idPrefix = idPrefix;
+	}
+
+	/**
+	 * The maximum number attempts to contact the {@link #getServiceUrl() underlying identifier service} when minting a
+	 * new identifier.  Can be configured using the {@code idservice.maxRetries} property.
+	 *
+	 * @return the maximum number of attempts to contact the underlying identifier service
+	 */
+	public int getMaxRetryAttempts() {
+		return maxRetryAttempts;
+	}
+
+	/**
+	 * The maximum number attempts to contact the {@link #getServiceUrl() underlying identifier service} when minting a
+	 * new identifier.  Can be configured using the {@code idservice.maxRetries} property.
+	 *
+	 * @param maxRetryAttempts the maximum number of attempts to contact the underlying identifier service
+	 */
+	public void setMaxRetryAttempts(int maxRetryAttempts) {
+		this.maxRetryAttempts = maxRetryAttempts;
+	}
+
+	/**
+	 * Identifiers returned by the {@link #getServiceUrl() underlying identifier service} may need to be modified by
+	 * this class in order to be usable by a caller of this class.  The character string supplied by this method will
+	 * be removed from every identifier supplied by the underlying identifier service.   Can be configured using the
+	 * {@code idservice.replaceString} property.  Example values include (single quotes are <em>not</em> a part of the
+	 * value, they are used to show whitespace):
+	 * <ul>
+	 *     <li>'id: '</li>
+	 * </ul>
+	 *
+	 * @return the character string to remove from identifiers generated by the underlying identifier service, may be
+	 *         empty or {@code null}
+	 */
+	public String getReplaceString() {
+		return replaceString;
+	}
+
+	/**
+	 * Identifiers returned by the {@link #getServiceUrl() underlying identifier service} may need to be modified by
+	 * this class in order to be usable by a caller of this class.  The character string supplied to this method will
+	 * be removed from every identifier supplied by the underlying identifier service.   Can be configured using the
+	 * {@code idservice.replaceString} property.  Example values include (single quotes are <em>not</em> a part of the
+	 * value, they are used to show whitespace):
+	 * <ul>
+	 *     <li>'id: '</li>
+	 * </ul>
+	 *
+	 * @return the character string to remove from identifiers generated by the underlying identifier service, may be
+	 *         empty or {@code null}
+	 */
+	public void setReplaceString(String replaceString) {
+		this.replaceString = replaceString;
+	}
+
+	/**
+	 * The user name used when performing HTTP basic authentication against the {@link #getServiceUrl() underlying
+	 * identifer service}.  Can be configured using the {@code idservice.userName} property.
+	 *
+	 * @return the user name for HTTP basic authentication, may be empty or {@code null}
+	 */
+	public String getUserName() {
+		return userName;
+	}
+
+	/**
+	 * The user name used when performing HTTP basic authentication against the {@link #getServiceUrl() underlying
+	 * identifer service}.  Can be configured using the {@code idservice.userName} property.
+	 *
+	 * @param userName the user name for HTTP basic authentication, may be empty or {@code null}
+	 */
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	/**
+	 * The password used when performing HTTP basic authentication against the {@link #getServiceUrl() underlying
+	 * identifer service}.  Can be configured using the {@code idservice.userPassword} property.
+	 *
+	 * @return the password for HTTP basic authentication, may be empty or {@code null}
+	 */
+	public String getUserPassword() {
+		return userPassword;
+	}
+
+	/**
+	 * The password used when performing HTTP basic authentication against the {@link #getServiceUrl() underlying
+	 * identifer service}.  Can be configured using the {@code idservice.userPassword} property.
+	 *
+	 * @param userPassword the password for HTTP basic authentication, may be empty or {@code null}
+	 */
+	public void setUserPassword(String userPassword) {
+		this.userPassword = userPassword;
+	}
+
+	/**
+	 * The expected length in characters of a {@link #getServiceUrl() generated identifier} after any {@link
+	 * #getIdPrefix() prefix} and {@link #getReplaceString() character replacement} operations have been performed.
+	 * This class uses the expected length of the identifier to verify that it is viable.  Can be configured using the
+	 * {@code idservice.idLength} property.
+	 *
+	 * @return the expected length of an identifier, or an integer less than 1 if there is no expectation of a
+	 *         consistent length
+	 */
+	public int getIdLength() {
+		return idLength;
+	}
+
+	/**
+	 * The expected length in characters of a {@link #getServiceUrl() generated identifier} after any {@link
+	 * #getIdPrefix() prefix} and {@link #getReplaceString() character replacement} operations have been performed.
+	 * This class uses the expected length of the identifier to verify that it is viable.  Can be configured using the
+	 * {@code idservice.idLength} property.
+	 *
+	 * @param idLength the expected length of an identifier, or an integer less than 1 if there is no expectation of a
+	 *                 consistent length
+	 */
+	public void setIdLength(int idLength) {
+		this.idLength = idLength;
+	}
+
+	/**
+	 * A regular expression used to match a {@link #getServiceUrl() generated identifier} after any {@link
+	 * #getIdPrefix() prefix} and {@link #getReplaceString() character replacement} operations have been performed.
+	 * This class uses the matching regex to verify that the identifier is viable.  Can be configured using the {@code
+	 * idservice.idRegex} property.
+	 *
+	 * @return the regex used to match the identifier, may be empty or {@code null}
+	 */
+	public String getIdRegex() {
+		return idRegex;
+	}
+
+	/**
+	 * A regular expression used to match a {@link #getServiceUrl() generated identifier} after any {@link
+	 * #getIdPrefix() prefix} and {@link #getReplaceString() character replacement} operations have been performed.
+	 * This class uses the matching regex to verify that the identifier is viable.  Can be configured using the {@code
+	 * idservice.idRegex} property.
+	 *
+	 * @param idRegex the regex used to match the identifier, may be empty or {@code null}
+	 */
+	public void setIdRegex(String idRegex) {
+		this.idRegex = idRegex;
 	}
 }

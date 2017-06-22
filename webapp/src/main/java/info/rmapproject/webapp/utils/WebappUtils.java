@@ -26,27 +26,42 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.stereotype.Component;
 
 /**
  * WebApp helper utilities
  */
+@Component
 public class WebappUtils {
 
-	/** Property file name for ontology prefixes */
-	private static final String PREFIX_PROPFILE = "ontologyprefixes";
-
-	/** Property file name for type mappings */
-	private static final String TYPEMAPPINGS_PROPFILE = "typemappings";
-
 	/** The prefixes list. */
-	private static Map<String, String> prefixes = ConfigUtils.getPropertyValues(PREFIX_PROPFILE);
-	
+	private static MessageSource prefixes;
+
 	/** The type mappings list. */
-	private static Map<String, String> typeMappings = ConfigUtils.getPropertyValues(TYPEMAPPINGS_PROPFILE);
-	
+	private static MessageSource typeMappings;
+
+	public static void setPrefixes(MessageSource prefixMessageSource) {
+		prefixes = prefixMessageSource;
+	}
+
+	public static MessageSource getPrefixes() {
+		return prefixes;
+	}
+
+	public static void setTypeMappings(MessageSource typeMappingsMessageSource) {
+		typeMappings = typeMappingsMessageSource;
+	}
+
+	public static MessageSource getTypeMappings() {
+		return typeMappings;
+	}
+
 	/**
 	 * Replace the namespace URL with something more readable.
 	 *
@@ -70,7 +85,12 @@ public class WebappUtils {
 			}
 			
 			if (term!=null && path!=null && term.length()>0 && path.length()>0) {
-				String prefix = prefixes.get(path);
+				String prefix = null;
+				try {
+					prefix = prefixes.getMessage(path, null, Locale.ENGLISH);
+				} catch (NoSuchMessageException e) {
+					// null prefix handled below
+				}
 				if (prefix!=null && prefix.length()>0){
 					newUrl = prefix + ":" + term;
 				} else {
@@ -117,13 +137,15 @@ public class WebappUtils {
 	 * @return the Node type
 	 */
 	public static String getNodeType(URI type){
-		if (type==null){return Constants.NODETYPE_UNCATEGORIZED;}
-		String nodeType = null;
-		nodeType = typeMappings.get(type.toString());
-		if (nodeType==null){
-			nodeType = Constants.NODETYPE_UNCATEGORIZED;
+		if (type == null) {
+			return Constants.NODETYPE_UNCATEGORIZED;
 		}
-		return nodeType;
+
+		try {
+			return typeMappings.getMessage(type.toString(), null, Locale.ENGLISH);
+		} catch (NoSuchMessageException e) {
+			return Constants.NODETYPE_UNCATEGORIZED;
+		}
 	}
 	
 	

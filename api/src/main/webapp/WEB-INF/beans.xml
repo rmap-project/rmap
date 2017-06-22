@@ -8,20 +8,36 @@
         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     
 
-    <context:annotation-config/>
 	<context:component-scan base-package="info.rmapproject" />
     <context:property-placeholder location="${rmap.configFile}" ignore-resource-not-found="true" ignore-unresolvable="true"/>
-    <context:property-placeholder location="classpath*:/rmapapi.properties, classpath*:/rmapcore.properties, classpath*:/rmapauth.properties"/>
+    <context:property-placeholder location="classpath*:/rmapapi.properties, classpath*:/rmapcore.properties, classpath*:/rmapauth.properties" ignore-unresolvable="true"/>
     
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:/spring-rmapcore-context.xml"/>
     <import resource="classpath:/spring-rmapauth-context.xml"/>
 
-    <bean id="discoResponseManager" class="info.rmapproject.api.responsemgr.DiscoResponseManager" scope="prototype"/>
-    <bean id="agentResponseManager" class="info.rmapproject.api.responsemgr.AgentResponseManager" scope="prototype"/>
-    <bean id="eventResponseManager" class="info.rmapproject.api.responsemgr.EventResponseManager" scope="prototype"/>
-    <bean id="statementResponseManager" class="info.rmapproject.api.responsemgr.StatementResponseManager" scope="prototype"/>
-    <bean id="resourceResponseManager" class="info.rmapproject.api.responsemgr.ResourceResponseManager" scope="prototype"/>
+    <bean id="pathUtilsFactory" class="info.rmapproject.api.utils.SpringPathUtilsFactory">
+        <property name="apiPath" value="${rmapapi.path}"/>
+        <property name="documentationPath" value="${rmapapi.documentationPath}"/>
+    </bean>
+
+    <bean id="pathUtils" factory-bean="pathUtilsFactory" factory-method="getInstance" />
+
+    <bean id="abstractResponseManager" class="info.rmapproject.api.responsemgr.ResponseManager">
+        <property name="pathUtils" ref="pathUtils"/>
+        <property name="queryParamHandler" ref="queryParamHandler"/>
+    </bean>
+
+    <bean id="discoResponseManager" parent="abstractResponseManager"
+          class="info.rmapproject.api.responsemgr.DiscoResponseManager" scope="prototype"/>
+    <bean id="agentResponseManager" parent="abstractResponseManager"
+          class="info.rmapproject.api.responsemgr.AgentResponseManager" scope="prototype"/>
+    <bean id="eventResponseManager" parent="abstractResponseManager"
+          class="info.rmapproject.api.responsemgr.EventResponseManager" scope="prototype"/>
+    <bean id="statementResponseManager" parent="abstractResponseManager"
+          class="info.rmapproject.api.responsemgr.StatementResponseManager" scope="prototype"/>
+    <bean id="resourceResponseManager" parent="abstractResponseManager"
+          class="info.rmapproject.api.responsemgr.ResourceResponseManager" scope="prototype"/>
 	
     <jaxrs:server id="services" address="/">
         <jaxrs:serviceBeans>
@@ -33,16 +49,30 @@
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <!-- <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>-->
-       		<bean class="info.rmapproject.api.exception.RMapApiExceptionHandler" scope="prototype"/>
+       		<ref bean="exceptionHandler"/>
         </jaxrs:providers>
 		<jaxrs:inInterceptors>
 		    <ref bean="authenticationInterceptor"/>
 		</jaxrs:inInterceptors>
     </jaxrs:server>
-		
-	<bean id="authenticationInterceptor" class="info.rmapproject.api.auth.AuthenticationInterceptor" scope="prototype"/>   
-	<bean id="apiUserService" class="${rmapapi.userservice.impl}" scope="prototype"/>
+
+    <bean id="exceptionHandler" class="info.rmapproject.api.exception.RMapApiExceptionHandler">
+        <property name="pathUtils" ref="pathUtils"/>
+    </bean>
+
+	<bean id="authenticationInterceptor" class="info.rmapproject.api.auth.AuthenticationInterceptor" scope="prototype">
+        <property name="exceptionHandler" ref="exceptionHandler"/>
+    </bean>
+
 	<bean id="timegate" class="info.rmapproject.api.responsemgr.versioning.TimegateImpl" scope="prototype"/>  
-	
+
+    <beans profile="persistent-userservice">
+        <bean id="apiUserService" class="info.rmapproject.api.auth.ApiUserServiceImpl" scope="prototype"/>
+    </beans>
+
+    <beans profile="mock-userservice">
+        <bean id="mockUserSerivce" class="info.rmapproject.api.mockobjects.ApiUserServiceMockImpl"/>
+    </beans>
+
 </beans>
 
