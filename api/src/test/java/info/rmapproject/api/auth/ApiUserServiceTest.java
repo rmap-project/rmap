@@ -38,7 +38,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 
 @RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath*:/spring-*-context.xml" })
+@ContextConfiguration({ "classpath:/spring-rmapapi-context.xml" })
 public class ApiUserServiceTest {
 
 	//TODO: The tests are not useful at the moment as they test against a mock object that does not mock

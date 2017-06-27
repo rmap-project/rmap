@@ -87,8 +87,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@Test
 	public void testGetRelatedDiSCOS() {	
 
-		System.out.println("Running test: testGetRelatedDiSCOS()");
-		
 		try {		
 			//create disco				
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -139,7 +137,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetRelatedAgents() {
-		System.out.println("Running test: testGetRelatedAgents()");
 		
 		try {
 			
@@ -182,8 +179,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 
 	@Test
 	public void testGetRelatedEvents() {
-		System.out.println("Running test: testGetRelatedEvents()");	
-		
+
 		try {
 			//create disco			
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);			
@@ -231,8 +227,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetRelatedTriples() {	
-		System.out.println("Running test: testGetRelatedTriples()");	
-	
+
 		try {
 			
 			//create disco				
@@ -283,8 +278,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	
 	@Test
 	public void testGetResourceRdfTypes() {	
-		System.out.println("Running test: testGetResourceRdfTypes()");	
-		try {		
+		try {
 
 			java.net.URI context = rmapIdService.createId();
 			IRI resource01 = ORAdapter.uri2OpenRdfIri(context);
@@ -319,8 +313,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetResourceRdfTypesAllContexts() {
-		System.out.println("Running test: testGetResourceRdfTypesAllContexts()");	
-		try {	
+		try {
 
 			//create disco				
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);	

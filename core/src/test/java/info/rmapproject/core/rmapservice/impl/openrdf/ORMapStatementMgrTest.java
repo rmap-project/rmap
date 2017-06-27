@@ -61,8 +61,6 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 	
 	@Test
 	public void testGetRelatedDiSCOs() {
-		System.out.println("Running test: testGetRelatedDiSCOs()");	
-		
 		try {
 
 			//create disco		
@@ -110,7 +108,6 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetAssertingAgents() {
-		System.out.println("Running test: testGetAssertingAgents()");			
 		try {
 			//create disco				
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);

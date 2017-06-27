@@ -121,10 +121,7 @@ public abstract class ResponseManagerTest {
 			if (!rmapService.isAgentId(agentId)) {
 				rmapService.createAgent(sysagent,requestAgent);
 			}
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId);
-			}
-			
+
 			// Check the agent was created
 			assertTrue(rmapService.isAgentId(agentId));		
 		}

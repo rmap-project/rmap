@@ -7,8 +7,13 @@ import org.junit.Test;
  */
 public class ORMapDiscoIT {
 
+    /**
+     * Insures the superclass of {@link ORMapDiSCO} can be instantiated.  This is tested because {@link ORMapObject}
+     * constructs its own Spring context (ugh).  It needs to be refactored, but for now this test exists to make sure
+     * the context can be instantiated.
+     */
     @Test
-    public void testConstructORMapDisco() throws Exception {
+    public void testConstructORMapDisco() {
         new ORMapDiSCO();
     }
 

@@ -206,10 +206,7 @@ public class DataDisplayServiceImplTest {
 			if (!rmapService.isAgentId(agentId)) {
 				rmapService.createAgent(sysagent,requestAgent);
 			}
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId);
-			}
-			
+
 			// Check the agent was created
 			assertTrue(rmapService.isAgentId(agentId));		
 		}
@@ -238,9 +235,6 @@ public class DataDisplayServiceImplTest {
 			URI agentId=sysagent2.getId().getIri();
 			if (!rmapService.isAgentId(agentId)) {
 				rmapService.createAgent(sysagent2,requestAgent);
-			}
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent 2 successfully created!  URI is " + agentId);
 			}
 			
 			// Check the agent was created
@@ -288,8 +282,7 @@ public class DataDisplayServiceImplTest {
 	 */
 	@Test
 	public void testDiSCOTableData() throws RMapWebException {
-		System.out.println("Running test: testReadDiSCO()");	
-						
+
 		try {		
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);

@@ -10,10 +10,20 @@
   <root level="WARN">
     <appender-ref ref="STDERR" />
   </root>
-  <logger name="org.springframework" additivity="false" level="INFO">
+  <logger name="org.springframework" additivity="false" level="WARN">
     <appender-ref ref="STDERR" />
   </logger>
-  <logger name="org.hibernate" additivity="false" level="INFO">
+  <logger name="org.springframework.jdbc" additivity="false" level="WARN">
     <appender-ref ref="STDERR" />
   </logger>
+  <logger name="org.hibernate" additivity="false" level="WARN">
+    <appender-ref ref="STDERR" />
+  </logger>
+  <logger name="info.rmapproject" additivity="false" level="WARN">
+    <appender-ref ref="STDERR" />
+  </logger>
+  <logger name="org.openrdf" additivity="false" level="WARN">
+    <appender-ref ref="STDERR" />
+  </logger>
+
 </configuration>
