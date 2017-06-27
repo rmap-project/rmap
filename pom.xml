@@ -18,6 +18,7 @@
         <module>testdata</module>
         <module>webapp</module>
         <module>integration</module>
+        <module>spring-util</module>
     </modules>
 
     <properties>

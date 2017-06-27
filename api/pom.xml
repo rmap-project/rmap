@@ -16,6 +16,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-spring-util</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>info.rmapproject</groupId>
 			<artifactId>rmap-auth</artifactId>
             <version>${project.parent.version}</version>
 		</dependency>

@@ -24,6 +24,12 @@
             <artifactId>rmap-auth</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-spring-util</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
