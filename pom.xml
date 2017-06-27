@@ -49,7 +49,7 @@
         <org-json.version>20151123</org-json.version>
         <apache-cxf.version>3.1.4</apache-cxf.version>
         <derby.version>10.13.1.1</derby.version>
-        <build-helper.plugin.version>1.9.1</build-helper.plugin.version>
+        <build-helper.plugin.version>1.10</build-helper.plugin.version>
         <okhttp.version>3.8.0</okhttp.version>
     </properties>
 
@@ -82,6 +82,11 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>${build-helper.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.genthaler</groupId>
+                    <artifactId>beanshell-maven-plugin</artifactId>
+                    <version>1.4</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -123,6 +128,18 @@
             <dependency>
                 <groupId>org.openrdf.sesame</groupId>
                 <artifactId>sesame-runtime</artifactId>
+                <version>${openrdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-http-server</artifactId>
+                <type>war</type>
+                <version>${openrdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-http-workbench</artifactId>
+                <type>war</type>
                 <version>${openrdf.version}</version>
             </dependency>
             <dependency>
@@ -207,6 +224,16 @@
                 <artifactId>spring-orm</artifactId>
                 <version>${org.springframework-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${org.springframework-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework-version}</version>
+            </dependency>
 
             <!-- testing -->
             <dependency>
@@ -243,6 +270,21 @@
                 <groupId>org.apache.derby</groupId>
                 <artifactId>derby</artifactId>
                 <version>${derby.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbyclient</artifactId>
+                <version>${derby.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbynet</artifactId>
+                <version>${derby.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>apache-tomcat</artifactId>
+                <version>8.0.44</version>
             </dependency>
 
 
