@@ -30,10 +30,10 @@
 	<beans profile="http-triplestore">
 		<context:property-placeholder location="classpath*:/http-triplestore.properties" ignore-unresolvable="true"/>
 		<bean primary="true" id="httpTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype">
-			<property name="sesameUrl" value="${sesamehttp.url}"/>
-			<property name="sesameReposName" value="${sesamehttp.repositoryName}"/>
-			<property name="sesameUserName" value="${sesamehttp.user}"/>
-			<property name="sesamePassword" value="${sesamehttp.password}"/>
+			<property name="sesameUrl" value="${sesamehttp.repository.url}"/>
+			<property name="sesameReposName" value="${sesamehttp.repository.name}"/>
+			<property name="sesameUserName" value="${sesamehttp.repository.user}"/>
+			<property name="sesamePassword" value="${sesamehttp.repository.password}"/>
 		</bean>
 	</beans>
 
