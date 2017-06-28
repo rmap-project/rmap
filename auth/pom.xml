@@ -113,10 +113,8 @@
                 <configuration>
                     <systemProperties>
                         <derby.system.home>${project.build.directory}/derby</derby.system.home>
-                        <rmap.webapp.test.port>${rmap.webapp.test.port}</rmap.webapp.test.port>
-                        <rmap.webapp.context>${rmap.webapp.context}</rmap.webapp.context>
-                        <rmap.api.context>${rmap.api.context}</rmap.api.context>
-                    </systemProperties>
+                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-userservice</spring.profiles.active>
+\                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>
