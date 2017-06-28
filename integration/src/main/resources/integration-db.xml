@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <beans profile="integration-db">
+        <context:property-placeholder location="classpath*:/integration-db.properties" ignore-unresolvable="true"/>
+
+        <bean id="integrationDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+            <property name="driverClassName" value="${authdb.driverClassName}" />
+            <property name="url" value="${authdb.url}" />
+            <property name="username" value="${authdb.username}" />
+            <property name="password" value="${authdb.password}" />
+            <property name="validationQuery" value="${authdb.validationQuery}"/>
+            <property name="testOnBorrow" value="${authdb.testOnBorrow}"/>
+        </bean>
+
+        <!-- Initialize the database AFTER the Hibernate session factory has been created; allows Hibernate
+             to update the table schema first. -->
+        <bean id="integrationDatasourceInitializer" depends-on="integrationSessionFactory"
+              class="info.rmapproject.spring.jdbc.support.ConditionalDataSourceInitializer">
+            <property name="dataSource" ref="integrationDatasource"/>
+            <property name="databasePopulator" ref="integrationDatasourcePopulator"/>
+            <property name="enabled" value="true"/>
+            <property name="conditions">
+                <list>
+                    <bean class="info.rmapproject.spring.jdbc.support.EmptyTablesCondition"/>
+                </list>
+            </property>
+        </bean>
+
+        <bean id="integrationDatasourcePopulator"
+              class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
+            <constructor-arg>
+                <list value-type="org.springframework.core.io.Resource">
+                    <value>/WEB-INF/classes/create-rmap-agent.sql</value>
+                </list>
+            </constructor-arg>
+            <property name="continueOnError" value="true"/>
+        </bean>
+
+        <bean id="integrationSessionFactory" parent="sessionFactory">
+            <property name="dataSource" ref="integrationDatasource"/>
+        </bean>
+    </beans>
+
+</beans>

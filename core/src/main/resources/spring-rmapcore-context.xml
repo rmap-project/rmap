@@ -26,6 +26,7 @@
 		</property>
 	</bean>
 
+	<!-- production triplestore -->
 	<beans profile="http-triplestore">
 		<context:property-placeholder location="classpath*:/http-triplestore.properties" ignore-unresolvable="true"/>
 		<bean primary="true" id="httpTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype">
@@ -36,6 +37,12 @@
 		</bean>
 	</beans>
 
+	<!-- integration triplestore, from integration module -->
+	<beans profile="integration-triplestore">
+		<import resource="classpath*:/integration-triplestore.xml"/>
+	</beans>
+
+	<!-- production id service -->
 	<beans profile="http-idservice">
 		<context:property-placeholder location="classpath*:/http-idservice.properties" ignore-unresolvable="true"/>
 		<bean id="httpUrlIdService" class="info.rmapproject.core.idservice.HttpUrlIdService">
@@ -50,6 +57,7 @@
 		</bean>
 	</beans>
 
+	<!-- unit tests and integration tests -->
 	<beans profile="inmemory-idservice">
 		<context:property-placeholder location="classpath*:/inmemory-idservice.properties" ignore-unresolvable="true"/>
 		<bean primary="true" id="inMemoryIdService" class="info.rmapproject.core.idservice.RandomStringIdService">
@@ -59,6 +67,7 @@
 		</bean>
 	</beans>
 
+	<!-- unit tests -->
 	<beans profile="inmemory-triplestore">
 		<context:property-placeholder location="classpath*:/inmemory-triplestore.properties" ignore-unresolvable="true"/>
 		<bean primary="true" id="inMemoryTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore">

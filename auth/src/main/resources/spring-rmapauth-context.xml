@@ -53,6 +53,12 @@
         </bean>
     </beans>
 
+    <!-- integration tests -->
+    <beans profile="integration-db">
+        <!-- located in integration module -->
+        <import resource="classpath*:/integration-db.xml"/>
+    </beans>
+
     <!-- production database -->
     <beans profile="persistent-db">
         <context:property-placeholder location="classpath*:/persistent-db.properties" ignore-unresolvable="true"/>
