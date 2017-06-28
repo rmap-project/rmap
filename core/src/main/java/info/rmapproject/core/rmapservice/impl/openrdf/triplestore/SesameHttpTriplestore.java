@@ -19,9 +19,12 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
+import info.rmapproject.spring.triplestore.support.TriplestoreInitializer;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.http.HTTPRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class for a Sesame triplestore in which the API is available via an HTTP path.
@@ -30,18 +33,8 @@ import org.openrdf.repository.http.HTTPRepository;
  */
 public class SesameHttpTriplestore  extends SesameTriplestore{
 
-	/** The key for the URL property. */
-	private static final String URL_PROPERTY = "sesamehttp.url";
-	
-	/** The key for the Repository Name property. */
-	private static final String REPOS_NAME_PROPERTY = "sesamehttp.repositoryName";
-	
-	/** The key for the Sesame user property. */
-	private static final String USER_PROPERTY = "sesamehttp.user";
-	
-	/** The key for the Sesame password property. */
-	private static final String PASSWORD_PROPERTY = "sesamehttp.password";
-		
+	private static final Logger LOG = LoggerFactory.getLogger(SesameHttpTriplestore.class);
+
 	/** The Sesame URL. */
 	private String sesameUrl = "";
     
@@ -53,6 +46,11 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
     
     /** The Sesame password. */
     private String sesamePassword = "";
+
+	/**
+	 * Creates a Triplestore if necessary
+	 */
+	private TriplestoreInitializer triplestoreInitializer;
 	
     /**
      * Instantiates a new Sesame HTTP triplestore.
@@ -65,15 +63,25 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
 	 * @see info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore#intitializeRepository()
 	 */
 	protected Repository intitializeRepository() throws RepositoryException {
-    	if (repository == null)	{
-	    	//Create connection to Sesame DB
-    		HTTPRepository rmapHttpRepo = new HTTPRepository(
-    				sesameUrl,sesameReposName);
-    		rmapHttpRepo.setUsernameAndPassword(sesameUserName,sesamePassword);
-    		repository = rmapHttpRepo;
-    		repository.initialize();	
-    	}
-    	return repository;
+
+		// Creates a triplestore if needed
+		if (triplestoreInitializer != null) {
+			LOG.debug("Initializing triplestore with {}", triplestoreInitializer.getClass().getSimpleName());
+			triplestoreInitializer.initializeTriplestore();
+		} else {
+			LOG.debug("Skipping triplestore initialization, triplestoreInitializer was null.");
+		}
+
+		if (repository == null) {
+			//Create connection to Sesame DB
+			HTTPRepository rmapHttpRepo = new HTTPRepository(
+					sesameUrl, sesameReposName);
+			rmapHttpRepo.setUsernameAndPassword(sesameUserName, sesamePassword);
+			repository = rmapHttpRepo;
+			repository.initialize();
+		}
+
+		return repository;
 	}
 
 	public String getSesameUrl() {
@@ -106,5 +114,13 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
 
 	public void setSesamePassword(String sesamePassword) {
 		this.sesamePassword = sesamePassword;
+	}
+
+	public TriplestoreInitializer getTriplestoreInitializer() {
+		return triplestoreInitializer;
+	}
+
+	public void setTriplestoreInitializer(TriplestoreInitializer triplestoreInitializer) {
+		this.triplestoreInitializer = triplestoreInitializer;
 	}
 }

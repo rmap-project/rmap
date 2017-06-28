@@ -64,6 +64,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+        <dependency>
+          <groupId>info.rmapproject</groupId>
+          <artifactId>rmap-spring-util</artifactId>
+          <version>${project.parent.version}</version>
+        </dependency>
         <!-- testing -->
         <dependency>
             <groupId>junit</groupId>
