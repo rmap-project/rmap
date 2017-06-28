@@ -1,7 +1,7 @@
 # RMap Developer Documentation
 
 ## RMap source overview
-The RMap software has 4 main modules that work together plus one small module for test data.
+The RMap software has 4 main modules that work together plus one small module for test data, and two other modules supporting integration testing.
 
 ### core
 As the name suggests, this contains the core code for the RMap software. It defines the RMap data model, interacts with the underlying triplestore, and provides the tools needed to manage and access RMap data.
@@ -13,6 +13,10 @@ The api module provides a REST API to expose the major functions of RMap.  These
 The web application allows users to browse RMap Agents, DiSCOs, and Events in a visual and interactive way.  It also supports the configuration of RMap Agents and API keys to be used for write-access to the RMap API. A [live demo site](https://demo.rmap-hub.org/app) is available to try out.
 ### testdata
 The test data module contains RDF files for DiSCOs and Agents. This data is used to generate test data for the JUnit tests in the other modules.
+### integration
+This module bootstraps an integration environment and executes integration tests.
+### spring-util
+This module contains utility classes that manage the persisted data used by integration tests. 
 
 ## Compiling from source
 ### System Requirements
