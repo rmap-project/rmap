@@ -32,7 +32,7 @@ public class StartDerbyTask extends Task {
         NetworkServerControl server = null;
         try {
             System.setProperty("derby.system.home", derbyHome.getAbsolutePath());
-            server = new NetworkServerControl(InetAddress.getByName(host),port);
+            server = new NetworkServerControl(InetAddress.getByName(host), port);
             server.start(null);
             LOG.info("Started Derby Network Server (derby.system.home={}) on {}:{}",
                     derbyHome.getAbsolutePath(), host, port);
@@ -47,7 +47,7 @@ public class StartDerbyTask extends Task {
     /**
      * The TCP port Derby shall be started on.
      *
-     * @return the TCP port
+     * @return the TCP port, defaults to {@code 1527}
      */
     public int getPort() {
         return port;
@@ -68,7 +68,7 @@ public class StartDerbyTask extends Task {
     /**
      * The TCP host Derby shall be started on.
      *
-     * @return the TCP host
+     * @return the TCP host, defaults to {@code localhost}
      */
     public String getHost() {
         return host;
