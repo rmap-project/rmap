@@ -176,6 +176,7 @@
                                 import org.apache.derby.drda.NetworkServerControl;
                                 import java.net.InetAddress;
                                 import java.net.URL;
+                                System.err.println("${derby.home}".replaceAll("\\\\", "\\\\\\\\"));
                                 if (org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS) {
                                     System.setProperty("derby.system.home", "${derby.home}".replaceAll("\\\\", "\\\\\\\\"));
                                 } else {
