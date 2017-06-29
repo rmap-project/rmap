@@ -19,6 +19,7 @@
         <module>webapp</module>
         <module>integration</module>
         <module>spring-util</module>
+        <module>integration-util</module>
     </modules>
 
     <properties>
@@ -52,6 +53,7 @@
         <derby.version>10.13.1.1</derby.version>
         <build-helper.plugin.version>1.10</build-helper.plugin.version>
         <okhttp.version>3.8.0</okhttp.version>
+        <ant.version>1.10.1</ant.version>
     </properties>
 
     <build>
@@ -394,6 +396,12 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>${ant.version}</version>
             </dependency>
 
         </dependencies>
