@@ -1,7 +1,7 @@
 # RMap Developer Documentation
 
 ## RMap source overview
-The RMap software has 4 main modules that work together plus one small module for test data.
+The RMap software has 4 main modules that work together plus one small module for test data, and two other modules supporting integration testing.
 
 ### core
 As the name suggests, this contains the core code for the RMap software. It defines the RMap data model, interacts with the underlying triplestore, and provides the tools needed to manage and access RMap data.
@@ -13,6 +13,10 @@ The api module provides a REST API to expose the major functions of RMap.  These
 The web application allows users to browse RMap Agents, DiSCOs, and Events in a visual and interactive way.  It also supports the configuration of RMap Agents and API keys to be used for write-access to the RMap API. A [live demo site](https://demo.rmap-hub.org/app) is available to try out.
 ### testdata
 The test data module contains RDF files for DiSCOs and Agents. This data is used to generate test data for the JUnit tests in the other modules.
+### integration
+This module bootstraps an integration environment and executes integration tests.
+### spring-util
+This module contains utility classes that manage the persisted data used by integration tests. 
 
 ## Compiling from source
 ### System Requirements
@@ -30,30 +34,32 @@ The `war` files will be found in the `/target` folder of `webapp` and `api`. The
 
 # [Developer runtime](#developer-runtime)
 ## Running RMap
-Developers can run a local instance of RMap by executing:
+The developer runtime is appropriate for testing modifications to the source code, API, or web user interface.  It is _not_ appropriate for production.  Developers can run a local instance of RMap by executing:
 
 - `mvn clean install` from the base RMap directory
 - then `cd` into the `integration` directory and run `mvn validate cargo:run`
+- the runtime can be stopped by typing `CTRL-C` at the console
+- `mvn clean` will remove any data created by the runtime
 
-The developer runtime is appropriate for testing modifications to the source code, API, or web user interface.  It is _not_ appropriate for production.  For example, data will be lost when stopping the developer runtime, because data are only persisted in memory, not on disk. 
- 
 The RMap API and web interface will start on a random, high-numbered port (e.g. `55349`, actual port is output to the console), available at the `/api` and `/app` contexts, respectively.  For example:
 * `http://localhost:55349/app`
 * `http://localhost:55349/api`
 
+Upon startup, a database and triplestore will be created under the `integration/target` directory, and a single RMap Agent will be created in the database.  The created database and triplestore may be preserved across restarts of the developer runtime, provided that a `mvn clean` is _not_ run.  Removing the `integration/target` directory will delete any data in the triplestore or database.
+
 ## Configuration
 RMap will automatically be configured with in-memory or embedded implementations of key interfaces:
 * In-memory identifier generation service
-* In-memory triplestore
+* Persistent (on-disk) triplestore
 * In-memory user service
-* Embedded database
+* Persistent (on-disk) database
 
 The configuration of these implementations takes place in `integration/src/main/resources/rmap.properties`.  To customize any of the supported properties of the developer runtime, edit this file before executing `mvn validate cargo:run`.
 
 ## Spring Profiles
 Behind the scenes, RMap uses [Spring Profiles](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/beans.html#beans-environment) to activate beans (or graphs of beans) at runtime.  Example supported profiles are:
-* `inmemory-triplestore` and its analog `http-triplestore`
-* `inmemory-db` and its analog `persistent-db`
+* `inmemory-triplestore`, `integration-triplestore` and `http-triplestore`
+* `inmemory-db`, `integration-db`, and `persistent-db`
 * `inmemory-idservice` and its analog `http-idservice`
 
 The use of an in-memory profile is mutually exclusive with its analog.  For example, activating the `inmemory-triplestore` _and_ the `http-triplestore` at the same time is not supported.
@@ -68,11 +74,57 @@ For development, the following profiles are active:
 * `inmemory-db`
 * `inmemory-idservice`
 
+For integration tests, the following profiles are active:
+* `integration-triplestore`
+* `integration-db`
+* `inmemory-idservice`
+
 Regardless of which profiles are active, the `rmap.properties` file is used for configuration.  That means you can configure the database connectivity and the identifier generation service in the same place, regardless of which profiles are active.
 
-## Logging 
-Logging output goes to a file based on the current date.  The name of the logging file used is output to the console upon startup, and is typically named something like: `integration/target/cargo/configurations/jetty9x/logs/YYYY_MM_DD.jetty.log`.  If RMap is not behaving as you expect, often this log file will provide a clue.  
+## Logging
+Logging for the runtime is configured in two places.  
 
-To modify the logging level of RMap, edit `integration/src/main/resoures/logback.xml` before executing `mvn validate cargo:run`.
+### Tomcat Logging (java.util.logging)
+Logging for the Tomcat web application itself is managed in `integration/src/test/resources/logging.properties`.  Tomcat, and some other 3rd-party dependencies of RMap (e.g. OkHttp), use `java.util.logging`.  If you are debugging a Tomcat container startup problem, you may want to modify the logging levels here.
+
+### RMap Logging (slf4j)
+To modify the logging level of RMap or the majority of RMap 3rd-party dependencies, edit `integration/src/main/resoures/logback.xml`.  This is the log file you would edit for debugging RMap, Spring, and Hibernate.
+
+# Integration Tests
+RMap integration tests use the same developer runtime documented above.  When integration tests are executed, the following Spring profiles are activated:
+* `integration-triplestore`
+* `integration-db`
+* `inmemory-idservice`
+
+Hibernate is used to generate the database schema, and Spring is used to populate the database tables and to create a Sesame HTTP triplestore.  The purpose of the `integration-*` profiles is to manage the persistent state created by running the  [developer runtime](#developer-runtime) or executing integration tests.  The integration profiles provide a Spring configuration that is used to preserve existing data in the database and triplestore.  This insures that a developer can inspect the state of the database and triplestore after an integration test failure.  Without these mechanisms, it would be difficult to debug a failing integration test, or to support re-starts of the developer runtime.
+
+## Integration Environment
+The integration environment attempts to match the production environment as closely as possible.  The environment is configured inside the `integration` module's Maven POM.  The Maven [lifecycle](http://maven.apache.org/ref/3.3.9/maven-core/lifecycles.html#default_Lifecycle) is leveraged to start up the various services to support the IT environment.
+
+The `validate` lifecycle phase uses beanshell script to launch the Derby network server.  The network server is used so that both the RMap API and HTML UI webapps can connect to a shared database instance.  In addition, integration test fixtures may connect to the shared database in order to inspect or initialize content.  The Derby instance home is configured to be in `integration/target/test-classes/derby`.
+
+The next relevant lifecycle phase is the `pre-integration-test` phase.  The Cargo Maven plugin is used to configure and launch an instance of Tomcat.  The Tomcat instance contains  the RMap API and HTML UI web applications under test, and the OpenRDF Sesame HTTP server and Workbench web applications.  A lot happens inside of this phase, which will be discussed a bit later.
+
+Then the `integration-test` phase is started, and the Maven Failsafe plugin takes over.  The actual integration tests execute in this phase, exercising the HTTP endpoints of the RMap API and HTML UI.
+
+Finally, the `post-integration-test` phase stops Tomcat, and the `verify` phase insures that the integration test results pass.  If the ITs fail, or if an error is encountered in any of the previous phases, the build will be failed.
+
+### Database and Triplestore initialization
+Remember that the Derby network server is started in the `validate` phase, and has a home directory allocated for managing the database under `integration/target/test-classes/derby`.  That is, after the `validate` phase, clients may connect to the database.  By using a JDBC url with the option `create=true`, the database will be created automatically upon the first connection if it doesn't already exist.  In fact, the integration environment uses the `create=true` option throughout.  This means that there is no special logic in the integration environment for creating the database itself.  It relies on Derby to handle the database creation.
+ 
+When the `pre-integration-test` phase is entered, Tomcat is started with four web applications:
+ * RMap API (`api` module)
+ * RMap HTML UI (`webapp` module)
+ * OpenRDF Sesame HTTP server (provides an HTTP API to _existing_ Sesame triplestores)
+ * OpenRDF Workbench HTML UI (provides an HTML UI to _create_ and manage Sesame triplestores)
+
+ When the RMap applications start, a few things happen:
+ 1. Hibernate connects to the database and creates the table schema for RMap if it doesn't already exist.
+ 2. Spring JDBC initialization populates the database with an RMap Agent, used by the ITs to authenticate to the API and perform tests.  If any data exists in the database, initialization will _not_ occur; existing data is preserved.
+ 3. Upon construction, the `SesameHttpTriplestore` will attempt to _create_ a Sesame triplestore using the OpenRDF Workbench web application.  Attempts to create a triplestore when one already exists are ignored.  The "home directory" for created triplestores is `integration/target/test-classes/sesame`.
+   
+It is important to remember that these initialization steps only occur in the integration environment.  More specifically, they only occur when the `integration-db` and `integration-triplestore` Spring profiles are active.  When the integration profiles are active, collaborating beans are wired together such that they are compelled to perform initialization.  In a production environment, these profiles are not active, and no initialization of any kind takes place.
+
+By performing this initialization automatically as part of the integration environment, integration test classes do not have to worry about mundane issues like database creation or triplestore availability.
 
 

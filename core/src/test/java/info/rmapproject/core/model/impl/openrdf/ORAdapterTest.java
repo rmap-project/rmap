@@ -288,7 +288,6 @@ public class ORAdapterTest {
 			BNode bnode = vf.createBNode(bnId);
 			RMapBlankNode rb = ORAdapter.openRdfBNode2RMapBlankNode(bnode);
 			assertEquals(bnode.getID(), rb.getId());
-			System.out.println(bnode.getID());
 
 			//Null returns null
 			rb = ORAdapter.openRdfBNode2RMapBlankNode(null);

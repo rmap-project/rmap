@@ -115,10 +115,7 @@ public abstract class ORMapMgrTest {
 			if (!rmapService.isAgentId(agentId)) {
 				rmapService.createAgent(sysagent,requestAgent);
 			}
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent successfully created!  URI is " + agentId);
-			}
-			
+
 			// Check the agent was created
 			assertTrue(rmapService.isAgentId(agentId));		
 		}
@@ -148,10 +145,7 @@ public abstract class ORMapMgrTest {
 			if (!rmapService.isAgentId(agentId)) {
 				rmapService.createAgent(sysagent2,requestAgent);
 			}
-			if (rmapService.isAgentId(agentId)){
-				System.out.println("Test Agent 2 successfully created!  URI is " + agentId);
-			}
-			
+
 			// Check the agent was created
 			assertTrue(rmapService.isAgentId(agentId));		
 		}

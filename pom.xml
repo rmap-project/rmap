@@ -18,6 +18,8 @@
         <module>testdata</module>
         <module>webapp</module>
         <module>integration</module>
+        <module>spring-util</module>
+        <module>integration-util</module>
     </modules>
 
     <properties>
@@ -27,9 +29,9 @@
         <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
         <org.aspectj-version>1.6.10</org.aspectj-version>
         <org.powermock-version>1.6.6</org.powermock-version>
-        <org.slf4j-version>1.6.6</org.slf4j-version>
+        <org.slf4j-version>1.7.25</org.slf4j-version>
         <jackson.version>2.7.4</jackson.version>
-        <logback.version>1.1.7</logback.version>
+        <logback.version>1.2.3</logback.version>
         <openrdf.version>4.1.1</openrdf.version>
         <httpclient.version>4.5.2</httpclient.version>
         <jsonld-java.version>0.5.1</jsonld-java.version>
@@ -49,8 +51,9 @@
         <org-json.version>20151123</org-json.version>
         <apache-cxf.version>3.1.4</apache-cxf.version>
         <derby.version>10.13.1.1</derby.version>
-        <build-helper.plugin.version>1.9.1</build-helper.plugin.version>
+        <build-helper.plugin.version>1.10</build-helper.plugin.version>
         <okhttp.version>3.8.0</okhttp.version>
+        <ant.version>1.10.1</ant.version>
     </properties>
 
     <build>
@@ -83,6 +86,11 @@
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>${build-helper.plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>com.github.genthaler</groupId>
+                    <artifactId>beanshell-maven-plugin</artifactId>
+                    <version>1.4</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -90,12 +98,30 @@
     <dependencyManagement>
         <dependencies>
 
+            <!-- logging api -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${org.slf4j-version}</version>
+            </dependency>
+
             <!-- logging impl -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${org.slf4j-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${org.slf4j-version}</version>
+            </dependency>
+
 
             <!-- sesame framework -->
 
@@ -105,6 +131,18 @@
             <dependency>
                 <groupId>org.openrdf.sesame</groupId>
                 <artifactId>sesame-runtime</artifactId>
+                <version>${openrdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-http-server</artifactId>
+                <type>war</type>
+                <version>${openrdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-http-workbench</artifactId>
+                <type>war</type>
                 <version>${openrdf.version}</version>
             </dependency>
             <dependency>
@@ -189,6 +227,16 @@
                 <artifactId>spring-orm</artifactId>
                 <version>${org.springframework-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${org.springframework-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework-version}</version>
+            </dependency>
 
             <!-- testing -->
             <dependency>
@@ -225,6 +273,21 @@
                 <groupId>org.apache.derby</groupId>
                 <artifactId>derby</artifactId>
                 <version>${derby.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbyclient</artifactId>
+                <version>${derby.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbynet</artifactId>
+                <version>${derby.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>apache-tomcat</artifactId>
+                <version>8.0.44</version>
             </dependency>
 
 
@@ -333,6 +396,12 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>${ant.version}</version>
             </dependency>
 
         </dependencies>

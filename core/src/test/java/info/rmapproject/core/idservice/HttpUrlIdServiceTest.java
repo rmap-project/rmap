@@ -287,7 +287,6 @@ public class HttpUrlIdServiceTest {
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			fail("An error occured while processing exceptionWhenNoIdsInList(). Test failed");
 		}
 	}

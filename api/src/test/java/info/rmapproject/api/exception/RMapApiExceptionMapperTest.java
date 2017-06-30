@@ -23,6 +23,8 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+
 public class RMapApiExceptionMapperTest {
 
 	@Test	
@@ -31,7 +33,7 @@ public class RMapApiExceptionMapperTest {
 		RMapApiException e = new RMapApiException(ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
 		RMapApiExceptionHandler mapper = new RMapApiExceptionHandler();
 		Response response = mapper.toResponse(e);
-		System.out.print(response.getEntity().toString());
+		assertNotNull(response);
 	}
 
 }

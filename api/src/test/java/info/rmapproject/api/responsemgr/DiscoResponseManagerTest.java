@@ -305,13 +305,8 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 			response = discoResponseManager.getRMapDiSCO(encodedUri,matchingType);
 		} catch (RMapApiException e) {
 			assertEquals(e.getErrorCode(), ErrorCode.ER_DISCO_OBJECT_NOT_FOUND);
-			e.printStackTrace();			
 			correctErrorThrown=true;
-		}  catch (Exception e) {
-			System.out.print(e.getMessage());
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		} 
+		}
 		
 		if (!correctErrorThrown)	{
 			fail("An exception should have been thrown!"); 
@@ -325,21 +320,12 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	 * Test create DiSCO using turtle RDF
 	 */
 	@Test
-	public void testCreateTurtleDisco() {
-		Response response = null;
-		try {			
-			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_TURTLE);
-			response = discoResponseManager.createRMapDiSCO(stream, RDFType.TURTLE);
-			
-		} catch (Exception e) {
-			System.out.print(e.getMessage());
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
-	
+	public void testCreateTurtleDisco() throws Exception {
+		InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_TURTLE);
+		Response response = discoResponseManager.createRMapDiSCO(stream, RDFType.TURTLE);
+
 		assertNotNull(response);
 		assertEquals(201, response.getStatus());
-		
 	}
 
 	
@@ -362,18 +348,10 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	 * Tests create DiSCO using RDF XML
 	 */
 	@Test
-	public void testCreateRdfXmlDisco() {
-		Response response = null;
-		try {
-			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
-			response = discoResponseManager.createRMapDiSCO(stream, RDFType.RDFXML);
-			
-		} catch (Exception e) {
-			System.out.print(e.getMessage());
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
-	
+	public void testCreateRdfXmlDisco() throws Exception {
+		InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
+		Response response = discoResponseManager.createRMapDiSCO(stream, RDFType.RDFXML);
+
 		assertNotNull(response);
 		assertEquals(201, response.getStatus());
 		assertNotNull(response.getEntity());
@@ -384,36 +362,28 @@ public class DiscoResponseManagerTest extends ResponseManagerTest {
 	 * Test DiSCO soft deletion (tombstoned) has the correct status.
 	 */
 	@Test
-	public void testDiSCOThatHasBeenTombstoned(){
-		try {
-			//createDisco
-			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
-	        assertNotNull(rmapDisco.getId());
-			String strDiscoUri = rmapDisco.getId().toString();
-			rmapService.createDiSCO(rmapDisco, requestAgent);
-			//delete and check status
-			rmapService.deleteDiSCO(new URI(strDiscoUri), requestAgent);			
-			List<URI> rmapEvents = rmapService.getDiSCOEvents(new URI(strDiscoUri));
-			assertTrue(rmapEvents.size()==2);
-			RMapEvent event = rmapService.readEvent(rmapEvents.get(0));
-			RMapEvent event2 = rmapService.readEvent(rmapEvents.get(1));
-			assertTrue(event.getEventType()==RMapEventType.TOMBSTONE || event2.getEventType()==RMapEventType.TOMBSTONE);
-			
-			String encodedDiscoUri = URLEncoder.encode(strDiscoUri, "UTF-8");
-			
-			//now check tombstone returns GONE but still has header
-			Response response = discoResponseManager.getRMapDiSCO(strDiscoUri, RdfMediaType.APPLICATION_LDJSON);
-			assertTrue(response.getStatus()==410);//GONE
-			String links = response.getLinks().toString();
-			assertTrue(links.contains("/tombstoned"));
-			assertTrue(links.contains(encodedDiscoUri + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
-			
-			
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
+	public void testDiSCOThatHasBeenTombstoned() throws Exception {
+		//createDisco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		assertNotNull(rmapDisco.getId());
+		String strDiscoUri = rmapDisco.getId().toString();
+		rmapService.createDiSCO(rmapDisco, requestAgent);
+		//delete and check status
+		rmapService.deleteDiSCO(new URI(strDiscoUri), requestAgent);
+		List<URI> rmapEvents = rmapService.getDiSCOEvents(new URI(strDiscoUri));
+		assertTrue(rmapEvents.size()==2);
+		RMapEvent event = rmapService.readEvent(rmapEvents.get(0));
+		RMapEvent event2 = rmapService.readEvent(rmapEvents.get(1));
+		assertTrue(event.getEventType()==RMapEventType.TOMBSTONE || event2.getEventType()==RMapEventType.TOMBSTONE);
 
+		String encodedDiscoUri = URLEncoder.encode(strDiscoUri, "UTF-8");
+
+		//now check tombstone returns GONE but still has header
+		Response response = discoResponseManager.getRMapDiSCO(strDiscoUri, RdfMediaType.APPLICATION_LDJSON);
+		assertTrue(response.getStatus()==410);//GONE
+		String links = response.getLinks().toString();
+		assertTrue(links.contains("/tombstoned"));
+		assertTrue(links.contains(encodedDiscoUri + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 	}
 	
 

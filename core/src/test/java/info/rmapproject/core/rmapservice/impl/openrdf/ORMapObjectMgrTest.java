@@ -72,7 +72,6 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	@Test
 	public void testCreateTriple() {
 		try {
-			System.out.println("Running test: testCreateTriple()");		
 			java.net.URI id1 =null;
 				id1 = rmapIdService.createId();
 			IRI subject = ORAdapter.uri2OpenRdfIri(id1);
@@ -103,7 +102,6 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	@Test
 	public void testIsRMapType() {
 		try {
-			System.out.println("Running test: testIsRMapType()");		
 			java.net.URI id1 =null;
 			id1 = rmapIdService.createId();
 			IRI subject = ORAdapter.uri2OpenRdfIri(id1);
@@ -137,7 +135,6 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testIsEventId() throws RMapException, RMapDefectiveArgumentException {
-		System.out.println("Running test: testIsEventId()");	
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
 			createSystemAgent();
@@ -174,7 +171,6 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testIsAgentId() throws URISyntaxException {
-		System.out.println("Running test: testIsAgentId()");	
 		try {
 			createSystemAgent();
 			ORMapAgentMgr agentMgr = new ORMapAgentMgr();

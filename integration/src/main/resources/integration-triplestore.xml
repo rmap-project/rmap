@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+  <!-- integration triplestore -->
+  <beans profile="integration-triplestore">
+    <context:property-placeholder location="classpath*:/integration-triplestore.properties" ignore-unresolvable="true"/>
+
+    <bean primary="true" id="integrationTriplestore"
+          class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype">
+      <property name="sesameUrl" value="${sesamehttp.repository.url}"/>
+      <property name="sesameReposName" value="${sesamehttp.repository.name}"/>
+      <property name="sesameUserName" value="${sesamehttp.repository.user}"/>
+      <property name="sesamePassword" value="${sesamehttp.repository.password}"/>
+      <property name="triplestoreInitializer" ref="integrationTriplestoreInitializer"/>
+    </bean>
+
+    <bean id="integrationTriplestoreInitializer" class="info.rmapproject.spring.triplestore.support.SpringTriplestoreInitializer">
+      <property name="triplestoreManager">
+        <bean class="info.rmapproject.spring.triplestore.support.SesameTriplestoreManager">
+          <property name="workbenchBaseUrl" value="${sesamehttp.workbench.url}"/>
+          <property name="repositoryBaseUrl" value="${sesamehttp.repository.url}"/>
+          <property name="defaultName" value="${sesamehttp.repository.name}"/>
+          <property name="httpClient">
+            <bean class="okhttp3.OkHttpClient"/>
+          </property>
+        </bean>
+      </property>
+      <property name="initializeEnabled" value="true"/>
+      <property name="destroyEnabled" value="false"/>
+    </bean>
+
+  </beans>
+
+</beans>

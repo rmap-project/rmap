@@ -16,6 +16,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-spring-util</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>info.rmapproject</groupId>
 			<artifactId>rmap-auth</artifactId>
             <version>${project.parent.version}</version>
 		</dependency>
@@ -24,10 +30,14 @@
 			<artifactId>rmap-core</artifactId>
             <version>${project.parent.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>

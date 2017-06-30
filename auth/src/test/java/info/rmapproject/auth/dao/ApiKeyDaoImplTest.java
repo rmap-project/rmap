@@ -15,7 +15,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:/spring-rmapauth-context.xml")
-@ActiveProfiles({"default", "inmemory-db", "inmemory-idservice", "inmemory-triplestore"})
 public class ApiKeyDaoImplTest {
 
     @Autowired

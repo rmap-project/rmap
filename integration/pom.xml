@@ -16,6 +16,11 @@
     <properties>
         <rmap.webapp.context>/app</rmap.webapp.context>
         <rmap.api.context>/api</rmap.api.context>
+        <sesame.http.context>/openrdf-sesame</sesame.http.context>
+        <sesame.workbench.context>/openrdf-workbench</sesame.workbench.context>
+        <sesamehttp.repository.name>its</sesamehttp.repository.name>
+        <derby.home>${project.build.testOutputDirectory}/derby</derby.home>
+        <hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
     </properties>
 
     <dependencies>
@@ -28,8 +33,43 @@
         </dependency>
 
         <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-spring-util</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-http-server</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-http-workbench</artifactId>
+            <type>war</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbynet</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
         </dependency>
 
         <dependency>
@@ -37,12 +77,6 @@
             <artifactId>rmap-api</artifactId>
             <version>${project.parent.version}</version>
             <type>war</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -57,10 +91,46 @@
         </dependency>
 
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>info.rmapproject</groupId>
-            <artifactId>rmap-core</artifactId>
+            <artifactId>rmap-auth</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-testdata</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
         </dependency>
 
     </dependencies>
@@ -68,6 +138,36 @@
     <build>
 
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target>
+                                <taskdef name="startDerby" classname="info.rmapproject.integration.util.StartDerbyTask"
+                                         classpathref="maven.plugin.classpath"/>
+                                <startDerby derbyHome="${derby.home}"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>info.rmapproject</groupId>
+                        <artifactId>rmap-integration-util</artifactId>
+                        <version>${project.parent.version}</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -92,22 +192,49 @@
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.6.3</version>
                 <configuration>
                     <!-- Container configuration -->
                     <container>
-                        <containerId>jetty9x</containerId>
+                        <containerId>tomcat8x</containerId>
                         <type>installed</type>
+                        <artifactInstaller>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat</artifactId>
+                            <version>8.0.44</version>
+                            <type>tar.gz</type>
+                        </artifactInstaller>
+                        <!--<containerId>jetty9x</containerId>-->
+                        <!--<type>installed</type>-->
+                        <!--<artifactInstaller>-->
+                            <!--<groupId>org.eclipse.jetty</groupId>-->
+                            <!--<artifactId>jetty-distribution</artifactId>-->
+                            <!--<version>9.4.6.v20170531</version>-->
+                            <!--<type>tar.gz</type>-->
+                        <!--</artifactInstaller>-->
                         <systemProperties>
-                            <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</cargo.jvmargs> -->
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
-                            <derby.system.home>${project.build.directory}/derby</derby.system.home>
-                            <logback.configurationFile>${project.build.outputDirectory}/logback.xml</logback.configurationFile>
-                            <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,persistent-userservice</spring.profiles.active>
+                            <derby.system.home>${derby.home}</derby.system.home>
+                            <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
+                            <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
+                            <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
+                            <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
+                            <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,persistent-userservice</spring.profiles.active>
+                            <info.aduna.platform.appdata.basedir>${project.build.testOutputDirectory}/sesame</info.aduna.platform.appdata.basedir>
+                            <hibernate.hbm2ddl.auto>${hibernate.hbm2ddl.auto}</hibernate.hbm2ddl.auto>
                         </systemProperties>
                         <dependencies>
                             <dependency>
                                 <groupId>org.apache.derby</groupId>
                                 <artifactId>derby</artifactId>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.derby</groupId>
+                                <artifactId>derbynet</artifactId>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.derby</groupId>
+                                <artifactId>derbyclient</artifactId>
                             </dependency>
                         </dependencies>
                     </container>
@@ -131,16 +258,52 @@
                             </properties>
                         </deployable>
 
+                        <deployable>
+                            <groupId>org.openrdf.sesame</groupId>
+                            <artifactId>sesame-http-server</artifactId>
+                            <type>war</type>
+                            <properties>
+                                <context>${sesame.http.context}</context>
+                            </properties>
+                        </deployable>
+
+                        <deployable>
+                            <groupId>org.openrdf.sesame</groupId>
+                            <artifactId>sesame-http-workbench</artifactId>
+                            <type>war</type>
+                            <properties>
+                                <context>${sesame.workbench.context}</context>
+                            </properties>
+                        </deployable>
+
 
                     </deployables>
 
                     <configuration>
                         <properties>
-                            <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</cargo.jvmargs> -->
-                            <!--<cargo.runtime.args>&#45;&#45;ini &#45;&#45;module=client &#45;&#45;module=annotations &#45;&#45;module=jmx &#45;&#45;module=server &#45;&#45;module=deploy &#45;&#45;module=websocket &#45;&#45;module=jsp &#45;&#45;module=ext &#45;&#45;module=resources &#45;&#45;module=http &#45;&#45;module=plus</cargo.runtime.args>-->
-                            <cargo.jvmargs>-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.properties</cargo.jvmargs>
+                            <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 -Dlogback.debug=true </cargo.jvmargs> -->
+                            <cargo.jvmargs>-Dlogback.configurationFile=${project.basedir}/src/main/resources/logback.xml -Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.properties</cargo.jvmargs>
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
                         </properties>
+                        <!-- Spring 'integration-db' beans -->
+                        <files>
+                            <copy>
+                                <file>${project.basedir}/src/main/resources/integration-db.properties</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                            <copy>
+                                <file>${project.basedir}/src/main/resources/integration-db.xml</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                            <copy>
+                                <file>${project.basedir}/src/main/resources/integration-triplestore.properties</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                            <copy>
+                                <file>${project.basedir}/src/main/resources/integration-triplestore.xml</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                        </files>
                     </configuration>
 
                 </configuration>
@@ -164,10 +327,14 @@
                         <configuration>
                             <container>
                                 <systemProperties>
-                                    <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,persistent-userservice</spring.profiles.active>
-                                    <hibernate.hbm2ddl.auto>create</hibernate.hbm2ddl.auto>
+                                    <derby.system.home>${derby.home}</derby.system.home>
+                                    <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,persistent-userservice</spring.profiles.active>
                                     <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
                                     <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
+                                    <info.aduna.platform.appdata.basedir>${project.build.testOutputDirectory}/sesame</info.aduna.platform.appdata.basedir>
+                                    <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
+                                    <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
+                                    <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
                                 </systemProperties>
                             </container>
                         </configuration>
@@ -180,10 +347,18 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <systemProperties>
+                        <derby.system.home>${derby.home}</derby.system.home>
+                        <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
                         <rmap.webapp.test.port>${rmap.webapp.test.port}</rmap.webapp.test.port>
                         <rmap.webapp.context>${rmap.webapp.context}</rmap.webapp.context>
                         <rmap.api.context>${rmap.api.context}</rmap.api.context>
-                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,persistent-userservice</spring.profiles.active>
+                        <sesame.http.context>${sesame.http.context}</sesame.http.context>
+                        <sesame.workbench.context>${sesame.workbench.context}</sesame.workbench.context>
+                        <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
+                        <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,persistent-userservice</spring.profiles.active>
+                        <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
+                        <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
+                        <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
                     </systemProperties>
                 </configuration>
                 <executions>

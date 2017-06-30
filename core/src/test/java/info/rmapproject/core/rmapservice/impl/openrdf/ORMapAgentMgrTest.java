@@ -56,8 +56,7 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 	 */
 	@Test
 	public void testReadAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException, URISyntaxException {
-		System.out.println("Running test: testReadAgent()");	
-						
+
 		try {
 			//now read agent and check it.
 			RMapAgent readagent = rmapService.readAgent(new URI(TestConstants.SYSAGENT_ID));
@@ -90,8 +89,6 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 	@SuppressWarnings("unused")
 	@Test
 	public void testUpdateAgent() throws RMapAgentNotFoundException, RMapException, RMapDefectiveArgumentException, FileNotFoundException {
-		System.out.println("Running test: testUpdateAgent()");	
-				
 		java.net.URI agentId; //used to pass back into rmapService since all of these use java.net.URI
 		
 		try {

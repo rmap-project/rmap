@@ -69,8 +69,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testReadDiSCO() throws RMapException, RMapDefectiveArgumentException {
-		System.out.println("Running test: testReadDiSCO()");	
-						
+
 		try {		
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -101,7 +100,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateDiscoNoAggregates() throws RMapException, RMapDefectiveArgumentException {	
-		System.out.println("Running test: testCreateDiscoNoAggregates()");		
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_NO_AGGREGATES);	
@@ -120,8 +118,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateDiscoNoBody() throws RMapException, RMapDefectiveArgumentException {		
-		System.out.println("Running test: testCreateDiscoNoBody()");		
-		try {		
+		try {
 			// create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_NO_BODY);	
 			RMapIri idIRI = disco.getId();
@@ -154,7 +151,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateDiscoNoBodyOrAggregates() throws RMapException, RMapDefectiveArgumentException {	
-		System.out.println("Running test: testCreateDiscoNoBodyOrAggregates()");				
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_NO_BODY_NO_AGGREGATES);	
@@ -179,8 +175,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateDiSCOAggregatesOnly() throws RMapException, RMapDefectiveArgumentException {
-		System.out.println("Running test: testCreateDiSCOAggregatesOnly()");				
-			
+
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_AGGREGATES_ONLY);	
@@ -206,7 +201,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateAndUpdateDiSCO() throws RMapException, RMapDefectiveArgumentException {
-		System.out.println("Running test: testCreateAndUpdateDiSCO()");				
 
 		try {
 			// create DiSCO	
@@ -276,7 +270,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testCreateAndUpdateDiSCOWithBNodes() throws RMapException, RMapDefectiveArgumentException {
-		System.out.println("Running test: testCreateAndUpdateDiSCOWithBNodes()");				
 		try {
 			
 			// now create DiSCO	
@@ -311,7 +304,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testGetAllDiSCOVersionsWithDates() throws RMapObjectNotFoundException, RMapException {
-		System.out.println("Running test: testGetAllDiSCOVersionsWithDates()");				
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
