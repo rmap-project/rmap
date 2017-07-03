@@ -200,12 +200,11 @@ public class ResourceDescription implements Serializable {
 	public void addResourceTypes(List<URI> types) throws RMapWebException {
 		if (types!=null) {
 			for (URI type:types){
-				addResourceType(type.toString());
+				if (type!=null){
+					addResourceType(type.toString());
+				}
 			}
 		}
-		else {
-			throw new RMapWebException(ErrorCode.ER_RESOURCE_TYPE_NULL);
-		}		
 	}
 
 	

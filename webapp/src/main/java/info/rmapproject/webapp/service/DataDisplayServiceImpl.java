@@ -360,7 +360,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setExcludeTypes(true);	
 		params.setOffset(offset);
-		if (view.equals("graph")){
+		if (view.equals(PaginatorType.RESOURCE_GRAPH)){
 			params.setExcludeLiterals(true);	
 			params.setLimit(maxResGraphRelationships);
 		} else {
