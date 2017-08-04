@@ -165,7 +165,6 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		//if agent has come in without a context, generate ID. This will happen if it's a new agent
 		if (officialAgentId==null || officialAgentId.stringValue().length()==0){
 			this.setId();
-			officialAgentId = (Resource) this.getId();
 		}
 		else {
 			this.setId((IRI) officialAgentId);
