@@ -34,6 +34,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
+import info.rmapproject.core.model.impl.openrdf.ORUtil;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
 
@@ -159,10 +160,17 @@ public class RioRDFHandler implements RDFHandler {
 		ORMapAgent agent = new ORMapAgent(stmts);
 		return agent;
 	}
-	
+
+	@Override
+	public RMapEvent rdf2RMapEvent(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException {
+		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
+		RMapEvent event = ORUtil.createORMapEventFromStmts(stmts);
+		return event;
+	}
+
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rdfhandler.RDFHandler#triples2Rdf(java.util.List, info.rmapproject.core.rdfhandler.RDFType)
-	 */
+         * @see info.rmapproject.core.rdfhandler.RDFHandler#triples2Rdf(java.util.List, info.rmapproject.core.rdfhandler.RDFType)
+         */
 	@Override
 	public OutputStream triples2Rdf(List<RMapTriple> triples, RDFType rdfFormat) throws RMapException, RMapDefectiveArgumentException	{
 		if (triples == null){
