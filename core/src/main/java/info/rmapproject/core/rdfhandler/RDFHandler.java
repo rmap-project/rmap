@@ -64,6 +64,18 @@ public interface RDFHandler {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException;
+
+	/**
+	 * Deserialize an RDF InputStream into an RMapEvent.
+	 *
+	 * @param rdfIn an RDF InputStream
+	 * @param rdfFormat name of RDF format
+	 * @param baseUri for resolving relative URIs; empty string if no relative URIs in stream
+	 * @return RMapEvent built from RDF statements in InputStream
+	 * @throws RMapException if InputStream cannot be converted to valid Agent
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
+	public RMapEvent rdf2RMapEvent(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Serialize RMapTriple list as RDF.
