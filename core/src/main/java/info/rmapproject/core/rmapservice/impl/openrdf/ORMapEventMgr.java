@@ -194,7 +194,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		catch (RMapObjectNotFoundException e){
 			throw new RMapEventNotFoundException ("No event found for id " + eventId.stringValue(), e);
 		}		
-		event = createORMapEventFromStmts(eventStmts, ts);
+		event = createORMapEventFromStmts(eventStmts);
 		return event;
 	}
 	
@@ -202,12 +202,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * Construct ORMapEvent object from OpenRdf Statements.
 	 *
 	 * @param eventStmts the set of statements that form the Event object
-	 * @param ts the triplestore instance
 	 * @return the RMap Event object
 	 * @throws RMapException the RMap exception
 	 */
-	public  ORMapEvent createORMapEventFromStmts (Set<Statement> eventStmts,
-			SesameTriplestore ts) throws RMapException {
+	public  ORMapEvent createORMapEventFromStmts(Set<Statement> eventStmts) throws RMapException {
 		//TODO:consider moving the majority of this logic into the respective model.event object
 		//instead pass in Set<Statement> to RMapEvent class
 		if (eventStmts==null || eventStmts.size()==0){
@@ -361,11 +359,6 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (associatedAgentStmt == null){
 			throw new RMapException("No associated agent in event graph " 
 					+ context.stringValue());
-		}
-		IRI agentID = (IRI)associatedAgentStmt.getObject();
-		if (!(this.isAgentId(agentID, ts))){
-			throw new RMapException ("Event associated agent id " + agentID.stringValue() +
-					" does not match any Agent");
 		}
 		if (startTimeStmt == null){
 			throw new RMapException("No start time in event graph " + context.stringValue());
