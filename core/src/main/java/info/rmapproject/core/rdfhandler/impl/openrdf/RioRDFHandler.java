@@ -125,7 +125,7 @@ public class RioRDFHandler implements RDFHandler {
 		try {
 			rdfParser.parse(rdfIn, baseUri);
 		} catch (RDFParseException | RDFHandlerException | IOException e) {
-			throw new RMapException("Unable to parse input RDF: ",e);
+			throw new RMapException("Unable to parse input RDF: " + e.getMessage(), e);
 		}		
 		
 		//Need to do last check to make sure IRIs are compatible with java.net.URI format. 
@@ -284,6 +284,8 @@ public class RioRDFHandler implements RDFHandler {
                      break;
             case JSONLD:  rdfFormat = RDFFormat.JSONLD;
                      break;
+			case NQUADS:  rdfFormat = RDFFormat.NQUADS;
+					 break;
             default: rdfFormat = RDFFormat.TURTLE;
                      break;
         }
