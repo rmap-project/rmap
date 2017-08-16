@@ -33,7 +33,10 @@ public enum RDFType {
 	RDFXML("RDFXML"), 
 	
 	/** RDF Turtle see https://www.w3.org/TR/turtle/ */
-	TURTLE("TURTLE");
+	TURTLE("TURTLE"),
+
+	/** N-Quads see https://www.w3.org/TR/n-quads/ */
+	NQUADS("NQUADS");
 	
 	/** String representation of RDF type. */
 	private final String rdfType;
