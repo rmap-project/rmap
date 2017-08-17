@@ -20,24 +20,6 @@
 package info.rmapproject.core.rdfhandler.impl.openrdf;
 
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.agent.RMapAgent;
-import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
-import info.rmapproject.core.model.impl.openrdf.ORUtil;
-import info.rmapproject.core.rdfhandler.RDFHandler;
-import info.rmapproject.core.rdfhandler.RDFType;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +37,27 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.agent.RMapAgent;
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
+import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
+import info.rmapproject.core.model.impl.openrdf.ORUtil;
+import info.rmapproject.core.rdfhandler.RDFHandler;
+import info.rmapproject.core.rdfhandler.RDFType;
 
 /**
  * Class to convert linked data objects in RMap (RMapDiSCO, RMapTriple etc) to raw RDF
@@ -240,6 +243,15 @@ public class RioRDFHandler implements RDFHandler {
 		else if (orEvent instanceof ORMapEventDeletion){
 			model =((ORMapEventDeletion)orEvent).getAsModel();
 		}
+		else if (orEvent instanceof ORMapEventUpdateWithReplace){
+			model =((ORMapEventUpdateWithReplace)orEvent).getAsModel();
+		}
+		else if (orEvent instanceof ORMapEventDerivation){
+			model =((ORMapEventDerivation)orEvent).getAsModel();
+		}
+		else if (orEvent instanceof ORMapEventInactivation){
+			model =((ORMapEventInactivation)orEvent).getAsModel();
+		}
 		else {
 			throw new RMapException("Unrecognized event type");
 		}
@@ -284,8 +296,8 @@ public class RioRDFHandler implements RDFHandler {
                      break;
             case JSONLD:  rdfFormat = RDFFormat.JSONLD;
                      break;
-			case NQUADS:  rdfFormat = RDFFormat.NQUADS;
-					 break;
+            case NQUADS:  rdfFormat = RDFFormat.NQUADS;
+                     break;
             default: rdfFormat = RDFFormat.TURTLE;
                      break;
         }
