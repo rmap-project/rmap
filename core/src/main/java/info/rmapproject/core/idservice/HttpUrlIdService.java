@@ -43,9 +43,6 @@ public class HttpUrlIdService implements IdService {
 	/** The log. */
 	private static final Logger log = LoggerFactory.getLogger(HttpUrlIdService.class);
 
-	/**  The property key to retrieve a regex to validate the ID against validation. */
-	private static final String ID_REGEX_PROPERTY = "idservice.idRegex";
-
 	/**  Wait time to retry when ID retrieval unsuccessful (5 seconds). */
 	private static final int RETRY_WAIT_TIME = 5000;
 

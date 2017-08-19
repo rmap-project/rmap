@@ -25,27 +25,24 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.webapp.WebTestAbstract;
 
 /**
  * Tests for WebappUtils class.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/servlet-context.xml")
-public class WebappUtilsTest {
-
+public class WebappUtilsTest extends WebTestAbstract {
+	
 	/**
 	 * Test ontology prefixes.
 	 */
 	@Test
 	public void testOntologyPrefixes() {
 		String url = "http://rmap-project.org/rmap/terms/DiSCO";
+
 		String newUrl = WebappUtils.replaceNamespace(url);
+		
 		assertTrue(newUrl.equals("rmap:DiSCO"));
 
 		url = "http://purl.org/vocab/frbr/core#test";

@@ -34,30 +34,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.core.CoreTestAbstract;
 
 /**
  * Test class for {@link info.rmapproject.core.idservice.HttpUrlIdService}.
  * @author khanson
  */
-@SuppressWarnings("static-access") //need to make sure modified idservices take, which involves resetting a static value
-@RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/spring-rmapcore-context.xml")
 @PrepareForTest({HttpUrlIdService.class})
-@ActiveProfiles({"default","http-idservice","inmemory-triplestore"})
-public class HttpUrlIdServiceTest {
+@RunWith(PowerMockRunner.class) //overrides default
+@ActiveProfiles({"default","http-idservice","inmemory-triplestore"}) //override default
+public class HttpUrlIdServiceTest extends CoreTestAbstract {
 
 	/** Contains two identifiers to simulate what you would get from the NOID service */
 	static final String NOIDS_2 = "/noids/noids_2.txt"; 
@@ -71,6 +68,21 @@ public class HttpUrlIdServiceTest {
 	@Autowired
 	private HttpUrlIdService idService;
 
+	/**
+	 * Verifies IdService interface autowired by Spring with the RandomStringIdService (ID service used for testing)
+	 * Test method for {@link info.rmapproject.core.idservice.RandomStringIdService}.
+	 */
+	@Test
+	public void idServiceIsAutowired() {
+		try {
+			assertTrue(idService instanceof info.rmapproject.core.idservice.HttpUrlIdService);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Exception thrown while testing RandomStringIdService.createId() " + e.getMessage());
+		}
+	}
+	
+	
 	/**
 	 * Tests valid IDs using properties set in rmapidservice.properties.
 	 */

@@ -52,7 +52,6 @@ import info.rmapproject.api.utils.HttpHeaderDateUtils;
 import info.rmapproject.api.utils.HttpLinkBuilder;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
-import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.api.utils.URIListHandler;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;

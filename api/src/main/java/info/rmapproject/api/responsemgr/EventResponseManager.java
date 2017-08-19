@@ -38,7 +38,6 @@ import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpTypeMediator;
 import info.rmapproject.api.utils.LinkRels;
 import info.rmapproject.api.utils.URIListHandler;
-import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;

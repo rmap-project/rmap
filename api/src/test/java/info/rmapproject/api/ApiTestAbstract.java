@@ -17,28 +17,34 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.core.rmapservice;
+package info.rmapproject.api;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import info.rmapproject.core.CoreTestAbstract;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapService;
-
-public class RMapServiceInstanceTest extends CoreTestAbstract {
-
-	@Autowired
-	RMapService rmapService;
+/**
+ * Tests for ResponseManager.
+ * @author khanson
+ */
+@WebAppConfiguration
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"classpath:/beans.xml"})
+public abstract class ApiTestAbstract {
 	
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void setUpSpringProfiles() {
+		System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-userservice");
+		System.setProperty("rmap.configFile", "classpath:/rmap.properties");
 	}
 
-	@Test
-	public void testGetFactory() {
-		assertTrue (rmapService instanceof ORMapService);	
+	@AfterClass
+	public static void resetSpringProfiles() throws Exception {
+		System.getProperties().remove("spring.profiles.active");
+		System.getProperties().remove("rmap.configFile");
 	}
+
 }

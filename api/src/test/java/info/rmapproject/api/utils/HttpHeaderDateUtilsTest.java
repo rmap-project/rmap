@@ -14,12 +14,14 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import info.rmapproject.api.ApiTestAbstract;
+
 /**
  * @author khanson5
  *
  */
 @Ignore("TODO: Pending resolution of #46")
-public class HttpHeaderDateUtilsTest {
+public class HttpHeaderDateUtilsTest extends ApiTestAbstract {
 
 	private Date dTestdate1;
 	private String sTestdate1;

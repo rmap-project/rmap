@@ -30,12 +30,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.core.CoreTestAbstract;
 
 /**
  * Tests RandomStringIdService. Unlike tests for HttpUrlIdService, this uses the IdService interface and
@@ -43,9 +40,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author smorrissey, khanson
  *
  */
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class RandomStringIdServiceTest {
+public class RandomStringIdServiceTest extends CoreTestAbstract {
 
 	@Autowired
 	private IdService rmapIdService;

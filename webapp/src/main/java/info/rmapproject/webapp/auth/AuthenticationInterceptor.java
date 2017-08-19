@@ -19,8 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.auth;
 
-import info.rmapproject.auth.model.User;
-
 import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +28,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
+import info.rmapproject.auth.model.User;
+import info.rmapproject.webapp.auth.LoginRequired;
+import info.rmapproject.webapp.auth.OAuthProviderAccount;
 
 /**
  * Authentication interceptor to check oauth user/password during each interaction

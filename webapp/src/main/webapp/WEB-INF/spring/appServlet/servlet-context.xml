@@ -47,13 +47,12 @@
 			</beans:list>
 		</beans:property>
 	</beans:bean>
-
 	<beans:bean id="graphFactory" class="info.rmapproject.webapp.service.SpringGraphFactory">
 		<beans:property name="ontologies" ref="ontologyprefixes"/>
 		<beans:property name="typemappings" ref="typemappings"/>
 		<beans:property name="nodeTypes" ref="nodetypes"/>
 	</beans:bean>
-
+	
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<beans:property name="prefix" value="/WEB-INF/views/" />

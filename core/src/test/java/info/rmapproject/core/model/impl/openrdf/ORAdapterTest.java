@@ -32,7 +32,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.openrdf.model.BNode;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
@@ -41,10 +40,8 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapIri;
@@ -53,9 +50,7 @@ import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class ORAdapterTest {
+public class ORAdapterTest extends CoreTestAbstract {
 	
 	@Autowired
 	private IdService rmapIdService;
@@ -74,10 +69,7 @@ public class ORAdapterTest {
 	private IRI subjectIri;
 	private IRI predicateIri;
 	private IRI objectIri;
-	
-	
-	
-	
+		
 	@Before 
 	public void setUp() {
 		try {

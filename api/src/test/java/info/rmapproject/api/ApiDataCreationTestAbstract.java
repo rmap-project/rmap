@@ -17,24 +17,19 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.api.service;
+package info.rmapproject.api;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -43,6 +38,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.testdata.service.TestConstants;
 
@@ -50,10 +46,7 @@ import info.rmapproject.testdata.service.TestConstants;
  * Tests for ResponseManager.
  * @author khanson
  */
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:/beans.xml" })
-@WebAppConfiguration
-public abstract class ApiServiceTest {
+public abstract class ApiDataCreationTestAbstract extends ApiTestAbstract {
 	
 	/** The rmap service. */
 	@Autowired
@@ -73,7 +66,7 @@ public abstract class ApiServiceTest {
 	/**
 	 * Instantiates a new response manager test.
 	 */
-	public ApiServiceTest() {
+	public ApiDataCreationTestAbstract() {
 		super();
 	}
 	
@@ -82,31 +75,34 @@ public abstract class ApiServiceTest {
 	
 	/** Request agent based on sysagent. Include key */
 	protected RMapRequestAgent requestAgent = null;
-	
+		
 	@Before
 	public void setUp() throws Exception {
 		//create test agent and corresponding requestAgent
 		createSystemAgent();
 	}
 
+	
 	/**
 	 * Removes all statements from triplestore to avoid interference between tests
 	 * @throws Exception
 	 */
 	@After
 	public void clearTriplestore() throws Exception {
-		triplestore.getConnection().clear();
+		//if triplestore is inmemory, clear it out.
+		if (triplestore instanceof SesameSailMemoryTriplestore) {
+			triplestore.getConnection().clear();
+		}
 	}
 		
 	
 	/**
 	 * Create generic sysagent and RequestAgent for general use using TestConstants. 
-	 * @throws FileNotFoundException
 	 * @throws RMapException
 	 * @throws RMapDefectiveArgumentException
 	 * @throws URISyntaxException
 	 */
-	protected void createSystemAgent() throws FileNotFoundException, RMapException, RMapDefectiveArgumentException, URISyntaxException{
+	protected void createSystemAgent() throws RMapException, RMapDefectiveArgumentException, URISyntaxException{
 		if (sysagent == null) {
 			IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID);
 			IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
@@ -128,4 +124,8 @@ public abstract class ApiServiceTest {
 			assertTrue(rmapService.isAgentId(agentId));		
 		}
 	}	
+
+
+	
+
 }
