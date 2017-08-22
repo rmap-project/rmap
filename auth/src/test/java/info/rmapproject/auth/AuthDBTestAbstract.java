@@ -38,16 +38,22 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration("classpath*:/spring-rmapauth-context.xml")
 @Transactional
 public abstract class AuthDBTestAbstract {
-	
+
+	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
+	private static boolean activeProfilesPreSet = System.getProperties().containsKey(SPRING_ACTIVE_PROFILE_PROP);
 	
 	@BeforeClass
 	public static void setUpSpringProfiles() {
-		System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore");
+		if (!activeProfilesPreSet) {
+			System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore");
+		}
 	}
 
 	@AfterClass
-	public static void resetSpringProfiles() throws Exception {
-		System.getProperties().remove("spring.profiles.active");
+	public static void resetSpringProfiles() throws Exception {		
+		if (!activeProfilesPreSet) {
+			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
+		}
 	}
 	
 }

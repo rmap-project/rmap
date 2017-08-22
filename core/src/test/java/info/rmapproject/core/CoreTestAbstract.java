@@ -38,14 +38,21 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("classpath:/spring-rmapcore-context.xml")
 public abstract class CoreTestAbstract {
 
+	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
+	private static boolean activeProfilesPreSet = System.getProperties().containsKey(SPRING_ACTIVE_PROFILE_PROP);
+	
 	@BeforeClass
 	public static void setUpSpringProfiles() {
-		System.setProperty("spring.profiles.active", "default, inmemory-triplestore, inmemory-idservice");
+		if (!activeProfilesPreSet) {
+			System.setProperty("spring.profiles.active", "default, inmemory-triplestore, inmemory-idservice");
+		}
 	}
 	
 	@AfterClass
 	public static void resetSpringProfiles() throws Exception {
-		System.getProperties().remove("spring.profiles.active");
+		if (!activeProfilesPreSet) {
+			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
+		}
 	}
 	
 	
