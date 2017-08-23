@@ -20,11 +20,17 @@
 package info.rmapproject.core.model.impl.openrdf;
 
 
+import static org.springframework.core.env.AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME;
+import static org.springframework.core.env.AbstractEnvironment.DEFAULT_PROFILES_PROPERTY_NAME;
+
+import java.util.stream.Stream;
+
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -33,12 +39,6 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.utils.Constants;
-import org.springframework.context.support.GenericXmlApplicationContext;
-
-import java.util.stream.Stream;
-
-import static org.springframework.core.env.AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME;
-import static org.springframework.core.env.AbstractEnvironment.DEFAULT_PROFILES_PROPERTY_NAME;
 
 /**
  * Base class for OpenRDF implementation classes of RMapObjects.

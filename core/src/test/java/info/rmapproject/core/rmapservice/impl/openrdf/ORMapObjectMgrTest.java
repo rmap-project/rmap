@@ -55,7 +55,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 
 /**
- * @author smorrissey, khanson
+ * @author smorrissey
+ * @author khanson
  *
  */
 public class ORMapObjectMgrTest extends ORMapMgrTest {

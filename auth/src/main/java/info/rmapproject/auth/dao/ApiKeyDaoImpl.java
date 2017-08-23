@@ -19,9 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.auth.dao;
 
-import info.rmapproject.auth.exception.RMapAuthException;
-import info.rmapproject.auth.model.ApiKey;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -33,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import info.rmapproject.auth.exception.RMapAuthException;
+import info.rmapproject.auth.model.ApiKey;
 
 /**
  * Implementation of ApiKeyDao used to interact with data in the ApiKey table.

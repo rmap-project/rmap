@@ -42,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import info.rmapproject.api.ApiDataCreationTestAbstract;
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.RdfMediaType;
@@ -62,7 +63,7 @@ import info.rmapproject.testdata.service.TestFile;
  * Tests for DiscoResponseManager
  * @author khanson
  */
-public class DiscoResponseManagerTest extends ResponseManagerTest {
+public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		
 	/** The disco response manager. */
 	@Autowired

@@ -20,19 +20,15 @@
 package info.rmapproject.core.rmapservice;
 
 import static org.junit.Assert.assertTrue;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapService;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import info.rmapproject.core.CoreTestAbstract;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapService;
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class RMapServiceInstanceTest {
+public class RMapServiceInstanceTest extends CoreTestAbstract {
 
 	@Autowired
 	RMapService rmapService;

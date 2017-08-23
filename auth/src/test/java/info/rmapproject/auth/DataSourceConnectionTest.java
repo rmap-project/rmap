@@ -1,20 +1,17 @@
 package info.rmapproject.auth;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.sql.DataSource;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+
+import javax.sql.DataSource;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Simple tests insuring that the Spring wiring for the embedded database is working properly, and that the database
@@ -23,9 +20,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/spring-rmapauth-context.xml")
-public class DataSourceConnectionTest {
+public class DataSourceConnectionTest extends AuthDBTestAbstract {
 
     @Autowired
     private DataSource underTest;

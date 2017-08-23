@@ -19,8 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.api.exception;
 
-import info.rmapproject.api.utils.PathUtils;
-
 import java.net.URI;
 
 import javax.ws.rs.core.Response;
@@ -28,10 +26,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import info.rmapproject.api.utils.PathUtilsFactory;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import info.rmapproject.api.utils.PathUtils;
 
 /**
  * Converts RMap Transform API exceptions to HTTP responses.

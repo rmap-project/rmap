@@ -1,14 +1,15 @@
 package info.rmapproject.webapp.service;
 
+import java.io.UnsupportedEncodingException;
+
+import org.springframework.context.MessageSource;
+
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.GraphEdge;
 import info.rmapproject.webapp.domain.GraphNode;
 import info.rmapproject.webapp.domain.GraphNodeType;
 import info.rmapproject.webapp.domain.TripleDisplayFormat;
-import org.springframework.context.MessageSource;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * @author Elliot Metsger (emetsger@jhu.edu)

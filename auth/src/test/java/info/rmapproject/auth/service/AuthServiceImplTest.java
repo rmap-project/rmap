@@ -20,104 +20,109 @@
 package info.rmapproject.auth.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+
+import java.net.URI;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.auth.AuthDBTestAbstract;
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
 
-import java.net.URI;
-
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath*:/spring-*-context.xml" })
-@Ignore("FIXME")
-public class AuthServiceImplTest {
-
-	//TODO: need to rework the testing - currently tests against an actual development db
-	//tests will fail without that db.
+public class AuthServiceImplTest extends AuthDBTestAbstract {
 	
 	@Autowired
 	private RMapAuthService rmapAuthService;
 	
+	String testUserName = "RMap Test User";
+	String testKeyLabel = "RMap test key";
+	String testAccessKey = "uah2CKDaBsEw3cEQ";
+	String testSecret = "NSbdzctrP46ZvhTi";
+	String testAgentUri = "rmap:testagenturi";
+	
 	@Test
 	public void testAuthObj() {
-		User user = null;
-		try {
-			user = rmapAuthService.getUserById(3);
-		} catch (RMapAuthException e) {
-			fail("Exception thrown " + e.getMessage());
-		}
-		String name = user.getName();
-		assertEquals("Portico", name);	
+		assertNotNull(rmapAuthService);
 	}
 	
 	@Test
-	public void testKeySecret() {
-		String accessKey = "rmaptest";
-		String secret = "rmaptest";
-		ApiKey apiKey = null;
+	public void testGetKeyByKeySecret() {
 		try {
-			apiKey = rmapAuthService.getApiKeyByKeySecret(accessKey,secret);
+			ApiKey apiKey = rmapAuthService.getApiKeyByKeySecret(testAccessKey,testSecret);
+			assertEquals(apiKey.getLabel(), testKeyLabel);
 		} catch (RMapAuthException e) {
 			fail("Exception thrown " + e.getMessage());
 		}
-		assertEquals(apiKey.getLabel(), "RMap Test Agent");
 	}
 	
 	@Test
 	public void testGetAgentUriByKeySecret() {
-		String accessKey = "rmaptest";
-		String secret = "rmaptest";
 		URI agentUri = null;
 		try {
-			agentUri = rmapAuthService.getAgentUriByKeySecret(accessKey,secret);
+			agentUri = rmapAuthService.getAgentUriByKeySecret(testAccessKey,testSecret);
+			assertEquals(agentUri.toString(), testAgentUri);
 		} catch (RMapAuthException e) {
 			e.printStackTrace();
-		}
-		assertEquals(agentUri.toString(), "rmap:rmaptestagent");
-	}
-	
-	@Test
-	public void testGetUserById() {
-		int userId = 3;
-		User user = null;
-		try {
-			user = rmapAuthService.getUserById(userId);
-		} catch (RMapAuthException e) {
-			e.printStackTrace();
-		}
-		assertEquals(user.getRmapAgentUri(),"rmap:rmd18m7mj4");
-	}
-	
-	@Test
-	public void testValidateKey() {
-		String accessKey = "rmaptest";
-		String secret = "rmaptest";
-		try {
-			rmapAuthService.validateApiKey(accessKey, secret);
-		} catch (RMapAuthException e) {
-			fail(e.getMessage());
 		}
 	}
 	
 	@Test
 	public void testGetUserByKeySecret() {
-		String accessKey = "rmaptest";
-		String secret = "rmaptest";
 		try {
-			rmapAuthService.getUserByKeySecret(accessKey, secret);
+			User user = rmapAuthService.getUserByKeySecret(testAccessKey,testSecret);
+			assertEquals(user.getUserId(),1);
+			assertEquals(user.getName(),testUserName);
 		} catch (RMapAuthException e) {
 			fail(e.getMessage());
 		}
 	}
 	
+	@Test
+	public void testGetUserById() {
+		try {
+			User user = rmapAuthService.getUserById(1);
+			String name = user.getName();
+			assertEquals(testUserName, name);	
+		} catch (RMapAuthException e) {
+			fail("Exception thrown " + e.getMessage());
+		}
+	}
 	
+	@Test
+	public void testValidateKeyCorrectKey() {
+		try {
+			rmapAuthService.validateApiKey(testAccessKey, testSecret);
+		} catch (RMapAuthException e) {
+			fail(e.getMessage());
+		}
+	}
 	
-		
+	@Test
+	public void testValidateKeyInorrectKey() {
+		String badKey = "badkey";
+		String badSecret = "badsecret";
+		try {
+			rmapAuthService.validateApiKey(badKey, badSecret);
+			fail("Key validation should fail");
+		} catch (RMapAuthException e) {
+			//do nothing
+		}
+		try {
+			rmapAuthService.validateApiKey(badKey, testSecret);
+			fail("Key validation should fail");
+		} catch (RMapAuthException e) {
+			//do nothing
+		}
+		try {
+			rmapAuthService.validateApiKey(testAccessKey, badSecret);
+			fail("Key validation should fail");
+		} catch (RMapAuthException e) {
+			//do nothing
+		}		
+	}
+	
 }

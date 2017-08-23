@@ -19,11 +19,11 @@
  *******************************************************************************/
 package info.rmapproject.auth.dao;
 
-import info.rmapproject.auth.exception.RMapAuthException;
-import info.rmapproject.auth.model.ApiKey;
-
 import java.net.URI;
 import java.util.List;
+
+import info.rmapproject.auth.exception.RMapAuthException;
+import info.rmapproject.auth.model.ApiKey;
 
 /**
  * Interface for accessing API Key table data .
