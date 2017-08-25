@@ -31,7 +31,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
@@ -40,9 +39,8 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdService;
@@ -58,12 +56,11 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
  * @author smorrissey
+ * @author khanson
  *
  */
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class ORMapEventDeletionTest {
+public class ORMapEventDeletionTest extends CoreTestAbstract {
 
 	@Autowired
 	protected IdService rmapIdService;

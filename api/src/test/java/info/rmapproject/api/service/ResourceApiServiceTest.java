@@ -22,12 +22,9 @@ package info.rmapproject.api.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -41,19 +38,19 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import info.rmapproject.api.exception.RMapApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import info.rmapproject.api.ApiDataCreationTestAbstract;
 import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.testdata.service.TestFile;
 
-public class ResourceApiServiceTest extends ApiServiceTest{
+public class ResourceApiServiceTest extends ApiDataCreationTestAbstract{
 	
 	@Autowired
 	ResourceApiService resourceApiService;
@@ -62,7 +59,7 @@ public class ResourceApiServiceTest extends ApiServiceTest{
 	 * Test the RMap Resource RDF stmts API call
 	 */
 	@Test
-	public void getRMapResourceRdfStmts() throws FileNotFoundException, UnsupportedEncodingException, RMapApiException {
+	public void getRMapResourceRdfStmts() throws Exception {
 		Response response = null;
 		//create 1 disco
 		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);

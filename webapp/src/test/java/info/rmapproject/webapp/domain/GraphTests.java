@@ -24,26 +24,22 @@ import static org.junit.Assert.assertTrue;
 import java.net.URI;
 import java.util.List;
 
-import info.rmapproject.webapp.service.SpringGraphFactory;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUtils;
+import info.rmapproject.webapp.WebTestAbstract;
+import info.rmapproject.webapp.service.SpringGraphFactory;
 import info.rmapproject.webapp.utils.Constants;
 import info.rmapproject.webapp.utils.WebappUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Tests for Graph class
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/WEB-INF/spring/appServlet/servlet-context.xml")
-public class GraphTests {
+public class GraphTests extends WebTestAbstract {
 
 	@Autowired
 	private SpringGraphFactory graphFactory;

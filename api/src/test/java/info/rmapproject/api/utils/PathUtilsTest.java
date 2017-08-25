@@ -21,23 +21,20 @@ package info.rmapproject.api.utils;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+import org.openrdf.model.vocabulary.XMLSchema;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.api.ApiTestAbstract;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapValue;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 /**
  * Tests for RestApiUtils class
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/beans.xml")
-public class PathUtilsTest {
+public class PathUtilsTest extends ApiTestAbstract {
 
 	@Autowired
 	private PathUtils underTest;

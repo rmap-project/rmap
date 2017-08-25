@@ -19,13 +19,13 @@
  *******************************************************************************/
 package info.rmapproject.api.responsemgr;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.utils.PathUtils;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Abstract class containing generic declarations for response managers. Response managers generate 

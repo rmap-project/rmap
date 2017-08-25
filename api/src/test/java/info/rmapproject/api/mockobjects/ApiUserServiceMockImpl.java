@@ -34,7 +34,7 @@ import info.rmapproject.testdata.service.TestConstants;
 /**
  * Mock version of ApiUserServiceImpl for unit tests
  */
-@ContextConfiguration({ "classpath:/spring-rmapapi-context.xml" })
+@ContextConfiguration({ "classpath:*/beans.xml" })
 public class ApiUserServiceMockImpl implements ApiUserService {
 
 	/** The authorization policy. */

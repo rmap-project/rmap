@@ -22,25 +22,23 @@
  */
 package info.rmapproject.core.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.core.CoreTestAbstract;
 
 /**
- * @author smorrissey
+ * @author smorrissey, khanson
  *
  */
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class UtilsTest {
+public class UtilsTest extends CoreTestAbstract {
 
 	/**
 	 * @throws java.lang.Exception

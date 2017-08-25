@@ -26,6 +26,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
+import org.openrdf.model.ValueFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -35,30 +50,13 @@ import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 /**
  * @author smorrissey
+ * @author khanson
  *
  */
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public class ORMapEventCreationTest {
+public class ORMapEventCreationTest extends CoreTestAbstract {
 	@Autowired
 	private SesameTriplestore triplestore;
 	

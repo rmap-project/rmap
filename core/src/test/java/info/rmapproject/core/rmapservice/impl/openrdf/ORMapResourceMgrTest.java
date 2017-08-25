@@ -57,6 +57,12 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
+/**
+ * @author smorrissey
+ * @author khanson
+ *
+ */
+
 public class ORMapResourceMgrTest extends ORMapMgrTest {
 
 	@Autowired
@@ -80,9 +86,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	public void shutdown() throws Exception {
 		triplestore.getConnection().clear();
 	}
-	
-	
-		
+			
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetRelatedDiSCOS() {	
@@ -133,13 +137,11 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		}
 	}
 	
-
 	@SuppressWarnings("unused")
 	@Test
 	public void testGetRelatedAgents() {
 		
 		try {
-			
 			//create disco				
 			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
 			ORMapEvent event1 = discomgr.createDiSCO(disco1, requestAgent, triplestore);

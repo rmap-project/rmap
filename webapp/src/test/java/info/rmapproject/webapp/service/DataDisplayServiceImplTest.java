@@ -56,6 +56,7 @@ import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestDataHandler;
@@ -113,7 +114,9 @@ public class DataDisplayServiceImplTest {
 	 */
 	@After
 	public void clearTriplestore() throws Exception {
-		triplestore.getConnection().clear();
+		if (triplestore instanceof SesameSailMemoryTriplestore) {
+			triplestore.getConnection().clear();
+		}
 	}
 	
 	/**

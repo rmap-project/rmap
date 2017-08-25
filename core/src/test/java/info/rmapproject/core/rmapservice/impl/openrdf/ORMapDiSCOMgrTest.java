@@ -51,7 +51,6 @@ import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
-
 /**
  * @author smorrissey
  * @author khanson

@@ -29,14 +29,12 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
@@ -46,14 +44,18 @@ import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:spring-rmapcore-context.xml" })
-public abstract class ORMapMgrTest {
+/**
+ * @author khanson
+ *
+ */
+
+public abstract class ORMapMgrTest extends CoreTestAbstract {
 
 	@Autowired
 	protected RMapService rmapService;
@@ -86,7 +88,9 @@ public abstract class ORMapMgrTest {
 	 */
 	@After
 	public void clearTriplestore() throws Exception {
-		triplestore.getConnection().clear();
+		if (triplestore instanceof SesameSailMemoryTriplestore) {
+			triplestore.getConnection().clear();
+		}
 	}
 	
 	

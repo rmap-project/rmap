@@ -22,9 +22,6 @@
  */
 package info.rmapproject.core.idservice;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 
 
@@ -39,9 +36,6 @@ public class RandomStringIdService implements IdService {
 	/**Length of Random String to use for ID**/
 	private static final int RANDOM_STRING_LENGTH = 10;
 		
-	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(RandomStringIdService.class);
-
 	/** The ID prefix. */
 	private String idPrefix = "rmap:";
 
