@@ -94,6 +94,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (event.getDescriptionStmt()!= null){
 			this.createStatement(ts, event.getDescriptionStmt());
 		}
+		if (event.getAssociatedKey()!=null){
+			this.createStatement(ts, event.getAssociatedKeyStmt());			
+		}
+		
 		if (event instanceof ORMapEventCreation){
 			ORMapEventCreation crEvent = (ORMapEventCreation)event;
 			List<Statement> stmts = crEvent.getCreatedObjectStatements();

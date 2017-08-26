@@ -22,7 +22,9 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
@@ -78,6 +80,10 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		this.setEventTypeStatement(RMapEventType.DERIVATION);
 		this.setSourceObjectStmt(sourceObject);
 		this.setDerivationStmt(derivedObject);
+		
+		Set<IRI> createdObjs = new HashSet<IRI>();
+		createdObjs.add(derivedObject);
+		this.setCreatedObjectIdsFromIRI(createdObjs);
 	}
 	
 	/**

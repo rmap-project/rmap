@@ -76,7 +76,7 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 	protected RMapRequestAgent requestAgent2 = null;	
 	
 	@Before
-	public void setUp() throws Exception {
+	public void setupAgents() throws Exception {
 		//create 2 test agents and corresponding requestAgents
 		createSystemAgent();
 		createSystemAgent2();
