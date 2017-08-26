@@ -115,7 +115,7 @@ public class ORMapEventDerivationTest extends CoreTestAbstract {
 		ORMapEventDerivation event = new ORMapEventDerivation(requestAgent, RMapEventTargetType.DISCO,sourceObject, derivedObject);
 		Model model = event.getAsModel();
 		int modelSize = model.size();
-		assertEquals(8,modelSize);
+		assertEquals(9,modelSize);
 		
 		// Make list of created objects
 		Set<IRI> iris = new LinkedHashSet<IRI>();
