@@ -26,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapNotLatestVersionException;
-import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -206,9 +204,8 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 			RMapIri idIRI = disco.getId();
 			
-			URI keyId = new URI("rmap:testkey");
-			requestAgent.setAgentKeyId(keyId);
 			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			assertTrue(event!=null);
 			
 			//read DiSCO back
 			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
@@ -216,10 +213,6 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			RMapIri rIdIRI = rDisco.getId();
 			assertEquals(idIRI.toString(),rIdIRI.toString());
 			//check key is associated with event
-			String keyfromevent = event.getAssociatedKey().toString();
-			String keyused = keyId.toString();
-			
-			assertEquals(keyfromevent,keyused);
 			
 			boolean correctErrorThrown = false;
 			// now update DiSCO	
@@ -260,7 +253,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			fail();
 		}	
 	}
-
+	
 	/**
 	 * Test method creates a DiSCO with blank nodes in the body and as aggregates, 
 	 * it then updates with the same DiSCO to confirm Update works too
@@ -289,20 +282,34 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
 			assertEquals(event.getAssociatedAgent().toString(),TestConstants.SYSAGENT_ID);
 			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			fail(ex.getMessage());
 		}	
 	}
 	
 	/**
-	 * Test method creates a DiSCO, updates it, updates again, updates it with a different agent, deletes it, 
-	 * then checks to see we have 3 agent versions with dates returned and that these can be ordered correctly.
-	 * @throws RMapObjectNotFoundException 
-	 * @throws RMapException 
+	 * Verifies that the Agent Key ID was associated with the Event on create.
 	 */
 	@Test
-	public void testGetAllDiSCOVersionsWithDates() throws RMapObjectNotFoundException, RMapException {
+	public void testCreateDiSCOWithUserKeyIdAssociated() {
+		try {			
+			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_TURTLE);
+			RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			assertTrue(event.getAssociatedKey().toString().equals(TestConstants.SYSAGENT_KEY)); 		
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			fail(ex.getMessage());
+		}
+	}
+	
+	
+	/**
+	 * Test method creates a DiSCO, updates it, updates again, updates it with a different agent, deletes it, 
+	 * then checks to see we have 3 agent versions with dates returned and that these can be ordered correctly.
+	 */
+	@Test
+	public void testGetAllDiSCOVersionsWithDates() {
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -371,5 +378,10 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			fail();
 		}	
 	}
+	
+	
+	
+	
+	
 
 }
