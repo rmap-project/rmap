@@ -22,6 +22,10 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import org.openrdf.model.IRI;
+import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
+
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
@@ -30,10 +34,6 @@ import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
 
 /**
  * The concrete class representing the Update with Replace Event for the openrdf implementation of RMap.
@@ -108,6 +108,7 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 				throws RMapException, RMapDefectiveArgumentException {
 		this(associatedAgent, targetType);
 		this.setUpdatedObjectId(ORAdapter.openRdfIri2RMapIri(updateObjectId));
+		
 	}
 	
 	/* (non-Javadoc)
