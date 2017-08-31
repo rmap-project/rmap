@@ -39,10 +39,7 @@ import org.springframework.context.annotation.Scope;
  */
 @Scope("prototype")
 public class SesameSailMemoryTriplestore extends SesameTriplestore {
-	
-	/** The key for the data directory property */
-	private static final String DATA_DIRECTORY_PROPERTY = "sesamesail.dataDirectory";
-		
+			
 	/** The data directory location. */
 	private String dataDirectory = "";
 	

@@ -387,7 +387,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @return the statement containing the associated API key
 	 */
 	public Statement getAssociatedKeyStmt() {
-		return this.descriptionStmt;
+		return this.associatedKeyStmt;
 	}
 	
 
