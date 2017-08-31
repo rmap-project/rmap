@@ -168,4 +168,64 @@ public class AgentResponseManagerTest extends ApiDataCreationTestAbstract {
 		assertEquals(200, response.getStatus());
 	}
 
+	
+	/**
+	 * Tests whether list of discos for an Agent is retrieved successfully
+	 * when there are date and limit parameters.
+	 *
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testGetRMapAgentDiSCOs() throws Exception{
+
+    	Response response=null;
+
+		try {
+
+			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+			queryParams.add(Constants.PAGE_PARAM, "1");
+			queryParams.add(Constants.LIMIT_PARAM, "1");
+			queryParams.add(Constants.FROM_PARAM, "20121201000000");
+			
+	    	//first test no discos    	
+			response = agentResponseManager.getRMapAgentDiSCOs(
+					URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()),
+					NonRdfType.JSON, 
+					queryParams);
+			
+			assertNotNull(response);
+			String body = response.getEntity().toString();
+			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
+			assertEquals(200, response.getStatus());
+	    	
+			//createDisco
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+			String discoURI = rmapDisco.getId().toString();
+	        assertNotNull(discoURI);
+			rmapService.createDiSCO(rmapDisco, requestAgent);
+	
+			//createDisco
+			RMapDiSCO rmapDisco2 = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+			String discoURI2 = rmapDisco2.getId().toString();
+	        assertNotNull(discoURI2);
+			rmapService.createDiSCO(rmapDisco2, requestAgent);
+					
+			response = agentResponseManager.getRMapAgentDiSCOs(
+					URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()),
+					NonRdfType.JSON, 
+					queryParams);
+
+			assertNotNull(response);
+			body = response.getEntity().toString();
+			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
+			assertEquals(200, response.getStatus());
+			
+		} catch (Exception e) {
+			e.printStackTrace();			
+			fail("Exception thrown " + e.getMessage());
+		}
+
+	}
+	
+
 }

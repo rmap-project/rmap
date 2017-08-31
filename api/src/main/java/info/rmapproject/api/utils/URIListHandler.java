@@ -69,7 +69,6 @@ public class URIListHandler {
 	 */
 	public static String uriListToJson(List <URI> lstURIs, String strLabel) throws RMapApiException {
 		try {
-			//TODO: if list is empty - returns e.g. {"rmap:Stmts":""} - need to look at correct handling.
 			StringBuilder builder = new StringBuilder();
 	
 			builder.append("{\"" + strLabel + "\":");
