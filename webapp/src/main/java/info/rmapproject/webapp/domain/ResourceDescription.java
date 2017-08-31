@@ -49,7 +49,7 @@ public class ResourceDescription implements Serializable {
 
 	/** Name of resource - generally a string version of the URI for the Resource. */
 	private String resourceName; 
-	
+		
 	/**List of rdf:types associated with the Resource. Typically the String key is
 	 * the full type path. The value is shortened path with prefix  */
 	private List<String> resourceTypes;
@@ -106,8 +106,6 @@ public class ResourceDescription implements Serializable {
 	public void setResourceName(String resourceName) {
 		this.resourceName = resourceName;
 	}
-	
-
 
 	/**
 	 * Gets the Resource types.

@@ -55,6 +55,7 @@ import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
 import info.rmapproject.webapp.domain.PaginatorType;
@@ -148,6 +149,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		discoDTO.setDescription(disco.getDescription());
 		discoDTO.setCreator(disco.getCreator());
 		discoDTO.setProvGeneratedBy(disco.getProvGeneratedBy());
+		discoDTO.setProviderId(disco.getProviderId());
 		
 		discoDTO.setAgentVersions(rmapService.getDiSCOAgentVersions(discoUri));
 		discoDTO.setAllVersions(rmapService.getDiSCOAllVersions(discoUri));
@@ -172,7 +174,12 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		if (discoDTO.getCreator().length()>0) {
 			graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
 		}
-
+		
+		if (discoDTO.getProviderId().length()>0 && WebappUtils.isUri(discoDTO.getProviderId())) {
+			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(new URI(discoDTO.getProviderId()), discoDTO.getUri());
+			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
+			graph.addEdge(sDiscoUri, discoDTO.getProviderId(), RMAP.PROVIDERID.toString(), discoNodeType, targetNodeType);
+		}
 		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		

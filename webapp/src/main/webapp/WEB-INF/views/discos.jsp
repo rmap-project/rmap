@@ -17,6 +17,9 @@
 		<h1>RMap DiSCO</h1>
 		<h2>URI: ${DISCO.getUri()}</h2>
 		<p>
+			<c:if test="${DISCO.getProviderId().length()>0}">
+				<strong>Original Provider ID:</strong> <tl:linkRMapValue uri="${DISCO.getProviderId()}"/><br/>
+			</c:if>
 			<c:if test="${DISCO.getCreator().length()>0}">
 				<strong>Created by:</strong> <tl:linkRMapValue uri="${DISCO.getCreator()}"/><br/>
 			</c:if>

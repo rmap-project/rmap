@@ -51,9 +51,15 @@ function loadRecordBatch(offset, pathextension, elementId, urlParamName){
 	} else if (currUrl.indexOf("/visual")>0) {
 		getUrl = getUrl + "&view=visual";
 	}
-	$.get(getUrl, function( data ) {
-		document.getElementById(elementId).innerHTML = data;
-	});
+
+	$.get(getUrl)
+		.success(function( data ) {
+			document.getElementById(elementId).innerHTML = data;
+	     })
+	    .error(function() {
+			document.getElementById(elementId).innerHTML = "<br/>Failed to load records. This could be caused by a connection problem or a system error.<br/><br/><br/>"
+	     });
+
 	if (offset>0){
 		updateUrlParameter(urlParamName, offset);
 	} else {
@@ -80,13 +86,17 @@ function loadGraphBatch(offset, pathextension, elementId, urlParamName){
 	} else if (currUrl.indexOf("/visual")>0) {
 		getUrl = getUrl + "&view=visual";
 	}
-	$.get(getUrl, function(data) {
-		$("#"+elementId).html(data);
-		if (typeof drawgraph !== "undefined") { //undefined if graph data not loaded
-			drawgraph();
-		}
-	});
-
+	$.get(getUrl)
+		.success(function( data ) {
+			$("#"+elementId).html(data);
+			if (typeof drawgraph !== "undefined") { //undefined if graph data not loaded
+				drawgraph();
+			}
+		})
+	    .error(function() {
+			$("#"+elementId).html("<br/>Failed to load records. This could be caused by a connection problem or a system error.<br/><br/><br/>");
+	     });
+	
 	if (offset>0){
 		updateUrlParameter(urlParamName, offset);
 	} else {
@@ -121,9 +131,14 @@ function loadNodeInfoBatch(offset) {
 	  
 	getUrl = getUrl + "&referer=" + curUrl;
 		
-	$.get(getUrl, function( data ) {
-		document.getElementById("nodeInfoPopup").innerHTML = data;
-		});	
+	$.get(getUrl)
+		.success(function( data ) {
+			document.getElementById("nodeInfoPopup").innerHTML = data;
+		})
+	    .error(function() {
+			document.getElementById("nodeInfoPopup").innerHTML = "Failed to load records. This could be caused by a connection problem or a system error.";
+	     });
+
 }
 	
 	
@@ -266,6 +281,13 @@ $(window).load(function() {
 		var offset = $("#nodeInfoNext").data("offset");
 		loadNodeInfoBatch(offset);
 	});		
+		
+	//close node window
+	$(document).on("click","#closeNodeInfo", function() {
+        var linkpopup = document.getElementById('nodeInfoPopup');
+		linkpopup.style.visibility = "hidden";
+	});
+		
 		
 });
 
