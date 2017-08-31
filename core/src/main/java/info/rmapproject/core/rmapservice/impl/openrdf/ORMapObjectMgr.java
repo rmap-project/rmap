@@ -22,17 +22,16 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import java.util.List;
 import java.util.Set;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
+
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
  * An abstract class for openrdf versions of RMap Objects, implemented using openrdf
@@ -78,7 +77,7 @@ public abstract class ORMapObjectMgr {
 		}
 		boolean isCorrectType = false;
 		try {
-			List<Statement> stmts = ts.getStatementsAnyContext(id, RDF.TYPE, typeIRI, false);
+			Set<Statement> stmts = ts.getStatements(id, RDF.TYPE, typeIRI, id);
 			if (stmts != null && stmts.size()>0){
 				isCorrectType = true;
 			}

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -309,7 +310,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 * then checks to see we have 3 agent versions with dates returned and that these can be ordered correctly.
 	 */
 	@Test
-	public void testGetAllDiSCOVersionsWithDates() {
+	public void testGetDiSCOAgentVersionsWithDates() {
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -379,6 +380,53 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		}	
 	}
 	
+
+	/**
+	 * Test method creates a DiSCO, updates it, updates it with a different agent, 
+	 * then checks to see we have 3 versions from the 2 different agents on source disco, 
+	 * 2 versions from perspective of derived version
+	 */
+	@Test
+	public void testGetDiSCOAllAgentVersions() {
+		try {
+			// now create DiSCO	
+			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+			discomgr.createDiSCO(disco, requestAgent, triplestore);
+			URI dUri = disco.getId().getIri();
+			IRI dIri = ORAdapter.uri2OpenRdfIri(dUri);
+			
+			//read DiSCO back
+			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
+			assertEquals(rDisco.getId().toString(),dIri.toString());
+			
+			// now update DiSCO	
+			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
+			discomgr.updateDiSCO(dIri, disco2, requestAgent, false, triplestore);
+			URI dUri2 = disco2.getId().getIri();
+			IRI dIri2 = ORAdapter.uri2OpenRdfIri(dUri2);
+			
+			//update again with different agent to do derivation
+			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
+			discomgr.updateDiSCO(dIri2, disco3, requestAgent2, false, triplestore);
+			URI dUri3 = disco3.getId().getIri();
+			
+			List<URI> versionsForSource = rmapService.getDiSCOAllVersions(dUri2);
+			assertTrue(versionsForSource.size()==3);
+			assertTrue(versionsForSource.contains(dUri));
+			assertTrue(versionsForSource.contains(dUri2));
+			assertTrue(versionsForSource.contains(dUri3));
+			
+			List<URI> versionsForDerived = rmapService.getDiSCOAllVersions(dUri3);
+			assertTrue(versionsForDerived.size()==3);
+			assertTrue(versionsForDerived.contains(dUri));
+			assertTrue(versionsForDerived.contains(dUri2));
+			assertTrue(versionsForDerived.contains(dUri3));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}	
+	}
 	
 	
 	

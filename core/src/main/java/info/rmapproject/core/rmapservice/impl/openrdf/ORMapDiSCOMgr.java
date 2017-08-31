@@ -551,7 +551,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 */
 	protected Map<IRI,IRI> lookBack(IRI discoId, IRI agentId, boolean lookForward, boolean matchAgent, SesameTriplestore ts) 
 					throws RMapObjectNotFoundException, RMapException {
-		Statement eventStmt = eventmgr.getRMapObjectCreateEventStatement(discoId, ts);
+		Statement eventStmt = eventmgr.getCreateObjEventStmt(discoId, ts);
 		if (eventStmt==null){
 			throw new RMapEventNotFoundException("No creating event found for DiSCO id " +
 		             discoId.stringValue());
@@ -608,9 +608,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
 	protected Map<IRI,IRI> lookFoward(IRI discoId, IRI agentId, boolean matchAgent, SesameTriplestore ts) throws RMapObjectNotFoundException{
-		Map<IRI,IRI> event2Disco = new HashMap<IRI,IRI>();			
+		Map<IRI,IRI> event2Disco = new HashMap<IRI,IRI>();	
 		do {
-			Set<Statement> eventStmts = eventmgr.getInactivationEvents(discoId, ts);
+			Set<Statement> eventStmts = eventmgr.getInactivatedObjEventStmt(discoId, ts);	
+			eventStmts.addAll(eventmgr.getDerivationSourceEventStmt(discoId, ts));
 			if (eventStmts==null || eventStmts.size()==0){
 				break;
 			}
@@ -833,7 +834,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	protected boolean isSameCreatorAgent (IRI discoIri, RMapRequestAgent requestAgent, SesameTriplestore ts) 
 			throws RMapException {
 		boolean isSame = false;		
-		Statement stmt = eventmgr.getRMapObjectCreateEventStatement(discoIri, ts);
+		Statement stmt = eventmgr.getCreateObjEventStmt(discoIri, ts);
 		do {
 			if (stmt==null){
 				break;
