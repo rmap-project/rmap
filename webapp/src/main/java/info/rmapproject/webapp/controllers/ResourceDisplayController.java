@@ -362,10 +362,12 @@ public class ResourceDisplayController {
 			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiterals(resourceUri, offset);
 			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch);
 			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.NODE_INFO);
+			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(resourceUri));
 			
 			model.addAttribute("RESDES",resourceDescription);	
 		    model.addAttribute("VIEWMODE", view);	 
 		    model.addAttribute("REFERER",referer);
+		    model.addAttribute("RMAPTYPE",rmapType);
 		    model.addAttribute("PAGINATOR", pageStatus);
 		} catch (Exception e) {
 			//we need to mark this as a nodeinfo error - it needs to load a smaller custom exception page
@@ -405,10 +407,12 @@ public class ResourceDisplayController {
 			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri, offset);
 			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch, contextUri);
 			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.NODE_INFO);
+			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(resourceUri));
 			
 			model.addAttribute("RESDES",resourceDescription);	
 		    model.addAttribute("VIEWMODE", view);	 
 		    model.addAttribute("REFERER",referer);
+		    model.addAttribute("RMAPTYPE",rmapType);
 		    model.addAttribute("PAGINATOR", pageStatus);
 		    
 		} catch (Exception e) {

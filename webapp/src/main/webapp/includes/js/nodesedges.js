@@ -1,11 +1,12 @@
 <script onload="drawgraph();">
 
 var nodes, edges, network;
+var dblClickFired = false; //flag to set when double-click is underway!
 
 function drawgraph(){
 	nodes = new vis.DataSet([
 			 <c:forEach var="node" items="${nodes}" varStatus="loop">
-			 {id: ${node.getId()}, title: '${my:ellipsize(node.getName(),50)}<br/><em>Click to see info</em>', uri: '${node.getName()}', label: '${node.getShortname()}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
+			 {id: ${node.getId()}, title: '${my:ellipsize(node.getName(),50)}<br/><em>Click to see info, double-click to recenter graph.</em>', uri: '${node.getName()}', label: '${node.getShortname()}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
 	edges = new vis.DataSet([
@@ -66,35 +67,27 @@ function drawgraph(){
 
 	network = new vis.Network(container, data, options);
 	
-	network.on("click", function (params) {
-		var found = false;
-		var linkpopup = document.getElementById('nodeInfoPopup');
+    network.on("doubleClick", function (params) {
 		nodes.forEach(function (node) {
-		  if (node.id==params.nodes && node.group!='Literal' && node.group!='Type'){
-			  var nodeinfopath = "<c:url value='/resources/'/>" + encodeURIComponent(node.uri) + "/nodeinfo";
-			  var url = window.location.href;
-			  
-			  if (url.indexOf("/resources/")==-1){ 
-				  //if we are not on a resources page need to also pass in the context URI
-				  nodeinfopath = nodeinfopath + "/" + encodeURIComponent("${resourceUri}");
-			  }
-			  nodeinfopath = nodeinfopath + "?view=" + "${VIEWMODE}&offset=0&referer=" + url;
-			  
-			  $.get(nodeinfopath, function( data ) {
-				  linkpopup.style.visibility = "visible";
-				  linkpopup.innerHTML = data;
-				  linkpopup.style.position = 'absolute';
-				  linkpopup.style.left = params.pointer.DOM.x + "px";
-				  linkpopup.style.top = params.pointer.DOM.y + "px";
-				  linkpopup.dataset.nodeUri = node.uri;
-				  found = true;
-				});			  
-		    }
+            if (node.id==params.nodes && node.group!='Literal' && node.group!='Type'){
+                dblClickFired = true;
+                var url = window.location.href;
+                if (url.indexOf("/widget")>0){ //if we are in the widget, go to another widget page!
+                        location.href="<c:url value='/resources/'/>" + encodeURIComponent(node.uri) + "/widget";
+                } else if (url.indexOf("/visual")>0) {
+                        location.href="<c:url value='/resources/'/>" + encodeURIComponent(node.uri) + "/visual";
+                } else {
+                        location.href="<c:url value='/resources/'/>" + encodeURIComponent(node.uri);
+                }
+            }
 		});
-		if (!found) {
-			linkpopup.style.visibility = "hidden";
-			}
-	  });
+    });
+	
+	network.on("click", function (params) {
+		setTimeout(function() {
+			doNodeClick(params);
+		}, 300); //prevents click event happening twice in addition to double click.
+	});
 	
 	network.on("dragStart", function () {document.getElementById('nodeInfoPopup').style.visibility = "hidden";});
 	network.on("zoom", function () {document.getElementById('nodeInfoPopup').style.visibility = "hidden";});
@@ -117,6 +110,47 @@ function drawgraph(){
 		setTimeout(function () {document.getElementById('loadbar').style.display = 'none';}, 320);
 	});
 }
+
+function doNodeClick(params) {
+	if (dblClickFired) { //prevents click event happening twice in addition to double click.
+		linkpopup.style.visibility = "hidden";
+		return;
+	}
+
+	var linkpopup = document.getElementById('nodeInfoPopup');
+	nodes.forEach(function (node) {
+	if (node.id==params.nodes && node.group!='Literal' && node.group!='Type'){
+		var nodeinfopath = "<c:url value='/resources/'/>" + encodeURIComponent(node.uri) + "/nodeinfo";
+		var url = window.location.href;
+	
+		if (url.indexOf("/resources/")==-1){
+			//if we are not on a resources page need to also pass in the context URI
+			nodeinfopath = nodeinfopath + "/" + encodeURIComponent("${resourceUri}");
+		}
+		nodeinfopath = nodeinfopath + "?view=" + "${VIEWMODE}&offset=0&referer=" + url;
+		var loadingHtml = "<div id=\"loading\"><img id=\"loading-image\" src=\"<c:url value='/includes/images/loading.gif'/>\" alt=\"Loading...\" /></div>";
+		linkpopup.innerHTML = loadingHtml;
+		linkpopup.style.visibility = "visible";
+		linkpopup.style.position = 'absolute';
+		linkpopup.style.left = params.pointer.DOM.x + "px";
+		linkpopup.style.top = params.pointer.DOM.y + "px";
+
+		$.get(nodeinfopath)
+			.success(function( data ) {
+				linkpopup.innerHTML = data;
+				linkpopup.dataset.nodeUri = node.uri;
+			})
+			.error(function() {
+				linkpopup.innerHTML = "Failed to load data. This could be caused by a connection problem or a system error.";
+			})
+		}				     
+	});
+	
+	if (params.nodes==null|| params.nodes=="") {
+		linkpopup.style.visibility = "hidden";
+	}
+}
+
 
 function toggle(tag)
 	{	

@@ -19,15 +19,14 @@
  *******************************************************************************/
 package info.rmapproject.webapp.domain;
 
-import info.rmapproject.webapp.utils.ConfigUtils;
-import info.rmapproject.webapp.utils.Constants;
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 
-import java.util.Locale;
-import java.util.Map;
+import info.rmapproject.webapp.utils.Constants;
 
 /**
  * Holds a node type. For example name="Physical_Object", displayName="Physical Object", color="#11111"
@@ -35,9 +34,6 @@ import java.util.Map;
  *
  */
 public class GraphNodeType {
-
-	/** The property file name for node types configuration. */
-	private static final String NODETYPE_PROPFILE = "nodetypes";
 	
 	/** The colors list. */
 	@Autowired

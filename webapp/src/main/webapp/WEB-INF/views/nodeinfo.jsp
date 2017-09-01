@@ -3,6 +3,8 @@
 <%@ taglib prefix="my" uri="/WEB-INF/tld/rmapTagLibrary.tld"%>
 <%@ taglib prefix="tl" tagdir="/WEB-INF/tags"%>
 
+<span style="float:right; cursor:pointer;" id="closeNodeInfo">x</span>
+
 <span class="reload">
 <c:choose>
 	<c:when test="${VIEWMODE.equals('standard')}">
@@ -14,11 +16,12 @@
 </c:choose>
 </span>
 <span style="font-weight: bold;">uri:</span>
-
-<tl:linkExternal uri="${RESDES.getResourceName()}"/>
+<tl:linkExternal uri="${RESDES.getResourceName()}" rmapType="${RMAPTYPE}"/>
 
 <c:set var="properties" value="${RESDES.getPropertyValues()}"/>
 <c:set var="resource_types" value="${RESDES.getResourceTypes()}"/>
+<c:set var="isDisco" value="${REFERER.contains('/discos/')}"/>
+<c:set var="isAgent" value="${REFERER.contains('/agents/')}"/>
 
 <c:if test="${resource_types.size()>0}">
 	<br />
@@ -41,11 +44,17 @@
 	<tl:paginatorSidebarButtons prevButtonId="nodeInfoPrev" nextButtonId="nodeInfoNext" paginator="${PAGINATOR}"/>
 </c:if>
 
-<c:if test="${REFERER.contains('/discos/')}">
-	<hr style="margin-bottom:1px;"/>
-	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the DiSCO. To discover other references to the resource, click the <em>Redraw</em> button.</span>
+<c:if test="${properties.size()==0}">
+        <span style="display:block;margin-top:6px;font-style:italic;">
+                No additional data for this resource
+        </span>
 </c:if>
-<c:if test="${REFERER.contains('/agents/')}">
+
+<c:if test="${isDisco}">
 	<hr style="margin-bottom:1px;"/>
-	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the Agent. To discover other references to the resource, click the <em>Redraw</em> button.</span>
+	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the DiSCO. To discover other references to this resource, click the <em>Redraw</em> button.</span>
+</c:if>
+<c:if test="${isAgent}">
+	<hr style="margin-bottom:1px;"/>
+	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the Agent. To discover other references to this resource, click the <em>Redraw</em> button.</span>
 </c:if>

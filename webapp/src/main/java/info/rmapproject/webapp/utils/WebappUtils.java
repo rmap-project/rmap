@@ -307,6 +307,4 @@ public class WebappUtils {
 	    return text.substring(0, end) + "...";
 	}	
 	
-	
-	
 }

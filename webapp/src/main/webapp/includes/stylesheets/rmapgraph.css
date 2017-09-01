@@ -146,7 +146,7 @@ div.loadbarOuterBorder {
 	width:330px; 
 	visibility:hidden;
 	word-wrap: break-word;
-	min-height:60px;
+	min-height:130px;
 }
 
 .shown{
@@ -168,7 +168,6 @@ div.loadbarOuterBorder {
  margin-top:0px;
 }
 	
-	
 .reload a {
   background: #f5f5f5;
   background-image: -webkit-linear-gradient(top, #f5f5f5, #e3e3e3);
@@ -181,10 +180,10 @@ div.loadbarOuterBorder {
   box-shadow: 0px 1px 1px #888888;
   color: #4036ff;
   padding: 1px 0px 1px 0px;
-  margin:3px 0px 3px 0px;
+  margin: 2px 0px 5px 0px;
   border: solid #72828c 1px;
   display:block;
-  width:330;
+  width:310px;
   text-align:center;
 }
 
@@ -197,3 +196,12 @@ div.loadbarOuterBorder {
   background-image: linear-gradient(to bottom, #e3e3e3, #c9c9c9);
   color: #4036ff;
 }
+
+img{
+    -khtml-user-select: none;
+    -o-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
