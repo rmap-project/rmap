@@ -171,11 +171,11 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		Graph graph = graphFactory.newGraph();
 		String sDiscoUri = discoDTO.getUri().toString();
 						
-		if (discoDTO.getCreator().length()>0) {
+		if (WebappUtils.isUri(discoDTO.getCreator())) {
 			graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
 		}
 		
-		if (discoDTO.getProviderId().length()>0 && WebappUtils.isUri(discoDTO.getProviderId())) {
+		if (WebappUtils.isUri(discoDTO.getProviderId())) {
 			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(new URI(discoDTO.getProviderId()), discoDTO.getUri());
 			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
 			graph.addEdge(sDiscoUri, discoDTO.getProviderId(), RMAP.PROVIDERID.toString(), discoNodeType, targetNodeType);

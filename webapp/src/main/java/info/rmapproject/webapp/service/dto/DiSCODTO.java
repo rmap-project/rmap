@@ -167,13 +167,7 @@ public class DiSCODTO {
 	 * @param providerID the new DiSCO provider ID
 	 */
 	public void setProviderId(String providerId) {
-		if (providerId!=null){
-			this.providerId = providerId;
-		}
-		else {
-			this.providerId="";
-		}
-		
+			this.providerId = providerId;		
 	}
 
 	/**
