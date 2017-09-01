@@ -19,6 +19,21 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
@@ -39,22 +54,6 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
 
 /**
  * A concrete class for managing RMap Events, implemented using openrdf
@@ -349,24 +348,22 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(ts.getStatements(null, RMAP.DELETEDOBJECT, discoid));
-				eventStmts.addAll(ts.getStatements(null, RMAP.TOMBSTONEDOBJECT, discoid));
-				eventStmts.addAll(ts.getStatements(null, RMAP.INACTIVATEDOBJECT, discoid));
-				eventStmts.addAll(ts.getStatements(null, RMAP.DERIVEDOBJECT, discoid));
-				eventStmts.addAll(ts.getStatements(null, RMAP.HASSOURCEOBJECT, discoid));
-				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, discoid));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DELETEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.TOMBSTONEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.INACTIVATEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DERIVEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.HASSOURCEOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(PROV.GENERATED, discoid, ts));
 				if (eventStmts.isEmpty()){
 					break;
 				}
 				events = new ArrayList<IRI>();
 				for (Statement stmt:eventStmts){
 					IRI eventId = (IRI)stmt.getSubject();
-					if (this.isEventId(eventId,ts)){
-						events.add(eventId);
-					}
+					events.add(eventId);
 				}
 			} catch (Exception e) {
-				throw new RMapException("Exception thrown querying triplestore for events", e);
+				throw new RMapException("Exception thrown while retrieving DiSCO related event IDs", e);
 			}
 		} while (false);
 		return events;
@@ -402,19 +399,17 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(ts.getStatements(null, RMAP.DELETEDOBJECT, agentid));
-				eventStmts.addAll(ts.getStatements(null, RMAP.TOMBSTONEDOBJECT, agentid));
-				eventStmts.addAll(ts.getStatements(null, RMAP.UPDATEDOBJECT, agentid));
-				eventStmts.addAll(ts.getStatements(null, PROV.GENERATED, agentid));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DELETEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.TOMBSTONEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.UPDATEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(PROV.GENERATED, agentid, ts));
 				if (eventStmts.isEmpty()){
 					break;
 				}
 				events = new ArrayList<IRI>();
 				for (Statement stmt:eventStmts){
 					IRI eventId = (IRI)stmt.getSubject();
-					if (this.isEventId(eventId,ts)){
-						events.add(eventId);
-					}
+					events.add(eventId);
 				}
 			} catch (Exception e) {
 				throw new RMapException("Exception thrown querying triplestore for events", e);
@@ -764,26 +759,15 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the RMap Object creation event statement
 	 * @throws RMapException the RMap exception
 	 */
-	protected Statement getRMapObjectCreateEventStatement(IRI iri, SesameTriplestore ts) 
-	throws RMapException {
-		Statement stmt = null;
-		try {
-			stmt = ts.getStatementAnyContext(null, PROV.GENERATED, iri);
-			// make sure this is an event
-			if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
-				Statement typeStmt = ts.getStatement(stmt.getSubject(), RDF.TYPE, 
-						RMAP.EVENT, stmt.getContext());
-				if (typeStmt==null){
-					stmt = null;
-				}
-			}
-			else {
-				stmt = null;
-			}
-		} catch (Exception e) {
-			throw new RMapException ("Exception thrown when querying for Create event", e);
-		}		
-		return stmt;
+	protected Statement getCreateObjEventStmt(IRI iri, SesameTriplestore ts) throws RMapException {
+		Statement createEventStmt = null;
+		Set<Statement> stmts = getEventStmtsByPredicate(PROV.GENERATED, iri, ts);
+		//should only be one, convert to single statement.
+		for (Statement stmt:stmts) {
+			createEventStmt = stmt;
+			break;
+		}
+		return createEventStmt;
 	}
 
 	/**
@@ -794,36 +778,55 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the update events
 	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getInactivationEvents(IRI targetId, SesameTriplestore ts)
+	protected Set<Statement> getInactivatedObjEventStmt(IRI targetId, SesameTriplestore ts)
 			throws RMapException {
+		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.INACTIVATEDOBJECT, targetId, ts);		
+		return stmts;
+	}
+	
+	
+	/**
+	 * Get a list of derivation Event source object Statements associated with an RMap Object
+	 *
+	 * @param targetId the RMap Object IRI
+	 * @param ts the triplestore instance
+	 * @return the update events
+	 * @throws RMapException the RMap exception
+	 */
+	protected Set<Statement> getDerivationSourceEventStmt(IRI targetId, SesameTriplestore ts)
+			throws RMapException {
+		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.HASSOURCEOBJECT, targetId, ts);
+		return stmts;
+	}
+	
+	
+	/**
+	 * Retrieves statements within an RMap event that match a specific predicate and object URI
+	 * Purpose is to retrieve the statement within and event that contains a reference to a specific object of interest
+	 * @param objectUri
+	 * @param ts
+	 * @param eventPredicate
+	 * @return
+	 */
+	private Set<Statement> getEventStmtsByPredicate(IRI eventPredicate, IRI objectUri, SesameTriplestore ts) {
+
 		Set<Statement> stmts = null;
 		Set<Statement> returnStmts = new HashSet<Statement>();
 		try {
-			//TOD check this against new event types
-			stmts = ts.getStatements(null, RMAP.INACTIVATEDOBJECT, targetId);
+			stmts = ts.getStatements(null, eventPredicate, objectUri);
 			for (Statement stmt:stmts){
+				IRI eventId = (IRI) stmt.getContext();
 				// make sure this is an event
-				if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
-					Statement typeStmt = ts.getStatement(stmt.getSubject(), RDF.TYPE, 
-							RMAP.EVENT, stmt.getContext());
-					if (typeStmt==null){
-						stmt = null;
-					}
-				}
-				else {
-					stmt = null;
-				}
-				if (stmt != null){
+				if (stmt != null && this.isEventId(eventId, ts));
 					returnStmts.add(stmt);
 				}
-			}
 		} catch (Exception e) {
 			throw new RMapException (
-					"Exception thrown when querying for Inactivate event for id " 
-							+ targetId.stringValue(), e);
+					"Exception thrown when querying for event statements where predicate is " + eventPredicate.toString() + " and id is " + objectUri.stringValue(), e);
 		}		
 		return returnStmts;
 	}
+	
 	
 	
 	/**
@@ -895,25 +898,12 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the list of IRIs for Events that created the RMap Object
 	 * @throws RMapException the RMap exception
 	 */
-	protected List<IRI> getMakeObjectEvents(IRI iri, SesameTriplestore ts)
-			throws RMapException {
-		Set<Statement> stmts = null;
+	protected List<IRI> getMakeObjectEvents(IRI iri, SesameTriplestore ts) throws RMapException {
 		List<IRI> returnEventIds = new ArrayList<IRI>();
 		try {
-			//TODO check this against new event types
-			stmts = ts.getStatements(null, RMAP.DERIVEDOBJECT, iri);
-			stmts.addAll(ts.getStatements(null, PROV.GENERATED, iri));
+			//PROV.GENERATED used for all created objects
+			Set<Statement> stmts = this.getEventStmtsByPredicate(PROV.GENERATED, iri, ts);
 			for (Statement stmt:stmts){
-				// make sure this is an event
-				if (stmt != null && stmt.getSubject().equals(stmt.getContext())){
-					Statement typeStmt = ts.getStatement(stmt.getSubject(), RDF.TYPE, RMAP.EVENT, stmt.getContext());
-					if (typeStmt==null){
-						stmt = null;
-					}
-				}
-				else {
-					stmt = null;
-				}
 				if (stmt != null){
 					returnEventIds.add((IRI)stmt.getContext());
 				}

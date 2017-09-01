@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.openrdf.model.IRI;
 //import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
 //import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryException;
@@ -50,9 +49,11 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
+import info.rmapproject.testdata.service.TestFile;
 
 /**
  * @author smorrissey
@@ -103,22 +104,22 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	@Test
 	public void testIsRMapType() {
 		try {
-			java.net.URI id1 =null;
-			id1 = rmapIdService.createId();
-			IRI subject = ORAdapter.uri2OpenRdfIri(id1);
-			IRI predicate = RDF.TYPE;
-			Value object = RMAP.DISCO;
-			Statement stmt = null;
-			stmt = ORAdapter.getValueFactory().createStatement(subject, predicate, object);
-			triplestore.addStatement(stmt);
-			Statement stmt2 = triplestore.getStatement(subject, predicate, object);
-			assertNotNull(stmt2);
-			assertEquals(stmt.getSubject(),stmt2.getSubject());
-			assertEquals(stmt.getPredicate(), stmt2.getPredicate());
-			assertEquals(stmt.getObject(), stmt2.getObject());
-			assertEquals(stmt.getContext(), stmt2.getContext());
-			boolean istype = discomgr.isRMapType(triplestore, subject, RMAP.DISCO);
+			//check agent type
+			boolean istype = discomgr.isRMapType(triplestore, ORAdapter.uri2OpenRdfIri(requestAgent.getSystemAgent()), RMAP.AGENT);
 			assertTrue(istype);
+			
+			//check disco type
+			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			URI dUri = disco.getId().getIri();
+			IRI dIri = ORAdapter.uri2OpenRdfIri(dUri);			
+			istype = discomgr.isRMapType(triplestore, dIri, RMAP.DISCO);
+			assertTrue(istype);
+			
+			//check event typs
+			IRI eIri = ORAdapter.rMapIri2OpenRdfIri(event.getId());
+			istype = discomgr.isRMapType(triplestore, eIri, RMAP.EVENT);
+						
 		} catch (RepositoryException e1) {
 			e1.printStackTrace();
 			fail(e1.getMessage());
