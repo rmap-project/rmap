@@ -349,11 +349,6 @@ public class AgentResponseManager extends ResponseManager {
             	throw new RMapApiException(ErrorCode.ER_AGENT_OBJECT_TYPE_REQUEST_NOT_VALID);
 			}
 						
-			if (resultbatch==null || resultbatch.size()==0)	{ 
-				//if the object is found, should always have at least one event
-				throw new RMapApiException(ErrorCode.ER_CORE_GET_URILIST_EMPTY); 
-			}	
-						
 			ResponseBuilder responseBldr = null;
 			
 			//if the list is longer than the limit and there is currently no page defined, then do 303 with pagination
