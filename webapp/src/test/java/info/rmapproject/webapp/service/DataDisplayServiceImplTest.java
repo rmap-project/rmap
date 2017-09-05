@@ -20,301 +20,211 @@
 package info.rmapproject.webapp.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapTriple;
-import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.model.request.ResultBatch;
-import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
-import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.testdata.service.TestConstants;
-import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
+import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
 import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.domain.ResourceDescription;
-import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
 import info.rmapproject.webapp.service.dto.EventDTO;
 
 /**
- * Tests for DataDisplayServiceImpl.
+ * Tests DataDisplayServiceImpl class
  */
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:/servlet-test-context.xml" })
-@Ignore("FIXME")
-public class DataDisplayServiceImplTest {
+public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 
 	/** The data display service. */
 	@Autowired
 	private DataDisplayService dataDisplayService;
 	
-	@Autowired
-	protected RMapService rmapService;
-	
-	@Autowired
-	SesameTriplestore triplestore;
-	
-	@Autowired 
-	ORMapDiSCOMgr discomgr;
-	
-	/** General use sysagent for testing **/
-	protected ORMapAgent sysagent = null;
-	
-	/** Second general use sysagent for testing that requires 2 users **/
-	protected ORMapAgent sysagent2 = null;
-	
-	/** Request agent based on sysagent. Include key */
-	protected RMapRequestAgent requestAgent = null;
-	
-	/** Request agent based on sysagent2. No Key */
-	protected RMapRequestAgent requestAgent2 = null;	
-	
-	@Before
-	public void setUp() throws Exception {
-		//create 2 test agents and corresponding requestAgents
-		createSystemAgent();
-		createSystemAgent2();
-	}
-
 	/**
-	 * Removes all statements from triplestore to avoid interference between tests
+	 * Basic check that AgentDTO retreival does not result in errors.
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testGetAgentDTO() throws Exception{
+		
+		//get the Agent
+		AgentDTO agentDTO = dataDisplayService.getAgentDTO(requestAgent.getSystemAgent().toString());
+		
+		assertEquals(agentDTO.getAuthId(), this.sysagent.getAuthId().toString());
+		assertEquals(agentDTO.getEvents().size(),1);
+		assertEquals(agentDTO.getIdProvider(), this.sysagent.getIdProvider().toString());
+		assertEquals(agentDTO.getName(), this.sysagent.getName().toString());
+		assertEquals(agentDTO.getNumEvents(),1);
+		assertEquals(agentDTO.getStatus(), RMapStatus.ACTIVE);
+		assertEquals(agentDTO.getUri().toString(), this.sysagent.getId().toString());
+
+	}
+	
+	
+	/**
+	 * Check correct discos are returned for an Agent.
 	 * @throws Exception
 	 */
-	@After
-	public void clearTriplestore() throws Exception {
-		if (triplestore instanceof SesameSailMemoryTriplestore) {
-			triplestore.getConnection().clear();
-		}
-	}
-	
-	/**
-	 * Test retrieval of DiSCO DTO.
-	 */
-	@SuppressWarnings("unused")
-	@Test
-	public void testGetDiSCODTO() {
-		String discoId = "rmap:rmd18mdcr3";
+	@Test 
+	public void testGetAgentDiSCOS() throws Exception {
+		// agent already exists, so create some discos
+		ORMapDiSCO disco1 = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		String discoUri1 = disco1.getId().toString();
+        assertNotNull(discoUri1);
+		rmapService.createDiSCO(disco1, requestAgent);
+
+		ResultBatch<URI> results = dataDisplayService.getAgentDiSCOs(requestAgent.getSystemAgent().toString(), 0);
+		assertEquals(results.getResultList().size(),1);
+		assertEquals(results.getResultList().get(0).toString(),discoUri1.toString());
+
+		// create another disco
+		ORMapDiSCO disco2 = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		String discoUri2 = disco2.getId().toString();
+        assertNotNull(discoUri2);
+		rmapService.createDiSCO(disco2, requestAgent);
+
+		results = dataDisplayService.getAgentDiSCOs(requestAgent.getSystemAgent().toString(), 0);
+		assertEquals(results.getResultList().size(),2);
+		assertEquals(results.getResultList().get(0).toString(),discoUri1.toString());
+		assertEquals(results.getResultList().get(1).toString(),discoUri2.toString());
 		
-		//String discoId = "rmap:rmp1825qnv";
-		try{
-			DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoId);
-			List <URI> agentvers = discoDTO.getAgentVersions();
-			List <URI> allvers = discoDTO.getOtherAgentVersions();
-			List <URI> othervers = discoDTO.getAllVersions();
-			//assertTrue(discoDTO.getAgentVersions().size()==5);
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-	}
-
-	/**
-	 * Test retrieval of Agent DTO.
-	 */
-	@Test
-	public void testGetAgentDTO()  {
-		String agentId = "rmap:rmaptestagent";
-		try{
-			AgentDTO agentDTO = dataDisplayService.getAgentDTO(agentId);
-			assertTrue(agentDTO.getName().equals("RMap test Agent"));
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
 	}
 	
+	
 	/**
-	 * Test retrieval of Event DTO.
+	 * Basic check that DiSCODTO retrieval does not result in errors.
+	 * @throws Exception
 	 */
-	@Test
-	public void testGetEventDTO() {
-		//https://dev.rmap-project.org/appdev/events/ark%3A%2F22573%2Frmd1c022jv
+	@Test 
+	public void testGetDiSCODTO() throws Exception {
+		// agent already exists, so create a disco
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		String discoUri = disco.getId().toString();
+        assertNotNull(discoUri);
+		rmapService.createDiSCO(disco, requestAgent);
 
-		String eventId = "rmap:rmd18mdcsm";
-		try{
-			EventDTO eventDTO = dataDisplayService.getEventDTO(eventId);
-			assertTrue(eventDTO.getType()!=null);
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-	}
-
-	/**
-	 * Test retrieval of Resource Batch.
-	 */
-	@Test
-	public void testGetResourceBatch() {
-
-		String resourceid = "rmap:rmd18mdd3r";
-		try{
-			ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(resourceid, 20, PaginatorType.RESOURCE_GRAPH);
-			assertTrue(resultbatch.getResultList().size()>0);
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
+		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
+		
+		assertEquals(discoDTO.getAgentVersions().size(), 0); //0 because current version excluded
+		assertEquals(discoDTO.getAggregatedResources().size(), disco.getAggregatedResources().size());
+		assertEquals(discoDTO.getAllVersions().size(),0); //0 because current version excluded
+		assertEquals(discoDTO.getCreator(), disco.getCreator().toString());
+		assertEquals(discoDTO.getDescription(), disco.getDescription().toString());
+		assertEquals(discoDTO.getEvents().size(), 1);
+		assertEquals(discoDTO.getOtherAgentVersions().size(), 0); //0 because current version excluded
+		assertEquals(discoDTO.getProvGeneratedBy(), "");
+		assertEquals(discoDTO.getProviderId(), null);
+		assertEquals(discoDTO.getRelatedStatements().size(), disco.getRelatedStatements().size());
+		assertEquals(discoDTO.getStatus(), RMapStatus.ACTIVE);
+		
 	}
 
 	
 	/**
-	 * Create generic sysagent and RequestAgent for general use using TestConstants. 
-	 * @throws FileNotFoundException
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 * @throws URISyntaxException
+	 * Basic check that EventDTO retrieval does not result in errors.
+	 * @throws Exception
 	 */
-	protected void createSystemAgent() throws FileNotFoundException, RMapException, RMapDefectiveArgumentException, URISyntaxException{
-		if (sysagent == null) {
-			IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID);
-			IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
-			IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_AUTH_ID);
-			Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT_NAME);	
-			sysagent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
-			
-			if (requestAgent==null){
-				requestAgent = new RMapRequestAgent(new URI(TestConstants.SYSAGENT_ID),new URI(TestConstants.SYSAGENT_KEY));
-			}
-			
-			//create new test agent
-			URI agentId=sysagent.getId().getIri();
-			if (!rmapService.isAgentId(agentId)) {
-				rmapService.createAgent(sysagent,requestAgent);
-			}
+	@Test 
+	public void testGetEventDTO() throws Exception {
+		// agent already exists, so create a disco
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		String discoUri = disco.getId().toString();
+        assertNotNull(discoUri);
+		RMapEvent event = rmapService.createDiSCO(disco, requestAgent);
 
-			// Check the agent was created
-			assertTrue(rmapService.isAgentId(agentId));		
-		}
-	}	
-
-	/**
-	 * Create second generic sysagent and RequestAgent for general use using TestConstants. 
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 * @throws FileNotFoundException
-	 * @throws URISyntaxException
-	 */
-	protected void createSystemAgent2() throws RMapException, RMapDefectiveArgumentException, FileNotFoundException, URISyntaxException{
-		if (sysagent2 == null){
-			//create new test agent #2
-			IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT2_ID);
-			IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
-			IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT2_AUTH_ID);
-			Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT2_NAME);	
-			sysagent2 = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
-			
-			if (requestAgent2==null){
-				requestAgent2 = new RMapRequestAgent(new URI(TestConstants.SYSAGENT2_ID));
-			}
-			
-			URI agentId=sysagent2.getId().getIri();
-			if (!rmapService.isAgentId(agentId)) {
-				rmapService.createAgent(sysagent2,requestAgent);
-			}
-			
-			// Check the agent was created
-			assertTrue(rmapService.isAgentId(agentId));		
-		}
-	}
-
-
-	/**
-	 * Retrieves a test DiSCO object
-	 * @param testobj
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public static ORMapDiSCO getRMapDiSCO(TestFile testobj) throws FileNotFoundException, RMapException, RMapDefectiveArgumentException {
-		InputStream stream = TestDataHandler.getTestData(testobj);
-		RioRDFHandler handler = new RioRDFHandler();	
-		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapDiSCO disco = new ORMapDiSCO(stmts);
-		return disco;		
-	}
-
-	/**
-	 * Retrieves a test Agent object
-	 * @param testobj
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	public static ORMapAgent getAgent(TestFile testobj) throws FileNotFoundException, RMapException, RMapDefectiveArgumentException {
-		InputStream stream = TestDataHandler.getTestData(testobj);
-		RioRDFHandler handler = new RioRDFHandler();	
-		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapAgent agent = new ORMapAgent(stmts);
-		return agent;		
+		EventDTO eventDTO = dataDisplayService.getEventDTO(event.getId().toString());
+		
+		assertEquals(eventDTO.getAssociatedAgent(), requestAgent.getSystemAgent().toString()); //0 because current version excluded
+		assertEquals(eventDTO.getAssociatedKey(), requestAgent.getAgentKeyId().toString());
+		assertEquals(eventDTO.getDescription(), null);
+		assertNotNull(eventDTO.getEndTime());
+		assertEquals(eventDTO.getResourcesAffected().size(),1);
+		assertNotNull(eventDTO.getStartTime());
+		assertEquals(eventDTO.getTargetType(),RMapEventTargetType.DISCO);
+		assertEquals(eventDTO.getType(), RMapEventType.CREATION);
+		assertEquals(eventDTO.getUri().toString(), event.getId().toString());
 	}
 	
 	/**
-	 * Test method for {@link info.rmapproject.webapp.service.DataDisplayService#getDiSCOTableData(DiSCODTO, int)}.
-	 * @throws RMapDefectiveArgumentException 
-	 * @throws RMapException 
+	 * Basic check that getResourceBatch works without errors.
+	 * @throws Exception
 	 */
 	@Test
-	public void testDiSCOTableData() throws RMapWebException {
+	public void testGetResourceBatch() throws Exception {
+		// agent already exists, so create a disco
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
+		String discoUri = disco.getId().toString();
+        assertNotNull(discoUri);
+		rmapService.createDiSCO(disco, requestAgent);
+		
+		//The following statements contain the URI we will search on... 
+		//	 <ore:aggregates rdf:resource="ark:/27927/56565656"/>
+		
+		//    <rdf:Description rdf:about="ark:/27927/12121212">
+		//        <dcterms:hasPart rdf:resource="ark:/27927/56565656"/>
+		
+		
+		//    <rdf:Description rdf:about="ark:/27927/56565656">
+		//        <modsrdf:locationOfResource rdf:resource="http://portico.org"/>
+		//        <dcterms:format>application/xml</dcterms:format>
+		//        <dcterms:format>Portico Journal Archiving DTD:2.0:2006-02-28</dcterms:format>
+		//        <premis:hasOriginalName>unknown</premis:hasOriginalName>
+		//        <dcterms:extent>6945 Bytes</dcterms:extent>
+		//    </rdf:Description>
+		
+		
+		String uriInDisco = "ark:/27927/56565656";
+		
+		ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
+		assertEquals(resultbatch.size(),3); 
+		
+		resultbatch = dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_TABLE); //now includes literals
+		assertEquals(resultbatch.size(),7);
+
+		resultbatch = dataDisplayService.getResourceBatch(uriInDisco, 3, PaginatorType.RESOURCE_TABLE); //offset by 3
+		assertEquals(resultbatch.size(),4);
+				
+	}
+	
+	/**
+	 * Basic check on retrieval of DiSCO's table data
+	 * @throws Exception
+	 */
+	@Test
+	public void testDiSCOTableData() throws Exception {
 
 		try {		
 			// now create DiSCO	
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
-			RMapIri idIRI = disco.getId();
-			String description = disco.getDescription().toString();
+			ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+			rmapService.createDiSCO(disco, requestAgent);
+			String discoUri = disco.getId().toString();
 			
-			requestAgent.setAgentKeyId(new java.net.URI("rmap:testkey"));
-			
-			discomgr.createDiSCO(disco, requestAgent, triplestore);
-			
-			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
-			RMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
-			RMapIri idIRI2 = rDisco.getId();
-			assertEquals(idIRI.toString(),idIRI2.toString());
-			String description2 = rDisco.getDescription().toString();
-			assertEquals(description,description2);		
-
 			//ok now lets get a table of data
-			DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(dIri.toString());
+			DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 			
 			int offset = 0;
 			List<ResourceDescription> resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
 			assertTrue(resdes!=null);
+						
 			int size = 0;
 			for (ResourceDescription rd : resdes){
 				size = size + rd.getPropertyValues().size();
 			}
-			assertTrue(size==10);
+			assertTrue(size==10); //rmapweb.max-table-rows property is set to retrieve 10 rows at at time
 
 			offset = 10;
 			resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
@@ -341,5 +251,8 @@ public class DataDisplayServiceImplTest {
 	}
 	
 	
+	
+	
 
+	
 }
