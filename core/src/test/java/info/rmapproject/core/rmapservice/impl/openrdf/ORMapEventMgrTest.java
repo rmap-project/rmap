@@ -116,7 +116,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackCreationEventWithAgentApiKey() {
 		try {
-			ORMapEventCreation event = new ORMapEventCreation(requestAgent,RMapEventTargetType.DISCO);
+			ORMapEventCreation event = new ORMapEventCreation(fakeIri1, requestAgent,RMapEventTargetType.DISCO);
 			event.setEndTime(new Date());
 			event.setCreatedObjectIdsFromIRI(iriSet1);
 			
@@ -147,7 +147,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackCreationEventNoAgentApiKey() {
 		try {
-			ORMapEventCreation event = new ORMapEventCreation(requestAgent2,RMapEventTargetType.DISCO);
+			ORMapEventCreation event = new ORMapEventCreation(fakeIri1, requestAgent2,RMapEventTargetType.DISCO);
 			event.setEndTime(new Date());
 			event.setCreatedObjectIdsFromIRI(iriSet1);
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
@@ -169,7 +169,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackTombstoneEvent() {
 		try {
-			ORMapEventTombstone event = new ORMapEventTombstone(requestAgent,RMapEventTargetType.DISCO, fakeIri1);
+			ORMapEventTombstone event = new ORMapEventTombstone(fakeIri1, requestAgent,RMapEventTargetType.DISCO, fakeIri1);
 			event.setEndTime(new Date());
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
 
@@ -198,7 +198,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackDeletionEvent() {
 		try {
-			ORMapEventDeletion event = new ORMapEventDeletion(requestAgent,RMapEventTargetType.DISCO, ORAdapter.openRdfIri2RMapIri(fakeIri1));
+			ORMapEventDeletion event = new ORMapEventDeletion(fakeIri1, requestAgent,RMapEventTargetType.DISCO, ORAdapter.openRdfIri2RMapIri(fakeIri1));
 			List <RMapIri> delIris = new ArrayList<RMapIri>();
 			delIris.add(ORAdapter.openRdfIri2RMapIri(fakeIri1));
 			event.setDeletedObjectIds(delIris);
@@ -230,7 +230,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackDerivationEvent() {
 		try {
-			ORMapEventDerivation event = new ORMapEventDerivation(requestAgent, RMapEventTargetType.DISCO, fakeIri1, fakeIri2);
+			ORMapEventDerivation event = new ORMapEventDerivation(fakeIri1, requestAgent, RMapEventTargetType.DISCO, fakeIri1, fakeIri2);
 			event.setEndTime(new Date());
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
 
@@ -260,7 +260,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackInactivationEvent() {
 		try {
-			ORMapEventInactivation event = new ORMapEventInactivation(requestAgent, RMapEventTargetType.DISCO);
+			ORMapEventInactivation event = new ORMapEventInactivation(fakeIri1, requestAgent, RMapEventTargetType.DISCO);
 			event.setEndTime(new Date());
 			event.setInactivatedObjectId(ORAdapter.openRdfIri2RMapIri(fakeIri1));
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
@@ -289,7 +289,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackReplaceEvent() {
 		try {
-			ORMapEventUpdateWithReplace event = new ORMapEventUpdateWithReplace(requestAgent, RMapEventTargetType.AGENT, agentIri);
+			ORMapEventUpdateWithReplace event = new ORMapEventUpdateWithReplace(fakeIri1, requestAgent, RMapEventTargetType.AGENT, agentIri);
 			event.setEndTime(new Date());
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
 
@@ -318,7 +318,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackUpdateEvent() {
 		try {
-			ORMapEventUpdate event = new ORMapEventUpdate(requestAgent, RMapEventTargetType.DISCO, fakeIri1, fakeIri2);
+			ORMapEventUpdate event = new ORMapEventUpdate(fakeIri1, requestAgent, RMapEventTargetType.DISCO, fakeIri1, fakeIri2);
 			event.setEndTime(new Date());
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
 			
@@ -348,7 +348,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testGetEventStartAndEndDate() {
 		try {
-			ORMapEventCreation event = new ORMapEventCreation(requestAgent,RMapEventTargetType.DISCO);
+			ORMapEventCreation event = new ORMapEventCreation(fakeIri1, requestAgent,RMapEventTargetType.DISCO);
 			event.setCreatedObjectIdsFromIRI(iriSet1);
 			event.setEndTime(new Date());
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
@@ -376,7 +376,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testGetEventAffectedAgents() {
 		try {
-			ORMapEventCreation createEvent = new ORMapEventCreation(requestAgent,RMapEventTargetType.AGENT);
+			ORMapEventCreation createEvent = new ORMapEventCreation(fakeIri1, requestAgent,RMapEventTargetType.AGENT);
 			createEvent.setEndTime(new Date());
 			createEvent.setCreatedObjectIdsFromIRI(agentIriSet);
 			IRI eventIri = eventmgr.createEvent(createEvent, triplestore);
@@ -384,7 +384,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 			assertEquals(createEventAgents.size(),1);	
 			assertEquals(createEventAgents.get(0).toString(),createEvent.getCreatedObjectIds().get(0).toString());			
 			
-			ORMapEventUpdateWithReplace replaceEvent = new ORMapEventUpdateWithReplace(requestAgent, RMapEventTargetType.AGENT, agentIri);
+			ORMapEventUpdateWithReplace replaceEvent = new ORMapEventUpdateWithReplace(fakeIri1, requestAgent, RMapEventTargetType.AGENT, agentIri);
 			replaceEvent.setEndTime(new Date());
 			eventIri = eventmgr.createEvent(replaceEvent, triplestore);
 			List<IRI> replaceEventAgents = eventmgr.getAffectedAgents(eventIri, triplestore);

@@ -79,8 +79,8 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventWithNewObjects() throws RMapException {
-		super();
+	protected ORMapEventWithNewObjects(IRI id) throws RMapException {
+		super(id);
 	}
 
 	/**
@@ -91,8 +91,8 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEventWithNewObjects(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
+	protected ORMapEventWithNewObjects(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+		super(id, associatedAgent, targetType);
 	}
 
 	/**
@@ -104,9 +104,9 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	protected ORMapEventWithNewObjects(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
+	protected ORMapEventWithNewObjects(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType, desc);
+		super(id, associatedAgent, targetType, desc);
 	}
 
 	/* (non-Javadoc)

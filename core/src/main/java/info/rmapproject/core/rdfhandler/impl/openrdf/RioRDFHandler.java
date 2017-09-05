@@ -24,10 +24,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
+import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -58,6 +61,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.model.impl.openrdf.ORUtil;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class to convert linked data objects in RMap (RMapDiSCO, RMapTriple etc) to raw RDF
@@ -65,6 +69,9 @@ import info.rmapproject.core.rdfhandler.RDFType;
  * @author smorrissey, khanson
  */
 public class RioRDFHandler implements RDFHandler {
+
+	@Autowired
+	private Supplier<URI> idSupplier;
 		
 	/**
 	 * Instantiates a new Rio RDF handler.
@@ -149,7 +156,7 @@ public class RioRDFHandler implements RDFHandler {
 	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, RDFType rdfFormat, String baseUri)
 			throws RMapException, RMapDefectiveArgumentException {
 		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
-		ORMapDiSCO disco = new ORMapDiSCO(stmts);
+		ORMapDiSCO disco = StatementsAdapter.asDisco(stmts, idSupplier);
 		return disco;
 	}
 	
@@ -160,7 +167,7 @@ public class RioRDFHandler implements RDFHandler {
 	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) 
 			throws RMapException, RMapDefectiveArgumentException {
 		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
-		ORMapAgent agent = new ORMapAgent(stmts);
+		ORMapAgent agent = StatementsAdapter.asAgent(stmts, idSupplier);
 		return agent;
 	}
 

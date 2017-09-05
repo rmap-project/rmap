@@ -22,6 +22,8 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -171,7 +173,7 @@ public class ORMapEventInactivationTest extends CoreTestAbstract {
 		}
 		RMapLiteral desc = new RMapLiteral("This is an inactivation event");		
 		RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri(), new URI("ark:/29297/testkey"));
-		ORMapEventInactivation event = new ORMapEventInactivation(requestAgent,RMapEventTargetType.DISCO, desc);
+		ORMapEventInactivation event = new ORMapEventInactivation(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent,RMapEventTargetType.DISCO, desc);
 		Model model = event.getAsModel();
 		assertEquals(7, model.size());
 		

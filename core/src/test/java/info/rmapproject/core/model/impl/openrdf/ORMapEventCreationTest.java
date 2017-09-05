@@ -22,11 +22,14 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -86,7 +89,7 @@ public class ORMapEventCreationTest extends CoreTestAbstract {
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
 			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(associatedAgent, resourceList);
+			ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
 			// Make list of created objects
 			List<IRI> iris = new ArrayList<IRI>();
 			IRI discoContext = disco.getDiscoContext();
@@ -98,7 +101,7 @@ public class ORMapEventCreationTest extends CoreTestAbstract {
 				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
 			}
 			RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri());
-			ORMapEventCreation event = new ORMapEventCreation(requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);
+			ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
 			Model eventModel = event.getAsModel();

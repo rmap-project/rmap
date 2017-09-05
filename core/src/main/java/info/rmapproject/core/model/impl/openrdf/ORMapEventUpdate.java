@@ -57,8 +57,8 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 * Instantiates a new RMap Update Event.
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventUpdate() throws RMapException {
-		super();
+	protected ORMapEventUpdate(IRI id) throws RMapException {
+		super(id);
 		this.setEventTypeStatement(RMapEventType.UPDATE);
 	}
 	
@@ -111,9 +111,9 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventUpdate(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI inactivatedObject, IRI derivedObject) 
+	public ORMapEventUpdate(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI inactivatedObject, IRI derivedObject)
 	throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
+		super(id, associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.UPDATE);
 		this.setInactivatedObjectStmt(inactivatedObject);
 		this.setDerivationStmt(derivedObject);

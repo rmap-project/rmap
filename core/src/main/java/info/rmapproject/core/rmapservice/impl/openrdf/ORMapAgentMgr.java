@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -58,21 +59,14 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+
 /**
  * A concrete class for managing RMap Agents, implemented using openrdf
  *
  * @author smorrissey, khanson
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
-	
-	/**
-	 * Instantiates a new RMap Agent Manager
-	 *
-	 * @throws RMapException the RMap exception
-	 */
-	public ORMapAgentMgr() throws RMapException {
-		super();
-	}
 
 	/**
 	 * Get an Agent using Agent IRI and a specific triplestore instance
@@ -114,7 +108,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		catch (RMapObjectNotFoundException e) {
 			throw new RMapAgentNotFoundException ("No agent found with id " + agentId.toString(), e);
 		}
-		ORMapAgent agent = new ORMapAgent(agentStmts);
+		ORMapAgent agent = StatementsAdapter.asAgent(agentStmts, idSupplier);
 		return agent;
 	}
 	
@@ -201,7 +195,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		
 		// Get the event started (key is null for agent creates since only done through bootstrap)
-		ORMapEventCreation event = new ORMapEventCreation(requestAgent, RMapEventTargetType.AGENT, null);
+		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.AGENT, null);
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -292,7 +286,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				
 		// Get the event started
 		ORMapEventUpdateWithReplace event = 
-				new ORMapEventUpdateWithReplace(requestAgent, RMapEventTargetType.AGENT, agentId);
+				new ORMapEventUpdateWithReplace(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.AGENT, agentId);
 		
 		String sEventDescrip = "";
 		boolean updatesFound = false;

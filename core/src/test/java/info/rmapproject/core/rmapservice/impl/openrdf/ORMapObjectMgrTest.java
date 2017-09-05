@@ -145,7 +145,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
 			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(associatedAgent, resourceList);
+			ORMapDiSCO disco = new ORMapDiSCO(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()), associatedAgent, resourceList);
 			// Make list of created objects
 			List<IRI> iris = new ArrayList<IRI>();
 			IRI discoContext = disco.getDiscoContext();
@@ -155,7 +155,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
 			}
 			
-			ORMapEventCreation event = new ORMapEventCreation(requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);
+			ORMapEventCreation event = new ORMapEventCreation(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()), requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
 			ORMapEventMgr eventMgr = new ORMapEventMgr();

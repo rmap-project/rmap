@@ -21,8 +21,11 @@ package info.rmapproject.api.test;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
 import org.openrdf.model.Statement;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -35,6 +38,9 @@ import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
 public class TestUtils {
+
+	private static AtomicInteger counter = new AtomicInteger(0);
+
 	/**
 	 * Retrieves a test DiSCO object
 	 * @param testobj
@@ -47,7 +53,8 @@ public class TestUtils {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapDiSCO disco = new ORMapDiSCO(stmts);
+		ORMapDiSCO disco = StatementsAdapter.asDisco(stmts, () -> URI.create("http://example.org/disco/" + counter.getAndIncrement()));
+
 		return disco;		
 	}
 
@@ -63,7 +70,7 @@ public class TestUtils {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapAgent agent = new ORMapAgent(stmts);
+		ORMapAgent agent = StatementsAdapter.asAgent(stmts, () -> URI.create("http://example.org/agent/" + counter.getAndIncrement()));
 		return agent;		
 	}
 }

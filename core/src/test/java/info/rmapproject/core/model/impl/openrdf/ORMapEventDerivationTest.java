@@ -22,6 +22,9 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfIri2RMapIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -108,11 +111,11 @@ public class ORMapEventDerivationTest extends CoreTestAbstract {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		ORMapDiSCO newDisco = new ORMapDiSCO(ORAdapter.openRdfIri2RMapIri(associatedAgent), resourceList);
+		ORMapDiSCO newDisco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), openRdfIri2RMapIri(associatedAgent), resourceList);
 		IRI derivedObject = newDisco.getDiscoContext();
 
 		RMapRequestAgent requestAgent = new RMapRequestAgent(new URI(associatedAgent.stringValue()), new URI("ark:/29297/testkey"));
-		ORMapEventDerivation event = new ORMapEventDerivation(requestAgent, RMapEventTargetType.DISCO,sourceObject, derivedObject);
+		ORMapEventDerivation event = new ORMapEventDerivation(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent, RMapEventTargetType.DISCO,sourceObject, derivedObject);
 		Model model = event.getAsModel();
 		int modelSize = model.size();
 		assertEquals(9,modelSize);
@@ -161,8 +164,8 @@ public class ORMapEventDerivationTest extends CoreTestAbstract {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
-		ORMapDiSCO newDisco = new ORMapDiSCO(associatedAgent, resourceList);
+		RMapIri associatedAgent = openRdfIri2RMapIri(creatorIRI);
+		ORMapDiSCO newDisco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/2")), associatedAgent, resourceList);
 		// Make list of created objects
 		List<IRI> iris = new ArrayList<IRI>();
 		IRI newDiscoContext = newDisco.getDiscoContext();
