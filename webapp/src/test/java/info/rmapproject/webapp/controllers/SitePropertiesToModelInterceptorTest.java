@@ -42,7 +42,7 @@ import info.rmapproject.webapp.WebTestAbstract;
 import info.rmapproject.webapp.utils.SiteProperties;
 
 /**
- * Tests for SessionDefaultsInterceptor
+ * Tests for SitePropertiesToModelInterceptor. 
  * @author khanson
  *
  */
@@ -63,44 +63,37 @@ public class SitePropertiesToModelInterceptorTest extends WebTestAbstract {
 	 * Simple test that uses the constructor to set the attribute values, then checks they have been added to the request session attributes
 	 */
 	@Test
-	public void testDefaultsAppliedThroughConstructor() {
-	    try {
-	        MockHttpServletRequest request = new MockHttpServletRequest("GET","/home");
-	        MockHttpServletResponse response = new MockHttpServletResponse();	
-	        ModelAndView modelview = new ModelAndView();
-	        SiteProperties siteProperties = new SiteProperties(true, false, false);
-	        SitePropertiesToModelInterceptor interceptor = new SitePropertiesToModelInterceptor(siteProperties);
-	        interceptor.postHandle(request, response, null, modelview);
-	        SiteProperties siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
-	        assertTrue(siteProps.isGoogleEnabled());
-	        assertFalse(siteProps.isTwitterEnabled());
-	        assertFalse(siteProps.isOrcidEnabled());
-	        	        
-	        request = new MockHttpServletRequest("GET","/home");
-	        response = new MockHttpServletResponse();
-	        siteProperties = new SiteProperties(false, true, false);
-	        interceptor = new SitePropertiesToModelInterceptor(siteProperties);
-	        interceptor.postHandle(request, response, null, modelview);
-	        siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
-	        assertFalse(siteProps.isGoogleEnabled());
-	        assertTrue(siteProps.isOrcidEnabled());
-	        assertFalse(siteProps.isTwitterEnabled());
+	public void testDefaultsAppliedThroughConstructor() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET","/home");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		ModelAndView modelview = new ModelAndView();
+		SiteProperties siteProperties = new SiteProperties(true, false, false);
+		SitePropertiesToModelInterceptor interceptor = new SitePropertiesToModelInterceptor(siteProperties);
+		interceptor.postHandle(request, response, null, modelview);
+		SiteProperties siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
+		assertTrue(siteProps.isGoogleEnabled());
+		assertFalse(siteProps.isTwitterEnabled());
+		assertFalse(siteProps.isOrcidEnabled());
+					
+		request = new MockHttpServletRequest("GET","/home");
+		response = new MockHttpServletResponse();
+		siteProperties = new SiteProperties(false, true, false);
+		interceptor = new SitePropertiesToModelInterceptor(siteProperties);
+		interceptor.postHandle(request, response, null, modelview);
+		siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
+		assertFalse(siteProps.isGoogleEnabled());
+		assertTrue(siteProps.isOrcidEnabled());
+		assertFalse(siteProps.isTwitterEnabled());
 
-	        request = new MockHttpServletRequest("GET","/home");
-	        response = new MockHttpServletResponse();
-	        siteProperties = new SiteProperties(false, false, true);
-	        interceptor = new SitePropertiesToModelInterceptor(siteProperties);
-	        interceptor.postHandle(request, response, null, modelview);
-	        siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
-	        assertFalse(siteProps.isGoogleEnabled());
-	        assertFalse(siteProps.isOrcidEnabled());
-	        assertTrue(siteProps.isTwitterEnabled());
-
-	        	        		        
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        fail();
-	    }
+		request = new MockHttpServletRequest("GET","/home");
+		response = new MockHttpServletResponse();
+		siteProperties = new SiteProperties(false, false, true);
+		interceptor = new SitePropertiesToModelInterceptor(siteProperties);
+		interceptor.postHandle(request, response, null, modelview);
+		siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
+		assertFalse(siteProps.isGoogleEnabled());
+		assertFalse(siteProps.isOrcidEnabled());
+		assertTrue(siteProps.isTwitterEnabled());
 	}
     
     /**

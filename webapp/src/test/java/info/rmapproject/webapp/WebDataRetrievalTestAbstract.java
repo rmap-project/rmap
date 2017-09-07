@@ -52,7 +52,8 @@ import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
 /**
- * Tests for ResponseManager.
+ * Abstract class for Webapp tests that require some RMap data retrieval.
+ * Initiates relevant triplestore objects and creates an RMap Agent for use in tests
  * @author khanson
  */
 public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
@@ -73,7 +74,7 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 	protected ApplicationContext context;
 		
 	/**
-	 * Instantiates a new response manager test.
+	 * Instantiates a new Web Data Retrieval test.
 	 */
 	public WebDataRetrievalTestAbstract() {
 		super();
