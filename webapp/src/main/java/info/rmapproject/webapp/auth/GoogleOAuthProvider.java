@@ -96,8 +96,6 @@ public class GoogleOAuthProvider extends OAuthProvider{
 		//logger.info("Google token=" + accessToken.getRawResponse());
 		
 		return profile;
-	}	
-
-	
+	}
 	
 }
