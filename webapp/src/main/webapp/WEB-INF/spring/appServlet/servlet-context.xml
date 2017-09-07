@@ -119,10 +119,22 @@
 	  </beans:property>
 	</beans:bean>
 
+	<beans:bean class="info.rmapproject.webapp.utils.SiteProperties" name="sitePropertiesObj">
+		<beans:constructor-arg type="java.lang.Boolean" value="${rmapweb.google-oauth-enabled}"/>
+		<beans:constructor-arg type="java.lang.Boolean" value="${rmapweb.orcid-oauth-enabled}"/>
+		<beans:constructor-arg type="java.lang.Boolean" value="${rmapweb.twitter-oauth-enabled}"/>
+	</beans:bean>
+
 	<interceptors>
 		<interceptor>
 			<mapping path="/user/**"/>
-			<beans:bean class="info.rmapproject.webapp.auth.AuthenticationInterceptor" />
+			<beans:bean class="info.rmapproject.webapp.auth.AuthenticationInterceptor"/>
+		</interceptor>
+		<interceptor>
+			<mapping path="/**"/>
+			<beans:bean class="info.rmapproject.webapp.controllers.SitePropertiesToModelInterceptor">
+				<beans:constructor-arg name="siteProperties" ref="sitePropertiesObj"/>
+			</beans:bean>
 		</interceptor>
 	</interceptors>	
 	

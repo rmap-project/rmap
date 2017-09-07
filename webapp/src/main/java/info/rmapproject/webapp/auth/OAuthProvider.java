@@ -135,5 +135,5 @@ public abstract class OAuthProvider {
 	 * @return the OAuth provider account
 	 */
 	public abstract OAuthProviderAccount loadOAuthProviderAccount(Token accessToken, OAuthProviderName provider);
-
+	
 }
