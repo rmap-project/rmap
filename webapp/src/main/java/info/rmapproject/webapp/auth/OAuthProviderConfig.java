@@ -101,7 +101,6 @@ public class OAuthProviderConfig {
 	    this.setScope("");
 	    this.setProfileUrl(profileUrl);
     }
-	
 
 	/**
 	 * Gets the api key.

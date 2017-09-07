@@ -42,36 +42,45 @@
 				<a href="<c:url value='/contact'/>">Contact</a>
 			</li>
 			
-			<c:if test="${uid>0}">
-			<li id="menu-item-4">
-				<a href="<c:url value='/user/welcome'/>" title="${uname}"><span id="truncate">${uname}<b class="caret"></b></span></a>
-				<ul class="dropdown-menu">
-					<li><a href="<c:url value='/user/keys'/>">Manage API keys</a></li>
-					<!--<li><a href="<c:url value='/user/reports'/>">View API activity</a></li>-->
-					<li><a href="<c:url value='/user/settings'/>">Settings</a></li>
-					<li><a href="<c:url value='/user/logout'/>">Sign out</a></li>
-				</ul>
-			</li>
-			</c:if>
-			
-			<c:if test="${uid==0&&uname.length()>0}">
-			<li id="menu-item-4">
-				<a href="<c:url value='/user/settings'/>" title="${uname}"><span id="truncate">${uname}</span></a>
-				<ul class="dropdown-menu">
-					<li><a href="<c:url value='/user/logout'/>">Sign out</a></li>
-				</ul>
-			</li>			
-			</c:if>
-			
-			<c:if test="${uid==0&&uname.length()==0}">
-			<li id="menu-item-4">
-				<a href="<c:url value='/user/login'/>" title="Sign in to manage API access keys for write access.">Sign in</a>
-				<div class="signin-menu">
-					<a href="<c:url value='/user/login/google'/>"><img src="<c:url value='/includes/images/google-signin-button.png'/>" alt="Sign in with Google"/></a><br/>
-					<a href="<c:url value='/user/login/twitter'/>"><img src="<c:url value='/includes/images/twitter-signin-button.png'/>" alt="Sign in with Twitter" width="190px"/></a><br/>
-					<a href="<c:url value='/user/login/orcid'/>"><img src="<c:url value='/includes/images/orcid-signin-button.png'/>" alt="Sign in with ORCiD" width="190px"/></a><br/>
-				</div>
-			</li>			
+			<c:if test="${SITEPROPS.isOauthEnabled()}">
+				
+				<c:if test="${uid>0}">
+				<li id="menu-item-4">
+					<a href="<c:url value='/user/welcome'/>" title="${uname}"><span id="truncate">${uname}<b class="caret"></b></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="<c:url value='/user/keys'/>">Manage API keys</a></li>
+						<!--<li><a href="<c:url value='/user/reports'/>">View API activity</a></li>-->
+						<li><a href="<c:url value='/user/settings'/>">Settings</a></li>
+						<li><a href="<c:url value='/user/logout'/>">Sign out</a></li>
+					</ul>
+				</li>
+				</c:if>
+				
+				<c:if test="${uid==0&&uname.length()>0}">
+				<li id="menu-item-4">
+					<a href="<c:url value='/user/settings'/>" title="${uname}"><span id="truncate">${uname}</span></a>
+					<ul class="dropdown-menu">
+						<li><a href="<c:url value='/user/logout'/>">Sign out</a></li>
+					</ul>
+				</li>			
+				</c:if>
+				
+				<c:if test="${uid==0&&uname.length()==0}">
+				<li id="menu-item-4">
+					<a href="<c:url value='/user/login'/>" title="Sign in to manage API access keys for write access.">Sign in</a>
+					<div class="signin-menu">
+						<c:if test="${SITEPROPS.isGoogleEnabled()}">
+						<a href="<c:url value='/user/login/google'/>"><img src="<c:url value='/includes/images/google-signin-button.png'/>" alt="Sign in with Google"/></a><br/>
+						</c:if>
+						<c:if test="${SITEPROPS.isTwitterEnabled()}">
+						<a href="<c:url value='/user/login/twitter'/>"><img src="<c:url value='/includes/images/twitter-signin-button.png'/>" alt="Sign in with Twitter" width="190px"/></a><br/>
+						</c:if>
+						<c:if test="${SITEPROPS.isOrcidEnabled()}">
+						<a href="<c:url value='/user/login/orcid'/>"><img src="<c:url value='/includes/images/orcid-signin-button.png'/>" alt="Sign in with ORCiD" width="190px"/></a><br/>
+						</c:if>
+					</div>
+				</li>			
+				</c:if>
 			</c:if>
 		</ul>
 	</nav>

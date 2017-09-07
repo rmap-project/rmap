@@ -97,7 +97,9 @@ public final class Constants  {
     
     /** Property key for maximum number of Rows to be displayed in node info popup on graph visual */
     public static final String MAX_NODE_INFO_ROWS_PROPKEY = "rmapweb.max-node-info-rows";
-    
+
+	/** Model attribute name for object that contains site-wide properties**/
+	public static final String SITE_PROPERTIES_ATTRIBNAME = "SITEPROPS";
     
 	/**
 	 * Instantiates a new constants.

@@ -19,16 +19,10 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
-import info.rmapproject.auth.model.User;
-import info.rmapproject.webapp.auth.OAuthProviderAccount;
-import info.rmapproject.webapp.auth.GoogleOAuthProvider;
-import info.rmapproject.webapp.auth.OAuthProviderName;
-import info.rmapproject.webapp.auth.TwitterOAuthProvider;
-import info.rmapproject.webapp.auth.OrcidOAuthProvider;
-import info.rmapproject.webapp.service.UserMgtService;
-
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -40,6 +34,15 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.github.scribejava.core.model.Token;
 
+import info.rmapproject.auth.model.User;
+import info.rmapproject.webapp.auth.GoogleOAuthProvider;
+import info.rmapproject.webapp.auth.OAuthProviderAccount;
+import info.rmapproject.webapp.auth.OAuthProviderName;
+import info.rmapproject.webapp.auth.OrcidOAuthProvider;
+import info.rmapproject.webapp.auth.TwitterOAuthProvider;
+import info.rmapproject.webapp.service.UserMgtService;
+import info.rmapproject.webapp.utils.SiteProperties;
+
 /**
  * Handles requests related to user management and sign in.
  *
@@ -49,6 +52,9 @@ import com.github.scribejava.core.model.Token;
 @SessionAttributes({"user","account"})
 public class LoginController {
 
+	/** The log. */
+	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+	
 	/** Service for user management. */
 	@Autowired
 	private UserMgtService userMgtService;
@@ -68,6 +74,10 @@ public class LoginController {
 	@Qualifier("oAuthProviderOrcid")
 	private OrcidOAuthProvider oAuthProviderOrcid;
 	
+	@Autowired
+	private SiteProperties siteProperties;
+	
+	
 		
 	/**
 	 * Login using Google.
@@ -77,6 +87,11 @@ public class LoginController {
 	 */
 	@RequestMapping(value={"/user/login/google"}, method = RequestMethod.GET)
 	public String logingoogle(HttpSession session) {
+		if (!siteProperties.isGoogleEnabled()) {
+			log.debug("Google OAuth unavailable, redirecting to home page");
+			return "redirect:/home";
+		}
+		
 		//see if we are already logged in
 		OAuthProviderAccount account = (OAuthProviderAccount) session.getAttribute("account");
 		if(account == null) {
@@ -97,7 +112,11 @@ public class LoginController {
 	 */
 	@RequestMapping(value={"/user/googlecallback"}, method = RequestMethod.GET)
 	public String googlecallback(@RequestParam(value="code", required=false) String oauthVerifier, HttpSession session, Model model) {
-				
+		if (!siteProperties.isGoogleEnabled()) {
+			log.debug("Google OAuth unavailable, redirecting to home page");
+			return "redirect:/home";
+		}
+		
 		OAuthProviderName idProvider = OAuthProviderName.GOOGLE;
 		Token accessToken = oAuthProviderGoogle.createAccessToken(null, oauthVerifier);
 
@@ -131,6 +150,10 @@ public class LoginController {
 	 */
 	@RequestMapping(value={"/user/login/orcid"}, method = RequestMethod.GET)
 	public String loginorcid(HttpSession session) {
+		if (!siteProperties.isOrcidEnabled()) {
+			log.debug("ORCID OAuth unavailable, redirecting to home page");
+			return "redirect:/home";
+		}
 		//see if we are already logged in
 		OAuthProviderAccount account = (OAuthProviderAccount) session.getAttribute("account");
 		if(account == null) {
@@ -151,7 +174,10 @@ public class LoginController {
 	 */
 	@RequestMapping(value={"/user/orcidcallback"}, method = RequestMethod.GET)
 	public String orcidcallback(@RequestParam(value="code", required=false) String oauthVerifier, HttpSession session, Model model) {
-		
+		if (!siteProperties.isOrcidEnabled()) {
+			log.debug("ORCID OAuth unavailable, redirecting to home page");
+			return "redirect:/home";
+		}
 		OAuthProviderName idProvider = OAuthProviderName.ORCID;
 		
 		Token accessToken = oAuthProviderOrcid.createAccessToken(null, oauthVerifier);
@@ -182,6 +208,10 @@ public class LoginController {
 	 */
 	@RequestMapping(value={"/user/login/twitter"}, method = RequestMethod.GET)
 	public String logintwitter(HttpSession session) {
+		if (!siteProperties.isTwitterEnabled()) {
+			log.debug("Twitter OAuth unavailable, redirecting to home page");
+			return "redirect:/home";
+		}
 		//see if we are already logged in
 		OAuthProviderAccount account = (OAuthProviderAccount) session.getAttribute("account");
 		if(account == null) {
@@ -206,7 +236,11 @@ public class LoginController {
 	@RequestMapping(value={"/user/twittercallback"}, method = RequestMethod.GET)
 	public String twittercallback(@RequestParam(value="oauth_token", required=false) String oauthToken,
 				@RequestParam(value="oauth_verifier", required=false) String oauthVerifier, HttpSession session, Model model) {
-
+		if (!siteProperties.isTwitterEnabled()) {
+			log.debug("Twitter OAuth unavailable, redirecting to home page");
+			return "redirect:/home";
+		}
+		
 		Token requestToken = (Token) session.getAttribute("requesttoken");
 		if (requestToken == null){
 			return "redirect:/user/login";
@@ -245,6 +279,10 @@ public class LoginController {
 	 */
 	@RequestMapping(value="/user/login", method=RequestMethod.GET)
 	public String loginPage(Model model, HttpSession session) {
+		if (!siteProperties.isOauthEnabled()) {
+			log.debug("No OAuth option available, redirecting to home page");
+			return "redirect:/home";
+		}		
 		return "user/login";
 	}
 		
