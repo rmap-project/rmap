@@ -117,6 +117,7 @@ public class ORMapService implements RMapService {
 	 * @param statementmgr the RMap Statement Manager
 	 * @param eventmgr the RMap Event Manager
 	 * @param triplestore the Sesame triplestore
+	 * @param idService used to generate and assign identifiers to newly created RMap objects
 	 */
 	@Autowired
 	public ORMapService(ORMapResourceMgr resourcemgr,
