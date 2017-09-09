@@ -53,8 +53,8 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	/**
 	 * Instantiates a new RMap Agent.
 	 *
+	 * @param id the Agent IRI (the id of the agent)
 	 * @throws RMapException the RMap exception
-	 * @throws  
 	 */
 	protected ORMapAgent(IRI id) throws RMapException {
 		super(id);
@@ -65,15 +65,16 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	/**
 	 * Instantiates a new RMap Agent .
 	 *
+	 * @param id the Agent IRI (the id of the agent)
 	 * @param idProvider the id provider
 	 * @param authId the auth id
 	 * @param name the name
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapAgent(RMapIri idProvider, RMapIri authId, RMapValue name, IRI agentIri)
+	public ORMapAgent(IRI id, RMapIri idProvider, RMapIri authId, RMapValue name)
 			throws RMapException, RMapDefectiveArgumentException {
-		this(agentIri);
+		this(id);
 		try {
 			setIdProviderStmt(ORAdapter.rMapIri2OpenRdfIri(idProvider));
 			setAuthIdStmt(ORAdapter.rMapIri2OpenRdfIri(authId));
@@ -88,19 +89,19 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	/**
 	 * Creates new RMap Agent object based on user provided agentIri, ID Provider, User Auth ID, and name.
 	 *
-	 * @param agentIri the Agent IRI
+	 * @param id the Agent IRI (the id of the agent)
 	 * @param idProvider the ID provider associated with the Agent
 	 * @param authId the Auth ID
 	 * @param name the Agent's name
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapAgent(IRI agentIri, IRI idProvider, IRI authId, Value name) 
+	public ORMapAgent(IRI id, IRI idProvider, IRI authId, Value name)
 			throws RMapException, RMapDefectiveArgumentException {
-		this(agentIri);
+		this(id);
 		try {
 			setTypeStatement(RMapObjectType.AGENT);
-			setContext(agentIri);
+			setContext(id);
 			setIdProviderStmt(idProvider);
 			setAuthIdStmt(authId);
 			setNameStmt(name);

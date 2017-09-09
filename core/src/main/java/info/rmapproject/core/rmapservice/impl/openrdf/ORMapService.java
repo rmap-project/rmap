@@ -722,8 +722,8 @@ public class ORMapService implements RMapService {
 			RMapValue rName = new RMapLiteral(name);
 			RMapIri rIdentityProvider = new RMapIri(identityProvider);
 			RMapIri rAuthKeyUri = new RMapIri(authKeyUri);
-			RMapAgent agent = new ORMapAgent(rIdentityProvider, rAuthKeyUri, rName,
-					uri2OpenRdfIri(idService.createId()));
+			RMapAgent agent = new ORMapAgent(uri2OpenRdfIri(idService.createId()), rIdentityProvider, rAuthKeyUri,
+					rName);
 			RMapRequestAgent requestAgent = new RMapRequestAgent(new URI(agent.getId().toString()));
 			event = createAgent(agent, requestAgent);
 		} catch (URISyntaxException e) {
