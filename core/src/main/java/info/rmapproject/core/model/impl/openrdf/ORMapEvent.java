@@ -98,13 +98,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
 			Statement typeStatement, Statement associatedKeyStmt) 
 					throws RMapException, RMapDefectiveArgumentException {
-		super();
-		if (context != null){  //set it as the ID... this also sets the context
-			setId(context);
-		}
-		else {
-			setId();
-		}
+		super(context);
 		this.eventTypeStmt = eventTypeStmt;
 		this.eventTargetTypeStmt = eventTargetTypeStmt;
 		this.associatedAgentStmt = associatedAgentStmt;
@@ -122,9 +116,8 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEvent() throws RMapException {
-		super();
-		this.setId();	
+	protected ORMapEvent(IRI id) throws RMapException {
+		super(id);
 		Date date = new Date();
 		Literal dateLiteral = ORAdapter.getValueFactory().createLiteral(date);
 		Statement startTime = ORAdapter.getValueFactory().createStatement(this.id, PROV.STARTEDATTIME, 
@@ -141,8 +134,8 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEvent(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
-		this();
+	protected ORMapEvent(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+		this(id);
 		if (associatedAgent==null){
 			throw new RMapException("Null agent not allowed in RMapEvent");
 		}
@@ -171,9 +164,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	protected ORMapEvent(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc) 
+	protected ORMapEvent(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException {
-		this(associatedAgent, targetType);
+		this(id, associatedAgent, targetType);
 		if (desc != null){
 			Statement descSt = ORAdapter.getValueFactory().createStatement(this.context, 
 					DC.DESCRIPTION, ORAdapter.rMapValue2OpenRdfValue(desc), this.context);

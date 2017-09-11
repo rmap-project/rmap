@@ -58,8 +58,8 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventDerivation() throws RMapException {
-		super();
+	protected ORMapEventDerivation(IRI id) throws RMapException {
+		super(id);
 		this.setEventTypeStatement(RMapEventType.DERIVATION);
 	}
 
@@ -74,9 +74,9 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventDerivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI sourceObject, IRI derivedObject) 
+	public ORMapEventDerivation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI sourceObject, IRI derivedObject)
 	throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
+		super(id, associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.DERIVATION);
 		this.setSourceObjectStmt(sourceObject);
 		this.setDerivationStmt(derivedObject);

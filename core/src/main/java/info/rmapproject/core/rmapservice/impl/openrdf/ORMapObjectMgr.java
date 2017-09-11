@@ -22,8 +22,11 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import java.net.URI;
 import java.util.Set;
+import java.util.function.Supplier;
 
+import info.rmapproject.core.idservice.IdService;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
@@ -32,6 +35,7 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * An abstract class for openrdf versions of RMap Objects, implemented using openrdf
@@ -39,11 +43,12 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  * @author khanson, smorrissey
  */
 public abstract class ORMapObjectMgr {
-	
-	/**
-	 * Instantiates a new RMap Object Manager
-	 */
-	protected ORMapObjectMgr() {}
+
+	@Autowired
+	IdService idService;
+
+	@Autowired
+	Supplier<URI> idSupplier;
 
 	/**
 	 * Creates a triple in the RMap database
@@ -58,7 +63,6 @@ public abstract class ORMapObjectMgr {
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown creating triple from ORMapStatement ", e);
 		}
-		return;
 	}
 	
 	
@@ -146,5 +150,20 @@ public abstract class ORMapObjectMgr {
 		}
 		return matchingTriples;
 	}
-	
+
+	public IdService getIdService() {
+		return idService;
+	}
+
+	public void setIdService(IdService idService) {
+		this.idService = idService;
+	}
+
+	public Supplier<URI> getIdSupplier() {
+		return idSupplier;
+	}
+
+	public void setIdSupplier(Supplier<URI> idSupplier) {
+		this.idSupplier = idSupplier;
+	}
 }
