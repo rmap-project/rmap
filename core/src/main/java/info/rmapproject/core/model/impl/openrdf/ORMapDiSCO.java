@@ -321,7 +321,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				Value vdesc = ORAdapter.rMapValue2OpenRdfValue(description);
 				stmt = ORAdapter.getValueFactory().createStatement(subject,predicate,vdesc,this.context);
 			} catch (Exception e) {
-				throw new RMapException("Error while setting DiSCO description",e);
+				throw new RMapException("Error while setting DiSCO description: " + e.getMessage(), e);
 			}
 		}
 		this.description = stmt;
@@ -581,6 +581,37 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			}
 			relatedStatements = newStmts;
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapDiSCO that = (ORMapDiSCO) o;
+
+		if (aggregatedResources != null ? !aggregatedResources.equals(that.aggregatedResources) : that.aggregatedResources != null)
+			return false;
+		if (relatedStatements != null ? !relatedStatements.equals(that.relatedStatements) : that.relatedStatements != null)
+			return false;
+		if (creator != null ? !creator.equals(that.creator) : that.creator != null) return false;
+		if (description != null ? !description.equals(that.description) : that.description != null) return false;
+		if (providerIdStmt != null ? !providerIdStmt.equals(that.providerIdStmt) : that.providerIdStmt != null)
+			return false;
+		return provGeneratedByStmt != null ? provGeneratedByStmt.equals(that.provGeneratedByStmt) : that.provGeneratedByStmt == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (aggregatedResources != null ? aggregatedResources.hashCode() : 0);
+		result = 31 * result + (relatedStatements != null ? relatedStatements.hashCode() : 0);
+		result = 31 * result + (creator != null ? creator.hashCode() : 0);
+		result = 31 * result + (description != null ? description.hashCode() : 0);
+		result = 31 * result + (providerIdStmt != null ? providerIdStmt.hashCode() : 0);
+		result = 31 * result + (provGeneratedByStmt != null ? provGeneratedByStmt.hashCode() : 0);
+		return result;
 	}
 
 }

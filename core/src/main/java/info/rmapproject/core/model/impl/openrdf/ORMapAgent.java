@@ -249,5 +249,35 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		this.authIdStmt = stmt;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
 
+		ORMapAgent that = (ORMapAgent) o;
+
+		if (nameStmt != null ? !nameStmt.equals(that.nameStmt) : that.nameStmt != null) return false;
+		if (idProviderStmt != null ? !idProviderStmt.equals(that.idProviderStmt) : that.idProviderStmt != null)
+			return false;
+		return authIdStmt != null ? authIdStmt.equals(that.authIdStmt) : that.authIdStmt == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (nameStmt != null ? nameStmt.hashCode() : 0);
+		result = 31 * result + (idProviderStmt != null ? idProviderStmt.hashCode() : 0);
+		result = 31 * result + (authIdStmt != null ? authIdStmt.hashCode() : 0);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "ORMapAgent{" +
+				"nameStmt=" + nameStmt +
+				", idProviderStmt=" + idProviderStmt +
+				", authIdStmt=" + authIdStmt +
+				"} " + super.toString();
+	}
 }

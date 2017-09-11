@@ -22,6 +22,8 @@
  */
 package info.rmapproject.core.model;
 
+import java.io.Serializable;
+
 /**
  * Models the concept of an RDF Resource.  RDF Resources can be 
  * represented by a Blank Node (see RMapBlankNode) or an IRI (see RMapIri)
@@ -29,7 +31,9 @@ package info.rmapproject.core.model;
  *
  * @author smorrissey
  */
-public abstract class RMapResource implements RMapValue{
+public abstract class RMapResource implements RMapValue, Serializable {
+
+	private static long serialVersionUID = 1L;
 
 	/**
 	 * Instantiates a new RMap resource.

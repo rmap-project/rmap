@@ -160,4 +160,21 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapEventUpdateWithReplace that = (ORMapEventUpdateWithReplace) o;
+
+		return updatedObjectIdStmt != null ? updatedObjectIdStmt.equals(that.updatedObjectIdStmt) : that.updatedObjectIdStmt == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (updatedObjectIdStmt != null ? updatedObjectIdStmt.hashCode() : 0);
+		return result;
+	}
 }

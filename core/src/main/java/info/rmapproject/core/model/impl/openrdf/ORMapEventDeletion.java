@@ -161,4 +161,21 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapEventDeletion that = (ORMapEventDeletion) o;
+
+		return deletedObjects != null ? deletedObjects.equals(that.deletedObjects) : that.deletedObjects == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (deletedObjects != null ? deletedObjects.hashCode() : 0);
+		return result;
+	}
 }
