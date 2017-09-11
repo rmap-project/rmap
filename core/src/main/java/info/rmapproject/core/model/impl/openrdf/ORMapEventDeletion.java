@@ -51,8 +51,8 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventDeletion() throws RMapException {
-		super();
+	protected ORMapEventDeletion(IRI id) throws RMapException {
+		super(id);
 		this.setEventTypeStatement(RMapEventType.DELETION);
 	}
 	
@@ -94,10 +94,10 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventDeletion(RMapRequestAgent associatedAgent, 
+	public ORMapEventDeletion(IRI id, RMapRequestAgent associatedAgent,
 			RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType, desc);
+		super(id, associatedAgent, targetType, desc);
 		this.setEventTypeStatement(RMapEventType.DELETION);
 	}
 	

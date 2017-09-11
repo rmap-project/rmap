@@ -49,8 +49,8 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventUpdateWithReplace() throws RMapException {
-		super();
+	protected ORMapEventUpdateWithReplace(IRI id) throws RMapException {
+		super(id);
 		this.setEventTypeStatement(RMapEventType.REPLACE);
 	}
 	
@@ -90,8 +90,8 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
+	public ORMapEventUpdateWithReplace(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+		super(id, associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.REPLACE);
 	}
 	
@@ -104,9 +104,9 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventUpdateWithReplace(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI updateObjectId) 
+	public ORMapEventUpdateWithReplace(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI updateObjectId)
 				throws RMapException, RMapDefectiveArgumentException {
-		this(associatedAgent, targetType);
+		this(id, associatedAgent, targetType);
 		this.setUpdatedObjectId(ORAdapter.openRdfIri2RMapIri(updateObjectId));
 		
 	}

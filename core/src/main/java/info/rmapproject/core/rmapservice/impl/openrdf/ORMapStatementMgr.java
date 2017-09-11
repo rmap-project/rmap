@@ -47,13 +47,6 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 public class ORMapStatementMgr extends ORMapObjectMgr {
 	
 	/**
-	 * Instantiates a RMap Statement Manager object
-	 */
-	protected ORMapStatementMgr() {
-		super();
-	}
-	
-	/**
 	 * Get DiSCO IRIs that contains a Statement corresponding to the subject, predicate, object provided.
 	 *
 	 * @param subject the statement subject

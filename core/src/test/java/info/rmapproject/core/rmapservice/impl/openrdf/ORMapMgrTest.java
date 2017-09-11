@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import static java.net.URI.create;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
@@ -26,7 +27,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.openrdf.model.IRI;
@@ -57,6 +60,7 @@ import info.rmapproject.testdata.service.TestFile;
 
 public abstract class ORMapMgrTest extends CoreTestAbstract {
 
+	private static final AtomicInteger counter = new AtomicInteger();
 	@Autowired
 	protected RMapService rmapService;
 	
@@ -73,8 +77,10 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 	protected RMapRequestAgent requestAgent = null;
 	
 	/** Request agent based on sysagent2. No Key */
-	protected RMapRequestAgent requestAgent2 = null;	
-	
+	protected RMapRequestAgent requestAgent2 = null;
+
+
+
 	@Before
 	public void setupAgents() throws Exception {
 		//create 2 test agents and corresponding requestAgents
@@ -168,7 +174,8 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapDiSCO disco = new ORMapDiSCO(stmts);
+		ORMapDiSCO disco = StatementsAdapter.asDisco(stmts,
+				() -> create("http://example.org/disco/" + counter.getAndIncrement()));
 		return disco;		
 	}
 
@@ -184,7 +191,8 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapAgent agent = new ORMapAgent(stmts);
+		ORMapAgent agent = StatementsAdapter.asAgent(stmts,
+				() -> create("http://example.org/agent/" + counter.getAndIncrement()));
 		return agent;		
 	}
 	

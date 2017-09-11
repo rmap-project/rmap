@@ -63,15 +63,6 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 public class ORMapEventMgr extends ORMapObjectMgr {
 	
 	/**
-	 * Instantiates a new RMap Event Manager
-	 *
-	 * @throws RMapException the RMap exception
-	 */
-	protected ORMapEventMgr() throws RMapException {
-		super();
-	}
-	
-	/**
 	 * Creates triples that comprise the Event object, and puts into triplesotre.
 	 *
 	 * @param event the new RMap Event

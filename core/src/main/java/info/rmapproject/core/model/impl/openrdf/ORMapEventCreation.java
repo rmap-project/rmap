@@ -48,8 +48,8 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventCreation() throws RMapException {
-		super();
+	protected ORMapEventCreation(IRI id) throws RMapException {
+		super(id);
 		this.setEventTypeStatement(RMapEventType.CREATION);
 	}
 	
@@ -86,9 +86,9 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventCreation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) 
+	public ORMapEventCreation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType)
 			throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
+		super(id, associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.CREATION);
 	}
 	
@@ -102,9 +102,9 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventCreation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
+	public ORMapEventCreation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType, desc);
+		super(id, associatedAgent, targetType, desc);
 		this.setEventTypeStatement(RMapEventType.CREATION);
 	}
 	
@@ -118,9 +118,9 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventCreation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc, List<RMapIri> createdObjIds)
+	public ORMapEventCreation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc, List<RMapIri> createdObjIds)
 		throws RMapException, RMapDefectiveArgumentException{
-		this(associatedAgent, targetType, desc);
+		this(id, associatedAgent, targetType, desc);
 		this.setEventTypeStatement(RMapEventType.CREATION);
 		this.setCreatedObjectIds(createdObjIds);	
 	}

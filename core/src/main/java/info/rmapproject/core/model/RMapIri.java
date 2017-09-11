@@ -81,27 +81,19 @@ public class RMapIri extends RMapResource  {
 	public String toString(){
 		return getStringValue();
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(Object)
-	 */
-	@Override
-	public boolean equals(Object obj){
-		RMapIri rmapIri = null;
-		if (obj instanceof RMapIri) {
-			rmapIri = (RMapIri) obj;
-		}
-		if (rmapIri!=null 
-				&& this.iri != null 
-				&& this.iri.toString().equals(rmapIri.toString())) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	
-	
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		RMapIri rMapIri = (RMapIri) o;
+
+		return iri != null ? iri.toString().equals(rMapIri.iri.toString()) : rMapIri.iri == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return iri != null ? iri.toString().hashCode() : 0;
+	}
 }

@@ -23,6 +23,7 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 
+import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 
+import info.rmapproject.core.idservice.IdService;
+import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -69,6 +73,8 @@ import info.rmapproject.core.utils.Utils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+
 /**
  * A concrete class for managing RMap DiSCOs, implemented using openrdf.
  *
@@ -85,14 +91,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	/**
 	 * Instantiates a new RMap DiSCO Manager
 	 *
-	 * @param rmapIdService the RMap ID service
 	 * @param agentmgr the Agent manager instance
 	 * @param eventmgr the Event manager instance
 	 * @throws RMapException the RMap exception
 	 */
 	@Autowired
 	public ORMapDiSCOMgr(ORMapAgentMgr agentmgr, ORMapEventMgr eventmgr) throws RMapException {
-		super();
 		this.agentmgr = agentmgr;
 		this.eventmgr = eventmgr;
 	}
@@ -138,7 +142,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		catch (RMapObjectNotFoundException e){
 			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoID.stringValue(), e);
 		}
-		disco = new ORMapDiSCO(discoStmts);
+		disco = StatementsAdapter.asDisco(discoStmts, idSupplier);
 		
 		return disco;		
 	}
@@ -168,7 +172,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		agentmgr.validateRequestAgent(requestAgent, ts);
 		
 		// get the event started
-		ORMapEventCreation event = new ORMapEventCreation(requestAgent, RMapEventTargetType.DISCO);
+		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO);
 		// Create reified statements for aggregrated resources if needed
 		List<Statement> aggResources = disco.getAggregatedResourceStatements();
 		if (aggResources == null){
@@ -192,7 +196,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		created.add(disco.getDiscoContext());
 		
 		//since this is the first time we are seeing this DiSCO, lets replace the BNodes with proper IDs.
-		disco.replaceBNodesWithIds();
+		disco.replaceBNodesWithIds(idService);
 		
 		Model discoStmts = disco.getAsModel();
 		
@@ -271,7 +275,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		if (justInactivate){
 			// must be same agent
 			if (creatorSameAsOrig){
-				ORMapEventInactivation iEvent = new ORMapEventInactivation(requestAgent, RMapEventTargetType.DISCO);
+				ORMapEventInactivation iEvent = new ORMapEventInactivation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO);
 				iEvent.setInactivatedObjectId(ORAdapter.openRdfIri2RMapIri(oldDiscoId));
 				event = iEvent;
 			}
@@ -291,11 +295,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				throw new RMapDefectiveArgumentException("The DiSCO provided has the same identifier as the DiSCO being replaced.");
 			}
 			if (creatorSameAsOrig){
-				ORMapEventUpdate uEvent = new ORMapEventUpdate(requestAgent, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
+				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
 				event = uEvent;
 			}
 			else {
-				ORMapEventDerivation dEvent = new ORMapEventDerivation(requestAgent, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
+				ORMapEventDerivation dEvent = new ORMapEventDerivation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
 				event = dEvent;
 			}
 		}
@@ -323,7 +327,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			created.add(disco.getDiscoContext());
 			
 			//since this is the first time we are seeing this DiSCO, lets replace the BNodes with proper IDs.
-			disco.replaceBNodesWithIds();
+			disco.replaceBNodesWithIds(idService);
 			
 			Model discoStmts = disco.getAsModel();
 			
@@ -381,7 +385,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 			
 		// get the event started
-		ORMapEventTombstone event = new ORMapEventTombstone(requestAgent, RMapEventTargetType.DISCO, oldDiscoId);
+		ORMapEventTombstone event = new ORMapEventTombstone(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO, oldDiscoId);
 
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;

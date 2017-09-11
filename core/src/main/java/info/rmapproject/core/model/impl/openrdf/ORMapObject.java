@@ -19,26 +19,17 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.openrdf;
 
-
-import static org.springframework.core.env.AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME;
-import static org.springframework.core.env.AbstractEnvironment.DEFAULT_PROFILES_PROPERTY_NAME;
-
-import java.util.stream.Stream;
-
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.RDF;
-import org.springframework.context.support.GenericXmlApplicationContext;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.utils.Constants;
 
 /**
  * Base class for OpenRDF implementation classes of RMapObjects.
@@ -56,29 +47,18 @@ public abstract class ORMapObject implements RMapObject  {
 	/** The context. */
 	protected IRI context;
 
-	/** The RMap ID service instance */
-	protected IdService rmapIdService;
-
 	/**
 	 * Base Constructor for all RMapObjects instances, which must have a unique IRI identifier .
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapObject() throws RMapException {
-		super();
-		//TODO: This is not great, need to rethink this in a refactor, but for now doing dependency injection here 
-		//means we would need to convert all ORMapObject extensions to managed beans.
-		final GenericXmlApplicationContext appContext = new GenericXmlApplicationContext();
-		final String defaultProfiles = System.getProperty(DEFAULT_PROFILES_PROPERTY_NAME, "");
-		final String activeProfiles = System.getProperty(ACTIVE_PROFILES_PROPERTY_NAME, defaultProfiles);
-		Stream.of(activeProfiles.split(",")).forEach((p) -> appContext.getEnvironment().addActiveProfile(p));
-		appContext.load(Constants.SPRING_CONFIG_FILEPATH);
-		appContext.refresh();
-		this.rmapIdService = appContext.getBean(IdService.class);
-		//this.setId();	
+	protected ORMapObject(IRI id) throws RMapException {
+		if (id == null) {
+			throw new IllegalArgumentException("id must not be null!");
+		}
+		setId(id);
 	}
-	
-	
+
 	/**
 	 * Return identifier of object as RMapIri.
 	 *
@@ -109,19 +89,6 @@ public abstract class ORMapObject implements RMapObject  {
 		setContext(id); //context always corresponds to ID
 	}
 
-	/**
-	 * Creates and assigns a new id.
-	 * @throws RMapException the RMap exception
-	 */
-	protected void setId() throws RMapException {		
-		try {
-			IRI objId = ORAdapter.uri2OpenRdfIri(rmapIdService.createId());
-			setId(objId);
-		} catch(Exception ex){
-			throw new RMapException("Error while setting object ID", ex);
-		}
-	}
-	
 	/**
 	 * Gets the object as an openrdf model. This is basically a Set of openrdf Statements
 	 * @return the object model

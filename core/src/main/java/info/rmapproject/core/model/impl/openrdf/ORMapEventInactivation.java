@@ -82,8 +82,8 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventInactivation() throws RMapException {
-		super();
+	protected ORMapEventInactivation(IRI id) throws RMapException {
+		super(id);
 		this.setEventTypeStatement(RMapEventType.INACTIVATION);
 	}
 	
@@ -95,8 +95,8 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventInactivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
+	public ORMapEventInactivation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+		super(id, associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.INACTIVATION);
 	}
 
@@ -109,9 +109,9 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventInactivation(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
+	public ORMapEventInactivation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
 			throws RMapException, RMapDefectiveArgumentException  {
-		super(associatedAgent, targetType, desc);
+		super(id, associatedAgent, targetType, desc);
 		this.setEventTypeStatement(RMapEventType.INACTIVATION);
 	}
 

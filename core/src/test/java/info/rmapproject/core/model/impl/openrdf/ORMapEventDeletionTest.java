@@ -22,6 +22,8 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -160,10 +162,10 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
 			RMapLiteral desc =  new RMapLiteral("this is a deletion event");
 			
-			ORMapDiSCO disco = new ORMapDiSCO(associatedAgent, resourceList);	
+			ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
 			
 			RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri(), new java.net.URI("ark:/29297/testkey"));
-			ORMapEventDeletion event = new ORMapEventDeletion(requestAgent, RMapEventTargetType.DISCO, desc);
+			ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent, RMapEventTargetType.DISCO, desc);
 			RMapIri discoId = ORAdapter.openRdfIri2RMapIri(disco.getDiscoContext());
 			List<RMapIri>deleted = new ArrayList<RMapIri>();
 			deleted.add(discoId);

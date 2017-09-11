@@ -51,8 +51,8 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventTombstone() throws RMapException {
-		super();
+	protected ORMapEventTombstone(IRI id) throws RMapException {
+		super(id);
 		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
 	}
 	
@@ -71,7 +71,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @param tombstoned statement referencing the IRI of the tombstoned object
 	 * @throws RMapException the RMap exception
 	 */
-	public ORMapEventTombstone(Statement eventTypeStmt, 
+	public ORMapEventTombstone(Statement eventTypeStmt,
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt,
@@ -91,8 +91,8 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventTombstone(RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException, RMapDefectiveArgumentException {
-		super(associatedAgent, targetType);
+	public ORMapEventTombstone(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException, RMapDefectiveArgumentException {
+		super(id, associatedAgent, targetType);
 		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
 		this.setTombstonedResourceIdStmt(tombstonedResource);
 	}
