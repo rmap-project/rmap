@@ -31,13 +31,17 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapObjectType;
 
+import java.io.Serializable;
+
 /**
  * Base class for OpenRDF implementation classes of RMapObjects.
  *
  * @author khanson, smorrissey
  */
-public abstract class ORMapObject implements RMapObject  {
-	
+public abstract class ORMapObject implements RMapObject, Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	/** The object unique ID. */
 	protected IRI id;
 	
@@ -156,6 +160,34 @@ public abstract class ORMapObject implements RMapObject  {
 	public IRI getContext() {
 		return context;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ORMapObject that = (ORMapObject) o;
+
+		if (id != null ? !id.equals(that.id) : that.id != null) return false;
+		if (typeStatement != null ? !typeStatement.equals(that.typeStatement) : that.typeStatement != null)
+			return false;
+		return context != null ? context.equals(that.context) : that.context == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (typeStatement != null ? typeStatement.hashCode() : 0);
+		result = 31 * result + (context != null ? context.hashCode() : 0);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "ORMapObject{" +
+				"id=" + id +
+				", typeStatement=" + typeStatement +
+				", context=" + context +
+				'}';
+	}
 }

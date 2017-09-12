@@ -19,19 +19,19 @@
       <property name="triplestoreInitializer" ref="integrationTriplestoreInitializer"/>
     </bean>
 
-    <bean id="integrationTriplestoreInitializer" class="info.rmapproject.spring.triplestore.support.SpringTriplestoreInitializer">
-      <property name="triplestoreManager">
-        <bean class="info.rmapproject.spring.triplestore.support.SesameTriplestoreManager">
-          <property name="workbenchBaseUrl" value="${sesamehttp.workbench.url}"/>
-          <property name="repositoryBaseUrl" value="${sesamehttp.repository.url}"/>
-          <property name="defaultName" value="${sesamehttp.repository.name}"/>
-          <property name="httpClient">
-            <bean class="okhttp3.OkHttpClient"/>
-          </property>
-        </bean>
+    <bean id="triplestoreManager" class="info.rmapproject.spring.triplestore.support.SesameTriplestoreManager">
+      <property name="workbenchBaseUrl" value="${sesamehttp.workbench.url}"/>
+      <property name="repositoryBaseUrl" value="${sesamehttp.repository.url}"/>
+      <property name="defaultName" value="${sesamehttp.repository.name}"/>
+      <property name="httpClient">
+        <bean class="okhttp3.OkHttpClient"/>
       </property>
+    </bean>
+
+    <bean id="integrationTriplestoreInitializer" class="info.rmapproject.spring.triplestore.support.SpringTriplestoreInitializer">
+      <property name="triplestoreManager" ref="triplestoreManager"/>
       <property name="initializeEnabled" value="true"/>
-      <property name="destroyEnabled" value="false"/>
+      <property name="destroyEnabled" value="true"/>
     </bean>
 
   </beans>

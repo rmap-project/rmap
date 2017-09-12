@@ -145,4 +145,21 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapEventTombstone that = (ORMapEventTombstone) o;
+
+		return tombstoned != null ? tombstoned.equals(that.tombstoned) : that.tombstoned == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (tombstoned != null ? tombstoned.hashCode() : 0);
+		return result;
+	}
 }

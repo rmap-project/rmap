@@ -236,4 +236,24 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		}
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapEventUpdate that = (ORMapEventUpdate) o;
+
+		if (derivationStatement != null ? !derivationStatement.equals(that.derivationStatement) : that.derivationStatement != null)
+			return false;
+		return inactivatedObjectStatement != null ? inactivatedObjectStatement.equals(that.inactivatedObjectStatement) : that.inactivatedObjectStatement == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (derivationStatement != null ? derivationStatement.hashCode() : 0);
+		result = 31 * result + (inactivatedObjectStatement != null ? inactivatedObjectStatement.hashCode() : 0);
+		return result;
+	}
 }

@@ -21,6 +21,7 @@ package info.rmapproject.core.model.request;
 
 import info.rmapproject.core.exception.RMapException;
 
+import java.io.Serializable;
 import java.net.URI;
 
 /**
@@ -29,7 +30,9 @@ import java.net.URI;
  *
  * @author khanson
  */
-public class RMapRequestAgent {
+public class RMapRequestAgent implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/** The system agent. */
 	URI systemAgent;
@@ -98,7 +101,30 @@ public class RMapRequestAgent {
 	public void setAgentKeyId(URI agentKeyId) {
 		this.agentKeyId = agentKeyId;
 	}
-		
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		RMapRequestAgent that = (RMapRequestAgent) o;
+
+		if (systemAgent != null ? !systemAgent.equals(that.systemAgent) : that.systemAgent != null) return false;
+		return agentKeyId != null ? agentKeyId.equals(that.agentKeyId) : that.agentKeyId == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = systemAgent != null ? systemAgent.hashCode() : 0;
+		result = 31 * result + (agentKeyId != null ? agentKeyId.hashCode() : 0);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "RMapRequestAgent{" +
+				"systemAgent=" + systemAgent +
+				", agentKeyId=" + agentKeyId +
+				'}';
+	}
 }

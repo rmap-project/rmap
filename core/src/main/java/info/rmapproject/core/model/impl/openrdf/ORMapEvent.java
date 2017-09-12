@@ -492,4 +492,39 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}
 		return eventModel;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapEvent that = (ORMapEvent) o;
+
+		if (eventTypeStmt != null ? !eventTypeStmt.equals(that.eventTypeStmt) : that.eventTypeStmt != null)
+			return false;
+		if (eventTargetTypeStmt != null ? !eventTargetTypeStmt.equals(that.eventTargetTypeStmt) : that.eventTargetTypeStmt != null)
+			return false;
+		if (associatedAgentStmt != null ? !associatedAgentStmt.equals(that.associatedAgentStmt) : that.associatedAgentStmt != null)
+			return false;
+		if (descriptionStmt != null ? !descriptionStmt.equals(that.descriptionStmt) : that.descriptionStmt != null)
+			return false;
+		if (startTimeStmt != null ? !startTimeStmt.equals(that.startTimeStmt) : that.startTimeStmt != null)
+			return false;
+		if (endTimeStmt != null ? !endTimeStmt.equals(that.endTimeStmt) : that.endTimeStmt != null) return false;
+		return associatedKeyStmt != null ? associatedKeyStmt.equals(that.associatedKeyStmt) : that.associatedKeyStmt == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (eventTypeStmt != null ? eventTypeStmt.hashCode() : 0);
+		result = 31 * result + (eventTargetTypeStmt != null ? eventTargetTypeStmt.hashCode() : 0);
+		result = 31 * result + (associatedAgentStmt != null ? associatedAgentStmt.hashCode() : 0);
+		result = 31 * result + (descriptionStmt != null ? descriptionStmt.hashCode() : 0);
+		result = 31 * result + (startTimeStmt != null ? startTimeStmt.hashCode() : 0);
+		result = 31 * result + (endTimeStmt != null ? endTimeStmt.hashCode() : 0);
+		result = 31 * result + (associatedKeyStmt != null ? associatedKeyStmt.hashCode() : 0);
+		return result;
+	}
 }

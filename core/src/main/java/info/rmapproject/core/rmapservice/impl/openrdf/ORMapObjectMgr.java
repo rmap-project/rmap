@@ -61,7 +61,7 @@ public abstract class ORMapObjectMgr {
 		try {
 			ts.addStatement(stmt);
 		} catch (Exception e) {
-			throw new RMapException ("Exception thrown creating triple from ORMapStatement ", e);
+			throw new RMapException("Exception thrown creating triple from ORMapStatement: " + e.getMessage(), e);
 		}
 	}
 	

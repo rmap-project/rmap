@@ -252,4 +252,24 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		return sourceObjectStatement;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapEventDerivation that = (ORMapEventDerivation) o;
+
+		if (sourceObjectStatement != null ? !sourceObjectStatement.equals(that.sourceObjectStatement) : that.sourceObjectStatement != null)
+			return false;
+		return derivationStatement != null ? derivationStatement.equals(that.derivationStatement) : that.derivationStatement == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (sourceObjectStatement != null ? sourceObjectStatement.hashCode() : 0);
+		result = 31 * result + (derivationStatement != null ? derivationStatement.hashCode() : 0);
+		return result;
+	}
 }

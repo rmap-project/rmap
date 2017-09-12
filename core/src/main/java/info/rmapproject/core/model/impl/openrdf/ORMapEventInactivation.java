@@ -178,4 +178,21 @@ public class ORMapEventInactivation extends ORMapEvent implements
 		return model;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+
+		ORMapEventInactivation that = (ORMapEventInactivation) o;
+
+		return inactivatedObjectStatement != null ? inactivatedObjectStatement.equals(that.inactivatedObjectStatement) : that.inactivatedObjectStatement == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (inactivatedObjectStatement != null ? inactivatedObjectStatement.hashCode() : 0);
+		return result;
+	}
 }
