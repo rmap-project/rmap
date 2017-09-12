@@ -19,6 +19,8 @@
  *******************************************************************************/
 package info.rmapproject.auth.dao;
 
+import java.util.List;
+
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.User;
 
@@ -54,7 +56,17 @@ public interface UserDao {
 	 * @throws RMapAuthException the RMap Auth exception
 	 */
 	public User getUserById(int userId) throws RMapAuthException;
-	
+
+	/**
+	 * Retrieves list of all Users with filter applied. Set filter to null for no filtering.
+	 * Filters on userId, name, email, rmapAgentUri, or authKeyUri
+	 * 
+	 * @param string to filter users by
+	 * @return list of all Users
+	 * @throws RMapAuthException the RMap Auth exception
+	 */
+	public List<User> getUsers(String filter) throws RMapAuthException;
+		
 	/**
 	 * Retrieve a user based on the auth key URI.
 	 *

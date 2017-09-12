@@ -22,7 +22,6 @@ package info.rmapproject.webapp.controllers;
 import static info.rmapproject.webapp.utils.Constants.SITE_PROPERTIES_ATTRIBNAME;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

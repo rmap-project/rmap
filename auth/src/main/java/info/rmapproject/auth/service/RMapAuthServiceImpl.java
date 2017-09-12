@@ -143,7 +143,15 @@ public class RMapAuthServiceImpl implements RMapAuthService {
 	public User getUserById(int userId) throws RMapAuthException{
 		return userService.getUserById(userId);
 	}
-	
+    
+	/* (non-Javadoc)
+	 * @see info.rmapproject.auth.service.RMapAuthService#getUsers(String)
+	 */
+	@Override
+	public List<User> getUsers(String filter) throws RMapAuthException {
+		return userService.getUsers(filter);
+	}    
+    
 	/* (non-Javadoc)
 	 * @see info.rmapproject.auth.service.RMapAuthService#getUserByKeySecret(String,String)
 	 */
@@ -208,6 +216,5 @@ public class RMapAuthServiceImpl implements RMapAuthService {
 	public List<UserIdentityProvider> getUserIdProviders(int userId) throws RMapAuthException{
 		return userIdProviderService.getUserIdProviders(userId);
 	}
-	
 		
 }

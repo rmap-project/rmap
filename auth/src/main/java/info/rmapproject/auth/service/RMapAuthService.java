@@ -127,6 +127,18 @@ public interface RMapAuthService {
 	 */
 	public User getUserById(int userId) throws RMapAuthException;
 	
+
+	/**
+	 * Retrieves list of all Users with filter applied. Set filter to null for no filtering.
+	 * Filters on userId, name, email, rmapAgentUri, or authKeyUri
+	 *
+	 * @param string to filter users by
+	 * @return list of Users
+	 * @throws RMapAuthException the RMap Auth exception
+	 */
+	public List<User> getUsers(String filter) throws RMapAuthException;
+	
+	
 	/**
 	 * Retrieve the user that matches the key/secret combination provided.
 	 *

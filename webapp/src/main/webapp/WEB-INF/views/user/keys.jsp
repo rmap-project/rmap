@@ -6,14 +6,19 @@
 
 <tl:pageStartStandard user="${user}" pageTitle="Manage API Keys"/>
 
-	<h1>Manage API keys</h1>
+	<c:set var="isAdmin" value="${sessionScope.adminLoggedIn==null ? false : sessionScope.adminLoggedIn}"/>
+	<h1>Manage API keys
+	<c:if test="${sessionScope.adminLoggedIn && user.getName().length()>0}">
+		for ${user.getName()}
+	</c:if>
+	</h1>
 	
 	<c:if test="${not user.hasRMapAgent() && not user.doRMapAgentSync}">
 	<p class="notice">
 		WARNING: A public RMap System Agent is required for creating RMap DiSCOs.  
 		API Keys are used to generate RMap DiSCOs.  In order to add data to RMap, a public RMap System Agent must 
-		also be created so that it can be associated with your changes. 
-		To initiate the creation of an Agent, visit the <a href="<c:url value='/user/settings' />">settings</a> page
+		also be created so that it can be associated with any changes. 
+		To initiate the creation of an Agent, visit the <a href="<c:url value='${isAdmin ? \"/admin\" : \"\"}/user/settings'/>">settings</a> page
 		and set the option to generate an RMap:Agent to "yes".
 	</p>
 	</c:if>
@@ -23,10 +28,9 @@
 		</p>
 	</c:if>
 	<p style="text-align:right;">
-		<a href="<c:url value='/user/key/new' />">Create new key</a>
+			<a href="<c:url value='${isAdmin ? \"/admin\":\"\"}/user/key/new'/>">Create new key</a>
 	</p>
-	<c:if test="${empty apiKeyList}">
-	
+	<c:if test="${empty apiKeyList}">	
 		<fieldset style="text-align:center;">
 			<br/>No keys found.<br/><br/>
 		</fieldset>
@@ -51,8 +55,8 @@
 			            <td>${key.keyStatus}</td>
 			            <td><fmt:formatDate type="date" value="${key.startDate}" /></td>
 			            <td><fmt:formatDate type="date" value="${key.endDate}" /></td>
-			            <td style="text-align:center;"><a href="<c:url value='/user/key/download?keyid=${key.apiKeyId}'/>" target="_blank" >download</a>&nbsp;&nbsp;
-			            |&nbsp;&nbsp;<a href="<c:url value='/user/key/edit?keyid=${key.apiKeyId}' />" >edit</a></td>
+			            <td style="text-align:center;"><a href="<c:url value='${isAdmin ? \"/admin\":\"\"}/user/key/download?keyid=${key.apiKeyId}'/>" target="_blank" >download</a>&nbsp;&nbsp;
+			            |&nbsp;&nbsp;<a href="<c:url value='${isAdmin ? \"/admin\":\"\"}/user/key/edit?keyid=${key.apiKeyId}' />" >edit</a></td>
 			        </tr>
 			    </c:forEach>
 		    </tbody>

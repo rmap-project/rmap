@@ -19,6 +19,16 @@
  *******************************************************************************/
 package info.rmapproject.auth.service;
 
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import info.rmapproject.auth.dao.UserDao;
 import info.rmapproject.auth.exception.ErrorCode;
 import info.rmapproject.auth.exception.RMapAuthException;
@@ -27,15 +37,6 @@ import info.rmapproject.auth.model.UserIdentityProvider;
 import info.rmapproject.auth.utils.Constants;
 import info.rmapproject.auth.utils.Sha256HashGenerator;
 import info.rmapproject.core.idservice.IdService;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for access to Users related methods.
@@ -176,6 +177,18 @@ public class UserServiceImpl {
 	public User getUserById(int userId) {
         return userDao.getUserById(userId);
 	}
+
+	/**
+	 * Retrieves list of all Users with filter applied. Set filter to null for no filtering.
+	 * Filters on userId, name, email, rmapAgentUri, or authKeyUri
+	 * 
+	 * @param String to filter users by
+	 * @return list of all Users
+	 */
+	public List<User> getUsers(String filter) {
+        return userDao.getUsers(filter);
+	}
+	
 	
 	/**
 	 * Retrieves User object by searching using the authKeyUri provided.

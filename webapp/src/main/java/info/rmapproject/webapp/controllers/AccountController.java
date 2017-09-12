@@ -23,6 +23,7 @@ import info.rmapproject.auth.model.User;
 import info.rmapproject.webapp.auth.LoginRequired;
 import info.rmapproject.webapp.auth.OAuthProviderAccount;
 import info.rmapproject.webapp.service.UserMgtService;
+import info.rmapproject.webapp.utils.Constants;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -71,7 +72,7 @@ public class AccountController {
 	@LoginRequired
 	@RequestMapping(value="/user/welcome", method=RequestMethod.GET)
 	public String welcomePage(Model model, HttpSession session) {
-		return "/user/welcome";
+		return "user/welcome";
 	}
 	
 	/**
@@ -89,7 +90,7 @@ public class AccountController {
 			return "redirect:/user/welcome";
 		}
 		model.addAttribute("user", user);
-		return "/user/signup";
+		return "user/signup";
 	}
 	
 	/**
@@ -126,13 +127,19 @@ public class AccountController {
 	 * @return the User Settings page
 	 */
 	@LoginRequired
-	@RequestMapping(value="/user/settings", method=RequestMethod.GET)
+	@RequestMapping(value={"/user/settings", "/admin/user/settings"}, method=RequestMethod.GET)
 	public String settingsForm(HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");
+				
 		if (user == null || user.getUserId()==0){
-			return "redirect:/home";
+			Boolean isAdmin = (Boolean) session.getAttribute(Constants.ADMIN_LOGGEDIN_SESSATTRIB);
+			isAdmin = (isAdmin==null) ? false : isAdmin;
+			if (!isAdmin) {
+				return "redirect:/home"; //if not an admin user, need to be signed in to access this.	
+			}
+		}	else {
+			user = this.userMgtService.getUserById(user.getUserId()); //refresh record to make sure editing latest			
 		}
-		user = this.userMgtService.getUserById(user.getUserId()); //refresh record to make sure editing latest
 		model.addAttribute("userSettings",user);
         return "user/settings";	
 	}
@@ -147,7 +154,7 @@ public class AccountController {
 	 * @throws Exception the exception
 	 */
 	@LoginRequired
-	@RequestMapping(value="/user/settings", method=RequestMethod.POST)
+	@RequestMapping(value={"/user/settings"}, method=RequestMethod.POST)
 	public String updateUserSettings(@ModelAttribute("userSettings") @Valid User userSettings, BindingResult result, ModelMap model, HttpSession session) throws Exception {
         if (result.hasErrors()) {
     		model.addAttribute("notice", "Errors found, settings could not be saved");	

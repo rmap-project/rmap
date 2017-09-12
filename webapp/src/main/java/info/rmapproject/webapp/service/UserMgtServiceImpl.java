@@ -48,7 +48,7 @@ public class UserMgtServiceImpl implements UserMgtService {
 	/** The RMap Auth service. */
 	@Autowired
 	private RMapAuthService rmapAuthService;
-
+		
 	/* (non-Javadoc)
 	 * @see info.rmapproject.webapp.service.UserMgtService#addApiKey(info.rmapproject.auth.model.ApiKey)
 	 */
@@ -86,12 +86,14 @@ public class UserMgtServiceImpl implements UserMgtService {
 	 */
 	@Override
 	public int addUser(User user, OAuthProviderAccount account) {
-		//first 
-		UserIdentityProvider idProvider = makeUserIdentityProviderFromOAuthAcct(account, -1);
-		Set<UserIdentityProvider> idProviderSet = new HashSet<UserIdentityProvider>();
-		idProviderSet.add(idProvider);
-		user.setUserIdentityProviders(idProviderSet);
-		return rmapAuthService.addUser(user);
+		if (account!=null){ // will be null if being created by admin usersa
+			UserIdentityProvider idProvider = makeUserIdentityProviderFromOAuthAcct(account, -1);
+			Set<UserIdentityProvider> idProviderSet = new HashSet<UserIdentityProvider>();
+			idProviderSet.add(idProvider);
+			user.setUserIdentityProviders(idProviderSet);
+		}
+		int userId = rmapAuthService.addUser(user);
+		return userId;
 		
 	}
 	
@@ -114,6 +116,15 @@ public class UserMgtServiceImpl implements UserMgtService {
 	public User getUserById(int userId) {
 		return rmapAuthService.getUserById(userId);
 	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.UserMgtService#getUsers(String)
+	 */
+	@Override
+	public List<User> getUsers(String filter) {
+		return rmapAuthService.getUsers(filter);
+	}
+	
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.webapp.service.UserMgtService#loadUserFromOAuthAccount(info.rmapproject.webapp.auth.OAuthProviderAccount)
@@ -177,7 +188,5 @@ public class UserMgtServiceImpl implements UserMgtService {
 		
 		return newAccount;
 	}
-	
-	
 	
 }

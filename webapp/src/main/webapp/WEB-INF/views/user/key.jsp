@@ -70,7 +70,7 @@
 			
 		</fieldset>
 		<div id="formButtons">
-			<a href="<c:url value='/user/keys' />">Cancel</a>&nbsp;&nbsp;
+			<a href="<c:url value='${isAdmin ? \"/admin\":\"\"}/user/keys' />">Cancel</a>&nbsp;&nbsp;
 			<input type="submit" value="Save"/>
 		</div>	
 	</form:form>

@@ -19,11 +19,11 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service;
 
+import java.util.List;
+
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
 import info.rmapproject.webapp.auth.OAuthProviderAccount;
-
-import java.util.List;
 
 /**
  * User management service interface for accessing methods that manage
@@ -67,6 +67,7 @@ public interface UserMgtService {
 	 * Adds the User.
 	 *
 	 * @param user the User
+	 * @param oauth account. Null if there being created by admin.
 	 * @return the new User ID
 	 */
 	public int addUser(User user, OAuthProviderAccount account);
@@ -85,6 +86,15 @@ public interface UserMgtService {
 	 * @return the User by ID
 	 */
 	public User getUserById(int userId);
+
+	/**
+	 * Retrieves list of all Users with filter applied. Set filter to null for no filtering.
+	 * Filters on userId, name, email, rmapAgentUri, or authKeyUri
+	 *
+	 * @param string to filter users by
+	 * @return List of all users
+	 */
+	public List<User> getUsers(String filter);
 	
 	/**
 	 * Load user from OAuth account.
@@ -102,4 +112,5 @@ public interface UserMgtService {
 	 * @return the record ID for the new User ID Provider
 	 */
 	public int addUserIdentityProvider(int userId, OAuthProviderAccount account);
+	
 }

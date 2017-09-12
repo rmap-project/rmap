@@ -7,9 +7,15 @@
 
 
 <tl:pageStartStandard user="${user}" pageTitle="Settings"/>
+
+	<c:set var="isAdmin" value="${sessionScope.adminLoggedIn==null ? false : sessionScope.adminLoggedIn}"/>
         
 	<article class="eleven columns main-content">
-		<h1>Settings</h1>
+		<h1>Settings
+		<c:if test="${isAdmin && user.getName().length()>0}">
+			for "${user.getName()}"
+		</c:if>
+		</h1>
 		
 		<br/>
 		<form:form method="POST" modelAttribute="userSettings">
@@ -39,7 +45,7 @@
 				<br/><br/>
 				<em>An RMap:Agent is required for writing to the public RMap repository. 
 				If "Yes" is selected, the following RMap:Agent will be copied to the PUBLIC RMap database 
-				<strong>when you create your first DiSCO</strong> and will be associated with your content. This Agent cannot be deleted.</em>
+				<strong>the first time a DiSCO is created using this account</strong> and will be associated with this account's content. This Agent cannot be deleted.</em>
 				<br/><br/>
 				<p class="greybox">
 					<c:if test="${not user.hasRMapAgent()}">
@@ -69,7 +75,7 @@
 			</c:if>
 			</fieldset>	
 			<div id="formButtons">
-				<a href="<c:url value='/user/welcome'/>">Cancel</a>&nbsp;&nbsp;
+				<a href="<c:url value='${isAdmin ? \"/admin/users\" : \"/user/welcome\" }'/>">Cancel</a>&nbsp;&nbsp;
 				<input type="submit" value="Save Changes"/>
 			</div>	
 			
