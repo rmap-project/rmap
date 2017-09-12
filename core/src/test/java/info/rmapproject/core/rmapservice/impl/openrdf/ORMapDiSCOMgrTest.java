@@ -23,6 +23,7 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -304,6 +305,19 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		}
 	}
 	
+	/**
+	 * Verifies that a DiSCO ID provided by the DiSCO creator gets moved to ProviderId field
+	 * and does not become the DiSCO ID.
+	 */
+	@Test
+	public void testCreateDiSCOWithProviderId() throws Exception {
+		String providerId = "ark:/00000/providerid";
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_WITH_PROVIDERID);
+		RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+		assertTrue(event!=null);
+		assertEquals(disco.getProviderId(),providerId); 		
+		assertFalse(disco.getId().equals(providerId));
+	}	
 	
 	/**
 	 * Test method creates a DiSCO, updates it, updates again, updates it with a different agent, deletes it, 
