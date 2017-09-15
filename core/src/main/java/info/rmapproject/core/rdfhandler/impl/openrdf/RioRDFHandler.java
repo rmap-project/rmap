@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -40,6 +39,7 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -58,10 +58,9 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
-import info.rmapproject.core.model.impl.openrdf.ORUtil;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class to convert linked data objects in RMap (RMapDiSCO, RMapTriple etc) to raw RDF
@@ -156,7 +155,7 @@ public class RioRDFHandler implements RDFHandler {
 	public RMapDiSCO rdf2RMapDiSCO(InputStream rdfIn, RDFType rdfFormat, String baseUri)
 			throws RMapException, RMapDefectiveArgumentException {
 		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
-		ORMapDiSCO disco = StatementsAdapter.asDisco(stmts, idSupplier);
+		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts, idSupplier);
 		return disco;
 	}
 	
@@ -167,14 +166,14 @@ public class RioRDFHandler implements RDFHandler {
 	public RMapAgent rdf2RMapAgent(InputStream rdfIn, RDFType rdfFormat, String baseUri) 
 			throws RMapException, RMapDefectiveArgumentException {
 		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
-		ORMapAgent agent = StatementsAdapter.asAgent(stmts, idSupplier);
+		ORMapAgent agent = OStatementsAdapter.asAgent(stmts, idSupplier);
 		return agent;
 	}
 
 	@Override
 	public RMapEvent rdf2RMapEvent(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException {
 		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
-		RMapEvent event = ORUtil.createORMapEventFromStmts(stmts);
+		RMapEvent event = OStatementsAdapter.asEvent(stmts);
 		return event;
 	}
 

@@ -23,7 +23,8 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 
-import java.net.URI;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,10 +35,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Supplier;
 
-import info.rmapproject.core.idservice.IdService;
-import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
@@ -67,13 +65,12 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.utils.Utils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
 
 /**
  * A concrete class for managing RMap DiSCOs, implemented using openrdf.
@@ -142,7 +139,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		catch (RMapObjectNotFoundException e){
 			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoID.stringValue(), e);
 		}
-		disco = StatementsAdapter.asDisco(discoStmts, idSupplier);
+		disco = OStatementsAdapter.asDisco(discoStmts, idSupplier);
 		
 		return disco;		
 	}

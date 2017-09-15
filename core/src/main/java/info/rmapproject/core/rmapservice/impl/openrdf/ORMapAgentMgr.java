@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -108,7 +108,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		catch (RMapObjectNotFoundException e) {
 			throw new RMapAgentNotFoundException ("No agent found with id " + agentId.toString(), e);
 		}
-		ORMapAgent agent = StatementsAdapter.asAgent(agentStmts, idSupplier);
+		ORMapAgent agent = OStatementsAdapter.asAgent(agentStmts, idSupplier);
 		return agent;
 	}
 	

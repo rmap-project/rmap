@@ -29,7 +29,7 @@ import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.openrdf.model.IRI;
@@ -152,7 +152,7 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapDiSCO disco = StatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + COUNTER.getAndIncrement()));
+		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + COUNTER.getAndIncrement()));
 		return disco;		
 	}
 
@@ -168,7 +168,7 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapAgent agent = StatementsAdapter.asAgent(stmts, () -> create("http://example.org/agent/" + COUNTER.getAndIncrement()));
+		ORMapAgent agent = OStatementsAdapter.asAgent(stmts, () -> create("http://example.org/agent/" + COUNTER.getAndIncrement()));
 		return agent;		
 	}
 	

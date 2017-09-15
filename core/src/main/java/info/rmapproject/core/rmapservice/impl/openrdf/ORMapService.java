@@ -22,6 +22,8 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -33,13 +35,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import info.rmapproject.core.idservice.IdService;
-import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -47,8 +48,7 @@ import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
@@ -60,13 +60,11 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.model.request.ResultBatchImpl;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import org.springframework.stereotype.Component;
-
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
 
 /**
  * The concrete class for RMap Service, implemented using openrdf
@@ -720,11 +718,10 @@ public class ORMapService implements RMapService {
 		
 		RMapEvent event = null;
 		try {
-			RMapValue rName = new RMapLiteral(name);
-			RMapIri rIdentityProvider = new RMapIri(identityProvider);
-			RMapIri rAuthKeyUri = new RMapIri(authKeyUri);
-			RMapAgent agent = new ORMapAgent(uri2OpenRdfIri(idService.createId()), rIdentityProvider, rAuthKeyUri,
-					rName);
+			Value rName = ORAdapter.getValueFactory().createLiteral(name);
+			IRI rIdentityProvider = uri2OpenRdfIri(identityProvider);
+			IRI rAuthKeyUri = uri2OpenRdfIri(authKeyUri);
+			RMapAgent agent = new ORMapAgent(uri2OpenRdfIri(idService.createId()), rIdentityProvider, rAuthKeyUri, rName);
 			RMapRequestAgent requestAgent = new RMapRequestAgent(new URI(agent.getId().toString()));
 			event = createAgent(agent, requestAgent);
 		} catch (URISyntaxException e) {

@@ -29,7 +29,7 @@ import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import info.rmapproject.core.model.impl.openrdf.StatementsAdapter;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.openrdf.model.IRI;
@@ -174,7 +174,7 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapDiSCO disco = StatementsAdapter.asDisco(stmts,
+		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts,
 				() -> create("http://example.org/disco/" + counter.getAndIncrement()));
 		return disco;		
 	}
@@ -191,7 +191,7 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 		InputStream stream = TestDataHandler.getTestData(testobj);
 		RioRDFHandler handler = new RioRDFHandler();	
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapAgent agent = StatementsAdapter.asAgent(stmts,
+		ORMapAgent agent = OStatementsAdapter.asAgent(stmts,
 				() -> create("http://example.org/agent/" + counter.getAndIncrement()));
 		return agent;		
 	}
