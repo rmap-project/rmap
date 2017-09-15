@@ -43,6 +43,8 @@ import org.openrdf.model.IRI;
  */
 public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMapEventCreation {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Instantiates a new RMap Creation Event.
 	 *

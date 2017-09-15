@@ -43,6 +43,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 public class ORMapEventTombstone extends ORMapEvent implements
 		RMapEventTombstone {
 
+	private static final long serialVersionUID = 1L;
+
 	/** The statement that defines the tombstoned object. */
 	protected Statement tombstoned;
 

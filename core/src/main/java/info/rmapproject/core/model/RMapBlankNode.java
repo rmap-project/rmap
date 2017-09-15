@@ -27,6 +27,8 @@ package info.rmapproject.core.model;
  */
 public class RMapBlankNode extends RMapResource {
 
+	private static final long serialVersionUID = 1L;
+
 	/** The blank node id. */
 	protected String id;
 

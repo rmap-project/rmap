@@ -43,6 +43,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  */
 public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion {
 
+	private static final long serialVersionUID = 1L;
+
 	/** The list of Statements containing deleted object IDs. */
 	protected List<Statement> deletedObjects;
 	

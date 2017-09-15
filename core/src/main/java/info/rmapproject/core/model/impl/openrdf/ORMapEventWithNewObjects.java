@@ -46,7 +46,9 @@ import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
  */
 public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 		RMapEventWithNewObjects {
-	
+
+	private static final long serialVersionUID = 1L;
+
 	/** List of statements that have references to IRIs of created objects. */
 	protected List<Statement> createdObjects;
 

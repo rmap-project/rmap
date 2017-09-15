@@ -56,6 +56,9 @@ import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
  *
  */
 public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * 1 or more Statements of the form discoID RMAP.AGGREGATES  Resource
 	 * Context will be discoID
