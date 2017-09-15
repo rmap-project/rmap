@@ -63,31 +63,6 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		setTypeStatement(RMapObjectType.AGENT);
 	}
 	
-
-	/**
-	 * Instantiates a new RMap Agent .
-	 *
-	 * @param id the Agent IRI (the id of the agent)
-	 * @param idProvider the id provider
-	 * @param authId the auth id
-	 * @param name the name
-	 * @throws RMapException the RMap exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	public ORMapAgent(IRI id, RMapIri idProvider, RMapIri authId, RMapValue name)
-			throws RMapException, RMapDefectiveArgumentException {
-		this(id);
-		try {
-			setIdProviderStmt(ORAdapter.rMapIri2OpenRdfIri(idProvider));
-			setAuthIdStmt(ORAdapter.rMapIri2OpenRdfIri(authId));
-			setNameStmt(ORAdapter.rMapValue2OpenRdfValue(name));
-		} catch (RMapDefectiveArgumentException ex1) {
-			throw ex1;
-		} catch(Exception ex2){
-			throw new RMapException("Error while initiating ORMapAgent", ex2);
-		}
-	}
-	
 	/**
 	 * Creates new RMap Agent object based on user provided agentIri, ID Provider, User Auth ID, and name.
 	 *

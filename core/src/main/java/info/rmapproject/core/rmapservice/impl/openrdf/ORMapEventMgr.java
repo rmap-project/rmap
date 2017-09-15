@@ -49,7 +49,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
-import info.rmapproject.core.model.impl.openrdf.ORUtil;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
@@ -188,7 +188,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		catch (RMapObjectNotFoundException e){
 			throw new RMapEventNotFoundException ("No event found for id " + eventId.stringValue(), e);
 		}		
-		event = ORUtil.createORMapEventFromStmts(eventStmts);
+		event = OStatementsAdapter.asEvent(eventStmts);
 		return event;
 	}
 

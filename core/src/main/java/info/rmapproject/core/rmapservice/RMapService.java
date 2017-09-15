@@ -441,20 +441,6 @@ public interface RMapService {
 	 */
 	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
 	
-	
-//	REMOVED FOR NOW - NOT CURRENTLY SUPPORTING AGENT DELETION	
-//	/**
-//	 * Tombstone an existing agent
-//	 * @param systemAgentId
-//	 * @param targetAgentID
-//	 * @return
-//	 * @throws RMapException
-//	 * @throws RMapDefectiveArgumentException
-//	 */
-//	public RMapEvent deleteAgent(URI systemAgentId, URI targetAgentID) throws RMapException, RMapAgentNotFoundException, 
-//	RMapDefectiveArgumentException;	
-	
-	
 	/**
 	 * Retrieves a list of Events that affected the Agent record.
 	 *

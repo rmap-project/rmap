@@ -25,7 +25,6 @@ package info.rmapproject.core.rdfhandler;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.function.Supplier;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -33,8 +32,6 @@ import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
-import org.openrdf.model.Resource;
-//import info.rmapproject.core.model.statement.RMapStatement;
 
 /**
  * The Interface to be used with any RDFHandlers.

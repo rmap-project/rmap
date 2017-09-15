@@ -155,14 +155,14 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
 			RioRDFHandler handler = new RioRDFHandler();
 			Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
-			ORMapDiSCO disco = StatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
+			ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
 			assertEquals(29, disco.getRelatedStatementsAsList().size());
 			OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);
 			String output = os.toString();
 			assertTrue(output.contains("Green, M."));
 			stream = TestDataHandler.getTestData(TestFile.DISCOB_V1_XML);
 			stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
-			disco = StatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
+			disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
 			assertTrue(true);
 		}
 		catch (RMapException e){
@@ -188,13 +188,13 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		relatedStmts.add(s2);
 		relatedStmts.add(s3);
 		relatedStmts.add(s4);
-		boolean referencesAggs = StatementsAdapter.referencesAggregate(disco, disco.aggregatedResources, relatedStmts);
+		boolean referencesAggs = OStatementsAdapter.referencesAggregate(disco, disco.aggregatedResources, relatedStmts);
 		assertTrue(referencesAggs);
 		relatedStmts.remove(s1);
-		referencesAggs = StatementsAdapter.referencesAggregate(disco, disco.aggregatedResources, relatedStmts);
+		referencesAggs = OStatementsAdapter.referencesAggregate(disco, disco.aggregatedResources, relatedStmts);
 		assertTrue(referencesAggs);
 		relatedStmts.remove(s2);
-		referencesAggs = StatementsAdapter.referencesAggregate(disco, disco.aggregatedResources, relatedStmts);
+		referencesAggs = OStatementsAdapter.referencesAggregate(disco, disco.aggregatedResources, relatedStmts);
 		assertFalse(referencesAggs);
 		
 	}
@@ -214,12 +214,12 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		relatedStmts.add(s2);
 		relatedStmts.add(s3);
 		relatedStmts.add(s4);
-		boolean isConnected = StatementsAdapter.isConnectedGraph(disco, relatedStmts);
+		boolean isConnected = OStatementsAdapter.isConnectedGraph(disco, relatedStmts);
 		assertTrue (isConnected);
 		// second test disjoint r->a  b->c
 		relatedStmts.remove(s2);
 		relatedStmts.remove(s4);
-		isConnected = StatementsAdapter.isConnectedGraph(disco, relatedStmts);
+		isConnected = OStatementsAdapter.isConnectedGraph(disco, relatedStmts);
 		assertFalse(isConnected);
 		// third test connected r->a  b->c r2->c c->b, handles cycle, duplicates
 		Statement s5 = vf.createStatement(r2,RMAP.DERIVEDOBJECT,c);
@@ -228,7 +228,7 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		relatedStmts.add(s6);
 		relatedStmts.add(s5);
 		relatedStmts.add(s7);
-		isConnected = StatementsAdapter.isConnectedGraph(disco, relatedStmts);
+		isConnected = OStatementsAdapter.isConnectedGraph(disco, relatedStmts);
 		assertTrue (isConnected);
 	}
 
