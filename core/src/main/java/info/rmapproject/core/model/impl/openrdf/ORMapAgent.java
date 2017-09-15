@@ -40,6 +40,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  * @author khanson, smorrissey
  */
 public class ORMapAgent extends ORMapObject implements RMapAgent {
+
+	private static final long serialVersionUID = 1L;
 	
 	/** The Agent's name stmt. */
 	protected Statement nameStmt;

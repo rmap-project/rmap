@@ -54,6 +54,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  *
  */
 public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
+
+	private static final long serialVersionUID = 1L;
 	
 	/** The event type stmt. */
 	protected Statement eventTypeStmt;  // will be set by constructor of concrete Event class

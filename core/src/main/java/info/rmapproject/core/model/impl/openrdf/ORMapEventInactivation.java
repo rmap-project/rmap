@@ -44,7 +44,9 @@ import org.openrdf.model.Statement;
  */
 public class ORMapEventInactivation extends ORMapEvent implements
 		RMapEventInactivation {
-	
+
+	private static final long serialVersionUID = 1L;
+
 	/** The statement that defines the inactivated object. */
 	protected Statement inactivatedObjectStatement;
 	

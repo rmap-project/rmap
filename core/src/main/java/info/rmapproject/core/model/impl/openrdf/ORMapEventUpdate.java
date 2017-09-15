@@ -46,6 +46,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  *
  */
 public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEventUpdate {
+
+	private static final long serialVersionUID = 1L;
 	
 	/** The statement containing the derived object id. */
 	protected Statement derivationStatement;

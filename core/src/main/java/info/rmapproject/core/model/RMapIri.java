@@ -30,6 +30,8 @@ import java.net.URI;
  */
 public class RMapIri extends RMapResource  {
 
+	private static final long serialVersionUID = 1L;
+
 	/** The IRI. */
 	URI iri;
 	

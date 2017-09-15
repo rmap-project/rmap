@@ -41,6 +41,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  */
 public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEventUpdateWithReplace {
 
+	private static final long serialVersionUID = 1L;
+
 	/** The statement containing the IRI of the updated object. */
 	protected Statement updatedObjectIdStmt;
 	
