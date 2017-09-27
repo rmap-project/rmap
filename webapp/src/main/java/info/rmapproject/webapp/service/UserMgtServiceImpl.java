@@ -105,7 +105,7 @@ public class UserMgtServiceImpl implements UserMgtService {
 		rmapAuthService.updateUserSettings(user);
 		if (user.hasRMapAgent() && user.isDoRMapAgentSync()){
 			// update the RMap Agent
-			rmapAuthService.createOrUpdateAgentFromUser(user.getUserId());
+			rmapAuthService.createOrUpdateAgentFromUser(user,null);
 		}
 	}
 	

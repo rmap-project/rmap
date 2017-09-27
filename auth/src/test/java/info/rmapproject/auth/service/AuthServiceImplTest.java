@@ -158,7 +158,8 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 		assertTrue(users.size()==1);
 		users = rmapAuthService.getUsers("nomatches");
 		assertTrue(users.size()==0);
-			
 	}
+	
+	
 		
 }

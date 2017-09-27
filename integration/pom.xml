@@ -228,7 +228,7 @@
                             <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
                             <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
                             <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
-                            <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,persistent-userservice</spring.profiles.active>
+                            <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
                             <info.aduna.platform.appdata.basedir>${project.build.testOutputDirectory}/sesame</info.aduna.platform.appdata.basedir>
                             <hibernate.hbm2ddl.auto>${hibernate.hbm2ddl.auto}</hibernate.hbm2ddl.auto>
                         </systemProperties>
@@ -337,7 +337,7 @@
                             <container>
                                 <systemProperties>
                                     <derby.system.home>${derby.home}</derby.system.home>
-                                    <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,persistent-userservice</spring.profiles.active>
+                                    <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
                                     <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
                                     <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
                                     <info.aduna.platform.appdata.basedir>${project.build.testOutputDirectory}/sesame</info.aduna.platform.appdata.basedir>
@@ -364,7 +364,7 @@
                         <sesame.http.context>${sesame.http.context}</sesame.http.context>
                         <sesame.workbench.context>${sesame.workbench.context}</sesame.workbench.context>
                         <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
-                        <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,persistent-userservice</spring.profiles.active>
+                        <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
                         <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
                         <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
                         <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>

@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.event.RMapEvent;
@@ -200,6 +201,26 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 				
 	}
 	
+	/**
+	 * Basic check that getResourceBatch returns not found if id is not available.
+	 * @throws Exception
+	 */
+	@Test
+	public void testGetResourceBatchWhenNoMatches() throws Exception {
+		// agent already exists, so create a disco
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
+		String discoUri = disco.getId().toString();
+        assertNotNull(discoUri);
+		rmapService.createDiSCO(disco, requestAgent);
+		String uriInDisco = "fakefake:uri";
+		try {
+			dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
+			fail("Should have thrown an RMapObjectNotFoundException");
+		} catch (RMapObjectNotFoundException ex) {
+			// it works!
+		}
+	}
+		
 	/**
 	 * Basic check on retrieval of DiSCO's table data
 	 * @throws Exception

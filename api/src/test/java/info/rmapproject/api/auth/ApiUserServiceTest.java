@@ -19,68 +19,76 @@
  *******************************************************************************/
 package info.rmapproject.api.auth;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 import java.net.URI;
 
-import org.junit.Ignore;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import info.rmapproject.api.ApiTestAbstract;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.auth.model.ApiKey;
+import info.rmapproject.auth.model.User;
+import info.rmapproject.auth.service.RMapAuthService;
+import info.rmapproject.core.rmapservice.RMapService;
 
 /**
  * ApiUserService tests
  */
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration({ "classpath:/spring-rmapapi-context.xml" })
-public class ApiUserServiceTest {
+public class ApiUserServiceTest extends ApiTestAbstract{
 
-	//TODO: The tests are not useful at the moment as they test against a mock object that does not mock
-	//the Users and ApiKeys involved. It used to connect to a test db with fake Users/Keys.
-	//Test strategy needs to be re-worked for this in order to do unit testing.
+	String testUserName = "RMap Test User";
+	String testKeyLabel = "RMap test key";
+	String testAccessKey = "uah2CKDaBsEw3cEQ";
+	String testSecret = "NSbdzctrP46ZvhTi";
+	String testAgentUri = "rmap:testagenturi";
 	
-	/** The API User Service. */
+	String testUserName2 = "Josephine Tester";
+	String testUserEmail2 = "jtester@example.edu";
+	String testAuthKeyUri2 = "http://authkeytest.org/hijklmno";
+	
+	
 	@Autowired
-	private ApiUserService apiUserService;	
+	RMapService rmapService;
+
+	@Autowired
+	RMapAuthService rmapAuthService;
 	
-	/** name of a test user that has no agent assigned yet. */
-	private static final String TEST_USER_NOAGENT = "usernoagent";
-
-	/** password for a test user that has no agent assigned yet. */
-	private static final String TEST_PASS_NOAGENT = "usernoagent";
-
-	/** name of a test user that has an agent assigned. */
-	private static final String TEST_USER_WITHAGENT = "userwithagent";
-
-	/** password for a test user that has an agent assigned. */
-	private static final String TEST_PASS_WITHAGENT = "userwithagent";
-
-	/** name of a test user for testing the user synchronization. */
-	private static final String TEST_USER_TESTSYNC = "usertestsync";
-
-	/** password for a test user for testing the user synchronization. */
-	private static final String TEST_PASS_TESTSYNC = "usertestsync";
+	@Autowired
+	ApiUserService apiUserService;
 	
+	AuthorizationPolicy authPolicy;
+
+	/** version of ApiUserService we will spy on - need to spy so that we can fake the AuthenticationPolicy*/
+	ApiUserService spyApiUserService;
+	
+	@Before
+	public void setup() throws Exception {
+		authPolicy = new AuthorizationPolicy();
+		authPolicy.setUserName(testAccessKey);
+		authPolicy.setPassword(testSecret);		
+		
+		spyApiUserService = spy(apiUserService);				
+	}
+
 	/**
 	 * Tests retrieval of the System Agent URI to assign to an Event
 	 * Should return an agent URI
 	 */
 	@Test
-	@Ignore //see comment at top of page
-	public void getSystemAgentUriForEventTest() {
-		try {
-			URI sysAgent = apiUserService.getCurrentSystemAgentUri();
-			assertTrue(sysAgent.toString().equals("rmap:rmaptestagent"));
-		} catch (RMapApiException e) {
-			fail("sysAgent not retrieved");
-		}
-		
+	public void testGetCurrentSystemAgentUri() throws Exception {
+		doReturn(authPolicy).when(spyApiUserService).getCurrentAuthPolicy();
+		URI sysAgent = spyApiUserService.getCurrentSystemAgentUri();
+		assertTrue(sysAgent.toString().equals(testAgentUri)); 
 	}
 	
 	/**
@@ -88,75 +96,95 @@ public class ApiUserServiceTest {
 	 * Should return exception saying the user has no Agent
 	 **/
 	@Test
-	@Ignore //see comment at top of page
-	public void getSystemAgentUriForEventTestNoAgent() {
-		try {
-			@SuppressWarnings("unused")
-			URI sysAgent = apiUserService.getSystemAgentUri(TEST_USER_NOAGENT,TEST_PASS_NOAGENT);
-			fail("An exception should have been thrown");
-		} catch (RMapApiException e) {
-			assertTrue(e.getErrorCode().equals(ErrorCode.ER_USER_HAS_NO_AGENT));
-		}		
+	public void testGetCurrentSystemAgentUriNoAgent() throws Exception {
+		User user = new User(testUserName2, testUserEmail2);
+		user.setAuthKeyUri(testAuthKeyUri2);
+		user.setDoRMapAgentSync(false);
+		int userId = rmapAuthService.addUser(user);
+
+		ApiKey apiKey = new ApiKey(); 
+		apiKey.setUserId(userId);
+		apiKey.setLabel("test");
+		rmapAuthService.addApiKey(apiKey);
+		
+		//set up default authpolicy
+		AuthorizationPolicy authPolicy2 = new AuthorizationPolicy();
+		authPolicy2.setUserName(apiKey.getAccessKey());
+		authPolicy2.setPassword(apiKey.getSecret());	
+		
+		doReturn(authPolicy2).when(spyApiUserService).getCurrentAuthPolicy();
+		URI currSystemAgent = spyApiUserService.getCurrentSystemAgentUri();
+		assertTrue(currSystemAgent==null);
 	}
 	
-	/**
-	 * Tests retrieval of a System Agent URI where user has an agent
-	 * Should return an Agent URI.
-	 */
-	@Test
-	@Ignore //see comment at top of page
-	public void getSystemAgentUriForEventTestWithAgent() {
-		try {
-			URI sysAgent = apiUserService.getSystemAgentUri(TEST_USER_WITHAGENT, TEST_PASS_WITHAGENT);
-			assertTrue(sysAgent.toString().equals("rmap:userwithagent"));
-		} catch (RMapApiException e) {
-			fail("sysAgent not retrieved");
-		}		
-	}
-
 	/**
 	 * Tests retrieval of an Agent that has been set up to synchronize with the database
 	 * should retrieve an Agent URI
 	 */
 	@Test
-	@Ignore //see comment at top of page
-	public void getSystemAgentUriForEventTestSyncAgent() {
-		try {
-			URI sysAgent = apiUserService.getSystemAgentUri(TEST_USER_TESTSYNC, TEST_PASS_TESTSYNC);
-			assertTrue(sysAgent.toString().length()>0);
-		} catch (RMapApiException e) {
-			fail("sysAgent not retrieved");
-		}		
+	public void testPrepareCurrentUserForWriteAccessWithSync() throws Exception {
+
+		doReturn(authPolicy).when(spyApiUserService).getCurrentAuthPolicy();
+		
+		URI userAgentId = spyApiUserService.getCurrentSystemAgentUri();
+		if (userAgentId==null) {
+			fail("This record should retrieve a default AgentUri");
+		}
+		assertFalse(rmapService.isAgentId(userAgentId));
+		
+		spyApiUserService.prepareCurrentUserForWriteAccess();
+
+		URI currUserAgentId = spyApiUserService.getCurrentSystemAgentUri();
+		assertEquals(currUserAgentId, userAgentId);
+		assertTrue(rmapService.isAgentId(currUserAgentId));
+		
 	}
-	
-	
+		
 	/**
 	 * Tests retrieval of a key URI to be associated with an event.
 	 * Should retrieve a key URI.
 	 */
 	@Test
-	@Ignore //see comment at top of page
-	public void getKeyUriForEventTest() {
-		try {
-			URI apiKeyUri = apiUserService.getApiKeyForEvent();
-			assertTrue(apiKeyUri.toString().equals("rmap:fakermaptestkey"));
-		} catch (RMapApiException e) {
-			fail("key not retrieved");
-		}
+	public void getKeyUriForEventWhereIncludeInEventTest() throws Exception {
+
+		String TESTKEY = "rmap:fakermaptestkey";
 		
+		//create agent with key that should include uri
+		User user = new User(testUserName2, testUserEmail2);
+		user.setAuthKeyUri(testAuthKeyUri2);
+		user.setDoRMapAgentSync(true);
+		int userId = rmapAuthService.addUser(user);
+
+		ApiKey apiKey = new ApiKey(); 
+		apiKey.setUserId(userId);
+		apiKey.setLabel("test");
+		apiKey.setKeyUri(TESTKEY);
+		apiKey.setIncludeInEvent(true);
+		rmapAuthService.addApiKey(apiKey);
+
+		//set up default authpolicy
+		AuthorizationPolicy authPolicy2 = new AuthorizationPolicy();
+		authPolicy2.setUserName(apiKey.getAccessKey());
+		authPolicy2.setPassword(apiKey.getSecret());	
+		
+		doReturn(authPolicy2).when(spyApiUserService).getCurrentAuthPolicy();
+		URI apiKeyUri = spyApiUserService.getApiKeyForEvent();
+		assertTrue(apiKeyUri.toString().equals(TESTKEY));
 	}
 
 	/**
 	 * Test user validation
 	 */
 	@Test
-	@Ignore //see comment at top of page
-	public void testValidateUser() {
+	public void testValidateUser() throws Exception {
 		try {
-			apiUserService.validateKey("rmaptest", "rmaptest");
+			apiUserService.validateKey("badkey", "badkey");
+			fail("Should have failed validation");
 		} catch (RMapApiException e) {
-			fail("validation failed");
+			assertTrue(e.getCause().getMessage().equals(info.rmapproject.auth.exception.ErrorCode.ER_ACCESSCODE_SECRET_NOT_FOUND.getMessage()));
 		}		
+		//validate good key - should not fail
+		apiUserService.validateKey(this.testAccessKey, this.testSecret);
 	}
 	
 	

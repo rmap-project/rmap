@@ -13,8 +13,12 @@
 	<br/>
 	<h2>What can I do here?</h2>
 	<br/>
-	<p>Logging in to the RMap Administrator tool allows you to <a href="<c:url value='/admin/users'/>">manage and administer keys for all RMap users</a>. 
-	By searching and navigating to specific DiSCOs, you can also hard delete these DiSCOs from RMap, per user request.</p>
+	<p>
+		<ul>
+			<li><a href="<c:url value='/admin/users'/>">Manage all users and administer keys</a></li>
+			<!-- <li>Hard delete specific DiSCOs from RMap, per user request.</li> -->
+		</ul>
+	</p>
 	<br/>
 	<br/>
 	<br/>

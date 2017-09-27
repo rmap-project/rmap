@@ -60,8 +60,8 @@ public interface ApiUserService {
 	public String getSecret() throws RMapApiException;
 
 	/**
-	 * Retrieves RMap:Agent URI associated with the current user if the User has 
-	 * an Agent ID that is not yet in the triplestore an Agent is created for them. 
+	 * Retrieves RMap:Agent URI associated with the current authenticated user.  
+	 * Returns null if there is no System Agent associated 
 	 *
 	 * @return URI of current RMap System Agent
 	 * @throws RMapApiException the RMap API Exception
@@ -69,8 +69,8 @@ public interface ApiUserService {
 	public URI getCurrentSystemAgentUri() throws RMapApiException;
 
 	/**
-	 * Retrieves RMap:Agent URI associated with the user/pass provided for use in the event
-	 * if the User has an Agent ID that is not yet in the triplestore an Agent is created for them. 
+	 * Retrieves RMap:Agent URI associated with the user/pass provided for use in the event.  
+	 * Returns null if there is no System Agent associated 
 	 *
 	 * @param key the key
 	 * @param secret the secret
@@ -93,7 +93,6 @@ public interface ApiUserService {
 	 * Where a user has specified that they want the Key URI to be included in the event, this will
 	 * retrieve the key URI using the login information provided.  If the user does not want to include
 	 * the key in the event this will return NULL
-	 * if the user has
 	 *
 	 * @param key the key
 	 * @param secret the secret
@@ -110,14 +109,41 @@ public interface ApiUserService {
 	 * @throws RMapApiException the RMap API Exception
 	 */
 	public void validateKey(String accessKey, String secret) throws RMapApiException;
-	
+
 	/**
-	 * Constructs current Request Agent object based on authenticated user .
+	 * This method prepares the current authenticated User to write to the RMap graph database.  
+	 * (1) A User may need an RMapAgent to be initialized if one does not already exist so that it can 
+	 * be associated with the RMapEvent of any changes. (2) It is also possible that the Agent information 
+	 * has changed and the User has opted to sync changes, in which case an Agent Update should take place 
+	 * before the Agent is used for other updates.  (3) Where a User has opted to record the apiKeyUri in the 
+	 * Event, this URI may need to be minted and saved back to the database.  
+	 *
+	 * @throws RMapApiException the RMap API Exception
+	 */
+	public void prepareCurrentUserForWriteAccess() throws RMapApiException;
+	
+
+	/**
+	 * This method prepares the User based on the key/secret provided to write to the RMap graph database.  
+	 * (1) A User may need an RMapAgent to be initialized if one does not already exist so that it can 
+	 * be associated with the RMapEvent of any changes. (2) It is also possible that the Agent information 
+	 * has changed and the User has opted to sync changes, in which case an Agent Update should take place 
+	 * before the Agent is used for other updates.  (3) Where a User has opted to record the apiKeyUri in the 
+	 * Event, this URI may need to be minted and saved back to the database.  
+	 *
+	 * @param accessKey the access key
+	 * @param secret the secret
+	 * @throws RMapApiException the RMap API Exception
+	 */
+	public void prepareUserForWriteAccess(String accessKey, String secret) throws RMapApiException;
+	
+
+	/**
+	 * Constructs current Request Agent object based on authenticated user. Throws exception if there is no Agent
 	 *
 	 * @return the current request agent
 	 * @throws RMapApiException the RMap API Exception
 	 */
 	public RMapRequestAgent getCurrentRequestAgent() throws RMapApiException;
-
 
 }

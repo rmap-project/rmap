@@ -117,7 +117,6 @@ public class AdminToolController {
 	public String welcomePage(Model model, HttpSession session) {
 		return "admin/welcome";
 	}
-	
 
 	/**
 	 * Logs out the user by completing the session.
@@ -134,7 +133,6 @@ public class AdminToolController {
     	session.setAttribute(ADMIN_LOGGEDIN_SESSATTRIB, false);        
 		return "redirect:/home"; 		
 	}		
-
 
 	/**
 	 * Page to manage all users
@@ -162,21 +160,6 @@ public class AdminToolController {
 	}			
 
 	/**
-	 * Page to redirect to user settings page when creating a new user
-	 *
-	 * @param status the session status
-	 * @return the home page
-	 * @throws Exception the exception
-	 */
-	@AdminLoginRequired
-	@RequestMapping(value="/admin/user/new", method=RequestMethod.GET)
-	public String newUserViaAdmin(Model model, HttpSession session) throws Exception {
-		User user = new User();
-		session.setAttribute("user", user);	//sets user as a new user			
-		return "redirect:/admin/user/settings"; 		
-	}	
-
-	/**
 	 * Page to redirect admin user to the user settings page
 	 *
 	 * @param status the session status
@@ -197,6 +180,49 @@ public class AdminToolController {
 		return "redirect:/admin/user/settings"; 		
 	}	
 	
+	/**
+	 * Retrieves new user form for Admin tool account.
+	 *
+	 * @param user the RMap User
+	 * @param result the form result
+	 * @param model the Spring model
+	 * @return the user settings page
+	 * @throws Exception the exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value={"/admin/user/new"}, method=RequestMethod.GET)
+	public String newUserFromForAdmin(ModelMap model, HttpSession session) throws Exception {
+        User user = new User();
+		//refresh session record and attribute
+		session.setAttribute("user",null);
+		model.addAttribute("userSettings",user);
+		return "user/settings"; 	
+	}
+
+	/**
+	 * Creates a new user using the admin tool
+	 *
+	 * @param user the RMap User
+	 * @param result the form result
+	 * @param model the Spring model
+	 * @return the user settings page
+	 * @throws Exception the exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value={"/admin/user/new"}, method=RequestMethod.POST)
+	public String createNewUserAsAdmin(@ModelAttribute("userSettings") @Valid User user, BindingResult result, ModelMap model, HttpSession session) throws Exception {
+        if (result.hasErrors()) {
+    		model.addAttribute("notice", "Errors found, user could not be saved");	
+            return "user/settings";
+        }
+		int userId = this.userMgtService.addUser(user, null);
+		user = this.userMgtService.getUserById(userId);
+		model.addAttribute("notice", "Account successfully created!");	
+		model.addAttribute("userSettings",user);
+		session.setAttribute("user",user);
+
+		return "user/settings"; 	
+	}
 
 	/**
 	 * Page to redirect admin user to the user settings page
@@ -218,31 +244,5 @@ public class AdminToolController {
 				
 		return "redirect:/admin/user/keys"; 		
 	}		
-		
-	
-	/**
-	 * Receives the POSTed Settings form to be processed. Returns any form errors.
-	 *
-	 * @param user the RMap User
-	 * @param result the form result
-	 * @param model the Spring model
-	 * @return the user settings page
-	 * @throws Exception the exception
-	 */
-	@AdminLoginRequired
-	@RequestMapping(value={"/admin/user/settings"}, method=RequestMethod.POST)
-	public String createNewUserAsAdmin(@ModelAttribute("userSettings") @Valid User user, BindingResult result, ModelMap model, HttpSession session) throws Exception {
-        if (result.hasErrors()) {
-    		model.addAttribute("notice", "Errors found, user could not be saved");	
-            return "admin/user/settings";
-        }
-		int userId = this.userMgtService.addUser(user, null);
-		user = this.userMgtService.getUserById(userId); //refresh record
-		session.setAttribute("user", user); //save latest user details to session
-		model.addAttribute("notice", "Account successfully created!");	
-		return "user/settings"; 	
-	}
-	
-	
 		
 }

@@ -9,7 +9,7 @@
 	<c:set var="isAdmin" value="${sessionScope.adminLoggedIn==null ? false : sessionScope.adminLoggedIn}"/>
 	<h1>Manage API keys
 	<c:if test="${sessionScope.adminLoggedIn && user.getName().length()>0}">
-		for ${user.getName()}
+		for "${user.getName()}"
 	</c:if>
 	</h1>
 	
@@ -27,8 +27,12 @@
 			${notice}
 		</p>
 	</c:if>
+	<br/>
 	<p style="text-align:right;">
-			<a href="<c:url value='${isAdmin ? \"/admin\":\"\"}/user/key/new'/>">Create new key</a>
+		<c:if test="${isAdmin}">
+			<a href="<c:url value='/admin/users'/>">Return to Users list&nbsp;&nbsp;|&nbsp;&nbsp;</a>
+		</c:if>
+		<a href="<c:url value='${isAdmin ? \"/admin\":\"\"}/user/key/new'/>">Create new key</a>
 	</p>
 	<c:if test="${empty apiKeyList}">	
 		<fieldset style="text-align:center;">

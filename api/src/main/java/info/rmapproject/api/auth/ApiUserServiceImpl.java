@@ -19,24 +19,23 @@
  *******************************************************************************/
 package info.rmapproject.api.auth;
 
-import info.rmapproject.api.exception.ErrorCode;
-import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.auth.exception.RMapAuthException;
-import info.rmapproject.auth.model.ApiKey;
-import info.rmapproject.auth.model.User;
-import info.rmapproject.auth.service.RMapAuthService;
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.request.RMapRequestAgent;
-import info.rmapproject.core.rmapservice.RMapService;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
+import info.rmapproject.auth.exception.RMapAuthException;
+import info.rmapproject.auth.model.ApiKey;
+import info.rmapproject.auth.model.User;
+import info.rmapproject.auth.service.RMapAuthService;
+import info.rmapproject.core.model.request.RMapRequestAgent;
 
 /**
  * Implementation of the API User Service, which manages interaction between rmap-auth and the API. 
@@ -44,14 +43,20 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ApiUserServiceImpl implements ApiUserService {
 
-	/** RMap Service instance */
-	@Autowired 
-	private RMapService rmapService;
-	
 	/** RMap Auth Service instance */
-	@Autowired
 	private RMapAuthService rmapAuthService;
 	
+	/**The log**/
+	private static final Logger log = LoggerFactory.getLogger(ApiUserServiceImpl.class);
+	
+	/** 
+	 * Constructor to create dependencies
+	 * @param rmapAuthService
+	 */
+	@Autowired
+	public ApiUserServiceImpl(final RMapAuthService rmapAuthService) {
+		this.rmapAuthService = rmapAuthService;
+	}
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.api.auth.ApiUserServiceInt#getCurrentAuthPolicy()
@@ -64,6 +69,7 @@ public class ApiUserServiceImpl implements ApiUserService {
 	    if (authorizationPolicy == null) {
 	        throw new RMapApiException(ErrorCode.ER_COULD_NOT_RETRIEVE_AUTHPOLICY);
 	        }
+	    log.debug("Authorization policy retrieved with username " + ((authorizationPolicy.getUserName()==null) ? "" : authorizationPolicy.getUserName()));
 	    return authorizationPolicy;
 	}
 	
@@ -87,16 +93,13 @@ public class ApiUserServiceImpl implements ApiUserService {
 		
 	
     /* (non-Javadoc)
-	 * @see info.rmapproject.api.auth.ApiUserServiceInt#getSystemAgentUriForEvent()
+	 * @see info.rmapproject.api.auth.ApiUserServiceInt#getCurrentSystemAgentUri()
 	 */
 	public URI getCurrentSystemAgentUri() throws RMapApiException {
 	    AuthorizationPolicy policy = getCurrentAuthPolicy();
 		String key = policy.getUserName();
 		String secret = policy.getPassword();
 		URI sysAgentUri = getSystemAgentUri(key, secret);
-		if (sysAgentUri==null) {
-			throw new RMapApiException(ErrorCode.ER_USER_HAS_NO_AGENT);				
-		}
 		return sysAgentUri;
 	}
 	
@@ -110,36 +113,64 @@ public class ApiUserServiceImpl implements ApiUserService {
 		try {
 			User user = rmapAuthService.getUserByKeySecret(key, secret);
 			String agentUri = user.getRmapAgentUri();
-			if (agentUri==null){
-				//no agent id
-				throw new RMapApiException(ErrorCode.ER_USER_HAS_NO_AGENT);				
+		    log.debug("Retrieved System Agent as " + ((agentUri==null) ? "" : agentUri));
+			if (agentUri==null || agentUri.length()==0){
+				return null;
 			}
-
-			rmapAuthService.createOrUpdateAgentFromUser(user.getUserId());	
-
 			sysAgentUri = new URI(agentUri);
-			if (!rmapService.isAgentId(sysAgentUri)){
-				//there is no agent id and no flag to create one
-				throw new RMapApiException(ErrorCode.ER_USER_HAS_NO_AGENT);
-			}
+			
 
-		} catch (RMapException e) {
-			e.printStackTrace();
-		} catch (RMapDefectiveArgumentException e) {
-			e.printStackTrace();
 		} catch (RMapAuthException ex) {
 			throw RMapApiException.wrap(ex, ErrorCode.ER_USER_AGENT_COULD_NOT_BE_RETRIEVED);
 		}  catch (URISyntaxException ex) {
 			throw RMapApiException.wrap(ex, ErrorCode.ER_INVALID_AGENTID_FOR_USER);
-		} finally {
-			rmapService.closeConnection();			
+		} catch (Exception e) {
+			throw RMapApiException.wrap(e);
 		}
 		
 		return sysAgentUri;
 	}
 		
     /* (non-Javadoc)
-	 * @see info.rmapproject.api.auth.ApiUserServiceInt#getApiKeyUriForEvent()
+	 * @see info.rmapproject.api.auth.ApiUserServiceInt#prepareCurrentUserForWriteAccess()
+	 */
+	@Override
+	public void prepareCurrentUserForWriteAccess() throws RMapApiException {
+		prepareUserForWriteAccess(getAccessKey(), getSecret());
+	}
+
+    /* (non-Javadoc)
+	 * @see info.rmapproject.api.auth.ApiUserServiceInt#prepareUserForWriteAccess(String, String)
+	 */
+	@Override
+	public void prepareUserForWriteAccess(String accessKey, String secret) throws RMapApiException {
+		try {
+			log.debug("Retrieving apiKey for accessKey " + ((accessKey==null) ? "" : accessKey));
+			//If apiKeyUri will be included in Event, make sure it has been generated
+			ApiKey apiKey = rmapAuthService.getApiKeyByKeySecret(accessKey, secret);
+			String keyUri = null;
+			if (apiKey.isIncludeInEvent()) {
+				keyUri = apiKey.getKeyUri();
+				if ((keyUri==null || keyUri.length()==0)) {
+					keyUri = rmapAuthService.assignApiKeyUri(apiKey.getApiKeyId());
+				}
+				log.debug("apiKey URI " + ((keyUri==null) ? "" : accessKey) + " will be included in any change Event in RMap");
+			}
+			
+			User user = rmapAuthService.getUserByKeySecret(accessKey, secret); //refresh
+			log.debug("User '" + ((user.getName()==null) ? "" : user.getName()) + "' is being compared to RMap Agent for updates");
+			rmapAuthService.createOrUpdateAgentFromUser(user, keyUri);	
+
+		} catch (RMapAuthException ex) {
+			throw RMapApiException.wrap(ex, ErrorCode.ER_USER_AGENT_COULD_NOT_BE_RETRIEVED);
+		} catch (Exception e) {
+			throw RMapApiException.wrap(e);
+		}
+	}
+		
+	
+    /* (non-Javadoc)
+	 * @see info.rmapproject.api.auth.ApiUserServiceInt#getApiKeyForEvent()
 	 */
 	@Override
 	public URI getApiKeyForEvent() throws RMapApiException {
@@ -195,9 +226,12 @@ public class ApiUserServiceImpl implements ApiUserService {
 	 */
 	@Override
 	public RMapRequestAgent getCurrentRequestAgent() throws RMapApiException {
+		URI currSystemAgent = getCurrentSystemAgentUri();
+		if (currSystemAgent ==  null){
+			throw new RMapApiException(ErrorCode.ER_USER_HAS_NO_AGENT);
+		}
 		RMapRequestAgent requestAgent = new RMapRequestAgent(getCurrentSystemAgentUri(), getApiKeyForEvent());
 		return requestAgent;
 	}
-
 
 }

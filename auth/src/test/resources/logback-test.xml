@@ -7,7 +7,7 @@
     </encoder>
     <target>System.err</target>
   </appender>
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="STDERR" />
   </root>
   <logger name="org.springframework" additivity="false" level="WARN">

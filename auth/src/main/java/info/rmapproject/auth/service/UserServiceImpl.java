@@ -20,9 +20,11 @@
 package info.rmapproject.auth.service;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,9 +36,7 @@ import info.rmapproject.auth.exception.ErrorCode;
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.User;
 import info.rmapproject.auth.model.UserIdentityProvider;
-import info.rmapproject.auth.utils.Constants;
 import info.rmapproject.auth.utils.Sha256HashGenerator;
-import info.rmapproject.core.idservice.IdService;
 
 /**
  * Service for access to Users related methods.
@@ -50,19 +50,23 @@ public class UserServiceImpl {
 
 //private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-	/** RMap core Id Generator Service. */
-	@Autowired 
-	IdService rmapIdService;
-	
 	/**References the Service implementation for UserIdProviders related methods*/
 	@Autowired
 	private UserIdProviderServiceImpl userIdProviderService; 
-	
 	
 	/** Users table data access component. */
 	@Autowired
 	UserDao userDao;
 
+	/** RMap core Id Generator Service. */
+	@Autowired
+	Supplier<URI> idSupplier;
+	
+	/** Prefix for authID*/
+	@Value("${rmapauth.authIdPrefix}")
+	private String authIdPrefix;
+		
+	/** To use where oauth idProvider not used because account was created via some other channel*/
 	@Value("${rmapauth.baseUrl}")
 	private String rmapBaseUrl;
 	
@@ -96,38 +100,73 @@ public class UserServiceImpl {
 	/**
 	 *  
 	 * Generate an authentication key for the user. This uses the idprovider name combined with
-	 * the user's idP public identifier to generate a sha256 hash string that forms the authentication key.
+	 * the user's idP public identifier where available, otherwise the default agent validator as specified 
+	 * in the properties plus the user email address, to generate a sha256 hash string that forms the authentication key.
 	 * Given these two pieces of information a 3rd party user can verify someone is who they say they are
 	 *
 	 * @param user the User
 	 * @return the User Auth Key
 	 */
-	public String generateAuthKey(User user){
+	public String generateAuthKey(User user) throws RMapAuthException {
 		try {
 			Set<UserIdentityProvider> idps = user.getUserIdentityProviders();
 			
-			if (idps.iterator().hasNext()){
+			String validatorName;
+			String validatorAccountId;
+			
+			if (idps!=null && idps.iterator().hasNext()){
 				UserIdentityProvider idp = idps.iterator().next();	
-				
-				String idpName=idp.getIdentityProvider();
-				String idpAccountId=idp.getProviderAccountPublicId();
-				String sha256IdHash = Sha256HashGenerator.getSha256Hash(idpName + idpAccountId);
-
-				String authKeyUri = rmapBaseUrl + Constants.AUTH_ID_FOLDER + "/" + sha256IdHash;
-						
-				User dupUser = getUserByAuthKeyUri(authKeyUri);
-				if (dupUser!=null){
-					throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage());				
-				}			
-				return authKeyUri;
-			}	 else {
-				return null;
+				validatorName=idp.getIdentityProvider();
+				validatorAccountId=idp.getProviderAccountPublicId();
+			} else {
+				//user was not created through oauth
+				validatorName=getRMapAdministratorPath();
+				validatorAccountId=user.getEmail();
 			}
+
+			String sha256IdHash = Sha256HashGenerator.getSha256Hash(validatorName + validatorAccountId);
+			String authKeyUri = authIdPrefix + sha256IdHash;
+			User dupUser = getUserByAuthKeyUri(authKeyUri);
+			if (dupUser!=null || validatorName==null || validatorName.length()==0 
+					|| validatorAccountId==null || validatorAccountId.length()==0){
+				throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage());				
+			}		
+			
+			return authKeyUri;
+			
+		} catch (RMapAuthException ex) {
+			throw ex;
 		} catch (Exception ex){
 			throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage(), ex);
 		}
 	}
 
+	/**
+	 * Assigns an RMapAgentUri to a User record. This will be used as the persistent ID for the RMapAgent
+	 * associated with the User. Returns the newly minted ID, or null if no new ID was required.
+	 * 
+	 * @param userId
+	 * @return agentUri
+	 */
+	public String assignRMapAgentUri(int userId) throws RMapAuthException {
+		User user = this.getUserById(userId);
+		String agentUri = null;
+		if (user!=null) {			
+			if (user.getRmapAgentUri()==null || user.getRmapAgentUri().length()==0){
+				try {
+					agentUri = idSupplier.get().toString();
+					user.setRmapAgentUri(agentUri);
+					this.updateUser(user);	
+				} catch (Exception e) {
+					throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AGENTURI.getMessage(), e);
+				}
+			}
+		} else {
+			throw new RMapAuthException(ErrorCode.ER_USER_RECORD_NOT_FOUND.getMessage());
+		}
+		return agentUri;
+	}
+	
 	/**
 	 * Only updates any changed settings from the GUI - i.e. name and email
 	 * Protects the rest of the record from accidental corruption.
@@ -140,18 +179,15 @@ public class UserServiceImpl {
 		final User user = getUserById(updatedUser.getUserId());
 		user.setName(updatedUser.getName());
 		user.setEmail(updatedUser.getEmail());
-		boolean currIsSetToAgentSync = user.isDoRMapAgentSync();
-		String currAgentUri = user.getRmapAgentUri();
-		//if the agent sync setting is switched on and there isn't already an agentURI
-		if (!currIsSetToAgentSync && updatedUser.isDoRMapAgentSync()
-				&& (currAgentUri==null || currAgentUri.length()==0)){
-			URI agentUri = null;
-			try {
-				agentUri = rmapIdService.createId();
-			} catch (Exception e) {
-				throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AGENTURI.getMessage(), e);
-			}
-			user.setRmapAgentUri(agentUri.toString());
+		Boolean oldIsActive = user.getIsActive();
+		user.setIsActive(updatedUser.getIsActive());
+		if (oldIsActive!=updatedUser.getIsActive()) {
+			//update cancellation date
+			if (updatedUser.getIsActive()) {
+				user.setCancellationDate(new Date());
+			} else {
+				user.setCancellationDate(null);
+			}			
 		}
 		user.setDoRMapAgentSync(updatedUser.isDoRMapAgentSync());
 		user.setLastAccessedDate(new Date());
@@ -226,33 +262,99 @@ public class UserServiceImpl {
 	}
 
 	/**
-	 * This is the public base URL associated with the RMap web application.  May be configured using the {@code
-	 * rmapauth.baseUrl} property.  Used to construct a unique Auth ID associated with a specific form of authentication
-	 * used by the user.  Should <em>not</em> end with a trailing slash.
+	 * Checks user is valid, if not it throws an error.
+	 * @param key
+	 * @param secret
+	 * @throws RMapAuthException
+	 */
+	public void validateUser(String key, String secret) throws RMapAuthException{
+		User user = getUserByKeySecret(key, secret);
+		if (user != null){
+			if (!user.getIsActive()){
+				throw new RMapAuthException(ErrorCode.ER_USER_ACCOUNT_REVOKED.getMessage());
+			}
+		}
+		else {
+			throw new RMapAuthException(ErrorCode.ER_ACCESSCODE_SECRET_NOT_FOUND.getMessage());
+		}
+	}
+		
+	/**
+	 * May be configured using the {@code rmapauth.authIdPrefix} property.  Used to construct a unique Auth ID 
+	 * associated with a specific form of authentication used by the user. 
 	 *
 	 * @return the public base URL associated with the RMap web application
 	 */
-	public String getRmapBaseUrl() {
+	public String getAuthIdPrefix() {
+		return authIdPrefix;
+	}
+
+	/**
+	 * This is the public base URL associated with the RMap web application.  May be configured using the {@code
+	 * rmapauth.authIdPrefix} property.  Used to construct a unique Auth ID associated with the Agent for the RMap instance
+	 *
+	 * @param authIdPrefix the prefix used for generating agent authIds
+	 * @throws IllegalArgumentException if {@code authIdPrefix} is empty, {@code null}, or does not form valid URI when sha256 string appended.
+	 */
+	public void setAuthIdPrefix(String authIdPrefix) {
+		if (authIdPrefix == null || authIdPrefix.trim().equals("")) {
+			throw new IllegalArgumentException(ErrorCode.ER_RMAP_AUTHID_PREFIX_CANNOT_BE_EMPTY.getMessage());
+		}
+
+		try {
+			new URI(authIdPrefix + "test");
+		} catch (Exception ex) {
+			throw new IllegalArgumentException(ErrorCode.ER_RMAP_AUTHID_PREFIX_MUST_PRODUCE_URI.getMessage(), ex);
+		}
+				
+		this.authIdPrefix = authIdPrefix;
+	}
+		
+	/**
+	 * May be configured using the {@code rmapauth.baseUrl} property.  Used to construct a unique Auth ID 
+	 * associated with a specific form of authentication used by the user.  .
+	 *
+	 * @return the default agent validator value
+	 */
+	public String getRMapBaseUrl() {
 		return rmapBaseUrl;
 	}
 
 	/**
 	 * This is the public base URL associated with the RMap web application.  May be configured using the {@code
-	 * rmapauth.baseUrl} property.  Used to construct a unique Auth ID associated with a specific form of authentication
-	 * used by the user.  Should <em>not</em> end with a trailing slash.
+	 * rmapauth.baseUrl} property.  Used as prefix for some Agent-related properties.  Must be a full URL and not end with a slash
 	 *
-	 * @param rmapBaseUrl the public base URL associated with the RMap web application
-	 * @throws IllegalArgumentException if {@code rmapBaseUrl} is empty, {@code null}, or ends with a slash
+	 * @param baseUrl the public base URL associated with the RMap web application
+	 * @throws IllegalArgumentException if {@code authIdPrefix} is empty, {@code null}, or ends with a slash
 	 */
-	public void setRmapBaseUrl(String rmapBaseUrl) {
+	public void setRMapBaseUrl(String rmapBaseUrl) {		
+		
 		if (rmapBaseUrl == null || rmapBaseUrl.trim().equals("")) {
-			throw new IllegalArgumentException("RMap base url must not be empty or null.");
+			throw new IllegalArgumentException(ErrorCode.ER_RMAP_BASEURL_CANNOT_BE_EMPTY.getMessage());
 		}
 
+		try {
+			new URL(rmapBaseUrl);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException(ErrorCode.ER_RMAP_BASEURL_MUST_BE_URL.getMessage(), ex);
+		}
+				
+	
 		if (rmapBaseUrl.trim().endsWith("/")) {
-			throw new IllegalArgumentException("RMap base url must not end with a slash.");
+			throw new IllegalArgumentException(ErrorCode.ER_RMAP_BASEURL_NO_TRAILING_SLASH.getMessage());
 		}
-
+	
 		this.rmapBaseUrl = rmapBaseUrl;
 	}
+	
+	
+	/**
+	 * Retrieve default RMap Administrator path for this system
+	 * @return
+	 */
+	public String getRMapAdministratorPath() {
+		return rmapBaseUrl + "#Administrator";
+	}
+	
+	
 }

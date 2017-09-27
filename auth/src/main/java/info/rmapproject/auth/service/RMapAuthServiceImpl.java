@@ -103,12 +103,22 @@ public class RMapAuthServiceImpl implements RMapAuthService {
 	public URI getAgentUriByKeySecret(String accessKey, String secret) throws RMapAuthException{
 		return apiKeyService.getAgentUriByKeySecret(accessKey,secret);
 	}
+    
+    /* (non-Javadoc)
+	 * @see info.rmapproject.auth.service.RMapAuthService#assignApiKeyUri(int)
+	 */
+    @Override	
+	public String assignApiKeyUri(int apiKeyId) {
+		return apiKeyService.assignApiKeyUri(apiKeyId);
+    }
+    
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.auth.service.RMapAuthService#validateApiKey(String,String)
 	 */
     @Override	
 	public void validateApiKey(String accessKey, String secret) throws RMapAuthException {
+    	userService.validateUser(accessKey, secret);
 		apiKeyService.validateApiKey(accessKey,secret);		
 	}
 	
@@ -174,14 +184,13 @@ public class RMapAuthServiceImpl implements RMapAuthService {
 	public User getUserByAuthKeyUri(String authKeyUri) {
         return userService.getUserByAuthKeyUri(authKeyUri);
 	}
-    
-	
+    	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.auth.service.RMapAuthService#createOrUpdateAgentFromUser(int)
+	 * @see info.rmapproject.auth.service.RMapAuthService#createOrUpdateAgentFromUser(User, String)
 	 */
     @Override
-	public RMapEvent createOrUpdateAgentFromUser(int userId) throws RMapAuthException {
-		return agentService.createOrUpdateAgentFromUser(userId);
+	public RMapEvent createOrUpdateAgentFromUser(User user, String apiKeyUri) throws RMapAuthException {
+		return agentService.createOrUpdateAgentFromUser(user, apiKeyUri);
 	}	
 
 	/* (non-Javadoc)
@@ -215,6 +224,11 @@ public class RMapAuthServiceImpl implements RMapAuthService {
     @Override
 	public List<UserIdentityProvider> getUserIdProviders(int userId) throws RMapAuthException{
 		return userIdProviderService.getUserIdProviders(userId);
+	}
+
+	@Override
+	public String assignRMapAgentUri(int userId) throws RMapAuthException {
+		return userService.assignRMapAgentUri(userId);
 	}
 		
 }

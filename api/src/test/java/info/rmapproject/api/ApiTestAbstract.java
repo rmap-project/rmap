@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Tests for ResponseManager.
@@ -33,6 +34,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:/beans.xml"})
+@Transactional
 public abstract class ApiTestAbstract {
 	
 	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
@@ -43,7 +45,7 @@ public abstract class ApiTestAbstract {
 	@BeforeClass
 	public static void setUpSpringProfiles() {
 		if (!activeProfilesPreSet) {
-			System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-userservice");
+			System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default,inmemory-db,inmemory-idservice,inmemory-triplestore");
 		}
 		if (!configPathPreSet) {
 			System.setProperty(RMAP_CONFIG_PROP, "classpath:/rmap.properties");

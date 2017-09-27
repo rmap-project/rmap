@@ -19,6 +19,16 @@
  *******************************************************************************/
 package info.rmapproject.auth.service;
 
+import java.net.URI;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Supplier;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import info.rmapproject.auth.dao.ApiKeyDao;
 import info.rmapproject.auth.exception.ErrorCode;
 import info.rmapproject.auth.exception.RMapAuthException;
@@ -26,16 +36,6 @@ import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.KeyStatus;
 import info.rmapproject.auth.utils.Constants;
 import info.rmapproject.auth.utils.RandomStringGenerator;
-import info.rmapproject.core.idservice.IdService;
-
-import java.net.URI;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service for access to ApiKey related methods.
@@ -55,7 +55,7 @@ public class ApiKeyServiceImpl {
 	
 	/** RMap core Id Generator Service. */
 	@Autowired
-	IdService rmapIdService;
+	Supplier<URI> idSupplier;
    
 	/**
 	 * Add new API Key.
@@ -69,29 +69,20 @@ public class ApiKeyServiceImpl {
 		String newAccessKey = RandomStringGenerator.generateRandomString(Constants.ACCESS_KEY_LENGTH);
 		String newSecret = RandomStringGenerator.generateRandomString(Constants.SECRET_LENGTH);
 		//check for the very unlikely occurrence that a duplicate key/secret combo is generated
-		URI agent = this.getAgentUriByKeySecret(newAccessKey, newSecret);
-		if (agent!=null){
+		ApiKey dupApiKey = this.getApiKeyByKeySecret(newAccessKey, newSecret);
+		if (dupApiKey!=null){
 			//a duplicate key combo!!! - try again...
 			newAccessKey = RandomStringGenerator.generateRandomString(Constants.ACCESS_KEY_LENGTH);
 			newSecret = RandomStringGenerator.generateRandomString(Constants.SECRET_LENGTH);
-			agent = null;
-			agent = this.getAgentUriByKeySecret(newAccessKey, newSecret);
-			if (agent!=null){
+			dupApiKey = null;
+			dupApiKey = this.getApiKeyByKeySecret(newAccessKey, newSecret);
+			if (dupApiKey!=null){
 				//there is probably a system problem at this point
 				throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_APIKEY.getMessage());
 			}
 		}
 		apiKey.setAccessKey(newAccessKey);
 		apiKey.setSecret(newSecret);
-		
-		//associate a keyuri that can be included in the event
-		URI keyUri = null;
-		try {
-			keyUri = rmapIdService.createId();
-		} catch (Exception e) {
-			throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_APIKEY.getMessage(), e);
-		}
-		apiKey.setKeyUri(keyUri.toString());
 		return apiKeyDao.addApiKey(apiKey);
 	}
 
@@ -162,6 +153,33 @@ public class ApiKeyServiceImpl {
 	}
 	
 	/**
+	 * Assign an ApiKeyUri that is a persistent identifier to be used with RMapEvents. Will return
+	 * null if no new key was required.
+	 * 
+	 * @param apiKeyId
+	 * @return new apiKeyUri if a new one is generated
+	 */
+	public String assignApiKeyUri(int apiKeyId) {
+		ApiKey apiKey = getApiKeyById(apiKeyId);
+		String keyUri = null;
+		if (apiKey!=null) {			
+			if (apiKey.getKeyUri()==null || apiKey.getKeyUri().length()==0) {
+				try {
+					keyUri = idSupplier.get().toString();
+					apiKey.setKeyUri(keyUri);
+					this.updateApiKey(apiKey);	
+				} catch (Exception e) {
+					throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_APIKEY.getMessage(), e);
+				}
+			}
+		} else {
+			throw new RMapAuthException(ErrorCode.ER_APIKEY_RECORD_NOT_FOUND.getMessage());
+		}
+		return keyUri;
+	}
+	
+	
+	/**
 	 * Validate an API key/secret combination to ensure the user has access to write to RMap.
 	 *
 	 * @param accessKey the access key
@@ -169,7 +187,7 @@ public class ApiKeyServiceImpl {
 	 * @throws RMapAuthException the RMap Auth exception
 	 */
 	public void validateApiKey(String accessKey, String secret) throws RMapAuthException {
-
+		
 		ApiKey apiKey = getApiKeyByKeySecret(accessKey, secret);
 
 		if (apiKey !=null){

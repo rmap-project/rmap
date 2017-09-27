@@ -23,6 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -38,19 +40,25 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.api.ApiDataCreationTestAbstract;
+import info.rmapproject.api.auth.ApiUserService;
+import info.rmapproject.api.auth.ApiUserServiceImpl;
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.responsemgr.versioning.ResourceVersions;
+import info.rmapproject.api.responsemgr.versioning.Timegate;
 import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.api.utils.HttpHeaderDateUtils;
 import info.rmapproject.api.utils.LinkRels;
+import info.rmapproject.api.utils.PathUtils;
+import info.rmapproject.auth.service.RMapAuthService;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -64,10 +72,24 @@ import info.rmapproject.testdata.service.TestFile;
  * @author khanson
  */
 public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
-		
-	/** The disco response manager. */
+			
 	@Autowired
+	protected Timegate timegate;
+	
+	@Autowired 
+	protected RMapAuthService rmapAuthService;
+
+	@Autowired
+	protected ApiUserService apiUserService;
+	
+	@Autowired
+	protected PathUtils pathUtils;
+	
+	/** The disco response manager. */
 	protected DiscoResponseManager discoResponseManager;
+	
+	/** The User service that will be spied on so that the user/pass can be injected */
+	ApiUserServiceImpl spyApiUserService;
 	
 	/**
 	 * Sets the up.
@@ -76,12 +98,17 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		try { 
-			super.setUp(); 
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Exception thrown " + e.getMessage());
-		}
+		super.setUp(); 
+		//going to spy on ApiUserService so that we can simulate basic auth.
+		String testAccessKey = "uah2CKDaBsEw3cEQ";
+		String testSecret = "NSbdzctrP46ZvhTi";
+		AuthorizationPolicy authPolicy = new AuthorizationPolicy();
+		authPolicy.setUserName(testAccessKey);
+		authPolicy.setPassword(testSecret);	
+		spyApiUserService = spy((ApiUserServiceImpl) apiUserService);
+		doReturn(authPolicy).when(spyApiUserService).getCurrentAuthPolicy();
+		discoResponseManager = new DiscoResponseManager(rmapService, rdfHandler, spyApiUserService, timegate);
+		discoResponseManager.setPathUtils(pathUtils);
 	}
 		
 
@@ -98,15 +125,9 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 	 * Test get DiSCO service head.
 	 */
 	@Test
-	public void testGetDiSCOServiceHead() {
+	public void testGetDiSCOServiceHead() throws Exception {
 		Response response = null;
-		try {
-			response = discoResponseManager.getDiSCOServiceHead();
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
-
+		response = discoResponseManager.getDiSCOServiceHead();
 		assertNotNull(response);
 		assertEquals(200, response.getStatus());	
 	}
@@ -395,43 +416,37 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 	 */
 	@Test
 	public void testGetRMapDiscoTimemap() throws Exception{
+		//create 1 disco
+		RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
+		String discoURIV1 = rmapDiscoV1.getId().toString();
+        assertNotNull(discoURIV1);
+        
+        //create another disco
+		RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
+		String discoURIV2 = rmapDiscoV2.getId().toString();
+        assertNotNull(discoURIV2);
+        
+		//create a disco using the test agent
+		rmapService.createDiSCO(rmapDiscoV1, requestAgent);
+
+		//update the disco
+		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
 		
-		try {
-			//create 1 disco
-			RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
-			String discoURIV1 = rmapDiscoV1.getId().toString();
-	        assertNotNull(discoURIV1);
-	        
-	        //create another disco
-			RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
-			String discoURIV2 = rmapDiscoV2.getId().toString();
-	        assertNotNull(discoURIV2);
-	        
-			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
-	
-			//update the disco
-			rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
-			
-	    	Response response=null;
-	    		
-			String encodedDiscoUriV1 = URLEncoder.encode(discoURIV1, "UTF-8");
-			String encodedDiscoUriV2 = URLEncoder.encode(discoURIV2, "UTF-8");
-	   		
-			//now check original DiSCO
-			response = discoResponseManager.getRMapDiSCOTimemap(encodedDiscoUriV1);
-			String responseBody = response.getEntity().toString();
-			assertTrue(responseBody.contains(encodedDiscoUriV1));
-			assertTrue(responseBody.contains(encodedDiscoUriV2));
-			assertEquals(200, response.getStatus());
-			String contentType = response.getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0).toString();
-			
-			assertTrue(contentType.equals(Constants.LINK_FORMAT_MEDIA_TYPE));
-			
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
+    	Response response=null;
+    		
+		String encodedDiscoUriV1 = URLEncoder.encode(discoURIV1, "UTF-8");
+		String encodedDiscoUriV2 = URLEncoder.encode(discoURIV2, "UTF-8");
+   		
+		//now check original DiSCO
+		response = discoResponseManager.getRMapDiSCOTimemap(encodedDiscoUriV1);
+		String responseBody = response.getEntity().toString();
+		assertTrue(responseBody.contains(encodedDiscoUriV1));
+		assertTrue(responseBody.contains(encodedDiscoUriV2));
+		assertEquals(200, response.getStatus());
+		String contentType = response.getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0).toString();
+		
+		assertTrue(contentType.equals(Constants.LINK_FORMAT_MEDIA_TYPE));
+
 	}
 	
 	
@@ -443,97 +458,92 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 	 */
 	@Test
 	public void testGetRMapDiscoTimegate() throws Exception{
+
+		//first create 3 versions of a disco
 		
-		try {
-			//first create 3 versions of a disco
-			
-			//create 1 disco
-			RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
-			String discoURIV1 = rmapDiscoV1.getId().toString();
-	        assertNotNull(discoURIV1);
-	        //create another disco
-			RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
-			String discoURIV2 = rmapDiscoV2.getId().toString();
-	        assertNotNull(discoURIV2);
-	        //create another disco
-			RMapDiSCO rmapDiscoV3 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V3_XML);
-			String discoURIV3 = rmapDiscoV3.getId().toString();
-	        assertNotNull(discoURIV3);
-	        
-			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
-			TimeUnit.SECONDS.sleep(3);
-			//update the disco
-			rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
-			TimeUnit.SECONDS.sleep(3);
-			//update the disco
-			rmapService.updateDiSCO(new URI(discoURIV2), rmapDiscoV3, requestAgent);
-				    		
-			String encodedDiscoUriV1 = URLEncoder.encode(discoURIV1, "UTF-8");
-			String encodedDiscoUriV2 = URLEncoder.encode(discoURIV2, "UTF-8");
-			String encodedDiscoUriV3 = URLEncoder.encode(discoURIV3, "UTF-8");
-			
-			//get versions list and use this to make test times
-			Map<Date, URI> versions = rmapService.getDiSCOAgentVersionsWithDates(new URI(discoURIV1));
-			ResourceVersions resourceVersions = new ResourceVersions(versions);
-			Date dat1 = resourceVersions.getFirstDate();
-			Calendar cal1 = Calendar.getInstance();
-			cal1.setTime(dat1);
-			cal1.add(Calendar.SECOND, -1);
-			Date dEarlierThanFirst = cal1.getTime();
-			
-			Date dat2 = resourceVersions.getLastDate();
-			
-			Calendar cal2 = Calendar.getInstance();
-			cal2.setTime(dat2);
-			cal2.add(Calendar.SECOND,  -1);
-			Date dBetweenVersions = cal2.getTime();
+		//create 1 disco
+		RMapDiSCO rmapDiscoV1 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V1_XML);
+		String discoURIV1 = rmapDiscoV1.getId().toString();
+        assertNotNull(discoURIV1);
+        //create another disco
+		RMapDiSCO rmapDiscoV2 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V2_XML);
+		String discoURIV2 = rmapDiscoV2.getId().toString();
+        assertNotNull(discoURIV2);
+        //create another disco
+		RMapDiSCO rmapDiscoV3 = TestUtils.getRMapDiSCO(TestFile.DISCOB_V3_XML);
+		String discoURIV3 = rmapDiscoV3.getId().toString();
+        assertNotNull(discoURIV3);
+        
+		//create a disco using the test agent
+		rmapService.createDiSCO(rmapDiscoV1, requestAgent);
+		TimeUnit.SECONDS.sleep(3);
+		//update the disco
+		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
+		TimeUnit.SECONDS.sleep(3);
+		//update the disco
+		rmapService.updateDiSCO(new URI(discoURIV2), rmapDiscoV3, requestAgent);
+			    		
+		String encodedDiscoUriV1 = URLEncoder.encode(discoURIV1, "UTF-8");
+		String encodedDiscoUriV2 = URLEncoder.encode(discoURIV2, "UTF-8");
+		String encodedDiscoUriV3 = URLEncoder.encode(discoURIV3, "UTF-8");
+		
+		//get versions list and use this to make test times
+		Map<Date, URI> versions = rmapService.getDiSCOAgentVersionsWithDates(new URI(discoURIV1));
+		ResourceVersions resourceVersions = new ResourceVersions(versions);
+		Date dat1 = resourceVersions.getFirstDate();
+		Calendar cal1 = Calendar.getInstance();
+		cal1.setTime(dat1);
+		cal1.add(Calendar.SECOND, -1);
+		Date dEarlierThanFirst = cal1.getTime();
+		
+		Date dat2 = resourceVersions.getLastDate();
+		
+		Calendar cal2 = Calendar.getInstance();
+		cal2.setTime(dat2);
+		cal2.add(Calendar.SECOND,  -1);
+		Date dBetweenVersions = cal2.getTime();
 
-			Calendar cal3 = Calendar.getInstance();
-			cal3.setTime(dat2);
-			cal3.add(Calendar.SECOND,  2);
-			Date dAfterLast = cal3.getTime();
-			
-			String sdEarlierThanFirst = HttpHeaderDateUtils.convertDateToString(dEarlierThanFirst);
-			String sdLaterThanLast = HttpHeaderDateUtils.convertDateToString(dAfterLast);
-			String sdBetweenVersions = HttpHeaderDateUtils.convertDateToString(dBetweenVersions);
-									
-			Response response1 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdEarlierThanFirst);
-			URI location1 = response1.getLocation();
-			//location should equal first:
-			assertTrue(location1.toString().contains(encodedDiscoUriV1));
-			
-			assertEquals(302, response1.getStatus());
-			
-			String links1 = response1.getLinks().toString();
-			assertTrue(links1.contains(encodedDiscoUriV1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
-			assertTrue(links1.contains(encodedDiscoUriV1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
-			
-			Response response2 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdLaterThanLast);
-			URI location2 = response2.getLocation();
-			//location should equal last
-			assertTrue(location2.toString().contains(encodedDiscoUriV3));
-			assertEquals(302, response2.getStatus());
+		Calendar cal3 = Calendar.getInstance();
+		cal3.setTime(dat2);
+		cal3.add(Calendar.SECOND,  2);
+		Date dAfterLast = cal3.getTime();
+		
+		String sdEarlierThanFirst = HttpHeaderDateUtils.convertDateToString(dEarlierThanFirst);
+		String sdLaterThanLast = HttpHeaderDateUtils.convertDateToString(dAfterLast);
+		String sdBetweenVersions = HttpHeaderDateUtils.convertDateToString(dBetweenVersions);
+								
+		Response response1 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdEarlierThanFirst);
+		URI location1 = response1.getLocation();
+		//location should equal first:
+		assertTrue(location1.toString().contains(encodedDiscoUriV1));
+		
+		assertEquals(302, response1.getStatus());
+		
+		String links1 = response1.getLinks().toString();
+		assertTrue(links1.contains(encodedDiscoUriV1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
+		assertTrue(links1.contains(encodedDiscoUriV1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
+		
+		Response response2 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdLaterThanLast);
+		URI location2 = response2.getLocation();
+		//location should equal last
+		assertTrue(location2.toString().contains(encodedDiscoUriV3));
+		assertEquals(302, response2.getStatus());
 
-			Response response3 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdBetweenVersions);
-			URI location3 = response3.getLocation();
-			//location should equal second to last
-			assertTrue(location3.toString().contains(encodedDiscoUriV2));
-			assertEquals(302, response3.getStatus());
-			
-			Response response4 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, null);
-			URI location4 = response4.getLocation();
-			//location should equal second to last
-			assertTrue(location4.toString().contains(encodedDiscoUriV3));
-			assertEquals(302, response4.getStatus());
-			String links4 = response4.getLinks().toString();
-			assertTrue(links4.contains(encodedDiscoUriV1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
-			assertTrue(links4.contains(encodedDiscoUriV1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
-			
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
+		Response response3 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, sdBetweenVersions);
+		URI location3 = response3.getLocation();
+		//location should equal second to last
+		assertTrue(location3.toString().contains(encodedDiscoUriV2));
+		assertEquals(302, response3.getStatus());
+		
+		Response response4 = discoResponseManager.getLatestRMapDiSCOVersion(encodedDiscoUriV1, null);
+		URI location4 = response4.getLocation();
+		//location should equal second to last
+		assertTrue(location4.toString().contains(encodedDiscoUriV3));
+		assertEquals(302, response4.getStatus());
+		String links4 = response4.getLinks().toString();
+		assertTrue(links4.contains(encodedDiscoUriV1 + "/timemap>;rel=\"" + LinkRels.TIMEMAP + "\""));
+		assertTrue(links4.contains(encodedDiscoUriV1 + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
+
 	}
 	
 	
