@@ -181,6 +181,26 @@ public class AdminToolController {
 	}	
 	
 	/**
+	 * Retrieves user settings page for admin user
+	 * @param model
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value={"/admin/user/settings"}, method=RequestMethod.GET)
+	public String editUserSettings(ModelMap model, HttpSession session) throws Exception {
+		try {
+			User user = (User) session.getAttribute("user");
+			model.addAttribute("userSettings",user);
+		} catch (Exception ex){
+			model.addAttribute("notice", "Could not retrieve user. Please select a user to edit.");	
+			return "redirect:/admin/users";
+		}
+		return "user/settings"; 	
+	}
+	
+	/**
 	 * Retrieves new user form for Admin tool account.
 	 *
 	 * @param user the RMap User
