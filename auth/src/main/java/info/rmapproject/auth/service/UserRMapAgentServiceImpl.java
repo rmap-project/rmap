@@ -59,20 +59,16 @@ public class UserRMapAgentServiceImpl {
 
 	private static final Logger log = LoggerFactory.getLogger(UserRMapAgentServiceImpl.class);
 	/**  Instance of rmapService for Core RMap functions. */
+	@Autowired
 	RMapService rmapService;
 	
 	/**  Instance of service for interaction with User data. */
+	@Autowired
 	UserServiceImpl userService;
 	
 	/** RMap ID generator */
-	Supplier<URI> idSupplier;
-
 	@Autowired
-	public UserRMapAgentServiceImpl(RMapService rmapService, UserServiceImpl userService, Supplier<URI> idSupplier) {
-		this.rmapService=rmapService;
-		this.userService=userService;
-		this.idSupplier=idSupplier;		
-	}
+	Supplier<URI> idSupplier;
 	
 	/**
 	 * Compares the user in the user database to the Agents in RMap. If the Agent is already in RMap
