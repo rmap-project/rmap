@@ -87,12 +87,12 @@ public class User {
 	private boolean doRMapAgentSync = false;
 	
 	/**List of ID provider records corresponding to the user.*/
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="userId")
 	private Set<UserIdentityProvider> userIdentityProviders = new HashSet<UserIdentityProvider>();
 
 	/** List of API Keys corresponding to the User*. */
-	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinColumn(name="userId")
 	private Set<ApiKey> apiKeys = new HashSet<ApiKey>();
 	
