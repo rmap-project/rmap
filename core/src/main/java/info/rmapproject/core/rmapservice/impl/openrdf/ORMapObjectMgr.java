@@ -79,16 +79,15 @@ public abstract class ORMapObjectMgr {
 		if (ts==null || id==null || typeIRI==null){
 			throw new RMapException("Null parameter passed");
 		}
-		boolean isCorrectType = false;
 		try {
-			Set<Statement> stmts = ts.getStatements(id, RDF.TYPE, typeIRI, id);
-			if (stmts != null && stmts.size()>0){
-				isCorrectType = true;
+			if (ts.getConnection().size(id)>0) {
+				return ts.getConnection().hasStatement(id, RDF.TYPE, typeIRI, false, id);
+			} else {
+				return false;
 			}
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown searching for object " + id.stringValue(), e);
 		}		
-		return isCorrectType;	
 	}
 
 	/**

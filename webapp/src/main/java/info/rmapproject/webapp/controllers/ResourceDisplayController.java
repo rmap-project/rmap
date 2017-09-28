@@ -94,8 +94,11 @@ public class ResourceDisplayController {
 		try {
 			if (resview==0) {
 				String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(sResourceUri));
+				log.debug("rmapType identified as " + rmapType);
 				if (rmapType.length()>0){
-					return "redirect:/" + rmapType.toLowerCase() + "s/" + URLEncoder.encode(sResourceUri, "UTF-8");
+					String redirectPath = "redirect:/" + rmapType.toLowerCase() + "s/" + URLEncoder.encode(sResourceUri, "UTF-8");
+					log.debug("Redirecting resource path to " + redirectPath);
+					return redirectPath;
 				}				
 			}
 			

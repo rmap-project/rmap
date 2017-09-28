@@ -29,9 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
@@ -51,6 +52,7 @@ import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdate;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rmapservice.RMapService;
@@ -74,7 +76,7 @@ import info.rmapproject.webapp.utils.WebappUtils;
  */
 public class DataDisplayServiceImpl implements DataDisplayService {
 
-	//private static final Logger logger = LoggerFactory.getLogger(DiSCOServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(DataDisplayServiceImpl.class);
 
 	/** The RMap Service. */
 	private RMapService rmapService;
@@ -103,23 +105,25 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	/** Max number of rows to show in node info popup **/
 	private int maxNodeInfoRows = 8;
 
-	@Autowired
 	private RMapSearchParamsFactory paramsFactory;
 
-	@Autowired
 	private GraphFactory graphFactory;
 
-	@Autowired
 	private TripleDisplayFormatFactory tripleDisplayFactory;
 
 	/**
 	 * Instantiates a new data display service implementation.
-	 *
-	 * @param rmapService the RMap Service
+	 * @param rmapService
+	 * @param paramsFactory
+	 * @param graphFactory
+	 * @param tripleDisplayFactory
 	 */
 	@Autowired 
-	public DataDisplayServiceImpl(RMapService rmapService){
+	public DataDisplayServiceImpl(RMapService rmapService, RMapSearchParamsFactory paramsFactory, GraphFactory graphFactory, TripleDisplayFormatFactory tripleDisplayFactory){
 		this.rmapService = rmapService;
+		this.paramsFactory = paramsFactory;
+		this.graphFactory = graphFactory;
+		this.tripleDisplayFactory = tripleDisplayFactory;
 		//this is to support customization of node types - support those who would like to categorize DiSCO and Agent 
 		//as something other than default.
 		try {
@@ -137,29 +141,31 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public DiSCODTO getDiSCODTO(String sDiscoUri) throws Exception {
-				
 		DiSCODTO discoDTO = new DiSCODTO();
-		
-		URI discoUri = new URI(sDiscoUri);	
-		discoDTO.setUri(discoUri);
-		
-		RMapDiSCO disco = rmapService.readDiSCO(discoUri);
-    	List <URI> aggregatedResources = disco.getAggregatedResources(); 	
-    	
-		discoDTO.setDescription(disco.getDescription());
-		discoDTO.setCreator(disco.getCreator());
-		discoDTO.setProvGeneratedBy(disco.getProvGeneratedBy());
-		discoDTO.setProviderId(disco.getProviderId());
-		
-		discoDTO.setAgentVersions(rmapService.getDiSCOAgentVersions(discoUri));
-		discoDTO.setAllVersions(rmapService.getDiSCOAllVersions(discoUri));
-		
-		discoDTO.setStatus(rmapService.getDiSCOStatus(discoUri));
-		discoDTO.setEvents(rmapService.getDiSCOEvents(discoUri));
-    	discoDTO.setAggregatedResources(aggregatedResources);
-	    discoDTO.setRelatedStatements(disco.getRelatedStatements());
-	    
-	    rmapService.closeConnection();
+		try {		
+			URI discoUri = new URI(sDiscoUri);	
+			discoDTO.setUri(discoUri);
+			
+			RMapDiSCO disco = rmapService.readDiSCO(discoUri);
+	    	List <URI> aggregatedResources = disco.getAggregatedResources(); 	
+	    	
+			discoDTO.setDescription(disco.getDescription());
+			discoDTO.setCreator(disco.getCreator());
+			discoDTO.setProvGeneratedBy(disco.getProvGeneratedBy());
+			discoDTO.setProviderId(disco.getProviderId());
+			
+			discoDTO.setAgentVersions(rmapService.getDiSCOAgentVersions(discoUri));
+			discoDTO.setAllVersions(rmapService.getDiSCOAllVersions(discoUri));
+			
+			discoDTO.setStatus(rmapService.getDiSCOStatus(discoUri));
+			discoDTO.setEvents(rmapService.getDiSCOEvents(discoUri));
+	    	discoDTO.setAggregatedResources(aggregatedResources);
+		    discoDTO.setRelatedStatements(disco.getRelatedStatements());
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 		return discoDTO;		
 	}
 	
@@ -168,50 +174,57 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public Graph getDiSCOGraph(DiSCODTO discoDTO) throws Exception {
-		Graph graph = graphFactory.newGraph();
-		String sDiscoUri = discoDTO.getUri().toString();
-						
-		if (WebappUtils.isUri(discoDTO.getCreator())) {
-			graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
-		}
-		
-		if (WebappUtils.isUri(discoDTO.getProviderId())) {
-			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(new URI(discoDTO.getProviderId()), discoDTO.getUri());
-			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
-			graph.addEdge(sDiscoUri, discoDTO.getProviderId(), RMAP.PROVIDERID.toString(), discoNodeType, targetNodeType);
-		}
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
-		
-		for (URI aggregate : discoDTO.getAggregatedResources()) {
-			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(aggregate, discoDTO.getUri());
-			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
-			graph.addEdge(sDiscoUri, aggregate.toString(),Terms.ORE_AGGREGATES_PATH, discoNodeType, targetNodeType);
-		}
-
-		List<RMapTriple> filteredTriples = new ArrayList<RMapTriple>();
-		
-		List<RMapTriple> triples = discoDTO.getRelatedStatements();
-		//remove literals and types from disco graph
-		for (RMapTriple triple:triples){
-			RMapIri pred = triple.getPredicate();
-			RMapValue obj = triple.getObject();
-			
-			if (!pred.toString().equals(RDF.TYPE.toString())
-					&& !(obj instanceof RMapLiteral)){
-				filteredTriples.add(triple);
+		Graph graph = null;
+		try {		
+				
+			graph = graphFactory.newGraph();
+			String sDiscoUri = discoDTO.getUri().toString();
+							
+			if (WebappUtils.isUri(discoDTO.getCreator())) {
+				graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
 			}
+			
+			if (WebappUtils.isUri(discoDTO.getProviderId())) {
+				List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(new URI(discoDTO.getProviderId()), discoDTO.getUri());
+				String targetNodeType = WebappUtils.getNodeType(rdfTypes);
+				graph.addEdge(sDiscoUri, discoDTO.getProviderId(), RMAP.PROVIDERID.toString(), discoNodeType, targetNodeType);
+			}
+			RMapSearchParams params = paramsFactory.newInstance();
+			params.setStatusCode(RMapStatusFilter.ACTIVE);
+			
+			for (URI aggregate : discoDTO.getAggregatedResources()) {
+				List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(aggregate, discoDTO.getUri());
+				String targetNodeType = WebappUtils.getNodeType(rdfTypes);
+				graph.addEdge(sDiscoUri, aggregate.toString(),Terms.ORE_AGGREGATES_PATH, discoNodeType, targetNodeType);
+			}
+	
+			List<RMapTriple> filteredTriples = new ArrayList<RMapTriple>();
+			
+			List<RMapTriple> triples = discoDTO.getRelatedStatements();
+			//remove literals and types from disco graph
+			for (RMapTriple triple:triples){
+				RMapIri pred = triple.getPredicate();
+				RMapValue obj = triple.getObject();
+				
+				if (!pred.toString().equals(RDF.TYPE.toString())
+						&& !(obj instanceof RMapLiteral)){
+					filteredTriples.add(triple);
+				}
+			}
+			
+			triples = null;
+	
+			if ((filteredTriples.size()+graph.getEdges().size())<=maxObjGraphRelationships){
+				graph = addTriplesToGraph(graph, filteredTriples, discoDTO.getUri());
+			} else {
+				//don't do graph because it's too large and will just be an unbearable mess!!
+				graph = null;
+			}
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
 		}
-		
-		triples = null;
-
-		if ((filteredTriples.size()+graph.getEdges().size())<=maxObjGraphRelationships){
-			graph = addTriplesToGraph(graph, filteredTriples, discoDTO.getUri());
-		} else {
-			//don't do graph because it's too large and will just be an unbearable mess!!
-			graph = null;
-		}
-		rmapService.closeConnection();
 		return graph;
 	}	
 
@@ -220,13 +233,13 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public List<ResourceDescription> getDiSCOTableData(DiSCODTO discoDTO, Integer offset) throws Exception {
+		
+		List<ResourceDescription> resourceDescriptions = new ArrayList<ResourceDescription>();
 
 		List<URI> aggregatedResources = discoDTO.getAggregatedResources(); 
 		List<RMapTriple> triples = discoDTO.getRelatedStatements(); 
 		
-	    List<ResourceDescription> resourceDescriptions = new ArrayList<ResourceDescription>();
-	    
-	    //first put other resources into an ordered sets (TreeSet)
+		//first put other resources into an ordered sets (TreeSet)
 	    Set<String> nonAggregatedResourcesDescribed = new TreeSet<String>();
 	    for (RMapTriple stmt:triples) {
 	    	nonAggregatedResourcesDescribed.add(stmt.getSubject().toString());
@@ -361,27 +374,34 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, Integer offset, PaginatorType view) throws Exception {
-		URI uri = new URI(resourceUri);
-
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
-		params.setExcludeTypes(true);	
-		params.setOffset(offset);
-		if (view.equals(PaginatorType.RESOURCE_GRAPH)){
-			params.setExcludeLiterals(true);	
-			params.setLimit(maxResGraphRelationships);
-		} else {
-			params.setLimit(maxTableRows);
+		ResultBatch<RMapTriple> triplebatch = null;
+		try {
+			URI uri = new URI(resourceUri);
+	
+			RMapSearchParams params = paramsFactory.newInstance();
+			params.setStatusCode(RMapStatusFilter.ACTIVE);
+			params.setExcludeTypes(true);	
+			params.setOffset(offset);
+			if (view.equals(PaginatorType.RESOURCE_GRAPH)){
+				params.setExcludeLiterals(true);	
+				params.setLimit(maxResGraphRelationships);
+			} else {
+				params.setLimit(maxTableRows);
+			}
+			
+			triplebatch = rmapService.getResourceRelatedTriples(uri, params);
+	    	
+			//if there are no triples, don't load an empty screen, show a not found error.
+			//note that because only connected graphs are allowed, every URI should have at
+			//least one uri link.
+	    	if (triplebatch.size()==0)	{
+	    		throw new RMapObjectNotFoundException();
+	    	}
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
 		}
-		
-		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uri, params);
-    	
-		//if there are no triples, don't load an empty screen, show a not found error.
-		//note that because only connected graphs are allowed, every URI should have at
-		//least one uri link.
-    	if (triplebatch.size()==0)	{
-    		throw new RMapObjectNotFoundException();
-    	}
     	return triplebatch;
 	}
 	
@@ -392,9 +412,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch) throws Exception {
 		Graph graph = graphFactory.newGraph();
 		graph = addTriplesToGraph(graph, triplebatch.getResultList());  	
-		rmapService.closeConnection();
-		return graph;
-	    
+		return graph;	    
 	}
 
 	/* (non-Javadoc)
@@ -403,7 +421,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	@Override
 	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch) throws Exception {
 		ResourceDescription rd = getResourceDescription(resourceUri, triplebatch, null, true);
-	    rmapService.closeConnection();
 		return rd;
 	}			
 
@@ -413,7 +430,6 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	@Override
 	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch, String contextUri) throws Exception {
 		ResourceDescription rd = getResourceDescription(resourceUri, triplebatch, contextUri, true);
-	    rmapService.closeConnection();
 		return rd;
 	}		
 	
@@ -427,7 +443,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setLimit(maxResRelatedDiSCOs);
 		params.setOffset(offset);
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
-		ResultBatch<URI> relatedDiSCOs = rmapService.getResourceRelatedDiSCOs(new URI(resourceUri), params);
+		ResultBatch<URI> relatedDiSCOs = null;
+		try {
+			relatedDiSCOs = rmapService.getResourceRelatedDiSCOs(new URI(resourceUri), params);
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 		return relatedDiSCOs;
 	}
 	
@@ -476,18 +499,21 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	public AgentDTO getAgentDTO(String sAgentUri) throws Exception {
 				
 		AgentDTO agentDTO = new AgentDTO();
-		
-		URI agentUri = new URI(sAgentUri);	
-		agentDTO.setUri(agentUri);
-		
-		RMapAgent agent = rmapService.readAgent(agentUri);
-		agentDTO.setName(agent.getName());		
-		agentDTO.setStatus(rmapService.getAgentStatus(agentUri));
-		agentDTO.setEvents(rmapService.getAgentEvents(agentUri));
-		agentDTO.setIdProvider(agent.getIdProvider().getStringValue());
-		agentDTO.setAuthId(agent.getAuthId().getStringValue());
-			    	  	    	    
-	    rmapService.closeConnection();
+		try {
+			URI agentUri = new URI(sAgentUri);	
+			agentDTO.setUri(agentUri);
+			
+			RMapAgent agent = rmapService.readAgent(agentUri);
+			agentDTO.setName(agent.getName());		
+			agentDTO.setStatus(rmapService.getAgentStatus(agentUri));
+			agentDTO.setEvents(rmapService.getAgentEvents(agentUri));
+			agentDTO.setIdProvider(agent.getIdProvider().getStringValue());
+			agentDTO.setAuthId(agent.getAuthId().getStringValue());
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 		
 		return agentDTO;
 	}
@@ -515,8 +541,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setStatusCode(RMapStatusFilter.ACTIVE);	   
 		params.setOffset(offset);
 		params.setLimit(maxAgentDiSCOs);
-	    rmapService.closeConnection();
-		ResultBatch<URI> agentDiSCOs = rmapService.getAgentDiSCOs(new URI(agentUri), params);
+		ResultBatch<URI> agentDiSCOs = null;
+		try {
+			agentDiSCOs = rmapService.getAgentDiSCOs(new URI(agentUri), params);
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 		return agentDiSCOs;
 	}
 	
@@ -529,26 +561,31 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			
 		EventDTO eventDTO = new EventDTO();
 
-		URI eventUri = new URI(sEventUri);
-		eventDTO.setUri(eventUri);
-		
-		RMapEvent event = rmapService.readEvent(eventUri);
-		RMapValue description = event.getDescription();
-		if (description!=null) {
-			eventDTO.setDescription(description);
-		}	
-		eventDTO.setAssociatedAgent(event.getAssociatedAgent());
-		eventDTO.setAssociatedKey(event.getAssociatedKey());
-		eventDTO.setTargetType(event.getEventTargetType());
-		eventDTO.setStartTime(event.getStartTime());
-		eventDTO.setEndTime(event.getEndTime());
-
-		RMapEventType eventType = event.getEventType();
-		eventDTO.setType(eventType);
-		
-	    Map<String, String> resourcesAffected = getEventResourcesAffected(event, eventType);
-	    eventDTO.setResourcesAffected(resourcesAffected);  
-	    rmapService.closeConnection();
+		try {
+			URI eventUri = new URI(sEventUri);
+			eventDTO.setUri(eventUri);
+			
+			RMapEvent event = rmapService.readEvent(eventUri);
+			RMapValue description = event.getDescription();
+			if (description!=null) {
+				eventDTO.setDescription(description);
+			}	
+			eventDTO.setAssociatedAgent(event.getAssociatedAgent());
+			eventDTO.setAssociatedKey(event.getAssociatedKey());
+			eventDTO.setTargetType(event.getEventTargetType());
+			eventDTO.setStartTime(event.getStartTime());
+			eventDTO.setEndTime(event.getEndTime());
+	
+			RMapEventType eventType = event.getEventType();
+			eventDTO.setType(eventType);
+			
+		    Map<String, String> resourcesAffected = getEventResourcesAffected(event, eventType);
+		    eventDTO.setResourcesAffected(resourcesAffected);  
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 	
 	    return eventDTO;
 	}
@@ -568,9 +605,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setOffset(offset);
 		params.setLimit(maxNodeInfoRows);
 		
-		ResultBatch<RMapTriple> triplebatch = rmapService.getResourceRelatedTriples(uri, params);
-				
-		rmapService.closeConnection();
+		ResultBatch<RMapTriple> triplebatch = null;
+		try {
+			triplebatch=rmapService.getResourceRelatedTriples(uri, params);
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}		
 		return triplebatch;
 	}
 	
@@ -590,8 +632,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setOffset(offset);
 		params.setLimit(maxNodeInfoRows);
 		
-		ResultBatch<RMapTriple> resultbatch = rmapService.getResourceRelatedTriples(resourceUri, graphUri, params);
-		rmapService.closeConnection();
+		ResultBatch<RMapTriple> resultbatch = null;
+		try {
+			resultbatch= rmapService.getResourceRelatedTriples(resourceUri, graphUri, params);
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 		return resultbatch;
 	}
 	
@@ -707,8 +755,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		if (contextUri==null){
 			return getResourceRDFTypes(resourceUri);
 		}
-		List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(resourceUri, contextUri);
-		rmapService.closeConnection();
+		List<URI> rdfTypes = null;
+		try {
+			rdfTypes = rmapService.getResourceRdfTypesInDiSCO(resourceUri, contextUri);
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 		return rdfTypes;
 	}	
 		
@@ -719,22 +773,27 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	public List<URI> getResourceRDFTypes(URI resourceUri) throws Exception{
 		List<URI> rdfTypes = new ArrayList<URI>();
 		
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
-
-		Map <URI, Set<URI>> types = rmapService.getResourceRdfTypesAllContexts(resourceUri, params);
-		
-		if (types!=null){
-			for (Map.Entry<URI, Set<URI>> type : types.entrySet()){
-				Set<URI> contexttypes = type.getValue();
-				for (URI contexttype : contexttypes) {
-					if (contexttype!=null&!rdfTypes.contains(contexttype)) {
-						rdfTypes.add(contexttype);
+		try {
+			RMapSearchParams params = paramsFactory.newInstance();
+			params.setStatusCode(RMapStatusFilter.ACTIVE);
+	
+			Map <URI, Set<URI>> types = rmapService.getResourceRdfTypesAllContexts(resourceUri, params);
+			
+			if (types!=null){
+				for (Map.Entry<URI, Set<URI>> type : types.entrySet()){
+					Set<URI> contexttypes = type.getValue();
+					for (URI contexttype : contexttypes) {
+						if (contexttype!=null&!rdfTypes.contains(contexttype)) {
+							rdfTypes.add(contexttype);
+						}
 					}
 				}
-			}
-		}		
-		rmapService.closeConnection();
+			}		
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 		return rdfTypes;
 	}
 		
@@ -749,73 +808,77 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	private Map<String, String> getEventResourcesAffected(RMapEvent event, RMapEventType eventType) throws Exception {
 
 	    Map<String, String> resourcesAffected = new HashMap<String, String>();
-	
-	    if (eventType == RMapEventType.CREATION){
-	    	RMapEventCreation creationEvent = (RMapEventCreation) event;
-	    	List<RMapIri> uris = creationEvent.getCreatedObjectIds();
-	    	for (RMapIri uri : uris){
-	    		rmapService.isDiSCOId(new java.net.URI(uri.toString()));
-	    		String type = getRMapTypeDisplayName(uri);
-	    		resourcesAffected.put(uri.toString(), "Created " + type);
-	    	}
-	    }
-	    else if (eventType == RMapEventType.DELETION)	{
-	    	RMapEventDeletion deletionEvent = (RMapEventDeletion) event;
-	    	List<RMapIri> uris = deletionEvent.getDeletedObjectIds();
-	    	for (RMapIri uri : uris){
-	    		String type = getRMapTypeDisplayName(uri);
-	    		resourcesAffected.put(uri.toString(), "Deleted " + type);
-	    	}
-	    }
-	    else if (eventType == RMapEventType.TOMBSTONE)	{
-	    	RMapEventTombstone tombstoneEvent = (RMapEventTombstone) event;
-	    	RMapIri uri = tombstoneEvent.getTombstonedResourceId();
-			String type = getRMapTypeDisplayName(uri);
-			resourcesAffected.put(uri.toString(), "Tombstoned " + type);
-	    }
-	    else if (eventType == RMapEventType.DERIVATION)	{
-	    	RMapEventDerivation derivationEvent = (RMapEventDerivation) event;
-	    	List<RMapIri> createdUris = derivationEvent.getCreatedObjectIds();
-	    	for (RMapIri uri : createdUris){
-	    		String type = getRMapTypeDisplayName(uri);
-	    		resourcesAffected.put(uri.toString(), "Created " + type);
-	    	}
-	    	RMapIri derivedUri = derivationEvent.getDerivedObjectId();
-			String type = getRMapTypeDisplayName(derivedUri);
-			resourcesAffected.put(derivedUri.toString(), "Derived " + type);	
-			
-	    	RMapIri sourceObjectUri = derivationEvent.getSourceObjectId();
-	    	type = getRMapTypeDisplayName(sourceObjectUri);
-			resourcesAffected.put(sourceObjectUri.toString(), "Source " + type);	    	
-	    }
-	    else if (eventType == RMapEventType.UPDATE)	{
-	    	RMapEventUpdate updateEvent = (RMapEventUpdate) event;	   
-	    	List<RMapIri> createdUris = updateEvent.getCreatedObjectIds();
-	    	for (RMapIri uri : createdUris){
-	    		String type = getRMapTypeDisplayName(uri);
-	    		resourcesAffected.put(uri.toString(), "Created " + type);
-	    	}
-	    	RMapIri derivedUri = updateEvent.getDerivedObjectId();
-			String type = getRMapTypeDisplayName(derivedUri);
-			resourcesAffected.put(derivedUri.toString(), "Derived " + type);	
-			
-	    	RMapIri inactivatedUri = updateEvent.getInactivatedObjectId();
-	    	type = getRMapTypeDisplayName(inactivatedUri);
-			resourcesAffected.put(inactivatedUri.toString(), "Inactivated " + type);	  	    			    	
-	    }
-	    else if (eventType == RMapEventType.INACTIVATION)	{
-	    	RMapEventInactivation inactivateEvent = (RMapEventInactivation) event;	    
-	    	RMapIri uri = inactivateEvent.getInactivatedObjectId();
-			String type = getRMapTypeDisplayName(uri);
-			resourcesAffected.put(uri.toString(), "Inactivated " + type);	  
-	    }
-	    else if (eventType == RMapEventType.REPLACE)	{
-	    	RMapEventUpdateWithReplace replaceEvent = (RMapEventUpdateWithReplace) event;	    
-	    	RMapIri uri = replaceEvent.getUpdatedObjectId();
-			String type = getRMapTypeDisplayName(uri);
-			resourcesAffected.put(uri.toString(), "Replaced " + type);	  
-	    }
-	    
+		try {
+		    if (eventType == RMapEventType.CREATION){
+		    	RMapEventCreation creationEvent = (RMapEventCreation) event;
+		    	List<RMapIri> uris = creationEvent.getCreatedObjectIds();
+		    	for (RMapIri uri : uris){
+		    		rmapService.isDiSCOId(new java.net.URI(uri.toString()));
+		    		String type = getRMapTypeDisplayName(uri);
+		    		resourcesAffected.put(uri.toString(), "Created " + type);
+		    	}
+		    }
+		    else if (eventType == RMapEventType.DELETION)	{
+		    	RMapEventDeletion deletionEvent = (RMapEventDeletion) event;
+		    	List<RMapIri> uris = deletionEvent.getDeletedObjectIds();
+		    	for (RMapIri uri : uris){
+		    		String type = getRMapTypeDisplayName(uri);
+		    		resourcesAffected.put(uri.toString(), "Deleted " + type);
+		    	}
+		    }
+		    else if (eventType == RMapEventType.TOMBSTONE)	{
+		    	RMapEventTombstone tombstoneEvent = (RMapEventTombstone) event;
+		    	RMapIri uri = tombstoneEvent.getTombstonedResourceId();
+				String type = getRMapTypeDisplayName(uri);
+				resourcesAffected.put(uri.toString(), "Tombstoned " + type);
+		    }
+		    else if (eventType == RMapEventType.DERIVATION)	{
+		    	RMapEventDerivation derivationEvent = (RMapEventDerivation) event;
+		    	List<RMapIri> createdUris = derivationEvent.getCreatedObjectIds();
+		    	for (RMapIri uri : createdUris){
+		    		String type = getRMapTypeDisplayName(uri);
+		    		resourcesAffected.put(uri.toString(), "Created " + type);
+		    	}
+		    	RMapIri derivedUri = derivationEvent.getDerivedObjectId();
+				String type = getRMapTypeDisplayName(derivedUri);
+				resourcesAffected.put(derivedUri.toString(), "Derived " + type);	
+				
+		    	RMapIri sourceObjectUri = derivationEvent.getSourceObjectId();
+		    	type = getRMapTypeDisplayName(sourceObjectUri);
+				resourcesAffected.put(sourceObjectUri.toString(), "Source " + type);	    	
+		    }
+		    else if (eventType == RMapEventType.UPDATE)	{
+		    	RMapEventUpdate updateEvent = (RMapEventUpdate) event;	   
+		    	List<RMapIri> createdUris = updateEvent.getCreatedObjectIds();
+		    	for (RMapIri uri : createdUris){
+		    		String type = getRMapTypeDisplayName(uri);
+		    		resourcesAffected.put(uri.toString(), "Created " + type);
+		    	}
+		    	RMapIri derivedUri = updateEvent.getDerivedObjectId();
+				String type = getRMapTypeDisplayName(derivedUri);
+				resourcesAffected.put(derivedUri.toString(), "Derived " + type);	
+				
+		    	RMapIri inactivatedUri = updateEvent.getInactivatedObjectId();
+		    	type = getRMapTypeDisplayName(inactivatedUri);
+				resourcesAffected.put(inactivatedUri.toString(), "Inactivated " + type);	  	    			    	
+		    }
+		    else if (eventType == RMapEventType.INACTIVATION)	{
+		    	RMapEventInactivation inactivateEvent = (RMapEventInactivation) event;	    
+		    	RMapIri uri = inactivateEvent.getInactivatedObjectId();
+				String type = getRMapTypeDisplayName(uri);
+				resourcesAffected.put(uri.toString(), "Inactivated " + type);	  
+		    }
+		    else if (eventType == RMapEventType.REPLACE)	{
+		    	RMapEventUpdateWithReplace replaceEvent = (RMapEventUpdateWithReplace) event;	    
+		    	RMapIri uri = replaceEvent.getUpdatedObjectId();
+				String type = getRMapTypeDisplayName(uri);
+				resourcesAffected.put(uri.toString(), "Replaced " + type);	  
+		    }		
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
+		}
 	    return resourcesAffected;
 	}
 
@@ -836,16 +899,32 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 */
 	@Override
 	public String getRMapTypeDisplayName(URI resourceUri) throws Exception {
-
-		if (rmapService.isDiSCOId(resourceUri)) {
-			return Terms.RMAP_DISCO;			
+		try {			
+			log.debug("Checking type for URI " + ((resourceUri==null) ? "" : resourceUri.toString()));
+						
+			boolean isDisco = rmapService.isDiSCOId(resourceUri);
+			if (isDisco) {
+				log.debug("Type identified as a rmap:DiSCO");
+				return Terms.RMAP_DISCO;			
+			}
+			
+			boolean isAgent = rmapService.isAgentId(resourceUri);
+			if (isAgent) {
+				log.debug("Type identified as a rmap:Agent");
+				return Terms.RMAP_AGENT;			
+			}
+			boolean isEvent = rmapService.isEventId(resourceUri);
+			if (isEvent) {
+				log.debug("Type identified as an rmap:Event");
+				return Terms.RMAP_EVENT;			
+			}		
+			
+		} catch (Exception ex) {
+			throw ex;
+		} finally {
+			if (rmapService!=null) {rmapService.closeConnection();}
 		}
-		if (rmapService.isAgentId(resourceUri)) {
-			return Terms.RMAP_AGENT;			
-		}
-		if (rmapService.isEventId(resourceUri)) {
-			return Terms.RMAP_EVENT;			
-		}
+		log.debug("Type not identified, it's a non-RMap resource");
 		//otherwise
 		return "";
 	}

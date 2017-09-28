@@ -75,35 +75,27 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 public class ORMapService implements RMapService {
 
 	/** Instance of the RMap Resource Manager */
-	@Autowired
 	private ORMapResourceMgr resourcemgr;
 
 	/** Instance of the RMap DiSCO Manager */
-	@Autowired
 	private ORMapDiSCOMgr discomgr;
 
 	/** Instance of the RMap Agent Manager */
-	@Autowired
 	private ORMapAgentMgr agentmgr;
 
 	/** Instance of the RMap Statement Manager */
-	@Autowired
 	private ORMapStatementMgr statementmgr;
 
 	/** Instance of the RMap Event Manager */
-	@Autowired
 	private ORMapEventMgr eventmgr;
 	
 	/** An instance of the sesame triplestore for database changes.
 	 * It is declared in the ORMapService so that it can be passed to multiple functions
 	 * across a single interaction */
-	@Autowired
 	private SesameTriplestore triplestore;
 
-	@Autowired
 	private RMapSearchParamsFactory paramsFactory;
 
-	@Autowired
 	private IdService idService;
 
 	/**
@@ -124,6 +116,7 @@ public class ORMapService implements RMapService {
 						ORMapStatementMgr statementmgr,
 						ORMapEventMgr eventmgr,
 						SesameTriplestore triplestore,
+						RMapSearchParamsFactory paramsFactory,
 						IdService idService) {
 		this.resourcemgr = resourcemgr;
 		this.discomgr = discomgr;
@@ -131,6 +124,7 @@ public class ORMapService implements RMapService {
 		this.statementmgr = statementmgr;
 		this.eventmgr = eventmgr;
 		this.triplestore = triplestore;
+		this.paramsFactory = paramsFactory;
 		this.idService = idService;
 	}
 	
