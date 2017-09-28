@@ -35,7 +35,7 @@ import info.rmapproject.testdata.service.TestFile;
 import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
 
 /**
- * Basic tests for HomeController, which returns views for home and contact page.
+ * Basic tests for SearchController, which controls GUI search.
  * @author khanson
  *
  */
