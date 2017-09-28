@@ -37,7 +37,7 @@ import info.rmapproject.webapp.WebTestAbstract;
 import info.rmapproject.webapp.utils.Constants;
 
 /**
- * Basic tests for HomeController, which returns views for home and contact page.
+ * Basic tests for AdminToolControllerTest, which returns views for home and contact page.
  * @author khanson
  *
  */
