@@ -46,8 +46,6 @@ import info.rmapproject.auth.utils.RandomStringGenerator;
 @Service("apiKeyService")
 @Transactional
 public class ApiKeyServiceImpl {
-
-	//private static final Logger logger = LoggerFactory.getLogger(ApiKeyServiceImpl.class);
 	
 	/** ApiKeys table data access component. */
 	@Autowired

@@ -47,8 +47,6 @@ import info.rmapproject.webapp.service.UserMgtService;
 @SessionAttributes({"user","account"})
 public class AccountController {
 	
-	//private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
-	
 	/** Service for user management. */
 	private UserMgtService userMgtService;
 	

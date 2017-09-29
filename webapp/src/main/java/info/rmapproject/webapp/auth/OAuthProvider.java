@@ -19,9 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.auth;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.Token;
 import com.github.scribejava.core.model.Verifier;
@@ -31,9 +28,6 @@ import com.github.scribejava.core.oauth.OAuthService;
  * Abstract class for an OAuth provider
  */
 public abstract class OAuthProvider {
-
-	/** The log. */
-	protected static final Logger logger = LoggerFactory.getLogger(OAuthProvider.class);
 
 	/** The OAuth provider config. */
 	protected OAuthProviderConfig config;

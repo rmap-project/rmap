@@ -41,7 +41,7 @@ import org.springframework.stereotype.Repository;
 @Repository("userIdProviderDao")
 public class UserIdProviderDaoImpl implements UserIdProviderDao {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserIdProviderDaoImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserIdProviderDaoImpl.class);
 
 	/**
 	 * Data base session factory instance
@@ -57,7 +57,7 @@ public class UserIdProviderDaoImpl implements UserIdProviderDao {
 			throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();
         session.persist(userIdProvider);
-        logger.info("User ID Provider record saved successfully. Details=" + userIdProvider);	
+        LOG.info("User ID Provider record saved successfully. Details={}", userIdProvider);	
         return userIdProvider.getUserIdentityProviderId();
 	}
 
@@ -69,7 +69,7 @@ public class UserIdProviderDaoImpl implements UserIdProviderDao {
 			throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();
         session.update(userIdProvider);
-        logger.info("User record updated successfully, Details=" + userIdProvider);		
+        LOG.info("User record updated successfully, Details={}", userIdProvider);		
 	}
     
 	/* (non-Javadoc)
@@ -87,7 +87,7 @@ public class UserIdProviderDaoImpl implements UserIdProviderDao {
         query.setParameter("accountId",providerAccountId);
 		List<UserIdentityProvider> userIdProvider = query.list();
 		if (userIdProvider != null && !userIdProvider.isEmpty()) {
-	        logger.info("User Identity Provider loaded successfully");
+			LOG.info("User Identity Provider loaded successfully");
 			return userIdProvider.get(0);
 		}
 		else	{
@@ -106,7 +106,7 @@ public class UserIdProviderDaoImpl implements UserIdProviderDao {
         Query query = session.createQuery("from UserIdentityProvider where userId=:userId");
         query.setParameter("userId",userId);
 		List <UserIdentityProvider> userIdProviders = query.list();
-        logger.info("User identity provider list loaded successfully");
+		LOG.info("User identity provider list loaded successfully");
         return userIdProviders;
 	}
 	

@@ -54,17 +54,12 @@ public class AdminToolController {
 	
 	/**The admin login object created from properties for comparison against entry from user*/
 	private AdminLogin correctAdminLogin;
-		
-	/** The log. */
-	//private static final Logger log = LoggerFactory.getLogger(AdminToolController.class);
-		
 	
 	@Autowired
 	public AdminToolController(UserMgtService userMgtService, AdminLogin correctAdminLogin){
 		this.userMgtService=userMgtService;
 		this.correctAdminLogin=correctAdminLogin;
-	}
-	
+	}	
 	
 	/**
 	 * Login using Google.

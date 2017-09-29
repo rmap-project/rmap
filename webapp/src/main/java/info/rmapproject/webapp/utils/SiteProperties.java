@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class SiteProperties {
 	
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(SiteProperties.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SiteProperties.class);
 	
 	/** True if google oauth is enabled*/
 	private Boolean googleEnabled = false;
@@ -52,15 +52,15 @@ public class SiteProperties {
 	public SiteProperties(Boolean googleEnabled, Boolean orcidEnabled, Boolean twitterEnabled) {
 		if (googleEnabled!=null) {
 			this.googleEnabled = googleEnabled;		
-			log.debug("Google OAuth enabled status set to " + googleEnabled.toString());	
+			LOG.debug("Google OAuth enabled status set to {}", googleEnabled);	
 		}
 		if (orcidEnabled!=null) {
 			this.orcidEnabled = orcidEnabled;		
-			log.debug("ORCID OAuth enabled status set to " + orcidEnabled.toString());		
+			LOG.debug("ORCID OAuth enabled status set to {}", orcidEnabled);		
 		}
 		if (twitterEnabled!=null) {
 			this.twitterEnabled = twitterEnabled;		
-			log.debug("Twitter OAuth enabled status set to " + twitterEnabled.toString());		
+			LOG.debug("Twitter OAuth enabled status set to {}", twitterEnabled);		
 		}
 	}
 	

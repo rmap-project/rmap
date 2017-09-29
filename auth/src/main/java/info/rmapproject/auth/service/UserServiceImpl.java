@@ -48,8 +48,6 @@ import info.rmapproject.auth.utils.Sha256HashGenerator;
 @Transactional
 public class UserServiceImpl {
 
-//private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-
 	/**References the Service implementation for UserIdProviders related methods*/
 	@Autowired
 	private UserIdProviderServiceImpl userIdProviderService; 

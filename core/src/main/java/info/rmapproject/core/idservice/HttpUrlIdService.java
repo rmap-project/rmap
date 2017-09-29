@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class HttpUrlIdService implements IdService {
 	
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(HttpUrlIdService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(HttpUrlIdService.class);
 
 	/**  Wait time to retry when ID retrieval unsuccessful (5 seconds). */
 	private static final int RETRY_WAIT_TIME = 5000;
@@ -123,13 +123,13 @@ public class HttpUrlIdService implements IdService {
 	 */
 
 	public synchronized String getNoidId() throws Exception {
-		log.debug("Getting noid id");
+		LOG.debug("Getting noid id");
 
 		if (noids.size() <= 0) {
 			try {
 				getMoreNoids();
 			} catch (Exception e) {
-				log.error("While trying to fill more noids, caught exception",
+				LOG.error("While trying to fill more noids, caught exception",
 						e);
 			}
 		}
@@ -166,7 +166,7 @@ public class HttpUrlIdService implements IdService {
 		boolean shouldRetry = true;
 		do {
 			retryCounter++;
-			log.debug("Minting ids from " + serviceUrl);
+			LOG.debug("Minting ids from {}", serviceUrl);
 			URL noidUrl = null;
 			HttpURLConnection noidCon = null;
 			try {
@@ -196,15 +196,15 @@ public class HttpUrlIdService implements IdService {
 								if (isValidId(output)) {
 									noids.add(output);
 								} else {
-									log.warn("Invalid ID returned. This ID will be ignored: " + output);
+									LOG.warn("Invalid ID returned. This ID will be ignored: {}", output);
 								}
 							}
 						}
 					} else {
-						log.error("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE, HTTP RETURN CODE is : " + noidCon.getResponseCode());
+						LOG.error("UNSUCCESSFUL HTTP REQUEST TO NOID SERVICE, HTTP RETURN CODE is : {}", noidCon.getResponseCode());
 					}
 			} catch(Exception e){
-				log.error("EXCEPTION CONNECTING TO NOID SERVER", e);
+				LOG.error("EXCEPTION CONNECTING TO NOID SERVER", e);
 
 			} finally {
 
@@ -213,14 +213,14 @@ public class HttpUrlIdService implements IdService {
 						reader.close();
 					}
 				} catch (Exception e) {
-					log.error("Exception while closing Buffered Reader", e);
+					LOG.error("Exception while closing Buffered Reader", e);
 				}
 				try {
 					if (noidCon != null){
 						noidCon.disconnect();
 					}
 				} catch (Exception e) {
-					log.error("Exception while closing http connection to noid service ", e);
+					LOG.error("Exception while closing http connection to noid service ", e);
 				}
 			}
 			shouldRetry = (retryCounter < maxRetryAttempts && noids.size() == 0);
@@ -230,14 +230,14 @@ public class HttpUrlIdService implements IdService {
 				try{
 					wait(RETRY_WAIT_TIME);
 				}catch(InterruptedException ie){
-					log.error("Wait interrupted in retry loop", ie);
+					LOG.error("Wait interrupted in retry loop", ie);
 				}
 
 			}
 
 		} while (shouldRetry);
 
-		log.debug("Extracted ids = |" + noids.size() + "|");
+		LOG.debug("Extracted ids = | {} |", noids.size());
 		if(noids.size() == 0){
 			throw new Exception("Could not retrieve new IDs after retries. maxRetryAttempts:"+maxRetryAttempts);
 		}

@@ -91,10 +91,7 @@ public class GoogleOAuthProvider extends OAuthProvider{
 		
 		OAuthProviderAccount profile = 
 				new OAuthProviderAccount(accessToken, provider, displayName, accountId, publicId , profilePath);
-	
-		//logger.info("Google profile=" + jsonString);
-		//logger.info("Google token=" + accessToken.getRawResponse());
-		
+			
 		return profile;
 	}
 	

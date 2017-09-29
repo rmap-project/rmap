@@ -47,7 +47,7 @@ public class ApiUserServiceImpl implements ApiUserService {
 	private RMapAuthService rmapAuthService;
 	
 	/**The log**/
-	private static final Logger log = LoggerFactory.getLogger(ApiUserServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ApiUserServiceImpl.class);
 	
 	/** 
 	 * Constructor to create dependencies
@@ -69,7 +69,7 @@ public class ApiUserServiceImpl implements ApiUserService {
 	    if (authorizationPolicy == null) {
 	        throw new RMapApiException(ErrorCode.ER_COULD_NOT_RETRIEVE_AUTHPOLICY);
 	        }
-	    log.debug("Authorization policy retrieved with username " + ((authorizationPolicy.getUserName()==null) ? "" : authorizationPolicy.getUserName()));
+	    LOG.debug("Authorization policy retrieved with username {}", ((authorizationPolicy.getUserName()==null) ? "" : authorizationPolicy.getUserName()));
 	    return authorizationPolicy;
 	}
 	
@@ -113,7 +113,7 @@ public class ApiUserServiceImpl implements ApiUserService {
 		try {
 			User user = rmapAuthService.getUserByKeySecret(key, secret);
 			String agentUri = user.getRmapAgentUri();
-		    log.debug("Retrieved System Agent as " + ((agentUri==null) ? "" : agentUri));
+		    LOG.debug("Retrieved System Agent as {}", ((agentUri==null) ? "" : agentUri));
 			if (agentUri==null || agentUri.length()==0){
 				return null;
 			}
@@ -145,7 +145,7 @@ public class ApiUserServiceImpl implements ApiUserService {
 	@Override
 	public void prepareUserForWriteAccess(String accessKey, String secret) throws RMapApiException {
 		try {
-			log.debug("Retrieving apiKey for accessKey " + ((accessKey==null) ? "" : accessKey));
+			LOG.debug("Retrieving apiKey for accessKey {}", ((accessKey==null) ? "" : accessKey));
 			//If apiKeyUri will be included in Event, make sure it has been generated
 			ApiKey apiKey = rmapAuthService.getApiKeyByKeySecret(accessKey, secret);
 			String keyUri = null;
@@ -154,11 +154,11 @@ public class ApiUserServiceImpl implements ApiUserService {
 				if ((keyUri==null || keyUri.length()==0)) {
 					keyUri = rmapAuthService.assignApiKeyUri(apiKey.getApiKeyId());
 				}
-				log.debug("apiKey URI " + ((keyUri==null) ? "" : accessKey) + " will be included in any change Event in RMap");
+				LOG.debug("apiKey URI {} will be included in any change Event in RMap", ((keyUri==null) ? "" : accessKey));
 			}
 			
 			User user = rmapAuthService.getUserByKeySecret(accessKey, secret); //refresh
-			log.debug("User '" + ((user.getName()==null) ? "" : user.getName()) + "' is being compared to RMap Agent for updates");
+			LOG.debug("User '{}' is being compared to RMap Agent for updates", ((user.getName()==null) ? "" : user.getName()));
 			rmapAuthService.createOrUpdateAgentFromUser(user, keyUri);	
 
 		} catch (RMapAuthException ex) {

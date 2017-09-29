@@ -42,7 +42,7 @@ public class RMapApiExceptionHandler implements ExceptionMapper<RMapApiException
 {
 	
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(RMapApiExceptionHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RMapApiExceptionHandler.class);
 
 	private PathUtils pathUtils;
 	
@@ -119,7 +119,7 @@ public class RMapApiExceptionHandler implements ExceptionMapper<RMapApiException
     		response = Response.status(errType).type("text/plain").entity(errMsg.toString()).build(); 
     	}
 	
-    	log.error(errMsg.toString(), exception);
+    	LOG.error(errMsg.toString(), exception);
     	return response;
     }
 

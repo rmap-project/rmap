@@ -63,7 +63,7 @@ public class ResourceDisplayController {
 	private DataDisplayService dataDisplayService;
 
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(ResourceDisplayController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ResourceDisplayController.class);
 	
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
@@ -86,7 +86,7 @@ public class ResourceDisplayController {
 				@RequestParam(value="resview", required=false) Integer resview, 
 				Model model, RedirectAttributes redirectAttributes) throws Exception {
 		
-		log.info("Resource requested " + sResourceUri);
+		LOG.info("Resource requested {}", sResourceUri);
 		
 		if (resview == null) {resview = 0;}
 		sResourceUri = URLDecoder.decode(sResourceUri, "UTF-8");
@@ -94,10 +94,10 @@ public class ResourceDisplayController {
 		try {
 			if (resview==0) {
 				String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(sResourceUri));
-				log.debug("rmapType identified as " + rmapType);
+				LOG.debug("rmapType identified as {}", rmapType);
 				if (rmapType.length()>0){
 					String redirectPath = "redirect:/" + rmapType.toLowerCase() + "s/" + URLEncoder.encode(sResourceUri, "UTF-8");
-					log.debug("Redirecting resource path to " + redirectPath);
+					LOG.debug("Redirecting resource path to {}", redirectPath);
 					return redirectPath;
 				}				
 			}
@@ -112,7 +112,7 @@ public class ResourceDisplayController {
 		    model.addAttribute("PAGEPATH", "resources");
 		    
 		} catch (URISyntaxException|IllegalArgumentException ex){
-			log.warn(ex.getMessage() + ". Submitted value: " + sResourceUri + ".");
+			LOG.warn("{}. Submitted value: {}.", ex.getMessage(), sResourceUri);
 			SearchCommand search = new SearchCommand();
 			search.setSearch(sResourceUri);
 			redirectAttributes.addFlashAttribute("search", search);
@@ -164,7 +164,7 @@ public class ResourceDisplayController {
 				@RequestParam(value="resview", required=false) Integer resview, 
 				@RequestParam(value="offset", required=false) String sOffset,
 				Model model) throws Exception {
-		log.info("Resource requested " + reqUri);
+		LOG.info("Resource requested {}", reqUri);
 		
 		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
 	
@@ -201,7 +201,7 @@ public class ResourceDisplayController {
 	public String resourceWidgetView(@PathVariable(value="uri") String reqUri, 
 				@RequestParam(value="resview", required=false) Integer resview, 
 				Model model) throws Exception {
-		log.info("Resource requested " + reqUri);
+		LOG.info("Resource requested {}", reqUri);
 
 		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
 		
@@ -238,7 +238,7 @@ public class ResourceDisplayController {
 	public String resourceTableView(@PathVariable(value="uri") String reqUri, 
 				@RequestParam(value="offset", required=false) String sOffset,
 				Model model) throws Exception {
-		log.info("Resource requested " + reqUri);
+		LOG.info("Resource requested {}", reqUri);
 		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
 		Integer offset;
 		try {
@@ -276,7 +276,7 @@ public class ResourceDisplayController {
 				@RequestParam(value="offset", required=false) String sOffset,
 				@RequestParam(value="view", required=false) String view,
 				Model model) throws Exception {
-		log.info("Resource requested " + reqUri);
+		LOG.info("Resource requested {}", reqUri);
 		if (view==null || view.length()==0){
 			view = STANDARD_VIEW;
 		}
@@ -314,7 +314,7 @@ public class ResourceDisplayController {
 	public String resourceRelatedDiscos(@PathVariable(value="uri") String reqUri, 
 				@RequestParam(value="offset", required=false) String sOffset,
 				Model model) throws Exception {
-		log.info("Resource requested " + reqUri);
+		LOG.info("Resource requested {}", reqUri);
 		try {
 			String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
 			Integer offset;

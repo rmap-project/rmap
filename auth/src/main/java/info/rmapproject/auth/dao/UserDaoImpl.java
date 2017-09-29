@@ -42,7 +42,7 @@ import info.rmapproject.auth.model.User;
 @Repository("userDao")
 public class UserDaoImpl implements UserDao {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserDaoImpl.class);
 
 	/**
 	 * Data base session factory instance
@@ -57,7 +57,7 @@ public class UserDaoImpl implements UserDao {
 	public int addUser(User user) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();
         session.persist(user);
-        logger.info("User record saved successfully, User Details=" + user);	
+        LOG.info("User record saved successfully, User Details={}", user);	
         return user.getUserId();
 	}
     
@@ -68,7 +68,7 @@ public class UserDaoImpl implements UserDao {
 	public void updateUser(User user) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();
         session.update(user);
-        logger.info("User record updated successfully, User Details=" + user);
+        LOG.info("User record updated successfully, User Details={}", user);
 	}
 
 	/* (non-Javadoc)
@@ -78,7 +78,7 @@ public class UserDaoImpl implements UserDao {
 	public User getUserById(int userId) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();      
         User user = (User) session.load(User.class, userId);
-        logger.info("User record loaded successfully, User details=" + user);
+        LOG.info("User record loaded successfully, User Details={}", user);
         return user;
 	}
     
@@ -107,7 +107,7 @@ public class UserDaoImpl implements UserDao {
         }
         
 		List <User> users = query.list();
-        logger.info("Users list loaded successfully");
+		LOG.info("Users list loaded successfully");
         return users;
 	}
     
@@ -126,7 +126,7 @@ public class UserDaoImpl implements UserDao {
     	
 		List<User> users = query.list();
 		if (users != null && !users.isEmpty()) {
-	        logger.info("User list loaded successfully");
+			LOG.info("User list loaded successfully");
 	        return users.get(0);
 		}
 		else {
@@ -145,7 +145,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("authKeyUri",authKeyUri);
 		List<User> users = query.list();
 		if (users != null && !users.isEmpty()) {
-	        logger.info("User loaded successfully");
+			LOG.info("User loaded successfully");
 			return users.get(0);
 		}
 		else	{
@@ -166,7 +166,7 @@ public class UserDaoImpl implements UserDao {
         List<ApiKey> apiKeys = query.list();
         ApiKey apiKey = null;
 		if (apiKeys != null && !apiKeys.isEmpty()) {
-	        logger.info("Api key list loaded successfully");
+			LOG.info("Api key list loaded successfully");
 			apiKey = apiKeys.get(0);
 		}
 		else	{

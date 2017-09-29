@@ -56,7 +56,7 @@ public class DiSCODataController {
 	private DataDisplayService dataDisplayService;
 
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(DiSCODataController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DiSCODataController.class);
 
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
@@ -71,7 +71,7 @@ public class DiSCODataController {
 	 */
 	@RequestMapping(value="/discos/{uri}", method = RequestMethod.GET)
 	public String disco(@PathVariable(value="uri") String discoUri, Model model) throws Exception {
-		log.info("DiSCO requested: " + discoUri);
+		LOG.info("DiSCO requested: {}", discoUri);
 
 		discoUri = URLDecoder.decode(discoUri, "UTF-8");
 
@@ -107,7 +107,7 @@ public class DiSCODataController {
 	 */
 	@RequestMapping(value="/discos/{uri}/visual", method = RequestMethod.GET)
 	public String discoGraphVisual(@PathVariable(value="uri") String discoUri,  Model model) throws Exception {
-		log.info("DiSCO visualization requested: " + discoUri);
+		LOG.info("DiSCO visualization requested: {}", discoUri);
 
 		discoUri = URLDecoder.decode(discoUri, "UTF-8");
 		
@@ -129,7 +129,7 @@ public class DiSCODataController {
 	 */
 	@RequestMapping(value="/discos/{uri}/widget", method = RequestMethod.GET)
 	public String discoGraphWidget(@PathVariable(value="uri") String discoUri, Model model) throws Exception {
-		log.info("DiSCO visualization requested: " + discoUri);
+		LOG.info("DiSCO visualization requested: {}", discoUri);
 
 		discoUri = URLDecoder.decode(discoUri, "UTF-8");
 		
@@ -153,7 +153,7 @@ public class DiSCODataController {
 	@RequestMapping(value="/discos/{uri}/graphdata", method = RequestMethod.GET)
 	public String discoGraphData(@PathVariable(value="uri") String discoUri, 
 			@RequestParam(value="view", required=false) String view, Model model) throws Exception {
-		log.info("DiSCO visualization requested: " + discoUri);
+		LOG.info("DiSCO visualization requested: {}", discoUri);
 		if (view==null || view.length()==0){
 			view=STANDARD_VIEW;
 		}
@@ -188,7 +188,7 @@ public class DiSCODataController {
 	public String discoTableData(@PathVariable(value="uri") String discoUri, 
 			@RequestParam(value="view", required=false) String view, Model model, 
 			@RequestParam(value="offset", required=false) Integer offset) throws Exception {
-		log.info("DiSCO visualization requested: " + discoUri);
+		LOG.info("DiSCO visualization requested: {}", discoUri);
 		if (view==null || view.length()==0){
 			view=STANDARD_VIEW;
 		}

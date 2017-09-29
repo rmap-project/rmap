@@ -39,8 +39,6 @@ public class HttpTypeMediator {
 	/** The media type version. */
 	private static String MEDIATYPE_VERSION = "1.0.0-beta";
 	
-	
-	//private static final Logger log = LogManager.getLogger(HttpTypeMediator.class);
 	/**
 	 * Maps the accept-type to the matching response type.
 	 *

@@ -50,7 +50,7 @@ public class EventDisplayController {
 	private DataDisplayService dataDisplayService;
 
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(EventDisplayController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EventDisplayController.class);
 
 	/**
 	 * GET details of an Event.
@@ -62,7 +62,7 @@ public class EventDisplayController {
 	 */
 	@RequestMapping(value="/events/{uri}", method = RequestMethod.GET)
 	public String event(@PathVariable(value="uri") String eventUri, Model model) throws Exception {
-		log.info("Event requested " + eventUri);
+		LOG.info("Event requested {}", eventUri);
 
 		eventUri = URLDecoder.decode(eventUri, "UTF-8");
 		

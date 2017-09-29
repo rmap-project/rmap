@@ -82,7 +82,7 @@ public class DiscoResponseManager extends ResponseManager {
 
 
 	/** The Constant log. */
-	private static final Logger log = LoggerFactory.getLogger(DiscoResponseManager.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DiscoResponseManager.class);
 	
 	/** The API User Service. */
 	private final ApiUserService apiUserService;
@@ -188,7 +188,7 @@ public class DiscoResponseManager extends ResponseManager {
 			if (strDiscoUri==null || strDiscoUri.length()==0)	{
 				throw new RMapApiException(ErrorCode.ER_NO_OBJECT_URI_PROVIDED); 
 			}		
-			log.info("Latest version of DiSCO " + strDiscoUri + " requested.");
+			LOG.info("Latest version of DiSCO {} requested.", strDiscoUri);
 							
 			URI uriDiscoUri = null;
 			try {
@@ -259,7 +259,7 @@ public class DiscoResponseManager extends ResponseManager {
 		Response response = null;
 		try {			
 						
-			log.info("DiSCO " + strDiscoUri + " requested.");
+			LOG.info("DiSCO {} requested.", strDiscoUri);
 			
 			if (strDiscoUri==null || strDiscoUri.length()==0)	{
 				throw new RMapApiException(ErrorCode.ER_NO_OBJECT_URI_PROVIDED); 
@@ -283,7 +283,7 @@ public class DiscoResponseManager extends ResponseManager {
 				return this.getRMapDiSCOHeader(strDiscoUri);
 			}
 
-			log.info("DiSCO " + strDiscoUri + " object retrieved.");
+			LOG.debug("DiSCO {} object retrieved.", strDiscoUri);
 			
 			if (rmapDisco ==null){
 				throw new RMapApiException(ErrorCode.ER_CORE_READ_DISCO_RETURNED_NULL);
@@ -294,7 +294,7 @@ public class DiscoResponseManager extends ResponseManager {
 				throw new RMapApiException(ErrorCode.ER_CORE_RDFHANDLER_OUTPUT_ISNULL);
 			}		
 
-			log.info("DiSCO " + strDiscoUri + " converted to RDF.");
+			LOG.debug("DiSCO {} converted to RDF.", strDiscoUri);
 						
 			RMapStatus status = rmapService.getDiSCOStatus(uriDiscoUri);
 			if (status==null){
@@ -421,7 +421,7 @@ public class DiscoResponseManager extends ResponseManager {
 		Response response = null;
 		try	{ 
 
-			log.info("New DiSCO create request initiated (id=" + discoRdf.hashCode() + ")");
+			LOG.debug("New DiSCO create request initiated (id={})", discoRdf.hashCode());
 			
 			if (discoRdf == null || discoRdf.toString().length()==0){
 				throw new RMapApiException(ErrorCode.ER_NO_DISCO_RDF_PROVIDED);
@@ -454,7 +454,7 @@ public class DiscoResponseManager extends ResponseManager {
 				throw new RMapApiException(ErrorCode.ER_CORE_DISCOURI_STRING_EMPTY);
 			} 
 
-			log.info("New DiSCO created (id=" + discoRdf.hashCode() + ") with URI " + sDiscoURI);
+			LOG.debug("New DiSCO created (id={}) with URI {}", discoRdf.hashCode(), sDiscoURI);
 			
 			URI uEventURI = discoEvent.getId().getIri();  
 			if (uEventURI==null){

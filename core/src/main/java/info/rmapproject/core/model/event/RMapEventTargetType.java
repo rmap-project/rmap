@@ -69,7 +69,7 @@ public enum RMapEventTargetType {
     /**
      * Gets the event target type.
      *
-     * @param path the ontolgoy path
+     * @param path the ontology path
      * @return the event target type
      */
     public static RMapEventTargetType getEventTargetType(String path) { 
