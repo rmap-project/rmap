@@ -76,9 +76,7 @@ public class LoginController {
 	
 	@Autowired
 	private SiteProperties siteProperties;
-	
-	
-		
+			
 	/**
 	 * Login using Google.
 	 *

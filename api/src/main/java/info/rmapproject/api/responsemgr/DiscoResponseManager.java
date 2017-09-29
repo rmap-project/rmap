@@ -438,7 +438,9 @@ public class DiscoResponseManager extends ResponseManager {
 				throw new RMapApiException(ErrorCode.ER_CORE_RDF_TO_DISCO_FAILED);
 			}  
 
-			//Get the current user to associate with the DiSCO creation
+			//Ensure user has been converted to an RMapAgent
+			apiUserService.prepareCurrentUserForWriteAccess();
+			//Retrieve agent to associate with Event
 			RMapRequestAgent reqAgent = apiUserService.getCurrentRequestAgent();
 			
 			RMapEventCreation discoEvent = (RMapEventCreation)rmapService.createDiSCO(rmapDisco, reqAgent);
@@ -474,7 +476,7 @@ public class DiscoResponseManager extends ResponseManager {
 			reqSuccessful = true;  
 		}
 		catch(RMapApiException ex)	{
-			throw RMapApiException.wrap(ex);
+			throw ex;
 		}  
 		catch(RMapDefectiveArgumentException ex) {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_GET_DISCO_BAD_ARGUMENT);
@@ -531,8 +533,11 @@ public class DiscoResponseManager extends ResponseManager {
 				throw new RMapApiException(ErrorCode.ER_CORE_RDF_TO_DISCO_FAILED);
 			}  
 
-			//Get the current user to associate with the DiSCO update event
+			//Ensure user has been converted to an RMapAgent
+			apiUserService.prepareCurrentUserForWriteAccess();
+			//Retrieve agent to associate with Event
 			RMapRequestAgent reqAgent = apiUserService.getCurrentRequestAgent();
+			
 			RMapEvent discoEvent = rmapService.updateDiSCO(uriOrigDiscoUri, newRmapDisco, reqAgent);
 			
 			if (discoEvent == null) {
@@ -658,8 +663,12 @@ public class DiscoResponseManager extends ResponseManager {
 			catch (Exception ex)  {
 				throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
 			}
-
+			
+			//Ensure user has been converted to an RMapAgent
+			apiUserService.prepareCurrentUserForWriteAccess();
+			//Retrieve agent to associate with Event
 			RMapRequestAgent reqAgent = apiUserService.getCurrentRequestAgent();
+			
 			RMapEvent discoEvent = null;
 			if (newStatus.equals("TOMBSTONED"))	{
 				discoEvent = rmapService.deleteDiSCO(uriDiscoUri, reqAgent);

@@ -39,6 +39,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import info.rmapproject.api.ApiDataCreationTestAbstract;
+import info.rmapproject.api.exception.ErrorCode;
+import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.test.TestUtils;
@@ -308,33 +310,53 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 	 * URL spaces should be replaced with "+"
 	 */
 	@Test
-	public void getRMapResourcesSpaceInUrl() {
+	public void getRMapResourcesSpaceInUrl() throws Exception {
 		
 		Response response = null;
-		try {
-			final String URL_WITH_SPACE = "http://ieeexplore.ieee.org/example/000000+mm.zip";
+		final String URL_WITH_SPACE = "http://ieeexplore.ieee.org/example/000000+mm.zip";
 			
+		//createDisco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML_ENCODED_SPACE_IN_URL);
+		String discoURI = rmapDisco.getId().toString();
+	       assertNotNull(discoURI);
+		rmapService.createDiSCO(rmapDisco, requestAgent);
+					
+		MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
+		params.add(Constants.PAGE_PARAM, "1");
+		params.add(Constants.LIMIT_PARAM, "10");
+		response = resourceResponseManager.getRMapResourceTriples(URL_WITH_SPACE, RdfMediaType.APPLICATION_RDFXML, params);
+
+		assertNotNull(response);
+		String body = response.getEntity().toString();
+		assertTrue(body.contains(URL_WITH_SPACE));
+		assertEquals(200, response.getStatus());	
+		
+	}
+	
+		
+	/**
+	 * Make sure it returns a not found response when a uri that has not been created is searched for
+	 */
+	@Test
+	public void getRMapResourcesNonExistentUrl() throws Exception {
+		
+		try {
+			final String NON_EXISTENT_URL = "fakefake:url";
 			//createDisco
-			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML_ENCODED_SPACE_IN_URL);
+			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_TURTLE);
 			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
+		    assertNotNull(discoURI);
 			rmapService.createDiSCO(rmapDisco, requestAgent);
-						
 			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
 			params.add(Constants.PAGE_PARAM, "1");
 			params.add(Constants.LIMIT_PARAM, "10");
-			response = resourceResponseManager.getRMapResourceTriples(URL_WITH_SPACE, RdfMediaType.APPLICATION_RDFXML, params);
-
-			assertNotNull(response);
-			String body = response.getEntity().toString();
-			assertTrue(body.contains(URL_WITH_SPACE));
-			assertEquals(200, response.getStatus());	
-			
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
+			resourceResponseManager.getRMapResourceTriples(NON_EXISTENT_URL, RdfMediaType.APPLICATION_RDFXML, params);
+			fail("should have thrown an exception");
+		} catch (RMapApiException ex) {
+			//should catch an error
+			assertEquals(ex.getErrorCode().getNumber(), ErrorCode.ER_NO_STMTS_FOUND_FOR_RESOURCE.getNumber());
 		}
-	
+		
 	}
 	
 	

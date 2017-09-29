@@ -101,6 +101,10 @@ public final class Constants  {
 	/** Model attribute name for object that contains site-wide properties**/
 	public static final String SITE_PROPERTIES_ATTRIBNAME = "SITEPROPS";
     
+	/**Session attribute name for property that determines whether the admin user is logged in or not.*/
+	public static final String ADMIN_LOGGEDIN_SESSATTRIB = "adminLoggedIn";
+	
+	
 	/**
 	 * Instantiates a new constants.
 	 */

@@ -19,11 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
-import info.rmapproject.auth.model.User;
-import info.rmapproject.webapp.auth.LoginRequired;
-import info.rmapproject.webapp.auth.OAuthProviderAccount;
-import info.rmapproject.webapp.service.UserMgtService;
-
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -38,6 +33,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import info.rmapproject.auth.model.User;
+import info.rmapproject.webapp.auth.LoginRequired;
+import info.rmapproject.webapp.auth.OAuthProviderAccount;
+import info.rmapproject.webapp.service.UserMgtService;
+
 /**
  * Handles requests related to user management and sign in.
  *
@@ -50,9 +50,12 @@ public class AccountController {
 	//private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 	
 	/** Service for user management. */
-	@Autowired
 	private UserMgtService userMgtService;
-		
+	
+	@Autowired
+	public AccountController(UserMgtService userMgtService){
+		this.userMgtService=userMgtService;
+	}
 	
 /*
  * *************************
@@ -71,7 +74,7 @@ public class AccountController {
 	@LoginRequired
 	@RequestMapping(value="/user/welcome", method=RequestMethod.GET)
 	public String welcomePage(Model model, HttpSession session) {
-		return "/user/welcome";
+		return "user/welcome";
 	}
 	
 	/**
@@ -89,7 +92,7 @@ public class AccountController {
 			return "redirect:/user/welcome";
 		}
 		model.addAttribute("user", user);
-		return "/user/signup";
+		return "user/signup";
 	}
 	
 	/**
@@ -126,13 +129,18 @@ public class AccountController {
 	 * @return the User Settings page
 	 */
 	@LoginRequired
-	@RequestMapping(value="/user/settings", method=RequestMethod.GET)
+	@RequestMapping(value={"/user/settings","/admin/user/settings"}, method=RequestMethod.GET)
 	public String settingsForm(HttpSession session, Model model) {
-		User user = (User) session.getAttribute("user");
+		User user = (User) session.getAttribute("user");				
 		if (user == null || user.getUserId()==0){
-			return "redirect:/home";
+			if ((Boolean)session.getAttribute("isAdminLogin")) {
+				return "redirect:/admin/user/new"; //need a user to be loaded
+			} else {
+				return "redirect:/home"; //need to be signed in to access this.	
+			}
+		}	else {
+			user = this.userMgtService.getUserById(user.getUserId()); //refresh record to make sure editing latest			
 		}
-		user = this.userMgtService.getUserById(user.getUserId()); //refresh record to make sure editing latest
 		model.addAttribute("userSettings",user);
         return "user/settings";	
 	}
@@ -147,22 +155,21 @@ public class AccountController {
 	 * @throws Exception the exception
 	 */
 	@LoginRequired
-	@RequestMapping(value="/user/settings", method=RequestMethod.POST)
-	public String updateUserSettings(@ModelAttribute("userSettings") @Valid User userSettings, BindingResult result, ModelMap model, HttpSession session) throws Exception {
+	@RequestMapping(value={"/user/settings","/admin/user/settings"}, method=RequestMethod.POST)
+	public String updateUserSettings(@ModelAttribute("userSettings") @Valid User user, BindingResult result, ModelMap model, HttpSession session) throws Exception {
         if (result.hasErrors()) {
     		model.addAttribute("notice", "Errors found, settings could not be saved");	
             return "user/settings";
         }
-		this.userMgtService.updateUserSettings(userSettings);
+		this.userMgtService.updateUserSettings(user);
 		//refresh session record and attribute
-		User currUser = this.userMgtService.getUserById(userSettings.getUserId()); 
-		session.setAttribute("user",currUser);
-		model.addAttribute("user", currUser); //save latest user details to session
+		user = this.userMgtService.getUserById(user.getUserId()); 
+		session.setAttribute("user",user);
+		model.addAttribute("userSettings",user);
 		model.addAttribute("notice", "User settings have been saved.");
 		return "user/settings"; 		
-	}
+	}	
 		
-
 	/**
 	 * Logs out the user by completing the session.
 	 *

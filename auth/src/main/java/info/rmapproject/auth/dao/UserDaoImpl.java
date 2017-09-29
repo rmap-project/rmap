@@ -19,10 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.auth.dao;
 
-import info.rmapproject.auth.exception.RMapAuthException;
-import info.rmapproject.auth.model.ApiKey;
-import info.rmapproject.auth.model.User;
-
 import java.util.List;
 
 import org.hibernate.Query;
@@ -32,6 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import info.rmapproject.auth.exception.RMapAuthException;
+import info.rmapproject.auth.model.ApiKey;
+import info.rmapproject.auth.model.User;
 
 /**
  * Implementation of UserDao used to interact with data in the User table
@@ -80,6 +80,35 @@ public class UserDaoImpl implements UserDao {
         User user = (User) session.load(User.class, userId);
         logger.info("User record loaded successfully, User details=" + user);
         return user;
+	}
+    
+	/* (non-Javadoc)
+	 * @see info.rmapproject.auth.dao.UserDao#getUsers(String)
+	 */
+    @SuppressWarnings("unchecked")
+	@Override
+	public List<User> getUsers(String filter) throws RMapAuthException {
+        Session session = this.sessionFactory.getCurrentSession();   
+        Query query;
+        
+        if (filter==null || filter.length()==0) {
+        	query = session.createQuery("from User");
+        } else {
+        	//filter by userId, name, email, rmapAgentUri, or authKeyUri
+    	    query = session.createQuery("from User "
+											+ "where userId=:idFilter or name like :filter "
+    	    								+ "or email LIKE :filter or rmapAgentUri like :filter "
+    	    								+ "or authKeyUri like :filter");
+    	    //convert to integer or null for userId filter
+    	    Integer idFilter = CheckIfInt.tryParseInt(filter);
+			query.setParameter("idFilter",idFilter);
+			filter = "%" + filter.toLowerCase() + "%"; //surround with wildcards
+			query.setParameter("filter",filter);
+        }
+        
+		List <User> users = query.list();
+        logger.info("Users list loaded successfully");
+        return users;
 	}
     
 	/* (non-Javadoc)
@@ -150,9 +179,14 @@ public class UserDaoImpl implements UserDao {
 		}
 		return user;		
 	}
-    
-    
-    
-	
-	
+
+	private static class CheckIfInt {
+		private static Integer tryParseInt(String text) {
+			try { 
+				return Integer.parseInt(text);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		}
+	}
 }

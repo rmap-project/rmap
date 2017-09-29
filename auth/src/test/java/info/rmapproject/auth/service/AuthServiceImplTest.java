@@ -21,9 +21,11 @@ package info.rmapproject.auth.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
+import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,12 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 	String testAccessKey = "uah2CKDaBsEw3cEQ";
 	String testSecret = "NSbdzctrP46ZvhTi";
 	String testAgentUri = "rmap:testagenturi";
+	
+	String testUserName2 = "Josephine Tester";
+	String testUserEmail2 = "jtester@example.edu";
+	String testAgentUri2 = "rmap:abcdefg";
+	String testAuthKeyUri2 = "http://authkeytest.org/hijklmno";
+	
 	
 	@Test
 	public void testAuthObj() {
@@ -102,7 +110,7 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 	}
 	
 	@Test
-	public void testValidateKeyInorrectKey() {
+	public void testValidateKeyInCorrectKey() {
 		String badKey = "badkey";
 		String badSecret = "badsecret";
 		try {
@@ -125,4 +133,33 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 		}		
 	}
 	
+	@Test
+	public void testGetUsersNoFilter() {
+		User user = new User(testUserName2, testUserEmail2);
+		user.setAuthKeyUri(testAuthKeyUri2);
+		user.setRmapAgentUri(testAgentUri2);
+		rmapAuthService.addUser(user);
+		List<User> users = rmapAuthService.getUsers(null);
+		assertTrue(users.size()==2);
+	}
+	
+	@Test
+	public void testGetUsersWithFilter() {
+		User user = new User(testUserName2, testUserEmail2);
+		user.setAuthKeyUri(testAuthKeyUri2);
+		user.setRmapAgentUri(testAgentUri2);
+		Integer id = rmapAuthService.addUser(user);
+		
+		List<User> users = rmapAuthService.getUsers("tester");
+		assertTrue(users.size()==1);
+		users = rmapAuthService.getUsers("rmap");
+		assertTrue(users.size()==2);
+		users = rmapAuthService.getUsers(id.toString());
+		assertTrue(users.size()==1);
+		users = rmapAuthService.getUsers("nomatches");
+		assertTrue(users.size()==0);
+	}
+	
+	
+		
 }

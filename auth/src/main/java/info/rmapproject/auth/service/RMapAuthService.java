@@ -19,14 +19,14 @@
  *******************************************************************************/
 package info.rmapproject.auth.service;
 
+import java.net.URI;
+import java.util.List;
+
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
 import info.rmapproject.auth.model.UserIdentityProvider;
 import info.rmapproject.core.model.event.RMapEvent;
-
-import java.net.URI;
-import java.util.List;
 
 
 /**
@@ -72,6 +72,15 @@ public interface RMapAuthService {
 	 * @throws RMapAuthException the RMap Auth exception
 	 */
 	public ApiKey getApiKeyByKeySecret(String accessKey, String secret) throws RMapAuthException;
+	
+
+	/**
+	 * Assign an ApiKeyUri that is a persistent identifier to be used with RMapEvents
+	 * 
+	 * @param userId
+	 * @return apiKeyUri assigned
+	 */
+	public String assignApiKeyUri(int userId);
 	
 	/**
 	 * Retrieve the Agent URI that matches the key/secret combination provided.
@@ -127,6 +136,18 @@ public interface RMapAuthService {
 	 */
 	public User getUserById(int userId) throws RMapAuthException;
 	
+
+	/**
+	 * Retrieves list of all Users with filter applied. Set filter to null for no filtering.
+	 * Filters on userId, name, email, rmapAgentUri, or authKeyUri
+	 *
+	 * @param string to filter users by
+	 * @return list of Users
+	 * @throws RMapAuthException the RMap Auth exception
+	 */
+	public List<User> getUsers(String filter) throws RMapAuthException;
+	
+	
 	/**
 	 * Retrieve the user that matches the key/secret combination provided.
 	 *
@@ -156,6 +177,16 @@ public interface RMapAuthService {
 	 */
 	public User getUserByAuthKeyUri(String authKeyUri) throws RMapAuthException;
 	
+
+	/**
+	 * Assigns an RMapAgentUri to a User record. This will be used as the persistent ID for the RMapAgent
+	 * associated with the User. Returns the newly minted ID, or null if no new ID was required.
+	 * 
+	 * @param userId
+	 * @return agentUri
+	 */
+	public String assignRMapAgentUri(int userId) throws RMapAuthException;
+	
 	/**
 	 * Validate an API key/secret combination to ensure the user has access to write to RMap.
 	 *
@@ -167,14 +198,16 @@ public interface RMapAuthService {
 	
 	/**
 	 * Compares the user in the user database to the Agents in RMap. If the Agent is already in RMap
-	 * and details that have changed are updated. If the Agent is not in RMap it is created.
+	 * any details that have changed are updated. If the Agent is not in RMap it is created.
+	 * The assumption here is that if a new Agent needs to be created, the User is also the RMapRequestingAgent.
 	 *
-	 * @param userId the user id
+	 * @param user the user 
+	 * @param apiKeyUri key URI to associate with Event, null if there isn't one.
 	 * @return the RMap Event
 	 * @throws RMapAuthException the RMap Auth exception
 	 */
-	public RMapEvent createOrUpdateAgentFromUser(int userId) throws RMapAuthException;
-	
+	public RMapEvent createOrUpdateAgentFromUser(User user, String apiKeyUri) throws RMapAuthException;
+		
 	/**
 	 * Retrieve a the UserIdentityProvider fora given provider name and id - this is an object
 	 * containing details of the user profile on specific id provider.
@@ -211,4 +244,6 @@ public interface RMapAuthService {
 	 * @throws RMapAuthException the RMap Auth exception
 	 */
 	public List<UserIdentityProvider> getUserIdProviders(int userId) throws RMapAuthException;
+
+	
 }

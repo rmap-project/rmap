@@ -47,6 +47,12 @@
 			</beans:list>
 		</beans:property>
 	</beans:bean>
+	
+	<beans:bean class="info.rmapproject.webapp.auth.AdminLogin" name="correctAdminLogin">
+		<beans:constructor-arg value="${rmapweb.admin-username}"/>
+		<beans:constructor-arg value="${rmapweb.admin-password}"/>
+	</beans:bean>
+	
 	<beans:bean id="graphFactory" class="info.rmapproject.webapp.service.SpringGraphFactory">
 		<beans:property name="ontologies" ref="ontologyprefixes"/>
 		<beans:property name="typemappings" ref="typemappings"/>
@@ -78,6 +84,7 @@
 		<beans:constructor-arg value="com.github.scribejava.apis.TwitterApi.Authenticate"/>
 		<beans:constructor-arg value="https://api.twitter.com/1.1/account/verify_credentials.json"/>
 	</beans:bean>	  
+	
 	<beans:bean id="oAuthProviderTwitter" class="info.rmapproject.webapp.auth.TwitterOAuthProvider">
 		<beans:property name="config" ref="twitterOAuthConfig"/>	
 	</beans:bean>
@@ -125,13 +132,16 @@
 		<beans:constructor-arg type="java.lang.Boolean" value="${rmapweb.twitter-oauth-enabled}"/>
 	</beans:bean>
 
+
 	<interceptors>
 		<interceptor>
 			<mapping path="/user/**"/>
+			<mapping path="/admin/**"/>
 			<beans:bean class="info.rmapproject.webapp.auth.AuthenticationInterceptor"/>
 		</interceptor>
 		<interceptor>
 			<mapping path="/**"/>
+			<exclude-mapping path="/includes/**"/> 
 			<beans:bean class="info.rmapproject.webapp.controllers.SitePropertiesToModelInterceptor">
 				<beans:constructor-arg name="siteProperties" ref="sitePropertiesObj"/>
 			</beans:bean>

@@ -121,7 +121,7 @@
                 <configuration>
                     <systemProperties>
                         <derby.system.home>${project.build.testOutputDirectory}/derby</derby.system.home>
-                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-userservice</spring.profiles.active>
+                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore</spring.profiles.active>
                     </systemProperties>
                 </configuration>
             </plugin>

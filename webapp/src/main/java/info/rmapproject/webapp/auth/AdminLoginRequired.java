@@ -17,39 +17,21 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.webapp.domain;
+package info.rmapproject.webapp.auth;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import java.lang.annotation.ElementType; 
+import java.lang.annotation.Retention; 
+import java.lang.annotation.RetentionPolicy; 
+import java.lang.annotation.Target; 
 
 /**
- * Holds search command form results.
+ * Custom annotation to label methods and controllers that required an admin login.
+ * If this annotation is added to a controller, and the admin user has not logged in, 
+ * it will redirect to the /admin/login page.
  * @author khanson
+ *
  */
-public class SearchCommand {
-	
-	/** The search. */
-	@NotNull
-	@Size(min=1)
-	private String search = "";
-	
-	/**
-	 * Gets the search string.
-	 *
-	 * @return the search
-	 */
-	public String getSearch() {
-		return search;
-	}
-	
-	/**
-	 * Sets the search string.
-	 *
-	 * @param search the new search
-	 */
-	public void setSearch(String search)	{
-		search = search.trim();
-		this.search = search;
-	}
-	
+@Retention(RetentionPolicy.RUNTIME) 
+@Target(ElementType.METHOD) 
+public @interface AdminLoginRequired{ 
 }

@@ -22,6 +22,18 @@
  */
 package info.rmapproject.auth.service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Set;
+import java.util.function.Supplier;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import info.rmapproject.auth.exception.ErrorCode;
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.User;
@@ -30,19 +42,14 @@ import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.request.RMapRequestAgent;
 import info.rmapproject.core.rmapservice.RMapService;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 /**
- * Service for access to methods related to the rmap:Agent object in RMap
- * graph database.
+ * Service for access to methods related interaction between database User model and 
+ * RMapAgent object in RMap core.
  *
  * @author khanson
  */
@@ -50,7 +57,7 @@ import org.springframework.stereotype.Service;
 @Service("userRMapAgentService")
 public class UserRMapAgentServiceImpl {
 
-	//private static final Logger logger = LoggerFactory.getLogger(UserRMapAgentServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(UserRMapAgentServiceImpl.class);
 	/**  Instance of rmapService for Core RMap functions. */
 	@Autowired
 	RMapService rmapService;
@@ -59,83 +66,67 @@ public class UserRMapAgentServiceImpl {
 	@Autowired
 	UserServiceImpl userService;
 	
-
-	/**  Instance of service for interaction with UserIdentityProvider data. */
+	/** RMap ID generator */
 	@Autowired
-	UserIdProviderServiceImpl userIdProvidersService;
+	Supplier<URI> idSupplier;
 	
 	/**
 	 * Compares the user in the user database to the Agents in RMap. If the Agent is already in RMap
-	 * and details that have changed are updated. If the Agent is not in RMap it is created.
+	 * any details that have changed are updated. If the Agent is not in RMap it is created.
+	 * The assumption here is that if a new Agent needs to be created, the User is also the RMapRequestAgent.
 	 *
-	 * @param userId the User record ID
+	 * @param user the user 
+	 * @param apiKeyUri key URI to associate with Event, null if there isn't one.
 	 * @return the RMap Event
 	 * @throws RMapAuthException the RMap Auth exception
 	 */
-	public RMapEvent createOrUpdateAgentFromUser(int userId) throws RMapAuthException {
+	public RMapEvent createOrUpdateAgentFromUser(User user, String sApiKeyUri) throws RMapAuthException {
+				
 		RMapEvent event = null;
-
-		User user = userService.getUserById(userId);
 		if (user==null){
-			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage());
+			throw new RMapAuthException(ErrorCode.ER_NULL_USER_PROVIDED.getMessage());
 		}
 		
+		log.debug("Checking whether rmap:Agent for user id " + user.getUserId() + " needs to be updated.");
+		
 		if (!user.isDoRMapAgentSync()){
+			log.debug("User is not set to be synchronized with Agent record. Exiting CreateOrUpdateAgentFromUser()");
 			//no need to update
 			return null;
 		}
-		
+			
 		//we are permitted to synchronize the user in rmap... proceed...
 		try {
-			String sAgentId = user.getRmapAgentUri();	
-			if (sAgentId==null){
-				throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage());
-			}
-			URI uAgentId = new URI(sAgentId);
-
-			//get other properties we need to create/update the agent
-			String agentAuthId = user.getAuthKeyUri();
-			String name = user.getName();
-
-			List<UserIdentityProvider> userIdProviders = userIdProvidersService.getUserIdProviders(user.getUserId());
-			String primaryIdProvider = "";
-			//TODO: this will just handle the first one for now -- need to make it support multiple idproviders
-			for (UserIdentityProvider userIdProvider:userIdProviders){			
-				primaryIdProvider = userIdProvider.getIdentityProvider();
-				break;
+			
+			RMapAgent agent = asRMapAgent(user);
+			String sAgentId = agent.getId().toString();
+			URI agentId = new URI(sAgentId);
+						
+			URI apiKeyUri = null;
+			if (sApiKeyUri!=null) {
+				apiKeyUri = new URI(sApiKeyUri);
 			}
 						
-			//check the required properties are populated
-			if (agentAuthId==null || agentAuthId.length()==0
-					|| primaryIdProvider==null || primaryIdProvider.length()==0){
-				throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage());
-			}	
-			
+			RMapRequestAgent reqAgent  = new RMapRequestAgent(agentId, apiKeyUri);
+			log.debug("RMapRequestAgent instantiated with agentId: " + agentId + " and apiKeyUri: " + (apiKeyUri==null ? "" : apiKeyUri));
+
 			//if agent isn't in the triplestore, create it!  otherwise, update it
-			RMapRequestAgent reqAgent  = new RMapRequestAgent(uAgentId);
-			if (rmapService.isAgentId(uAgentId)){
+			if (rmapService.isAgentId(agentId)){
 				//rmap agent exists - but has there been a change?
-				RMapAgent origAgent = rmapService.readAgent(uAgentId);
-				String oAuthId = origAgent.getAuthId().toString();
-				String oName = origAgent.getName().toString();
-				String oIdProvider = origAgent.getIdProvider().toString();
-				if (!oAuthId.equals(user.getAuthKeyUri()) 
-					|| !oName.equals(user.getName())
-					|| !oIdProvider.equals(primaryIdProvider)){
-					
+				RMapAgent origAgent = rmapService.readAgent(agentId);
+				if (!origAgent.equals(agent)){	
 					//something has changed, do update
-					event = rmapService.updateAgent(uAgentId, name, new URI(primaryIdProvider), new URI(agentAuthId), reqAgent);					
+					event = rmapService.updateAgent(agent, reqAgent);	
+					log.info("rmap:Agent ID " + agent.getId().toString() + " was updated in RMap using the latest User record information");
 				}				
 			}
 			else { 
 				//id generated but no record created yet - create agent
-				event = rmapService.createAgent(uAgentId, name, new URI(primaryIdProvider), new URI(agentAuthId), reqAgent);
+				event = rmapService.createAgent(agent, reqAgent);	
+				log.info("rmap:Agent ID " + agent.getId().toString() + " was created for the first time in RMap");			
 			}
-			userService.updateUser(user);
-			
-		} catch (URISyntaxException uriEx) {
-			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage(),uriEx.getCause());
-		} catch (RMapException | RMapDefectiveArgumentException ex) {
+
+		} catch (URISyntaxException | RMapException | RMapDefectiveArgumentException ex) {
 			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage(),ex.getCause());
 		} finally {
 			if (rmapService!=null){
@@ -144,9 +135,67 @@ public class UserRMapAgentServiceImpl {
 		}
 		
 		return event;
-		
 	}
 	
-	
+	/**
+	 * Converts a User object to an RMapAgent object.  Note that this will mint a new ID if the User doesn't already have one.
+	 * @param user
+	 * @return
+	 */
+	public RMapAgent asRMapAgent(User user) {
+		Value name = null;
+		IRI authKeyUri = null;
+		IRI idProvider = null;
+		IRI agentId = null;
+		
+		try {
 
+			log.debug("Converting user with ID " + user.getUserId() + " to an rmap:Agent");
+			//retrieve foaf:name
+			name = ORAdapter.getValueFactory().createLiteral(user.getName());
+			
+			//retrieve rmap:authKeyId
+			authKeyUri = ORAdapter.getValueFactory().createIRI(user.getAuthKeyUri());
+			
+			//retrieve rmap:identityProvider
+			Set<UserIdentityProvider> userIdProviders = user.getUserIdentityProviders();
+			String primaryIdProvider = "";
+			if (userIdProviders.size()>0) {
+				//currently will only have one identityProvider, grab the first one
+				for (UserIdentityProvider userIdProvider:userIdProviders){			
+					primaryIdProvider = userIdProvider.getIdentityProvider();
+					break;
+				}
+			} else {
+				//account was authorized manually without an ID provider
+				primaryIdProvider = userService.getRMapAdministratorPath();
+			}
+			idProvider = ORAdapter.getValueFactory().createIRI(primaryIdProvider);
+
+			//check all of these properties are populated - so far so good?
+			if (authKeyUri==null || idProvider==null|| name==null || name.toString().length()==0){
+				throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage());					
+			}
+			
+			//if there is an Agent URI in the User record, set that, otherwise mint one
+			String sAgentUri = user.getRmapAgentUri();	
+			if (sAgentUri==null){
+				sAgentUri = userService.assignRMapAgentUri(user.getUserId());
+			} 
+			agentId = ORAdapter.getValueFactory().createIRI(sAgentUri);
+
+			log.debug("rmap:Agent object being instantiated using agentId: " + sAgentUri + "; name:" + name.toString() + "; authKeyId: " 
+							+ authKeyUri.toString() + "; idProvider: " + idProvider.toString());
+			
+			RMapAgent agent = new ORMapAgent(agentId, idProvider, authKeyUri, name);
+			
+			return agent;
+			
+		} catch (RMapAuthException ex) {
+			throw ex;			
+		} catch (Exception ex) {
+			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage(), ex);			
+		}
+	}
+	
 }

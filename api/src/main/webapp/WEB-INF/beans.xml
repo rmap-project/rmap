@@ -65,13 +65,7 @@
 
 	<bean id="timegate" class="info.rmapproject.api.responsemgr.versioning.TimegateImpl" scope="prototype"/>  
 
-    <beans profile="persistent-userservice">
-        <bean id="apiUserService" class="info.rmapproject.api.auth.ApiUserServiceImpl" scope="prototype"/>
-    </beans>
-
-    <beans profile="mock-userservice">
-        <bean id="mockUserSerivce" class="info.rmapproject.api.mockobjects.ApiUserServiceMockImpl"/>
-    </beans>
-
+    <bean id="apiUserService" class="info.rmapproject.api.auth.ApiUserServiceImpl" scope="prototype"/>
+    
 </beans>
 

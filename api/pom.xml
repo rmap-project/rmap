@@ -118,7 +118,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-userservice</spring.profiles.active>
+                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore</spring.profiles.active>
 						<derby.system.home>${project.build.directory}/derby</derby.system.home>
                     </systemProperties>
                 </configuration>
