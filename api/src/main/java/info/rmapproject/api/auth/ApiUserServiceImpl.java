@@ -65,7 +65,7 @@ public class ApiUserServiceImpl implements ApiUserService {
 	public AuthorizationPolicy getCurrentAuthPolicy() throws RMapApiException {
 		AuthorizationPolicy authorizationPolicy = null;
 		Message message = JAXRSUtils.getCurrentMessage();
-		authorizationPolicy = (AuthorizationPolicy)message.get(AuthorizationPolicy.class);
+		authorizationPolicy = message.get(AuthorizationPolicy.class);
 	    if (authorizationPolicy == null) {
 	        throw new RMapApiException(ErrorCode.ER_COULD_NOT_RETRIEVE_AUTHPOLICY);
 	        }
