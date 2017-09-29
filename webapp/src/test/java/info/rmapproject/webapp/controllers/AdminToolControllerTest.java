@@ -37,7 +37,7 @@ import info.rmapproject.webapp.WebTestAbstract;
 import info.rmapproject.webapp.utils.Constants;
 
 /**
- * Basic tests for AdminToolControllerTest, which controls the Admin pages.
+ * Basic tests for AdminToolController, which returns views for home and contact page.
  * @author khanson
  *
  */
@@ -115,10 +115,9 @@ public class AdminToolControllerTest extends WebTestAbstract {
         mockMvc.perform(get("/admin/users"))
 		        .andExpect(status().is3xxRedirection())
 		        .andExpect(redirectedUrl("/admin/login"));
-        
+                     
     }
     
-
     /**
      * Tests redirect of admin user to user/settings page
      * @throws Exception

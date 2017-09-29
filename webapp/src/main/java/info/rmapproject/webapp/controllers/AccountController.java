@@ -50,9 +50,12 @@ public class AccountController {
 	//private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 	
 	/** Service for user management. */
-	@Autowired
 	private UserMgtService userMgtService;
-		
+	
+	@Autowired
+	public AccountController(UserMgtService userMgtService){
+		this.userMgtService=userMgtService;
+	}
 	
 /*
  * *************************
@@ -126,7 +129,7 @@ public class AccountController {
 	 * @return the User Settings page
 	 */
 	@LoginRequired
-	@RequestMapping(value="/user/settings", method=RequestMethod.GET)
+	@RequestMapping(value={"/user/settings","/admin/user/settings"}, method=RequestMethod.GET)
 	public String settingsForm(HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");				
 		if (user == null || user.getUserId()==0){
@@ -141,7 +144,6 @@ public class AccountController {
 		model.addAttribute("userSettings",user);
         return "user/settings";	
 	}
-	
 	
 	/**
 	 * Receives the POSTed Settings form to be processed. Returns any form errors.

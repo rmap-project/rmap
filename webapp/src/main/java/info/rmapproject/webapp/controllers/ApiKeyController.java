@@ -53,10 +53,13 @@ import info.rmapproject.webapp.utils.Constants;
 @SessionAttributes({"user","account"})
 public class ApiKeyController {
 	
-	//private static final Logger logger = LoggerFactory.getLogger(ApiKeyController.class);
 	/** Service for user management. */
-	@Autowired
 	private UserMgtService userMgtService;
+	
+	@Autowired
+	public ApiKeyController(UserMgtService userMgtService){
+		this.userMgtService=userMgtService;
+	}
 	
 	/**
 	 * GET the list of API keys for the current user.
@@ -136,17 +139,19 @@ public class ApiKeyController {
 	public String showKeyForm(@RequestParam("keyid") Integer keyId, Model model, HttpSession session) throws Exception {
 		User user = (User) session.getAttribute("user"); //retrieve logged in user
 		ApiKey apiKey = this.userMgtService.getApiKeyById(keyId);
-		if (apiKey.getUserId()==user.getUserId())	{
-			model.addAttribute("apiKey", this.userMgtService.getApiKeyById(keyId));
-			model.addAttribute("targetPage", "keyedit");
-	        return "user/key";	
+		if (apiKey.getUserId()!=user.getUserId())	{
+			//the key and user don't match, go back to key list, something went wrong
+			Boolean isAdmin = (Boolean) session.getAttribute(Constants.ADMIN_LOGGEDIN_SESSATTRIB);
+			if (isAdmin!=null && isAdmin) {
+				return "redirect:/admin/user/keys"; 			
+			} else {
+				return "redirect:/user/keys";
+			}  
 		}
-		Boolean isAdmin = (Boolean) session.getAttribute(Constants.ADMIN_LOGGEDIN_SESSATTRIB);
-		if (isAdmin!=null && isAdmin) {
-			return "redirect:/admin/user/keys"; 			
-		} else {
-			return "redirect:/user/keys";
-		}  
+
+		model.addAttribute("apiKey", this.userMgtService.getApiKeyById(keyId));
+		model.addAttribute("targetPage", "keyedit");
+        return "user/key";			
 	}
 	
 	/**
@@ -161,7 +166,8 @@ public class ApiKeyController {
 	@LoginRequired
 	@RequestMapping(value={"/user/key/edit","/admin/user/key/edit"}, method=RequestMethod.POST)
 	public String updateUserKey(@Valid ApiKey apiKey, BindingResult result, ModelMap model, HttpSession session) throws Exception {
-        if (result.hasErrors()) {
+		User user = (User) session.getAttribute("user"); //retrieve logged in user
+        if (result.hasErrors() || user.getUserId()!=apiKey.getUserId()) {
 			model.addAttribute("targetPage", "keyedit");
     		model.addAttribute("notice", "Errors found, key could not be saved.");	
             return "user/key";
@@ -190,6 +196,7 @@ public class ApiKeyController {
 				HttpServletResponse response, HttpSession session) throws Exception {
 		User user = (User) session.getAttribute("user"); //retrieve logged in user
 		ApiKey apiKey = this.userMgtService.getApiKeyById(keyId);
+		//only download key if user in session matches keyid user
 		if (apiKey.getUserId()==user.getUserId())	{
 			String downloadFileName= "rmap.key";
 			String key = apiKey.getAccessKey() + ":" + apiKey.getSecret();
