@@ -132,9 +132,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			e.printStackTrace();
 			fail();
 		}
-		finally {
-			rmapService.closeConnection();
-		}
 	}
 	
 	@SuppressWarnings("unused")
@@ -172,8 +169,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
-		} finally {
-			rmapService.closeConnection();
 		}
 		
 	}
@@ -221,9 +216,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
-		} finally {
-			rmapService.closeConnection();
-		}
+		} 
 	}
 	
 	@SuppressWarnings("unused")
@@ -271,9 +264,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
-		} finally {
-			rmapService.closeConnection();
-		}
+		} 
 		
 	}
 	

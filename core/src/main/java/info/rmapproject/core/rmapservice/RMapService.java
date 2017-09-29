@@ -513,13 +513,5 @@ public interface RMapService {
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
 	public boolean isEventId(URI id) throws RMapException, RMapDefectiveArgumentException;
-	
-	
-	/**
-	 * Closes triplestore connection if it is still open.
-	 *
-	 * @throws RMapException an RMapException
-	 */
-    public void closeConnection() throws RMapException;
 
 }

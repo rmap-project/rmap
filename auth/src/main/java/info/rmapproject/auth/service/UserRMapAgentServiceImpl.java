@@ -128,11 +128,7 @@ public class UserRMapAgentServiceImpl {
 
 		} catch (URISyntaxException | RMapException | RMapDefectiveArgumentException ex) {
 			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage(),ex.getCause());
-		} finally {
-			if (rmapService!=null){
-				rmapService.closeConnection();
-			}
-		}
+		} 
 		
 		return event;
 	}

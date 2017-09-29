@@ -72,9 +72,6 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 		catch (RMapException e){
 			fail("exception" + e.getMessage());
 		}
-		finally {
-			rmapService.closeConnection();
-		}
 	}
 	
 	
@@ -134,9 +131,6 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 		}
 		catch (URISyntaxException e){
 			fail("agent not found");
-		}
-		finally {
-			rmapService.closeConnection();
 		}
 		
 		
