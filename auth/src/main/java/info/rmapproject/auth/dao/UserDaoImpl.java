@@ -76,9 +76,9 @@ public class UserDaoImpl implements UserDao {
 	 */
     @Override
 	public User getUserById(int userId) throws RMapAuthException {
-        Session session = this.sessionFactory.getCurrentSession();      
-        User user = (User) session.load(User.class, userId);
-        LOG.info("User record loaded successfully, User Details={}", user);
+        Session session = this.sessionFactory.getCurrentSession(); 
+        User user = (User) session.get(User.class, userId);
+        LOG.info("User record loaded, User Details={}", user);
         return user;
 	}
     

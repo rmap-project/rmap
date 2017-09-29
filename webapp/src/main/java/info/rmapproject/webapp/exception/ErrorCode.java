@@ -62,7 +62,10 @@ public enum ErrorCode {
 	ER_PROBLEM_LOADING_DISCOGRAPH (4013010),
 
 	/** Error code for when there is a problem loading the /discos/{uri}/tabledata.*/
-	ER_PROBLEM_LOADING_DISCOTABLE (4013011); 
+	ER_PROBLEM_LOADING_DISCOTABLE (4013011),
+	
+	/** User record not found*/
+	ER_USER_RECORD_NOT_FOUND (4013012); 
 
 
 	/** The error number. */

@@ -36,9 +36,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.auth.model.User;
 import info.rmapproject.webapp.auth.AdminLogin;
 import info.rmapproject.webapp.auth.AdminLoginRequired;
+import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.UserMgtService;
 
 /**
@@ -174,11 +176,13 @@ public class AdminToolController {
 		try {
 			User user = userMgtService.getUserById(userId);
 			session.setAttribute("user", user);
+			if (user==null) {
+				throw new RMapWebException(ErrorCode.ER_USER_RECORD_NOT_FOUND);
+			}
 		} catch (Exception ex){
-    		model.addAttribute("notice", "Could not retrieve user. Please select a user to edit.");	
+			model.addAttribute("notice", "Could not retrieve user. Please select a user to edit.");	
 			return "redirect:/admin/users";
 		}
-				
 		return "redirect:/admin/user/settings"; 		
 	}	
 	

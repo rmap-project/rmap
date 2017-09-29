@@ -155,10 +155,13 @@ public class AccountController {
 	@LoginRequired
 	@RequestMapping(value={"/user/settings","/admin/user/settings"}, method=RequestMethod.POST)
 	public String updateUserSettings(@ModelAttribute("userSettings") @Valid User user, BindingResult result, ModelMap model, HttpSession session) throws Exception {
-        if (result.hasErrors()) {
+
+        User sessionUser = (User) session.getAttribute("user");
+        if (result.hasErrors() || sessionUser.getUserId()!=user.getUserId()) {
     		model.addAttribute("notice", "Errors found, settings could not be saved");	
             return "user/settings";
         }
+        
 		this.userMgtService.updateUserSettings(user);
 		//refresh session record and attribute
 		user = this.userMgtService.getUserById(user.getUserId()); 
