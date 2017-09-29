@@ -195,7 +195,6 @@ public class AgentResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 		return response;
@@ -265,7 +264,6 @@ public class AgentResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 		return response;
@@ -409,7 +407,6 @@ public class AgentResponseManager extends ResponseManager {
     		throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
     	return response;

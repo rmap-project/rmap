@@ -237,7 +237,6 @@ public class DiscoResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 		
@@ -332,7 +331,6 @@ public class DiscoResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 		return response;		
@@ -403,7 +401,6 @@ public class DiscoResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 		return response;	
@@ -488,7 +485,6 @@ public class DiscoResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 		return response;	
@@ -608,7 +604,6 @@ public class DiscoResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 	return response;	
@@ -734,7 +729,6 @@ public class DiscoResponseManager extends ResponseManager {
 			throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
 	return response;		
@@ -822,7 +816,6 @@ public class DiscoResponseManager extends ResponseManager {
     		throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
     	return response;
@@ -905,7 +898,6 @@ public class DiscoResponseManager extends ResponseManager {
     		throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
     	return response;
@@ -980,7 +972,6 @@ public class DiscoResponseManager extends ResponseManager {
     		throw RMapApiException.wrap(ex,ErrorCode.ER_UNKNOWN_SYSTEM_ERROR);
 		}
 		finally{
-			if (rmapService != null) rmapService.closeConnection();
 			if (!reqSuccessful && response!=null) response.close();
 		}
     	return response;
