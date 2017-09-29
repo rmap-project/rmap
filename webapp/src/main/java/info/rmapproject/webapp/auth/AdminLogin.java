@@ -69,5 +69,15 @@ public class AdminLogin {
 		}
 		return false;
 	}
+
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result + (username != null ? username.hashCode() : 0);
+		result = 31 * result + (password != null ? password.hashCode() : 0);
+		return result;
+	}
+	
 	
 }

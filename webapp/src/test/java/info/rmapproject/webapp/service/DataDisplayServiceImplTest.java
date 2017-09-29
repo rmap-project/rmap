@@ -205,7 +205,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 	 * Basic check that getResourceBatch returns not found if id is not available.
 	 * @throws Exception
 	 */
-	@Test
+	@Test(expected = RMapObjectNotFoundException.class)
 	public void testGetResourceBatchWhenNoMatches() throws Exception {
 		// agent already exists, so create a disco
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
@@ -213,12 +213,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
         assertNotNull(discoUri);
 		rmapService.createDiSCO(disco, requestAgent);
 		String uriInDisco = "fakefake:uri";
-		try {
-			dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
-			fail("Should have thrown an RMapObjectNotFoundException");
-		} catch (RMapObjectNotFoundException ex) {
-			// it works!
-		}
+		dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
 	}
 		
 	/**

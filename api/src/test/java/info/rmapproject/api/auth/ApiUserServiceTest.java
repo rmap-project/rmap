@@ -46,30 +46,28 @@ import info.rmapproject.core.rmapservice.RMapService;
 
 public class ApiUserServiceTest extends ApiTestAbstract{
 
-	String testUserName = "RMap Test User";
-	String testKeyLabel = "RMap test key";
-	String testAccessKey = "uah2CKDaBsEw3cEQ";
-	String testSecret = "NSbdzctrP46ZvhTi";
-	String testAgentUri = "rmap:testagenturi";
+	private String testAccessKey = "uah2CKDaBsEw3cEQ";
+	private String testSecret = "NSbdzctrP46ZvhTi";
+	private String testAgentUri = "rmap:testagenturi";
 	
-	String testUserName2 = "Josephine Tester";
-	String testUserEmail2 = "jtester@example.edu";
-	String testAuthKeyUri2 = "http://authkeytest.org/hijklmno";
+	private String testUserName2 = "Josephine Tester";
+	private String testUserEmail2 = "jtester@example.edu";
+	private String testAuthKeyUri2 = "http://authkeytest.org/hijklmno";
 	
 	
 	@Autowired
-	RMapService rmapService;
+	private RMapService rmapService;
 
 	@Autowired
-	RMapAuthService rmapAuthService;
+	private RMapAuthService rmapAuthService;
 	
 	@Autowired
-	ApiUserService apiUserService;
+	private ApiUserService apiUserService;
 	
-	AuthorizationPolicy authPolicy;
+	private AuthorizationPolicy authPolicy;
 
 	/** version of ApiUserService we will spy on - need to spy so that we can fake the AuthenticationPolicy*/
-	ApiUserService spyApiUserService;
+	private ApiUserService spyApiUserService;
 	
 	@Before
 	public void setup() throws Exception {

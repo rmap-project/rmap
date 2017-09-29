@@ -56,11 +56,11 @@ public class UserServiceImpl {
 	
 	/** Users table data access component. */
 	@Autowired
-	UserDao userDao;
+	private UserDao userDao;
 
 	/** RMap core Id Generator Service. */
 	@Autowired
-	Supplier<URI> idSupplier;
+	private Supplier<URI> idSupplier;
 	
 	/** Prefix for authID*/
 	@Value("${rmapauth.authIdPrefix}")
