@@ -44,7 +44,7 @@ import info.rmapproject.auth.model.ApiKey;
 public class ApiKeyDaoImpl implements ApiKeyDao {
 
 	/** The Constant logger. */
-	private static final Logger logger = LoggerFactory.getLogger(ApiKeyDaoImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ApiKeyDaoImpl.class);
 
 	/** Data base session factory instance. */
     @Autowired
@@ -57,7 +57,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
 	public int addApiKey(ApiKey apiKey) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();
         session.persist(apiKey);
-        logger.info("API key saved successfully, API key=" + apiKey);	
+        LOG.info("API key saved successfully, API key={}", apiKey);	
         return apiKey.getApiKeyId();
 	}
     
@@ -68,7 +68,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
 	public void updateApiKey(ApiKey apiKey) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();
         session.update(apiKey);
-        logger.info("API key updated successfully, API Key=" + apiKey);
+        LOG.info("API key updated successfully, API Key={}", apiKey);
 	}
 
 	/* (non-Javadoc)
@@ -78,7 +78,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
 	public ApiKey getApiKeyById(int apiKeyId) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();      
         ApiKey apiKey = (ApiKey) session.load(ApiKey.class, apiKeyId);
-        logger.info("User record loaded successfully, User details=" + apiKey);
+        LOG.info("User record loaded successfully, User details={}", apiKey);
         return apiKey;
 	}
 
@@ -95,7 +95,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
         query.setParameter("secret",secret);
 		List<ApiKey> apiKeys = query.list();
 		if (apiKeys != null && !apiKeys.isEmpty()) {
-	        logger.info("Api key list loaded successfully");
+	        LOG.info("Api key list loaded successfully");
 			return apiKeys.get(0);
 		}
 		else	{
@@ -114,7 +114,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
         query.setParameter("keyUri",keyUri);
 		List<ApiKey> apiKeys = query.list();
 		if (apiKeys != null && !apiKeys.isEmpty()) {
-	        logger.info("Api key list loaded successfully");
+	        LOG.info("Api key list loaded successfully");
 			return apiKeys.get(0);
 		}
 		else	{
@@ -137,7 +137,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
         query.setParameter("secret",secret);
 		List<String> rmapAgentUris = query.list();
 		if (rmapAgentUris != null && !rmapAgentUris.isEmpty()) {
-	        logger.info("User list loaded successfully");
+	        LOG.info("User list loaded successfully");
 	        String agentId = rmapAgentUris.get(0);
         	try {
 				agentUri = new URI(agentId);
@@ -159,7 +159,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
         Query query = session.createQuery("from ApiKey where userId=:userId");
         query.setParameter("userId",userId);
 		List <ApiKey> apiKeys = query.list();
-        logger.info("Api key list loaded successfully");
+        LOG.info("Api key list loaded successfully");
         return apiKeys;
 	}
 

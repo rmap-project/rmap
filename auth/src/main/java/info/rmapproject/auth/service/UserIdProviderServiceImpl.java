@@ -39,8 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("userIdProviderService")
 @Transactional
 public class UserIdProviderServiceImpl {
-
-//private static final Logger logger = LoggerFactory.getLogger(UserIdProviderServiceImpl.class);
 	
 	/** UserIdProvider table data access component. */
 	@Autowired

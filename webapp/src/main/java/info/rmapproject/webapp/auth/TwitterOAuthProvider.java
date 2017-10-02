@@ -78,8 +78,6 @@ public class TwitterOAuthProvider extends OAuthProvider{
 		OAuthProviderAccount profile = 
 				new OAuthProviderAccount(accessToken, provider, displayName, accountId, publicId , profilePath);
 
-		//logger.info("Twitter profile" + jsonString);
-		//logger.info("Twitter token" + accessToken.getRawResponse());
 		return profile;
 	}	
 	

@@ -72,7 +72,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 	
 	
 
-	private static final Logger log = LoggerFactory.getLogger(AuthenticationInterceptor.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AuthenticationInterceptor.class);
 	
 	/* (non-Javadoc)
 	 * @see org.springframework.web.servlet.HandlerInterceptor#preHandle(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, java.lang.Object)
@@ -90,7 +90,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
 		//if trying to access an admin path but admin tool is disabled, redirect to home
 		Boolean blAdminToolEnabled = (adminToolEnabled!=null && adminToolEnabled.equals("true")) ? true : false;
-    	log.debug("Admin tool enabled status is " + blAdminToolEnabled.toString());
+		LOG.debug("Admin tool enabled status is {}", blAdminToolEnabled);
 		if (request.getServletPath().contains("/admin") && !blAdminToolEnabled) {
 			response.sendRedirect(request.getContextPath() + HOMEPAGE_PATH);
 			return false;
@@ -101,7 +101,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 			Boolean adminLoggedIn = (Boolean) request.getSession().getAttribute(Constants.ADMIN_LOGGEDIN_SESSATTRIB);
 			adminLoggedIn = (adminLoggedIn==null) ? false : adminLoggedIn;
 			
-	    	log.debug("Admin logged in status is " + adminLoggedIn.toString());
+			LOG.debug("Admin logged in status is {}", adminLoggedIn);
 			
 			if(method.isAnnotationPresent(LoginRequired.class)) { 
 	    		//these are all of the cases in which you would not go to the requested page, but instead be redirected somewhere else.

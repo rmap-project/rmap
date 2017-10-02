@@ -35,9 +35,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 @Controller
 @SessionAttributes({"user","account"})
 public class HomeController {
-	
-	//private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
-	
+		
 	/**
 	 * GETs the Home page.
 	 *
@@ -46,9 +44,7 @@ public class HomeController {
 	 * @return the home page
 	 */
 	@RequestMapping(value={"/", "/home"}, method = RequestMethod.GET)
-	public String home(Locale locale, Model model) {
-		//logger.info("Welcome home! The client locale is {}.", locale);
-				
+	public String home(Locale locale, Model model) {				
 		return "home";
 	}
 	

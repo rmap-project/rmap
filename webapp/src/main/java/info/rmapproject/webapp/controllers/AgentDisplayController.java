@@ -57,7 +57,7 @@ public class AgentDisplayController {
 	private DataDisplayService dataDisplayService;
 
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(AgentDisplayController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AgentDisplayController.class);
 
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
@@ -72,7 +72,7 @@ public class AgentDisplayController {
 	 */
 	@RequestMapping(value="/agents/{uri}", method = RequestMethod.GET)
 	public String agent(@PathVariable(value="uri") String agentUri, Model model) throws Exception {
-		log.info("Agent requested: " + agentUri);	
+		LOG.info("Agent requested: {}", agentUri);	
 
 		agentUri = URLDecoder.decode(agentUri, "UTF-8");
 		
@@ -108,7 +108,7 @@ public class AgentDisplayController {
 	 */
 	@RequestMapping(value="/agents/{uri}/visual", method = RequestMethod.GET)
 	public String agentDataVisual(@PathVariable(value="uri") String agentUri, Model model) throws Exception {
-		log.info("Agent requested: " + agentUri);	
+		LOG.info("Agent requested: {}", agentUri);	
 
 		agentUri = URLDecoder.decode(agentUri, "UTF-8");
 		
@@ -130,7 +130,7 @@ public class AgentDisplayController {
 	 */
 	@RequestMapping(value="/agents/{uri}/widget", method = RequestMethod.GET)
 	public String agentDataWidget(@PathVariable(value="uri") String agentUri, Model model) throws Exception {
-		log.info("Agent requested: " + agentUri);	
+		LOG.info("Agent requested: {}", agentUri);	
 
 		agentUri = URLDecoder.decode(agentUri, "UTF-8");
 		
@@ -151,7 +151,7 @@ public class AgentDisplayController {
 	 */
 	@RequestMapping(value="/agents/{uri}/tabledata", method = RequestMethod.GET)
 	public String agentTableData(@PathVariable(value="uri") String agentUri, Model model) throws Exception {
-		log.info("Agent requested: " + agentUri);	
+		LOG.info("Agent requested: {}", agentUri);	
 
 		try {
 			agentUri = URLDecoder.decode(agentUri, "UTF-8");
@@ -178,7 +178,7 @@ public class AgentDisplayController {
 	@RequestMapping(value="/agents/{uri}/graphdata", method = RequestMethod.GET)
 	public String agentGraphData(@PathVariable(value="uri") String agentUri, 
 			@RequestParam(value="view", required=false) String view, Model model) throws Exception {
-		log.info("Agent requested: " + agentUri);	
+		LOG.info("Agent requested: {}", agentUri);	
 		if (view==null || view.length()==0){
 			view=STANDARD_VIEW;
 		}
@@ -210,7 +210,7 @@ public class AgentDisplayController {
 	@RequestMapping(value="/agents/{uri}/discos", method = RequestMethod.GET)
 	public String agentRelatedDiSCOs(@PathVariable(value="uri") String agentUri, Model model,
 			@RequestParam(value="offset", required=false) Integer offset) throws Exception {
-		log.info("Agent requested: " + agentUri);	
+		LOG.info("Agent requested: {}", agentUri);	
 		if (offset==null){
 			offset=0;
 		}

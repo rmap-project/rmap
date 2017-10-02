@@ -825,7 +825,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	@Override
 	public String getRMapTypeDisplayName(URI resourceUri) throws Exception {
 			
-		log.debug("Checking type for URI " + ((resourceUri==null) ? "" : resourceUri.toString()));
+		log.debug("Checking type for URI {}", ((resourceUri==null) ? "" : resourceUri.toString()));
 					
 		if (rmapService.isDiSCOId(resourceUri)) {
 			log.debug("Type identified as a rmap:DiSCO");

@@ -43,8 +43,6 @@ import info.rmapproject.webapp.auth.OAuthProviderAccount;
 @Transactional
 public class UserMgtServiceImpl implements UserMgtService {
 
-//private static final Logger logger = LoggerFactory.getLogger(UserMgtServiceImpl.class);
-	
 	/** The RMap Auth service. */
 	@Autowired
 	private RMapAuthService rmapAuthService;

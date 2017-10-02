@@ -53,7 +53,7 @@ import info.rmapproject.webapp.utils.SiteProperties;
 public class LoginController {
 
 	/** The log. */
-	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LoginController.class);
 	
 	/** Service for user management. */
 	@Autowired
@@ -86,7 +86,7 @@ public class LoginController {
 	@RequestMapping(value={"/user/login/google"}, method = RequestMethod.GET)
 	public String logingoogle(HttpSession session) {
 		if (!siteProperties.isGoogleEnabled()) {
-			log.debug("Google OAuth unavailable, redirecting to home page");
+			LOG.debug("Google OAuth unavailable, redirecting to home page");
 			return "redirect:/home";
 		}
 		
@@ -111,7 +111,7 @@ public class LoginController {
 	@RequestMapping(value={"/user/googlecallback"}, method = RequestMethod.GET)
 	public String googlecallback(@RequestParam(value="code", required=false) String oauthVerifier, HttpSession session, Model model) {
 		if (!siteProperties.isGoogleEnabled()) {
-			log.debug("Google OAuth unavailable, redirecting to home page");
+			LOG.debug("Google OAuth unavailable, redirecting to home page");
 			return "redirect:/home";
 		}
 		
@@ -149,7 +149,7 @@ public class LoginController {
 	@RequestMapping(value={"/user/login/orcid"}, method = RequestMethod.GET)
 	public String loginorcid(HttpSession session) {
 		if (!siteProperties.isOrcidEnabled()) {
-			log.debug("ORCID OAuth unavailable, redirecting to home page");
+			LOG.debug("ORCID OAuth unavailable, redirecting to home page");
 			return "redirect:/home";
 		}
 		//see if we are already logged in
@@ -173,7 +173,7 @@ public class LoginController {
 	@RequestMapping(value={"/user/orcidcallback"}, method = RequestMethod.GET)
 	public String orcidcallback(@RequestParam(value="code", required=false) String oauthVerifier, HttpSession session, Model model) {
 		if (!siteProperties.isOrcidEnabled()) {
-			log.debug("ORCID OAuth unavailable, redirecting to home page");
+			LOG.debug("ORCID OAuth unavailable, redirecting to home page");
 			return "redirect:/home";
 		}
 		OAuthProviderName idProvider = OAuthProviderName.ORCID;
@@ -207,7 +207,7 @@ public class LoginController {
 	@RequestMapping(value={"/user/login/twitter"}, method = RequestMethod.GET)
 	public String logintwitter(HttpSession session) {
 		if (!siteProperties.isTwitterEnabled()) {
-			log.debug("Twitter OAuth unavailable, redirecting to home page");
+			LOG.debug("Twitter OAuth unavailable, redirecting to home page");
 			return "redirect:/home";
 		}
 		//see if we are already logged in
@@ -235,7 +235,7 @@ public class LoginController {
 	public String twittercallback(@RequestParam(value="oauth_token", required=false) String oauthToken,
 				@RequestParam(value="oauth_verifier", required=false) String oauthVerifier, HttpSession session, Model model) {
 		if (!siteProperties.isTwitterEnabled()) {
-			log.debug("Twitter OAuth unavailable, redirecting to home page");
+			LOG.debug("Twitter OAuth unavailable, redirecting to home page");
 			return "redirect:/home";
 		}
 		
@@ -278,7 +278,7 @@ public class LoginController {
 	@RequestMapping(value="/user/login", method=RequestMethod.GET)
 	public String loginPage(Model model, HttpSession session) {
 		if (!siteProperties.isOauthEnabled()) {
-			log.debug("No OAuth option available, redirecting to home page");
+			LOG.debug("No OAuth option available, redirecting to home page");
 			return "redirect:/home";
 		}		
 		return "user/login";

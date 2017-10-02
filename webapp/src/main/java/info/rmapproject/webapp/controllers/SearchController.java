@@ -47,7 +47,7 @@ import info.rmapproject.webapp.domain.SearchCommand;
 public class SearchController {
 
 	/** The log. */
-	private static final Logger logger = LoggerFactory.getLogger(SearchController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SearchController.class);
 	
 	/**
 	 * GETs the search form.
@@ -58,7 +58,7 @@ public class SearchController {
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public String searchForm(Model model, RedirectAttributes redirectAttributes) {
-		logger.info("Search page");
+		LOG.info("Search page");
 		
 		if (redirectAttributes.containsAttribute("search")){
 			//true if redirected back to form due to error, for example.

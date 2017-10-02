@@ -53,7 +53,7 @@ public class ExceptionHandlingController {
 	private static final String WIDGET_VIEW = "widget";
 	
 	/** The log. */
-	private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlingController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ExceptionHandlingController.class);
 	
 	/**
 	 * Handles object not found exceptions.
@@ -65,7 +65,7 @@ public class ExceptionHandlingController {
 	@ExceptionHandler({RMapDiSCONotFoundException.class, RMapAgentNotFoundException.class, RMapEventNotFoundException.class,
 		RMapObjectNotFoundException.class}) // 	RMapStatementNotFoundException.class,
 	 public String objectNotFoundError(Exception exception, HttpServletRequest req) {		
-		logger.error(exception.getMessage(), exception);
+		LOG.error(exception.getMessage(), exception);
 		if (req.getRequestURL().toString().contains("/" + WIDGET_VIEW)){
 			return "objectnotfoundwidget";
 		}
@@ -83,7 +83,7 @@ public class ExceptionHandlingController {
 	 */
 	@ExceptionHandler({RMapDeletedObjectException.class, RMapTombstonedObjectException.class})
 	 public String deletionError(Exception exception) {	
-		logger.error(exception.getMessage(), exception);
+		LOG.error(exception.getMessage(), exception);
 		return "deleted";
 	  }
 	
@@ -105,12 +105,12 @@ public class ExceptionHandlingController {
 		if (exception instanceof RMapWebException){
 			RMapWebException ex = (RMapWebException) exception;
 			if (embeddedErrors.contains(ex.getErrorCode().getNumber())){
-				logger.error(exception.getMessage(), exception);
+				LOG.error(exception.getMessage(), exception);
 				return "embeddederror";
 			}
 		}
 		
-		logger.error(exception.getMessage(), exception);
+		LOG.error(exception.getMessage(), exception);
 		return "error";
 	  }
 	

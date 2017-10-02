@@ -57,7 +57,7 @@ import info.rmapproject.core.rmapservice.RMapService;
 @Service("userRMapAgentService")
 public class UserRMapAgentServiceImpl {
 
-	private static final Logger log = LoggerFactory.getLogger(UserRMapAgentServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserRMapAgentServiceImpl.class);
 	/**  Instance of rmapService for Core RMap functions. */
 	@Autowired
 	RMapService rmapService;
@@ -87,10 +87,10 @@ public class UserRMapAgentServiceImpl {
 			throw new RMapAuthException(ErrorCode.ER_NULL_USER_PROVIDED.getMessage());
 		}
 		
-		log.debug("Checking whether rmap:Agent for user id " + user.getUserId() + " needs to be updated.");
+		LOG.debug("Checking whether rmap:Agent for user id {} needs to be updated.", user.getUserId());
 		
 		if (!user.isDoRMapAgentSync()){
-			log.debug("User is not set to be synchronized with Agent record. Exiting CreateOrUpdateAgentFromUser()");
+			LOG.debug("User is not set to be synchronized with Agent record. Exiting CreateOrUpdateAgentFromUser()");
 			//no need to update
 			return null;
 		}
@@ -108,7 +108,7 @@ public class UserRMapAgentServiceImpl {
 			}
 						
 			RMapRequestAgent reqAgent  = new RMapRequestAgent(agentId, apiKeyUri);
-			log.debug("RMapRequestAgent instantiated with agentId: " + agentId + " and apiKeyUri: " + (apiKeyUri==null ? "" : apiKeyUri));
+			LOG.debug("RMapRequestAgent instantiated with agentId: {} and apiKeyUri: {}", agentId, (apiKeyUri==null ? "" : apiKeyUri));
 
 			//if agent isn't in the triplestore, create it!  otherwise, update it
 			if (rmapService.isAgentId(agentId)){
@@ -117,13 +117,13 @@ public class UserRMapAgentServiceImpl {
 				if (!origAgent.equals(agent)){	
 					//something has changed, do update
 					event = rmapService.updateAgent(agent, reqAgent);	
-					log.info("rmap:Agent ID " + agent.getId().toString() + " was updated in RMap using the latest User record information");
+					LOG.info("rmap:Agent ID {} was updated in RMap using the latest User record information", agent.getId());
 				}				
 			}
 			else { 
 				//id generated but no record created yet - create agent
 				event = rmapService.createAgent(agent, reqAgent);	
-				log.info("rmap:Agent ID " + agent.getId().toString() + " was created for the first time in RMap");			
+				LOG.info("rmap:Agent ID {} was created for the first time in RMap", agent.getId());			
 			}
 
 		} catch (URISyntaxException | RMapException | RMapDefectiveArgumentException ex) {
@@ -146,7 +146,7 @@ public class UserRMapAgentServiceImpl {
 		
 		try {
 
-			log.debug("Converting user with ID " + user.getUserId() + " to an rmap:Agent");
+			LOG.debug("Converting user with ID {} to an rmap:Agent", user.getUserId());
 			//retrieve foaf:name
 			name = ORAdapter.getValueFactory().createLiteral(user.getName());
 			
@@ -180,8 +180,7 @@ public class UserRMapAgentServiceImpl {
 			} 
 			agentId = ORAdapter.getValueFactory().createIRI(sAgentUri);
 
-			log.debug("rmap:Agent object being instantiated using agentId: " + sAgentUri + "; name:" + name.toString() + "; authKeyId: " 
-							+ authKeyUri.toString() + "; idProvider: " + idProvider.toString());
+			LOG.debug("rmap:Agent object being instantiated using agentId: {}; name:{}; authKeyId: {}; idProvider: {}", sAgentUri, name, authKeyUri, idProvider);
 			
 			RMapAgent agent = new ORMapAgent(agentId, idProvider, authKeyUri, name);
 			
