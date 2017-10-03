@@ -9,7 +9,7 @@
 	xmlns:ieee="http://data.ieee.org/ieee/terms/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/">
     <rdf:Description rdf:about="ark:/00000/providerid">
-        <rdf:type rdf:resource="http://rmap-project.org/rmap/terms/DiSCO"/>
+        <rdf:type rdf:resource="http://purl.org/ontology/rmap#DiSCO"/>
         <dcterms:creator rdf:resource="http://isni.org/isni/0000000122976723"/>
         <dc:description>This is a made up example of an IEEE DiSCO.</dc:description>
         <ore:aggregates rdf:resource="http://doi.org/10.1109/disco.test"/>

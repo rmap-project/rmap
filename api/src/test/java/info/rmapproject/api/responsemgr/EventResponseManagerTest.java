@@ -136,7 +136,7 @@ public class EventResponseManagerTest extends ApiDataCreationTestAbstract {
 			String body = response.getEntity().toString();
 			//assertTrue(location.contains("event"));
 			
-			assertTrue(body.contains("<eventTargetType xmlns=\"http://rmap-project.org/rmap/terms/\" rdf:resource=\"http://rmap-project.org/rmap/terms/DiSCO\"/>"));
+			assertTrue(body.contains("<eventTargetType xmlns=\"http://purl.org/ontology/rmap#\" rdf:resource=\"http://purl.org/ontology/rmap#DiSCO\"/>"));
 			assertEquals(200, response.getStatus());
 			
 		} catch (Exception e) {

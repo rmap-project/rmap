@@ -3,7 +3,7 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:ore="http://www.openarchives.org/ore/terms/">
     <rdf:Description rdf:nodeID="N65570">
-        <rdf:type rdf:resource="http://rmap-project.org/rmap/terms/DiSCO"/>
+        <rdf:type rdf:resource="http://purl.org/ontology/rmap#DiSCO"/>
         <ore:aggregates rdf:resource="http://doi.org/10.1109/discoa.test"/>
         <ore:aggregates rdf:resource="http://ieeexplore.ieee.org/example/000000-mm.zip"/>
     </rdf:Description>

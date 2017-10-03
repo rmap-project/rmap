@@ -39,7 +39,7 @@ public class WebappUtilsTest extends WebTestAbstract {
 	 */
 	@Test
 	public void testOntologyPrefixes() {
-		String url = "http://rmap-project.org/rmap/terms/DiSCO";
+		String url = "http://purl.org/ontology/rmap#DiSCO";
 
 		String newUrl = WebappUtils.replaceNamespace(url);
 		
@@ -58,12 +58,12 @@ public class WebappUtilsTest extends WebTestAbstract {
 	 */
 	@Test
 	public void testNodeTypeRetrieval() throws Exception {
-		String url = "http://rmap-project.org/rmap/terms/DiSCO";
+		String url = "http://purl.org/ontology/rmap#DiSCO";
 		String nodeType = WebappUtils.getNodeType(new URI(url));
 		assertTrue(nodeType.equals("DiSCO"));
 
 		List<URI> uris = new ArrayList<URI>();
-		uris.add(new URI("http://rmap-project.org/rmap/terms/DiSCO"));
+		uris.add(new URI("http://purl.org/ontology/rmap#DiSCO"));
 		uris.add(new URI("http://purl.org/dc/terms/Agent"));
 		uris.add(new URI("http://purl.org/dc/dcmitype/Text"));
 		uris.add(new URI("http://purl.org/spar/fabio/JournalArticle"));

@@ -31,13 +31,13 @@ import org.openrdf.model.impl.SimpleValueFactory;
  * Vocabulary constants for the RMapProject Metadata Element Set, version 1.0
  * The RMap ontology class implemented using openrdf model
  * 
- * @see http://rmap-project.org/rmap/terms
+ * @see http://purl.org/ontology/rmap
  * @author khanson
  */
 public class RMAP {
 
 	/**
-	 * RMapProject elements namespace: http://rmap-project.org/terms/
+	 * RMapProject elements namespace: http://purl.org/ontology/rmap#
 	 */
 	public static final String NAMESPACE = Terms.RMAP_NAMESPACE;
 	

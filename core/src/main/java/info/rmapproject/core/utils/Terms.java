@@ -27,7 +27,7 @@ public final class Terms  {
  	/*RMap vocabulary constants*/
 	
 	/** The RMap Namespace. */
-	public static final String RMAP_NAMESPACE = "http://rmap-project.org/rmap/terms/";
+	public static final String RMAP_NAMESPACE = "http://purl.org/ontology/rmap#";
 	 
  	/** The RMap prefix. */
  	public static final String RMAP_PREFIX = "rmap";

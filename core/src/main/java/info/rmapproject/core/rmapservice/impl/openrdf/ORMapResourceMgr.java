@@ -73,12 +73,12 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		  {
 		     {?s ?p <http://dx.doi.org/10.1109/InPar.2012.6339604>} UNION 
 		        {<http://dx.doi.org/10.1109/InPar.2012.6339604> ?p ?o} .
-		     ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .
+		     ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#DiSCO> .
 		  } .
 		GRAPH ?eventId {
-		 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+		 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 			{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION
-			{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?rmapObjId} .
+			{?eventId <http://purl.org/ontology/rmap#derivedObject> ?rmapObjId} .
 		 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 		 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
 		 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
@@ -240,7 +240,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			        {<http://dx.doi.org/10.1109/InPar.2012.6339604> ?p ?o} .
 			  } .
 			GRAPH ?eventId {
-			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 				?eventId ?eventtype ?rmapObjId .
 			 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
@@ -338,15 +338,15 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
        			 }	
 			  } .
 			GRAPH ?eventId {
-			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+			 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 				{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION
-				{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?rmapObjId} .
+				{?eventId <http://purl.org/ontology/rmap#derivedObject> ?rmapObjId} .
 			 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} UNION
 			 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
 			 	} . 				
-				FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
-				FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} .
+				FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#tombstonedObject> ?rmapObjId} .
+				FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#inactivatedObject> ?rmapObjId} .
 				FILTER (?startDate >= "2016-03-22T10:20:13"^^xsd:dateTime) .        
                 FILTER (?startDate <= "2016-03-23T10:20:13"^^xsd:dateTime)
                                              }
@@ -485,15 +485,15 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 							 {<http://dx.doi.org/10.1109/ACSSC.1994.471497> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type} .	
 						  } .			    
 						GRAPH ?eventId {
-						 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+						 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 							{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION
-							{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?rmapObjId} .
+							{?eventId <http://purl.org/ontology/rmap#derivedObject> ?rmapObjId} .
 							?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 						 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18m7mj4>} . #UNION
 						 	{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2p4>} .
 						 	} . 				
-							FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
-							FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} .
+							FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#tombstonedObject> ?rmapObjId} .
+							FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#inactivatedObject> ?rmapObjId} .
 							FILTER (?startDate >= "2011-03-22T10:20:13"^^xsd:dateTime) .        
 			                FILTER (?startDate <= "2016-03-25T10:20:13"^^xsd:dateTime)    
 			}

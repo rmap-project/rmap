@@ -33,7 +33,7 @@ public class TestConstants {
 	public static final String SYSAGENT_ID_PROVIDER = "http://orcid.org/";
 
 	/** default system agent Auth ID to be used for most tests where Agent creation isn't being tested */
-	public static final String SYSAGENT_AUTH_ID = "http://rmap-project.org/identities/rmaptestauthid";
+	public static final String SYSAGENT_AUTH_ID = "http://rmap-hub.org/identities/rmaptestauthid";
 
 	/** default system agent name to be used for most tests where Agent creation isn't being tested */
 	public static final String SYSAGENT_NAME = "RMap test Agent";	
@@ -45,7 +45,7 @@ public class TestConstants {
 	public static final String SYSAGENT2_ID = "ark:/22573/rmaptestagent2";
 
 	/** second default system agent Auth ID to be used for tests where Agent creation isn't being tested but 2 agents needed*/
-	public static final String SYSAGENT2_AUTH_ID = "http://rmap-project.org/identities/rmaptestauthid2";
+	public static final String SYSAGENT2_AUTH_ID = "http://rmap-hub.org/identities/rmaptestauthid2";
 
 	/** second default system agent name to be used for tests where Agent creation isn't being tested but 2 agents needed*/
 	public static final String SYSAGENT2_NAME = "RMap test Agent 2";	
