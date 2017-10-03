@@ -25,7 +25,6 @@ package info.rmapproject.auth.service;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
@@ -60,15 +59,14 @@ public class UserRMapAgentServiceImpl {
 	private static final Logger LOG = LoggerFactory.getLogger(UserRMapAgentServiceImpl.class);
 	/**  Instance of rmapService for Core RMap functions. */
 	@Autowired
-	RMapService rmapService;
+	private RMapService rmapService;
 	
 	/**  Instance of service for interaction with User data. */
 	@Autowired
-	UserServiceImpl userService;
+	private UserServiceImpl userService;
 	
-	/** RMap ID generator */
-	@Autowired
-	Supplier<URI> idSupplier;
+	private static final String RMAP_ADMINISTRATOR_NAME = "RMap Administrator";
+	
 	
 	/**
 	 * Compares the user in the user database to the Agents in RMap. If the Agent is already in RMap
@@ -106,15 +104,16 @@ public class UserRMapAgentServiceImpl {
 			if (sApiKeyUri!=null) {
 				apiKeyUri = new URI(sApiKeyUri);
 			}
-						
 			RequestEventDetails reqEventDetails  = new RequestEventDetails(agentId, apiKeyUri);
-			LOG.debug("RequestEventDetails instantiated with agentId: {} and apiKeyUri: {}", agentId, (apiKeyUri==null ? "" : apiKeyUri));
+			LOG.debug("RequestEventDetails instantiated with agentId: {} and apiKeyUri: {}", agentId, apiKeyUri);
 			
 			//if agent isn't in the triplestore, create it!  otherwise, update it
 			if (rmapService.isAgentId(agentId)){
+				LOG.debug("RMap agent already exists, checking to see if update required");
 				//rmap agent exists - but has there been a change?
 				RMapAgent origAgent = rmapService.readAgent(agentId);
 				if (!origAgent.equals(agent)){	
+					LOG.debug("Something has changed in the Agent record, an update is required");
 					//something has changed, do update
 					if (user.getUserId()>0) {
 						reqEventDetails.setDescription("Agent updated from user record");
@@ -131,8 +130,48 @@ public class UserRMapAgentServiceImpl {
 			}
 
 		} catch (URISyntaxException | RMapException | RMapDefectiveArgumentException ex) {
-			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage(),ex.getCause());
+			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage(),ex);
 		} 
+		
+		return event;
+	}
+	
+	/**
+	 * Checks to see if RMap Administrator Agent is created
+	 * @return true if admin agent created
+	 */
+	public boolean isAdministratorAgentCreated() {
+		URI agentUri = null;
+		try {
+			agentUri = new URI(userService.getRMapAdministratorPath());
+		} catch (URISyntaxException ex){
+			throw new RMapAuthException(ErrorCode.ER_COULD_NOT_CREATE_ID_FOR_AGENT.getMessage(),ex);
+		}
+		boolean isAgent = rmapService.isAgentId(agentUri);
+		return isAgent;
+	}
+	
+	/**
+	 * Creates an RMap Administrator Agent - uses the baseUrl + #Administrator as the URI
+	 * @return
+	 */
+	public RMapEvent createRMapAdministratorAgent() { 
+		URI agentUri = null;
+		try {
+			agentUri = new URI(userService.getRMapAdministratorPath());
+		} catch (URISyntaxException ex){
+			throw new RMapAuthException(ErrorCode.ER_COULD_NOT_CREATE_ID_FOR_AGENT.getMessage(),ex);
+		}
+		
+		URI authKeyUri = null;
+		try {
+			authKeyUri = new URI(userService.generateAuthKey(agentUri.toString(), agentUri.toString()));
+		} catch (URISyntaxException ex){
+			throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage(),ex);
+		}	
+		
+		RMapRequestAgent adminReqAgent = new RMapRequestAgent(agentUri);
+		RMapEvent event = rmapService.createAgent(agentUri, RMAP_ADMINISTRATOR_NAME, agentUri, authKeyUri, adminReqAgent);
 		
 		return event;
 	}

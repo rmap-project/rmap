@@ -76,7 +76,7 @@ public class UserServiceImpl {
 	 */
 	public int addUser(User user) {
 		
-		String authKeyUri = generateAuthKey(user);
+		String authKeyUri = generateAuthKeyFromUser(user);
 		if (authKeyUri!=null){
 			user.setAuthKeyUri(authKeyUri);
 		}
@@ -105,40 +105,54 @@ public class UserServiceImpl {
 	 * @param user the User
 	 * @return the User Auth Key
 	 */
-	public String generateAuthKey(User user) throws RMapAuthException {
+	public String generateAuthKeyFromUser(User user) throws RMapAuthException {
 		try {
 			Set<UserIdentityProvider> idps = user.getUserIdentityProviders();
 			
-			String validatorName;
-			String validatorAccountId;
+			String idProvider;
+			String accountId;
 			
 			if (idps!=null && idps.iterator().hasNext()){
 				UserIdentityProvider idp = idps.iterator().next();	
-				validatorName=idp.getIdentityProvider();
-				validatorAccountId=idp.getProviderAccountPublicId();
+				idProvider=idp.getIdentityProvider();
+				accountId=idp.getProviderAccountPublicId();
 			} else {
 				//user was not created through oauth
-				validatorName=getRMapAdministratorPath();
-				validatorAccountId=user.getEmail();
+				idProvider=getRMapAdministratorPath();
+				accountId=user.getEmail();
 			}
 
-			String sha256IdHash = Sha256HashGenerator.getSha256Hash(validatorName + validatorAccountId);
-			String authKeyUri = authIdPrefix + sha256IdHash;
-			User dupUser = getUserByAuthKeyUri(authKeyUri);
-			if (dupUser!=null || validatorName==null || validatorName.length()==0 
-					|| validatorAccountId==null || validatorAccountId.length()==0){
-				throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage());				
-			}		
-			
+			String authKeyUri = generateAuthKey(idProvider, accountId);
+
 			return authKeyUri;
 			
 		} catch (RMapAuthException ex) {
 			throw ex;
-		} catch (Exception ex){
-			throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage(), ex);
 		}
 	}
 
+	/**
+	 * Generate new auth key using sha256 of id provider + account id
+	 * @param idProvider
+	 * @param accountId
+	 * @return new authKeyId
+	 */
+	public String generateAuthKey(String idProvider, String accountId) {
+		try {
+			String sha256IdHash = Sha256HashGenerator.getSha256Hash(idProvider + accountId);
+			String authKeyUri = authIdPrefix + sha256IdHash;
+			User dupUser = getUserByAuthKeyUri(authKeyUri);
+			if (dupUser!=null || idProvider==null || idProvider.length()==0 
+					|| accountId==null || accountId.length()==0){
+				throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage());				
+			}		
+			return authKeyUri;
+		} catch (Exception ex){
+				throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage(), ex);
+			}
+	}
+	
+	
 	/**
 	 * Assigns an RMapAgentUri to a User record. This will be used as the persistent ID for the RMapAgent
 	 * associated with the User. Returns the newly minted ID, or null if no new ID was required.
@@ -344,8 +358,7 @@ public class UserServiceImpl {
 	
 		this.rmapBaseUrl = rmapBaseUrl;
 	}
-	
-	
+		
 	/**
 	 * Retrieve default RMap Administrator path for this system
 	 * @return
