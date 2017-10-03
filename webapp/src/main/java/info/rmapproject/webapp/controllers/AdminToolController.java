@@ -21,6 +21,7 @@ package info.rmapproject.webapp.controllers;
 
 import static info.rmapproject.webapp.utils.Constants.ADMIN_LOGGEDIN_SESSATTRIB;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -36,11 +37,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.auth.model.User;
 import info.rmapproject.webapp.auth.AdminLogin;
 import info.rmapproject.webapp.auth.AdminLoginRequired;
+import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
+import info.rmapproject.webapp.service.RMapUpdateService;
 import info.rmapproject.webapp.service.UserMgtService;
 
 /**
@@ -54,12 +56,17 @@ public class AdminToolController {
 	/** user management service **/
 	private UserMgtService userMgtService;	
 	
+	/** user management service **/
+	private RMapUpdateService rmapUpdateService;	
+	
 	/**The admin login object created from properties for comparison against entry from user*/
 	private AdminLogin correctAdminLogin;
 	
+	
 	@Autowired
-	public AdminToolController(UserMgtService userMgtService, AdminLogin correctAdminLogin){
+	public AdminToolController(UserMgtService userMgtService, RMapUpdateService rmapUpdateService, AdminLogin correctAdminLogin){
 		this.userMgtService=userMgtService;
+		this.rmapUpdateService=rmapUpdateService;
 		this.correctAdminLogin=correctAdminLogin;
 	}	
 	
@@ -101,7 +108,10 @@ public class AdminToolController {
         	//kick out of current oauth login and login as admin
         	session.setAttribute("user", null);
         	session.setAttribute("account", null);
-        	session.setAttribute(ADMIN_LOGGEDIN_SESSATTRIB, true);        
+        	session.setAttribute(ADMIN_LOGGEDIN_SESSATTRIB, true);     
+        	//make sure there is an RMap Administrator Agent
+        	this.userMgtService.prepareRMapAdministratorAgent();
+        	
     		return "redirect:/admin/welcome"; 
         } else {
     		model.addAttribute("notice", "Invalid login information. Please try again.");	
@@ -249,6 +259,77 @@ public class AdminToolController {
 		}
 				
 		return "redirect:/admin/user/keys"; 		
+	}	
+	
+	/**
+	 * Form to enter a DiSCO ID to delete
+	 * @param model
+	 * @param session
+	 * @param notice
+	 * @return
+	 * @throws Exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value="/admin/disco/delete", method=RequestMethod.GET)
+	public String deleteDiSCOForm(Model model, HttpSession session, @RequestParam(value="notice", required=false) String notice) throws Exception {
+		if (notice!=null){
+			model.addAttribute("notice", notice);	
+		}
+				
+		return "admin/discodelete"; 		
+	}			
+	
+	/**
+	 * Confirmation screen to warn user that deletion will occur if confirm
+	 * @param model
+	 * @param session
+	 * @param discoId
+	 * @param notice
+	 * @return
+	 * @throws Exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value="/admin/disco/deleteconfirm", method=RequestMethod.GET)
+	public String deleteDiSCOConfirm(Model model, HttpSession session, @RequestParam(value="discoId", required = false) String discoId, 
+			@RequestParam(value="notice", required=false) String notice) throws Exception {
+		if (discoId==null){discoId="";}
+		if (notice!=null){
+			model.addAttribute("notice", notice);	
+		}
+		if (!rmapUpdateService.isDiscoId(new URI(discoId))) {
+			model.addAttribute("notice", "Could not find DiSCO with that URI");	
+			return "redirect: /admin/disco/delete";			
+		}
+		model.addAttribute("discoId", discoId);	
+		return "admin/discodeleteconfirm"; 		
+	}			
+	
+	/**
+	 * Performs disco deletion and returns to deleted notice
+	 * @param model
+	 * @param session
+	 * @param discoId
+	 * @param notice
+	 * @return
+	 * @throws Exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value="/admin/disco/deleteconfirm", method=RequestMethod.POST)
+	public String deleteDiSCO(Model model, HttpSession session, @RequestParam(value="discoId", required = false) String discoId, 
+			@RequestParam(value="notice", required=false) String notice) throws Exception {
+		if (discoId==null){discoId="";}
+		if (notice!=null){
+			model.addAttribute("notice", notice);	
+		}
+		if (!rmapUpdateService.isDiscoId(new URI(discoId))) {
+			model.addAttribute("notice", "Could not find DiSCO with that URI");	
+			return "redirect: /admin/disco/delete";			
+		}
+		
+		model.addAttribute("discoId", discoId);
+		
+		return "admin/discodeleted"; 		
 	}		
+	
 		
 }

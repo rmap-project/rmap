@@ -113,4 +113,11 @@ public interface UserMgtService {
 	 */
 	public int addUserIdentityProvider(int userId, OAuthProviderAccount account);
 	
+	/**
+	 * Checks to see that there is an Administrator Agent in RMap, if not it will create one. This is called
+	 * when an administrator logs in to RMap.
+	 */
+	public void prepareRMapAdministratorAgent();
+	
+	
 }

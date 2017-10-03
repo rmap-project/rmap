@@ -41,7 +41,7 @@ public abstract class WebTestAbstract {
 	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
 	private static boolean activeProfilesPreSet = System.getProperties().containsKey(SPRING_ACTIVE_PROFILE_PROP);
 
-	private static final String RMAP_CONFIG_PROP = "rmap.configFile";
+	protected static final String RMAP_CONFIG_PROP = "rmap.configFile";
 	private static boolean configPathPreSet = System.getProperties().containsKey(RMAP_CONFIG_PROP);
 	
 	@BeforeClass

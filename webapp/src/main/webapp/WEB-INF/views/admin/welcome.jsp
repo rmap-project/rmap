@@ -16,7 +16,7 @@
 	<p>
 		<ul>
 			<li><a href="<c:url value='/admin/users'/>">Manage all users and administer keys</a></li>
-			<!-- <li>Hard delete specific DiSCOs from RMap, per user request.</li> -->
+			<li><a href="<c:url value='/admin/discodelete'/>">Hard delete specific DiSCOs</a> from RMap, per user request.</li> 
 		</ul>
 	</p>
 	<br/>

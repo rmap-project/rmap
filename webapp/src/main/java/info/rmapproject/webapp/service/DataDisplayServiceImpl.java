@@ -749,15 +749,13 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    }
 	    else if (eventType == RMapEventType.DELETION)	{
 	    	RMapEventDeletion deletionEvent = (RMapEventDeletion) event;
-	    	List<RMapIri> uris = deletionEvent.getDeletedObjectIds();
-	    	for (RMapIri uri : uris){
-	    		String type = getRMapTypeDisplayName(uri);
-	    		resourcesAffected.put(uri.toString(), "Deleted " + type);
-	    	}
+	    	RMapIri uri = deletionEvent.getDeletedObjectId();
+    		String type = getRMapTypeDisplayName(uri);
+    		resourcesAffected.put(uri.toString(), "Deleted " + type);
 	    }
 	    else if (eventType == RMapEventType.TOMBSTONE)	{
 	    	RMapEventTombstone tombstoneEvent = (RMapEventTombstone) event;
-	    	RMapIri uri = tombstoneEvent.getTombstonedResourceId();
+	    	RMapIri uri = tombstoneEvent.getTombstonedObjectId();
 			String type = getRMapTypeDisplayName(uri);
 			resourcesAffected.put(uri.toString(), "Tombstoned " + type);
 	    }

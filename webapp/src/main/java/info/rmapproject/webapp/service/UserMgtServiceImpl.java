@@ -186,5 +186,14 @@ public class UserMgtServiceImpl implements UserMgtService {
 		
 		return newAccount;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.UserMgtService#prepareRMapAdministratorAgent()
+	 */
+	@Override
+	public void prepareRMapAdministratorAgent() {
+		if (!rmapAuthService.isAdministratorAgentCreated()) {
+			rmapAuthService.createRMapAdministratorAgent();
+		}		
+	}
 }
