@@ -227,9 +227,20 @@ public interface RMapService {
 	public RMapEvent inactivateDiSCO(URI oldDiscoId, RequestEventDetails reqEventDetails) throws RMapException, RMapDiSCONotFoundException,
 	RMapDefectiveArgumentException;
 	
+	/**
+	 * Soft delete (tombstone) of a DiSCO.  Can only be performed by same agent that created DiSCO or the designated admin Agent.
+	 *
+	 * @param discoID the URI of the DiSCO to be tombstoned
+	 * @param requestAgent the requesting agent
+	 * @return an RMap Event
+	 * @throws RMapException an RMapException
+	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
+	 */
+	public RMapEvent tombstoneDiSCO (URI discoID, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
 
 	/**
-	 * Soft delete (tombstone) of a DiSCO.  Can only be performed by same agent that created DiSCO.
+	 * Hard delete of a DiSCO.  Can only be performed by same agent that created DiSCO or disignated admin Agent. 
+	 * Warning: this permanently removes the data from the triplestore and only leaves the Events behind.  
 	 *
 	 * @param discoID the URI of the DiSCO to be tombstoned
 	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri

@@ -26,21 +26,22 @@ import java.net.URI;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import info.rmapproject.core.idservice.IdService;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
 import org.openrdf.model.vocabulary.RDF;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * An abstract class for openrdf versions of RMap Objects, implemented using openrdf
  *
- * @author khanson, smorrissey
+ * @author khanson
+ * @author smorrissey
  */
 public abstract class ORMapObjectMgr {
 
@@ -64,8 +65,7 @@ public abstract class ORMapObjectMgr {
 			throw new RMapException("Exception thrown creating triple from ORMapStatement: " + e.getMessage(), e);
 		}
 	}
-	
-	
+		
 	/**
 	 * Looks up an IRI's type in the database to see if it matches the type IRI provided
 	 *
@@ -79,15 +79,29 @@ public abstract class ORMapObjectMgr {
 		if (ts==null || id==null || typeIRI==null){
 			throw new RMapException("Null parameter passed");
 		}
+		boolean isRmapType = false;
 		try {
 			if (ts.getConnection().size(id)>0) {
-				return ts.getConnection().hasStatement(id, RDF.TYPE, typeIRI, false, id);
-			} else {
-				return false;
+				//resource exists somewhere, lets find out where
+				if (ts.getConnection().hasStatement(id, RDF.TYPE, typeIRI, false, id)) {
+					//it is of defined type!
+					return true;
+				} 
+			} else if (typeIRI.equals(RMAP.DISCO)) {
+				//check events to see if it's a deleted DiSCO
+				Set<Statement> stmts = ts.getStatements(null, RMAP.DELETEDOBJECT, id);
+				for (Statement stmt : stmts) {
+					IRI subject = (IRI) stmt.getSubject();
+					IRI context = (IRI) stmt.getContext();
+					if (subject.equals(context) && this.isRMapType(ts, subject, RMAP.EVENT)) {
+						return true;
+					}						
+				}		
 			}
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown searching for object " + id.stringValue(), e);
 		}		
+		return isRmapType;
 	}
 
 	/**

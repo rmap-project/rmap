@@ -27,7 +27,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +39,6 @@ import org.openrdf.model.IRI;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventCreation;
@@ -176,7 +174,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 			RMapEventTombstone eventreadback = (RMapEventTombstone) eventmgr.readEvent(eventIri, triplestore);				
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO,RMapEventType.TOMBSTONE);
 			//check RMapEventTombstone specific fields
-			assertEquals(event.getTombstonedResourceId(), eventreadback.getTombstonedResourceId());
+			assertEquals(event.getTombstonedObjectId(), eventreadback.getTombstonedObjectId());
 
 			//check type methods
 			assertFalse(eventmgr.isCreationEvent(eventIri, triplestore));
@@ -198,17 +196,14 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackDeletionEvent() {
 		try {
-			ORMapEventDeletion event = new ORMapEventDeletion(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO);
-			List <RMapIri> delIris = new ArrayList<RMapIri>();
-			delIris.add(ORAdapter.openRdfIri2RMapIri(fakeIri1));
-			event.setDeletedObjectIds(delIris);
+			ORMapEventDeletion event = new ORMapEventDeletion(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO, fakeIri1);
 			event.setEndTime(new Date());
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
 
 			RMapEventDeletion eventreadback = (RMapEventDeletion) eventmgr.readEvent(eventIri, triplestore);				
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO,RMapEventType.DELETION);
 			//check RMapEventDeletion specific fields
-			assertEquals(event.getDeletedObjectIds(), eventreadback.getDeletedObjectIds());
+			assertEquals(event.getDeletedObjectId(), eventreadback.getDeletedObjectId());
 
 			//check type methods
 			assertFalse(eventmgr.isCreationEvent(eventIri, triplestore));

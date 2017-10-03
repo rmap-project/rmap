@@ -22,8 +22,6 @@
  */
 package info.rmapproject.core.model.event;
 
-import java.util.List;
-
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
 
@@ -36,17 +34,17 @@ import info.rmapproject.core.model.RMapIri;
 public interface RMapEventDeletion extends RMapEvent {
 	
 	/**
-	 * Retrieve the IRIs of the deleted RMap objects as a List
-	 * @return the list of deleted RMap objects
+	 * Retrieve the IRI of the deleted RMap object
+	 * @return the IRI of the deleted RMap object
 	 * @throws RMapException 
 	 */
-	public List<RMapIri> getDeletedObjectIds() throws RMapException;
+	public RMapIri getDeletedObjectId() throws RMapException;
 
 	/**
-	 * Set the list of IRIs for the deleted objects
-	 * @param deletedObjectIds the deleted object ID list to set
+	 * Set the IRI of the deleted object
+	 * @param deletedObjectId the deleted object ID to set
 	 * @throws RMapException 
 	 */
-	public void setDeletedObjectIds(List<RMapIri> deletedObjectIds) throws RMapException;
+	public void setDeletedObjectId(RMapIri deletedObjectId) throws RMapException;
 
 }

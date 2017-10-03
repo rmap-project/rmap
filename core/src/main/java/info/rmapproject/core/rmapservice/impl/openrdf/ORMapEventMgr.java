@@ -144,12 +144,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		else if (event instanceof ORMapEventDeletion){
 			ORMapEventDeletion dEvent = (ORMapEventDeletion)event;
-			List<Statement> stmts = dEvent.getDeletedObjectStmts();
-			if (stmts != null && !stmts.isEmpty()){
-				for (Statement stmt:stmts){
-					this.createStatement(ts, stmt);
-				}
-			}
+			this.createStatement(ts, dEvent.getDeletedResourceStmt());
 		}
 		else if (event instanceof ORMapEventUpdateWithReplace){
 			ORMapEventUpdateWithReplace replEvent = (ORMapEventUpdateWithReplace)event;
