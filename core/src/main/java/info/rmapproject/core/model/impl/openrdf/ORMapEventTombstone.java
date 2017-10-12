@@ -32,7 +32,7 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventTombstone;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
@@ -93,8 +93,8 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventTombstone(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType);
+	public ORMapEventTombstone(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException, RMapDefectiveArgumentException {
+		super(id, reqEventDetails, targetType);
 		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
 		this.setTombstonedResourceIdStmt(tombstonedResource);
 	}

@@ -62,7 +62,7 @@ public class SearchControllerTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
     	    	
 		mockMvc.perform(post("/search").param("search", "fakefake:uri"))
 	                .andExpect(view().name("redirect:/resources/fakefake%3Auri"));       
@@ -81,7 +81,7 @@ public class SearchControllerTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
 
 		mockMvc.perform(post("/search").param("search", "ark:/27927/12121212"))
 	                .andExpect(view().name("redirect:/resources/ark%3A%2F27927%2F12121212"));       

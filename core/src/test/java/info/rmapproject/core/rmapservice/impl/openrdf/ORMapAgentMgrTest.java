@@ -100,7 +100,7 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 										TestConstants.SYSAGENT2_NAME, 
 										new java.net.URI(TestConstants.SYSAGENT_ID_PROVIDER), 
 										new java.net.URI(TestConstants.SYSAGENT_AUTH_ID), 
-										requestAgent);
+										reqEventDetails);
 			
 			assertTrue(event.getAssociatedAgent().toString().equals(TestConstants.SYSAGENT_ID));
 			assertTrue(event.getDescription().toString().contains("foaf:name"));
@@ -114,7 +114,7 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 										TestConstants.SYSAGENT_NAME, 
 										new java.net.URI(TestConstants.SYSAGENT_ID_PROVIDER), 
 										new java.net.URI(TestConstants.SYSAGENT_AUTH_ID), 
-										requestAgent);
+										reqEventDetails);
 			
 			//now read agent and check it was updated.
 			readagent = rmapService.readAgent(agentId);

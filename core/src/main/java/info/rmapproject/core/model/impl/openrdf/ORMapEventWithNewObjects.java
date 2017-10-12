@@ -26,17 +26,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventWithNewObjects;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 
 /**
@@ -93,22 +92,8 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEventWithNewObjects(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType);
-	}
-
-	/**
-	 * Instantiates a new RMap Event in which new objects were created.
-	 *
-	 * @param associatedAgent the associated agent
-	 * @param targetType the target type
-	 * @param desc the desc
-	 * @throws RMapException the RMap exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected ORMapEventWithNewObjects(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType, desc);
+	protected ORMapEventWithNewObjects(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+		super(id, reqEventDetails, targetType);
 	}
 
 	/* (non-Javadoc)

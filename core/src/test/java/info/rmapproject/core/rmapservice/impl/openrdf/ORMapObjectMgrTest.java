@@ -105,12 +105,12 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	public void testIsRMapType() {
 		try {
 			//check agent type
-			boolean istype = discomgr.isRMapType(triplestore, ORAdapter.uri2OpenRdfIri(requestAgent.getSystemAgent()), RMAP.AGENT);
+			boolean istype = discomgr.isRMapType(triplestore, ORAdapter.uri2OpenRdfIri(reqEventDetails.getSystemAgent()), RMAP.AGENT);
 			assertTrue(istype);
 			
 			//check disco type
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			URI dUri = disco.getId().getIri();
 			IRI dIri = ORAdapter.uri2OpenRdfIri(dUri);			
 			istype = discomgr.isRMapType(triplestore, dIri, RMAP.DISCO);
@@ -155,7 +155,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
 			}
 			
-			ORMapEventCreation event = new ORMapEventCreation(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()), requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);
+			ORMapEventCreation event = new ORMapEventCreation(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
 			ORMapEventMgr eventMgr = new ORMapEventMgr();

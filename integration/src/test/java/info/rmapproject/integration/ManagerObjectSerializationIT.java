@@ -29,7 +29,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
@@ -109,7 +109,7 @@ public class ManagerObjectSerializationIT {
                                         asIri(SYSAGENT_AUTH_ID),
                                         asLiteral(SYSAGENT_NAME));
 
-    private RMapRequestAgent requestAgent = new RMapRequestAgent(create(SYSAGENT_ID), create(SYSAGENT_KEY));
+    private RequestEventDetails reqEventDetails = new RequestEventDetails(create(SYSAGENT_ID), create(SYSAGENT_KEY));
 
     @Before
     public void setUp() throws Exception {
@@ -119,9 +119,9 @@ public class ManagerObjectSerializationIT {
             // don't care
         }
 
-        rMapService.createAgent(systemAgent, requestAgent);
+        rMapService.createAgent(systemAgent, reqEventDetails);
 
-        serializeTest(requestAgent);
+        serializeTest(reqEventDetails);
         serializeTest(systemAgent);
     }
 
@@ -135,7 +135,7 @@ public class ManagerObjectSerializationIT {
         ORMapDiSCO disco = new ORMapDiSCO(DISCO_IRI, CREATOR_IRI, AGGREGATED_RESOURCES);
         serializeTest(disco);
 
-        RMapEvent event = discoMgr.createDiSCO(disco, requestAgent, triplestore);
+        RMapEvent event = discoMgr.createDiSCO(disco, reqEventDetails, triplestore);
 
         assertNotNull(event);
         serializeTest(event);
@@ -144,9 +144,9 @@ public class ManagerObjectSerializationIT {
     @Test
     public void discoManagerTombstoneSerialization() throws Exception {
         ORMapDiSCO disco = new ORMapDiSCO(DISCO_IRI, CREATOR_IRI, AGGREGATED_RESOURCES);
-        discoMgr.createDiSCO(disco, requestAgent, triplestore);
+        discoMgr.createDiSCO(disco, reqEventDetails, triplestore);
 
-        RMapEvent event = discoMgr.tombstoneDiSCO(DISCO_IRI, requestAgent, triplestore);
+        RMapEvent event = discoMgr.tombstoneDiSCO(DISCO_IRI, reqEventDetails, triplestore);
 
         assertNotNull(event);
         serializeTest(event);
@@ -155,7 +155,7 @@ public class ManagerObjectSerializationIT {
     @Test
     public void discoManagerUpdateSerialization() throws Exception {
         ORMapDiSCO originalDisco = new ORMapDiSCO(DISCO_IRI, CREATOR_IRI, AGGREGATED_RESOURCES);
-        discoMgr.createDiSCO(originalDisco, requestAgent, triplestore);
+        discoMgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
 
         ORMapDiSCO newDisco = new ORMapDiSCO(
                 asIri("http://example.org/disco/2"), CREATOR_IRI, AGGREGATED_RESOURCES);
@@ -166,7 +166,7 @@ public class ManagerObjectSerializationIT {
     @Test
     public void discoManagerInactivateSerialization() throws Exception {
         ORMapDiSCO originalDisco = new ORMapDiSCO(DISCO_IRI, CREATOR_IRI, AGGREGATED_RESOURCES);
-        discoMgr.createDiSCO(originalDisco, requestAgent, triplestore);
+        discoMgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
 
         ORMapDiSCO newDisco = new ORMapDiSCO(
                 asIri("http://example.org/disco/2"), CREATOR_IRI, AGGREGATED_RESOURCES);
@@ -180,8 +180,9 @@ public class ManagerObjectSerializationIT {
         RMapEventTargetType type = RMapEventTargetType.DISCO;
         RMapLiteral desc = new RMapLiteral("Creation Event Description");
         List<RMapIri> created = singletonList(asRmapIri("http://example.org/disco/1"));
-
-        ORMapEventCreation event = new ORMapEventCreation(eventIri, requestAgent, type, desc, created);
+        reqEventDetails.setDescription(desc);
+        
+        ORMapEventCreation event = new ORMapEventCreation(eventIri, reqEventDetails, type, created);
         Calendar endTime = Calendar.getInstance();
         endTime.add(Calendar.MILLISECOND, 500);
         event.setEndTime(endTime.getTime());
@@ -203,7 +204,7 @@ public class ManagerObjectSerializationIT {
         ORMapAgent agent = new ORMapAgent(agentIri, providerIri, authIri, agentName);
         serializeTest(agent);
 
-        ORMapEvent event = agentMgr.createAgent(agent, requestAgent, triplestore);
+        ORMapEvent event = agentMgr.createAgent(agent, reqEventDetails, triplestore);
         assertNotNull(event);
         serializeTest(event);
     }
@@ -211,7 +212,7 @@ public class ManagerObjectSerializationIT {
     @Test
     public void rmapServiceCreateDisco() throws Exception {
         ORMapDiSCO disco = new ORMapDiSCO(DISCO_IRI, CREATOR_IRI, AGGREGATED_RESOURCES);
-        RMapEvent event = rMapService.createDiSCO(disco, requestAgent);
+        RMapEvent event = rMapService.createDiSCO(disco, reqEventDetails);
 
         assertNotNull(event);
         serializeTest(event);
@@ -229,7 +230,7 @@ public class ManagerObjectSerializationIT {
     @Test
     public void rmapServiceCreateAgentTwo() throws Exception {
         RMapEvent event = rMapService.createAgent(create("http://example.org/agent/id"), "Agent Name",
-                create("http://example.org/idp"), create("http://example.org/key"), requestAgent);
+                create("http://example.org/idp"), create("http://example.org/key"), reqEventDetails);
 
         assertNotNull(event);
         serializeTest(event);
@@ -244,7 +245,7 @@ public class ManagerObjectSerializationIT {
         Value agentName = ORAdapter.getValueFactory().createLiteral("An Agent");
         ORMapAgent agent = new ORMapAgent(agentIri, providerIri, authIri, agentName);
 
-        RMapEvent event = rMapService.createAgent(agent, requestAgent);
+        RMapEvent event = rMapService.createAgent(agent, reqEventDetails);
 
         assertNotNull(event);
         serializeTest(event);
@@ -252,7 +253,7 @@ public class ManagerObjectSerializationIT {
 
     private void doUpdateAndPerformAssertions(IRI discoIri, ORMapDiSCO newDisco, boolean inactivate)
             throws IOException, ClassNotFoundException {
-        RMapEvent event = discoMgr.updateDiSCO(discoIri, newDisco, requestAgent, inactivate, triplestore);
+        RMapEvent event = discoMgr.updateDiSCO(discoIri, newDisco, reqEventDetails, inactivate, triplestore);
 
         assertNotNull(event);
         serializeTest(event);

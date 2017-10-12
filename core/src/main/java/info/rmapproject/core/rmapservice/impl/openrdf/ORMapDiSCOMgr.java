@@ -66,7 +66,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects;
 import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.utils.Utils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
@@ -149,27 +149,27 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * Creates a new DiSCO
 	 *
 	 * @param disco the new RMap DiSCO
-	 * @param requestAgent the requesting Agent
+	 * @param reqEventDetails client provided event information
 	 * @param ts the triplestore instance
 	 * @return an RMap Event
 	 * @throws RMapException the RMap exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEvent createDiSCO(ORMapDiSCO disco, RMapRequestAgent requestAgent, SesameTriplestore ts) 
+	public ORMapEvent createDiSCO(ORMapDiSCO disco, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
 			throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException{		
 		// confirm non-null disco
 		if (disco==null){
 			throw new RMapException ("Null disco parameter");
 		}
-		if (requestAgent==null){
-			throw new RMapException("Request Agent required: value was null");
+		if (reqEventDetails==null){
+			throw new RMapException("RequestEventDetails: value was null");
 		}
 		
-		agentmgr.validateRequestAgent(requestAgent, ts);
+		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// get the event started
-		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO);
+		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
 		// Create reified statements for aggregrated resources if needed
 		List<Statement> aggResources = disco.getAggregatedResourceStatements();
 		if (aggResources == null){
@@ -225,7 +225,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 *
 	 * @param oldDiscoId the original DiSCO IRI
 	 * @param disco the updated RMap DiSCO
-	 * @param requestAgent the requesting agent
+	 * @param reqEventDetails the requesting agent
 	 * @param justInactivate true, if the DiSCO should be inactivated without a new version being created; or, false if a new version is provided.
 	 * @param ts the triplestore instance
 	 * @return the RMap Event
@@ -235,17 +235,17 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapNotLatestVersionException 
 	 */
 	//try to roll this back!
-	public RMapEvent updateDiSCO(IRI oldDiscoId, ORMapDiSCO disco, RMapRequestAgent requestAgent,  boolean justInactivate, SesameTriplestore ts) 
+	public RMapEvent updateDiSCO(IRI oldDiscoId, ORMapDiSCO disco, RequestEventDetails reqEventDetails,  boolean justInactivate, SesameTriplestore ts) 
 	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException, RMapNotLatestVersionException {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
 			throw new RMapDefectiveArgumentException ("Null value for id of target DiSCO");
 		}
 		// Confirm systemAgentId (not null, is Agent)
-		if (requestAgent==null){
+		if (reqEventDetails==null){
 			throw new RMapException("System Agent ID required: was null");
 		}		
-		agentmgr.validateRequestAgent(requestAgent, ts);
+		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		//check that they are updating the latest version of the DiSCO otherwise throw exception
 		Map<IRI,IRI>event2disco=this.getAllDiSCOVersions(oldDiscoId, true, ts);
@@ -267,12 +267,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		// get the event started
 		ORMapEvent event = null;	
-		boolean creatorSameAsOrig = this.isSameCreatorAgent(oldDiscoId, requestAgent, ts);
+		boolean creatorSameAsOrig = this.isSameCreatorAgent(oldDiscoId, reqEventDetails, ts);
 				
 		if (justInactivate){
 			// must be same agent
 			if (creatorSameAsOrig){
-				ORMapEventInactivation iEvent = new ORMapEventInactivation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO);
+				ORMapEventInactivation iEvent = new ORMapEventInactivation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
 				iEvent.setInactivatedObjectId(ORAdapter.openRdfIri2RMapIri(oldDiscoId));
 				event = iEvent;
 			}
@@ -292,11 +292,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				throw new RMapDefectiveArgumentException("The DiSCO provided has the same identifier as the DiSCO being replaced.");
 			}
 			if (creatorSameAsOrig){
-				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
+				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
 				event = uEvent;
 			}
 			else {
-				ORMapEventDerivation dEvent = new ORMapEventDerivation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
+				ORMapEventDerivation dEvent = new ORMapEventDerivation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
 				event = dEvent;
 			}
 		}
@@ -362,27 +362,27 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public RMapEvent tombstoneDiSCO(IRI oldDiscoId, RMapRequestAgent requestAgent, SesameTriplestore ts) 
+	public RMapEvent tombstoneDiSCO(IRI oldDiscoId, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
 			throw new RMapException ("Null value for id of DiSCO to be tombstoned");
 		}
-		if (requestAgent==null){
-			throw new RMapException("System Agent ID required: was null");
+		if (reqEventDetails==null){
+			throw new RMapException("RequestEventDetails required: was null");
 		}
 				
 		//validate agent
-		agentmgr.validateRequestAgent(requestAgent, ts);
+		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// make sure same Agent created the DiSCO now being inactivated
-		if (! this.isSameCreatorAgent(oldDiscoId, requestAgent, ts)){
+		if (! this.isSameCreatorAgent(oldDiscoId, reqEventDetails, ts)){
 			throw new RMapException(
 					"Agent attempting to tombstone DiSCO is not same as its creating Agent");
 		}
 			
 		// get the event started
-		ORMapEventTombstone event = new ORMapEventTombstone(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO, oldDiscoId);
+		ORMapEventTombstone event = new ORMapEventTombstone(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId);
 
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
@@ -832,7 +832,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return true, if is same creator agent
 	 * @throws RMapException the RMap exception
 	 */
-	protected boolean isSameCreatorAgent (IRI discoIri, RMapRequestAgent requestAgent, SesameTriplestore ts) 
+	protected boolean isSameCreatorAgent (IRI discoIri, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
 			throws RMapException {
 		boolean isSame = false;		
 		Statement stmt = eventmgr.getCreateObjEventStmt(discoIri, ts);
@@ -845,7 +845,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			IRI eventId = (IRI)stmt.getSubject();
 			IRI createAgent = eventmgr.getEventAssocAgent(eventId, ts);
-			String iriSysAgent = requestAgent.getSystemAgent().toString();			
+			String iriSysAgent = reqEventDetails.getSystemAgent().toString();			
 			isSame = (iriSysAgent.equals(createAgent.stringValue()));
 		}while (false);
 		return isSame;

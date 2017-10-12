@@ -43,7 +43,7 @@ import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
@@ -136,46 +136,33 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEvent(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+	protected ORMapEvent(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		this(id);
-		if (associatedAgent==null){
+		if (reqEventDetails==null){
 			throw new RMapException("Null agent not allowed in RMapEvent");
 		}
 		if (targetType==null){
 			throw new RMapException("Null target type not allowed in RMapEvent");
 		}
-		URI systemAgentUri = associatedAgent.getSystemAgent();
+		URI systemAgentUri = reqEventDetails.getSystemAgent();
 		if (systemAgentUri==null){
 			throw new RMapException("Null agent not allowed in RMapEvent");
 		}		
 		this.setAssociatedAgentStatement(ORAdapter.uri2OpenRdfIri(systemAgentUri));
 		
-		URI agentKeyUri = associatedAgent.getAgentKeyId();
+		URI agentKeyUri = reqEventDetails.getAgentKeyId();
 		if (agentKeyUri!=null){
 			this.setAssociatedKeyStatement(ORAdapter.uri2OpenRdfIri(agentKeyUri));
 		}
+
+		RMapValue description = reqEventDetails.getDescription();
+		if (agentKeyUri!=null){
+			this.setDescription(description);	
+		}
+		
 		this.setEventTargetTypeStatement(targetType);	
 	}
-	
-	/**
-	 * Instantiates a new ORMapEvent.
-	 *
-	 * @param associatedAgent the associated agent
-	 * @param targetType the target type
-	 * @param desc the desc
-	 * @throws RMapException the RMap exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected ORMapEvent(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException, RMapDefectiveArgumentException {
-		this(id, associatedAgent, targetType);
-		if (desc != null){
-			Statement descSt = ORAdapter.getValueFactory().createStatement(this.context, 
-					DC.DESCRIPTION, ORAdapter.rMapValue2OpenRdfValue(desc), this.context);
-			this.descriptionStmt = descSt;
-		}
-	}	
-	
+		
 	/**
 	 * Sets the statement containing the event type.
 	 *
@@ -461,7 +448,6 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			this.descriptionStmt = descSt;
 		}
 	}
-	
 	
 	/**
 	 * Gets the DiSCO's context i.e. the DiSCO's graphId.

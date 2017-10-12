@@ -54,7 +54,7 @@ import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
@@ -114,8 +114,8 @@ public class ORMapEventDerivationTest extends CoreTestAbstract {
 		ORMapDiSCO newDisco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), openRdfIri2RMapIri(associatedAgent), resourceList);
 		IRI derivedObject = newDisco.getDiscoContext();
 
-		RMapRequestAgent requestAgent = new RMapRequestAgent(new URI(associatedAgent.stringValue()), new URI("ark:/29297/testkey"));
-		ORMapEventDerivation event = new ORMapEventDerivation(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent, RMapEventTargetType.DISCO,sourceObject, derivedObject);
+		RequestEventDetails reqEventDetails = new RequestEventDetails(new URI(associatedAgent.stringValue()), new URI("ark:/29297/testkey"));
+		ORMapEventDerivation event = new ORMapEventDerivation(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, sourceObject, derivedObject);
 		Model model = event.getAsModel();
 		int modelSize = model.size();
 		assertEquals(9,modelSize);

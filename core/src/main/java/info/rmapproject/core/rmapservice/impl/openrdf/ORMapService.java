@@ -58,7 +58,7 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.ResultBatch;
@@ -351,19 +351,19 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#createDiSCO(java.net.URI, RMapDiSCO)
 	 */
 	@Override
-	public RMapEvent createDiSCO(RMapDiSCO disco, RMapRequestAgent requestAgent)
+	public RMapEvent createDiSCO(RMapDiSCO disco, RequestEventDetails reqEventDetails)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (disco==null){
 			throw new RMapDefectiveArgumentException("Null DiSCO provided");
 		}
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException("Null Agent id provided");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException("Null reqEventDetails provided");
 		}
 		if (!(disco instanceof ORMapDiSCO)){
 			throw new RMapDefectiveArgumentException("disco not instance of ORMapDiSCO");
 		}
 		try {
-			RMapEvent createEvent = discomgr.createDiSCO((ORMapDiSCO)disco, requestAgent, triplestore);
+			RMapEvent createEvent = discomgr.createDiSCO((ORMapDiSCO)disco, reqEventDetails, triplestore);
 			return createEvent;			
 		} finally {
 			closeConnection();
@@ -388,13 +388,13 @@ public class ORMapService implements RMapService {
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#updateDiSCO(java.net.URI, java.net.URI, RMapDiSCO, java.net.URI)
+	 * @see info.rmapproject.core.rmapservice.RMapService#updateDiSCO(java.net.URI, java.net.URI, RMapDiSCO, RequestEventDetails)
 	 */
 	@Override
-	public RMapEvent updateDiSCO(URI oldDiscoId, RMapDiSCO disco, RMapRequestAgent requestAgent)
+	public RMapEvent updateDiSCO(URI oldDiscoId, RMapDiSCO disco, RequestEventDetails reqEventDetails)
 			throws RMapException, RMapDefectiveArgumentException {
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException ("Null system agent");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException ("Null reqEventDetails");
 		}
 		if (oldDiscoId==null){
 			throw new RMapDefectiveArgumentException ("Null id for old DiSCO");
@@ -411,7 +411,7 @@ public class ORMapService implements RMapService {
 			updateEvent = discomgr.updateDiSCO(
 										uri2OpenRdfIri(oldDiscoId),
 										(ORMapDiSCO)disco, 
-										requestAgent,
+										reqEventDetails,
 										false, 
 										triplestore);
 		} catch (RMapException | RMapDefectiveArgumentException ex) {
@@ -433,18 +433,18 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#inactivateDiSCO(java.net.URI, java.net.URI)
 	 */
 	@Override
-	public RMapEvent inactivateDiSCO(URI oldDiscoId, RMapRequestAgent requestAgent)
+	public RMapEvent inactivateDiSCO(URI oldDiscoId, RequestEventDetails reqEventDetails)
 			throws RMapException, RMapDiSCONotFoundException,
 			RMapDefectiveArgumentException {
 		if (oldDiscoId==null){
 			throw new RMapDefectiveArgumentException ("Null id for old DiSCO");
 		}
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException ("Null system agent");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException ("Null reqEventDetails");
 		}
 		RMapEvent inactivateEvent = null;
 		try {
-			inactivateEvent = discomgr.updateDiSCO(uri2OpenRdfIri(oldDiscoId), null, requestAgent, true, triplestore);
+			inactivateEvent = discomgr.updateDiSCO(uri2OpenRdfIri(oldDiscoId), null, reqEventDetails, true, triplestore);
 		} catch (RMapException | RMapDefectiveArgumentException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction
@@ -463,17 +463,17 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI, java.net.URI)
 	 */
 	@Override
-	public RMapEvent deleteDiSCO(URI discoID, RMapRequestAgent requestAgent) 
+	public RMapEvent deleteDiSCO(URI discoID, RequestEventDetails reqEventDetails) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
 		}
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException ("Null system agent");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException ("Null reqEventDetails");
 		}
 		RMapEvent tombstoneEvent = null;
 		try {
-			tombstoneEvent = discomgr.tombstoneDiSCO(uri2OpenRdfIri(discoID), requestAgent, triplestore);
+			tombstoneEvent = discomgr.tombstoneDiSCO(uri2OpenRdfIri(discoID), reqEventDetails, triplestore);
 		} catch (RMapException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction
@@ -732,7 +732,7 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#readAgent(RMapAgent, java.net.URI)
 	 */
 	@Override
-	public RMapEvent createAgent(RMapAgent agent, RMapRequestAgent requestAgent) 
+	public RMapEvent createAgent(RMapAgent agent, RequestEventDetails reqEventDetails) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agent==null){
 			throw new RMapDefectiveArgumentException("Null agent");
@@ -740,13 +740,13 @@ public class ORMapService implements RMapService {
 		if (!(agent instanceof ORMapAgent)){
 			throw new RMapDefectiveArgumentException("unrecognized type for agent");
 		}
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException("Null system agent");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException("Null reqEventDetails");
 		}
 		RMapEvent event = null;
 		try {
 			ORMapAgent orAgent = (ORMapAgent)agent;
-			event = agentmgr.createAgent(orAgent, requestAgent, triplestore);
+			event = agentmgr.createAgent(orAgent, reqEventDetails, triplestore);
 		} catch (RMapException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction
@@ -766,7 +766,7 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#createAgent(java.net.URI, String, java.net.URI, java.net.URI, java.net.URI)
 	 */
 	@Override
-	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RMapRequestAgent requestAgent) 
+	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RequestEventDetails reqEventDetails) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agentID==null){
 			throw new RMapDefectiveArgumentException("Null Agent ID");
@@ -780,8 +780,8 @@ public class ORMapService implements RMapService {
 		if (authKeyUri==null){
 			throw new RMapDefectiveArgumentException("Null Agent authorization ID");
 		}
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException("Null system agent");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException("Null reqEventDetails");
 		}
 				
 		Value nameValue = ORAdapter.getValueFactory().createLiteral(name);
@@ -789,7 +789,7 @@ public class ORMapService implements RMapService {
 		IRI oIdentityProvider = uri2OpenRdfIri(identityProvider);
 		IRI oAuthKeyUri = uri2OpenRdfIri(authKeyUri);
 		RMapAgent agent = new ORMapAgent(oAgentId, oIdentityProvider, oAuthKeyUri, nameValue);
-		RMapEvent event = createAgent(agent, requestAgent);
+		RMapEvent event = createAgent(agent, reqEventDetails);
 		return event;
 	}
 
@@ -815,8 +815,8 @@ public class ORMapService implements RMapService {
 			IRI rIdentityProvider = uri2OpenRdfIri(identityProvider);
 			IRI rAuthKeyUri = uri2OpenRdfIri(authKeyUri);
 			RMapAgent agent = new ORMapAgent(uri2OpenRdfIri(idService.createId()), rIdentityProvider, rAuthKeyUri, rName);
-			RMapRequestAgent requestAgent = new RMapRequestAgent(new URI(agent.getId().toString()));
-			event = createAgent(agent, requestAgent);
+			RequestEventDetails reqEventDetails = new RequestEventDetails(new URI(agent.getId().toString()));
+			event = createAgent(agent, reqEventDetails);
 		} catch (URISyntaxException e) {
 			throw new RMapException("Could not convert Agent Id to URI", e);
 		} catch (Exception e) {
@@ -832,7 +832,7 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#createAgent(RMapAgent, java.net.URI)
 	 */
 	@Override
-	public RMapEvent updateAgent(RMapAgent agent, RMapRequestAgent requestAgent) 
+	public RMapEvent updateAgent(RMapAgent agent, RequestEventDetails reqEventDetails) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agent==null){
 			throw new RMapDefectiveArgumentException("Null agent");
@@ -840,13 +840,13 @@ public class ORMapService implements RMapService {
 		if (!(agent instanceof ORMapAgent)){
 			throw new RMapDefectiveArgumentException("unrecognized type for agent");
 		}
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException("Null system agent");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException("Null reqEventDetails");
 		}
 		RMapEvent event = null;
 		try{
 			ORMapAgent orAgent = (ORMapAgent)agent;
-			event = agentmgr.updateAgent(orAgent, requestAgent, triplestore);
+			event = agentmgr.updateAgent(orAgent, reqEventDetails, triplestore);
 		} catch (RMapException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction
@@ -865,7 +865,7 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#createAgent(java.net.URI, String, java.net.URI, java.net.URI, java.net.URI)
 	 */
 	@Override
-	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RMapRequestAgent requestAgent) 
+	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RequestEventDetails reqEventDetails) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agentID==null){
 			throw new RMapDefectiveArgumentException("Null Agent ID");
@@ -879,8 +879,8 @@ public class ORMapService implements RMapService {
 		if (authKeyUri==null){
 			throw new RMapDefectiveArgumentException("Null Agent authorization ID");
 		}
-		if (requestAgent==null){
-			throw new RMapDefectiveArgumentException("Null creating agent");
+		if (reqEventDetails==null){
+			throw new RMapDefectiveArgumentException("Null reqEventDetails");
 		}
 		
 		Value nameValue = ORAdapter.getValueFactory().createLiteral(name);
@@ -888,7 +888,7 @@ public class ORMapService implements RMapService {
 		IRI oIdentityProvider = uri2OpenRdfIri(identityProvider);
 		IRI oAuthKeyUri = uri2OpenRdfIri(authKeyUri);
 		RMapAgent agent = new ORMapAgent(oAgentId, oIdentityProvider, oAuthKeyUri, nameValue);
-		RMapEvent event = updateAgent(agent, requestAgent);
+		RMapEvent event = updateAgent(agent, reqEventDetails);
 		return event;
 	}
 		

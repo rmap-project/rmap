@@ -36,7 +36,7 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdate;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
@@ -113,9 +113,9 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventUpdate(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI inactivatedObject, IRI derivedObject)
+	public ORMapEventUpdate(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI inactivatedObject, IRI derivedObject)
 	throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType);
+		super(id, reqEventDetails, targetType);
 		this.setEventTypeStatement(RMapEventType.UPDATE);
 		this.setInactivatedObjectStmt(inactivatedObject);
 		this.setDerivationStmt(derivedObject);

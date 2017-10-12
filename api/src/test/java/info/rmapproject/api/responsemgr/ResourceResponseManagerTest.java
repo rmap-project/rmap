@@ -117,7 +117,7 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 			MultivaluedMap<String,String> params = new MultivaluedHashMap<String, String>();
 			response = resourceResponseManager.getRMapResourceRelatedObjs(TestConstants.TEST_DISCO_DOI, RMapObjectType.OBJECT, NonRdfType.JSON, params);
 
@@ -147,7 +147,7 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 			
 			MultivaluedMap<String,String> queryparams = new MultivaluedHashMap<String,String>();
 			
@@ -186,10 +186,10 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 	        assertNotNull(discoURIV2);
 			
 			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
+			rmapService.createDiSCO(rmapDiscoV1, requestEventDetails);
 
 			//update the disco
-			rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
+			rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestEventDetails);
 									
 			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
 			queryParams.add(Constants.PAGE_PARAM, "1");
@@ -235,7 +235,7 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco,requestAgent);
+			rmapService.createDiSCO(rmapDisco,requestEventDetails);
 						
 			String testDiscoDoi = URLEncoder.encode(TestConstants.TEST_DISCO_DOI,"UTF-8");
 			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
@@ -266,7 +266,7 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco,requestAgent);
+			rmapService.createDiSCO(rmapDisco,requestEventDetails);
 			
 			String resourceUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
 			
@@ -319,7 +319,7 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML_ENCODED_SPACE_IN_URL);
 		String discoURI = rmapDisco.getId().toString();
 	       assertNotNull(discoURI);
-		rmapService.createDiSCO(rmapDisco, requestAgent);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
 					
 		MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
 		params.add(Constants.PAGE_PARAM, "1");
@@ -346,7 +346,7 @@ public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_TURTLE);
 			String discoURI = rmapDisco.getId().toString();
 		    assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
 			params.add(Constants.PAGE_PARAM, "1");
 			params.add(Constants.LIMIT_PARAM, "10");

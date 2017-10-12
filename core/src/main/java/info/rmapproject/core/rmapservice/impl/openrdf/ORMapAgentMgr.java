@@ -52,7 +52,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.model.request.OrderBy;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -166,13 +166,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * Creates the agent.
 	 *
 	 * @param agent the RMap Agent
-	 * @param requestAgent the requesting Agent
+	 * @param reqEventDetails client provided event information
 	 * @param ts the triplestore instance
 	 * @return the ORMap event
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEvent createAgent (ORMapAgent agent, RMapRequestAgent requestAgent, SesameTriplestore ts)
+	public ORMapEvent createAgent (ORMapAgent agent, RequestEventDetails reqEventDetails, SesameTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
 		if (agent==null){
 			throw new RMapException ("null agent");
@@ -182,11 +182,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 				
 		IRI newAgentId = ORAdapter.rMapIri2OpenRdfIri(agent.getId());
-		IRI requestAgentId = ORAdapter.uri2OpenRdfIri(requestAgent.getSystemAgent());
+		IRI requestAgentId = ORAdapter.uri2OpenRdfIri(reqEventDetails.getSystemAgent());
 
 		if (!newAgentId.equals(requestAgentId)){
 			// Usually agents create themselves, where this isn't the case we need to check the creating agent exists already
-			this.validateRequestAgent(requestAgent,ts);
+			this.validateRequestAgent(reqEventDetails,ts);
 		}
 
 		// Confirm that the agent being created doesn't already exist
@@ -195,7 +195,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		
 		// Get the event started (key is null for agent creates since only done through bootstrap)
-		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.AGENT, null);
+		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.AGENT);
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -239,19 +239,19 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * version of the DiSCO is created
 	 *
 	 * @param updatedAgent the new version of the Agent
-	 * @param requestAgent the requesting Agent
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @param ts the triplestore instance
 	 * @return the ORMap event
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEvent updateAgent (ORMapAgent updatedAgent, RMapRequestAgent requestAgent, SesameTriplestore ts)
+	public ORMapEvent updateAgent (ORMapAgent updatedAgent, RequestEventDetails reqEventDetails, SesameTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
 		if (updatedAgent==null){
 			throw new RMapException ("null agent");
 		}
-		if (requestAgent==null){
-			throw new RMapException("System Agent required: was null");
+		if (reqEventDetails==null){
+			throw new RMapException("RequestEventDetails details object was null");
 		}
 		if (ts==null){
 			throw new RMapException ("null triplestore");
@@ -265,7 +265,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}		
 
 		//make sure request agent is valid
-		this.validateRequestAgent(requestAgent, ts);	
+		this.validateRequestAgent(reqEventDetails, ts);	
 		
 		//Get original agent
 		RMapAgent origAgent = this.readAgent(agentId, ts);
@@ -286,9 +286,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				
 		// Get the event started
 		ORMapEventUpdateWithReplace event = 
-				new ORMapEventUpdateWithReplace(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.AGENT, agentId);
+				new ORMapEventUpdateWithReplace(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.AGENT, agentId);
 		
 		String sEventDescrip = "";
+		if (reqEventDetails.getDescription()!=null && reqEventDetails.getDescription().toString().length()>0) {
+			sEventDescrip = reqEventDetails.getDescription().toString() + "; ";
+		}
+		sEventDescrip = sEventDescrip + "Updates: "; 
 		boolean updatesFound = false;
 		
 		//Remove elements of original agent and replace them with new elements
@@ -329,7 +333,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 
 		if (updatesFound) {
 			// end the event, write the event triples, and commit everything
-			event.setDescription(new RMapLiteral("Updates: "+ sEventDescrip));
+			event.setDescription(new RMapLiteral(sEventDescrip));
 			event.setEndTime(new Date());
 			ORMapEventMgr eventmgr = new ORMapEventMgr();
 			eventmgr.createEvent(event, ts);
@@ -482,13 +486,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
-	public void validateRequestAgent(RMapRequestAgent requestAgent, SesameTriplestore ts) 
+	public void validateRequestAgent(RequestEventDetails reqEventDetails, SesameTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException, RMapAgentNotFoundException{
-		if (requestAgent==null){
+		if (reqEventDetails==null){
 			throw new RMapException("A request agent is required, it's value was null");
 		}
 		
-		URI agentUri = requestAgent.getSystemAgent();		
+		URI agentUri = reqEventDetails.getSystemAgent();		
 		IRI agentIri = null;
 		try {
 			agentIri = ORAdapter.uri2OpenRdfIri(agentUri);

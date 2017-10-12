@@ -94,7 +94,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		try {		
 			//create disco				
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 		
 			//get related discos
 			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
@@ -120,7 +120,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
 			
-			discomgr.updateDiSCO(matchingIri, null, requestAgent, true, triplestore);
+			discomgr.updateDiSCO(matchingIri, null, reqEventDetails, true, triplestore);
 			discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
 			assertTrue(discoIris.size()==0);
 
@@ -141,11 +141,11 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		try {
 			//create disco				
 			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event1 = discomgr.createDiSCO(disco1, requestAgent, triplestore);
+			ORMapEvent event1 = discomgr.createDiSCO(disco1, reqEventDetails, triplestore);
 
 			//create duplicate disco, same agent - we want to make sure agents only come through once.				
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
+			ORMapEvent event2 = discomgr.createDiSCO(disco2, reqEventDetails, triplestore);
 		
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
@@ -181,12 +181,12 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			//create disco			
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);			
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);	
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			//get related events
 			RMapIri eventId = event.getId();
 			IRI discoId = ORAdapter.rMapIri2OpenRdfIri(disco.getId());
-			RMapEvent updateEvent = discomgr.updateDiSCO(discoId, disco2, requestAgent, false, triplestore);
+			RMapEvent updateEvent = discomgr.updateDiSCO(discoId, disco2, reqEventDetails, false, triplestore);
 			IRI updateEventId = ORAdapter.rMapIri2OpenRdfIri(updateEvent.getId());
 			
 			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
@@ -227,11 +227,11 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			
 			//create disco				
 			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event1 = discomgr.createDiSCO(disco1, requestAgent, triplestore);
+			ORMapEvent event1 = discomgr.createDiSCO(disco1, reqEventDetails, triplestore);
 
 			//create duplicate disco - we want to make sure triples only come through once.				
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
+			ORMapEvent event2 = discomgr.createDiSCO(disco2, reqEventDetails, triplestore);
 			
 			//get related triples			
 			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
@@ -310,11 +310,11 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 
 			//create disco				
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);	
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
-			requestAgent.setAgentKeyId(new java.net.URI(TestConstants.SYSAGENT_KEY));
-			ORMapEvent event2 = discomgr.createDiSCO(disco2, requestAgent, triplestore);
+			reqEventDetails.setAgentKeyId(new java.net.URI(TestConstants.SYSAGENT_KEY));
+			ORMapEvent event2 = discomgr.createDiSCO(disco2, reqEventDetails, triplestore);
 		
 			RMapSearchParams params = paramsFactory.newInstance();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);

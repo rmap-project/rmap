@@ -139,13 +139,13 @@ public class AgentResponseManagerTest extends ApiDataCreationTestAbstract {
 		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 		String discoURI = rmapDisco.getId().toString();
         assertNotNull(discoURI);
-		rmapService.createDiSCO(rmapDisco, requestAgent);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
 
 		//createDisco
 		RMapDiSCO rmapDisco2 = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 		String discoURI2 = rmapDisco2.getId().toString();
         assertNotNull(discoURI2);
-		rmapService.createDiSCO(rmapDisco2, requestAgent);
+		rmapService.createDiSCO(rmapDisco2, requestEventDetails);
 	
 		try {
 			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
@@ -202,13 +202,13 @@ public class AgentResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 	
 			//createDisco
 			RMapDiSCO rmapDisco2 = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI2 = rmapDisco2.getId().toString();
 	        assertNotNull(discoURI2);
-			rmapService.createDiSCO(rmapDisco2, requestAgent);
+			rmapService.createDiSCO(rmapDisco2, requestEventDetails);
 					
 			response = agentResponseManager.getRMapAgentDiSCOs(
 					URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()),

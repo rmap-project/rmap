@@ -20,7 +20,7 @@
 package info.rmapproject.api.auth;
 
 import info.rmapproject.api.exception.RMapApiException;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 
 import java.net.URI;
 
@@ -139,11 +139,12 @@ public interface ApiUserService {
 	
 
 	/**
-	 * Constructs current Request Agent object based on authenticated user. Throws exception if there is no Agent
+	 * Constructs current Request Event Details object based on authenticated user. This will be used to pass information
+	 * to RMap for updates. Throws exception if there is no Agent
 	 *
 	 * @return the current request agent
 	 * @throws RMapApiException the RMap API Exception
 	 */
-	public RMapRequestAgent getCurrentRequestAgent() throws RMapApiException;
+	public RequestEventDetails getCurrentRequestEventDetails() throws RMapApiException;
 
 }
