@@ -44,7 +44,7 @@ public class UserRMapAgentServiceImplTest extends AuthDBTestAbstract {
 	String testUserName = "RMap Test User";
 	String testAgentUri = "rmap:testagenturi";
 	String testIdProvider = "http://exampleidprovider.org";
-	String testAuthKeyId = "http://rmap-project.org/authids/testauthid";
+	String testAuthKeyId = "http://rmap-hub.org/authids/testauthid";
 
 	String testUserName2 = "Different Name";
 	

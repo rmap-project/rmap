@@ -14,7 +14,7 @@
   "@graph": [
     {
       "@id": "_:N53ab4e2e5a454b8bbc25e35776614897",
-      "@type": "http://rmap-project.org/rmap/terms/DiSCO",
+      "@type": "http://purl.org/ontology/rmap#DiSCO",
       "dc:description": "This is a made up example of an IEEE DiSCO.",
       "dcterms:creator": {
         "@id": "http://isni.org/isni/0000000122976723"

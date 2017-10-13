@@ -1,8 +1,8 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix rmap: <http://rmap-project.org/rmap/terms/> .
+@prefix rmap: <http://purl.org/ontology/rmap#> .
 
 <ark:/22573/rmaptestagent>
-  a <http://rmap-project.org/rmap/terms/Agent> ;
+  a <http://purl.org/ontology/rmap#Agent> ;
   foaf:name "RMap test Agent" ;
   rmap:identityProvider <http://orcid.org/> ;
-  rmap:userAuthId <http://rmap-project.org/identities/rmaptestauthid> .
+  rmap:userAuthId <http://rmap-hub.org/identities/rmaptestauthid> .

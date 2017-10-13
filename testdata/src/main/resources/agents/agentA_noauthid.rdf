@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rmap="http://rmap-project.org/rmap/terms/"
+	xmlns:rmap="http://purl.org/ontology/rmap#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
     <rdf:Description rdf:about="ark:/22573/rmaptestagent">
-        <rdf:type rdf:resource="http://rmap-project.org/rmap/terms/Agent"/>
+        <rdf:type rdf:resource="http://purl.org/ontology/rmap#Agent"/>
         <foaf:name>RMap test Agent</foaf:name>
         <rmap:identityProvider rdf:resource="http://orcid.org/"/>
     </rdf:Description>

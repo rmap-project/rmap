@@ -68,17 +68,17 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		WHERE { 
 		 GRAPH ?rmapObjectId  {
 			 <http://dx.doi.org/10.1145/356502.356500> <http://purl.org/dc/terms/issued> "1978-12-01"^^<http://www.w3.org/2001/XMLSchema#date> . 
-			 ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .
+			 ?discoId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#DiSCO> .
 		  } .
 		 GRAPH ?eventId {
-			?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+			?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 			{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION
-			{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?rmapObjId} .
+			{?eventId <http://purl.org/ontology/rmap#derivedObject> ?rmapObjId} .
 			?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 			{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd18nd2m3>} .
 			} .
-			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
-			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} 
+			FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#tombstonedObject> ?rmapObjId} .
+			FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#inactivatedObject> ?rmapObjId} 
 		}
 		*/
 		List<IRI> discos = getRelatedObjects(subject, predicate, object, params,ts, RMAP.DISCO);
@@ -109,16 +109,16 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		WHERE { 
 		  GRAPH ?rmapObjId {
 		    <http://isni.org/isni/000000010941358X> <http://xmlns.com/foaf/0.1/name> "IEEE" .
-		    ?rmapObjId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Agent> .
+		    ?rmapObjId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Agent> .
 		  } .
 		  GRAPH ?eventId {
-			?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+			?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 			{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} .
 			?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 			{?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmd3jq0>} .
 		  } .
-			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
-			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId} 
+			FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#tombstonedObject> ?rmapObjId} .
+			FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#inactivatedObject> ?rmapObjId} 
 		}
 		*/
 		//note - active is the only status that is visible, so that is the filter.
@@ -251,9 +251,9 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			  <http://dx.doi.org/10.1145/356502.356500> <http://purl.org/dc/terms/issued> "1978-12-01"^^<http://www.w3.org/2001/XMLSchema#date> .
 			  } .
 			  GRAPH ?eventId {
-				?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+				?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 				{?eventId <http://www.w3.org/ns/prov#generated> ?objectId} UNION
-				{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?objectId} .
+				{?eventId <http://purl.org/ontology/rmap#derivedObject> ?objectId} .
 				?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> ?agentId .
 				?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 				} 

@@ -182,7 +182,6 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		assertEquals(200, response.getStatus());
 	}
 	
-
 	/**
 	 * Tests whether can retrieve response for updated DiSCO.
 	 *
@@ -231,7 +230,7 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 			assertTrue(links1.contains(encodedDiscoUri2 + successorAndLatestVersionLink));
 			assertTrue(!links1.contains(predecessorVersionLink));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.TIMEMAP + "\""));
-			assertTrue(links1.contains("/" + Terms.RMAP_INACTIVE));
+			assertTrue(links1.contains("#" + Terms.RMAP_INACTIVE));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			String location1 = response.getHeaderString("location");
 			assertTrue(location1.contains(encodedDiscoUri1));
@@ -250,7 +249,7 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 			assertTrue(links2.contains(encodedDiscoUri1 + predecessorVersionLink));
 			assertTrue(links2.contains(encodedDiscoUri2 + latestVersionLink));
 			assertTrue(!links2.contains(successorVersionLink));
-			assertTrue(links2.contains("/" + Terms.RMAP_ACTIVE));
+			assertTrue(links2.contains("#" + Terms.RMAP_ACTIVE));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			String location2 = response.getHeaderString(HttpHeaders.LOCATION);
 			assertTrue(location2.contains(encodedDiscoUri2));
@@ -404,7 +403,7 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		Response response = discoResponseManager.getRMapDiSCO(strDiscoUri, RdfMediaType.APPLICATION_LDJSON);
 		assertTrue(response.getStatus()==410);//GONE
 		String links = response.getLinks().toString();
-		assertTrue(links.contains("/tombstoned"));
+		assertTrue(links.contains("#tombstoned"));
 		assertTrue(links.contains(encodedDiscoUri + "/latest>;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 	}
 	

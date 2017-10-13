@@ -5,9 +5,9 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix ieee: <http://data.ieee.org/ieee/terms/> .
 @prefix ore: <http://www.openarchives.org/ore/terms/> .
-@prefix rmap: <http://rmap-project.org/rmap/terms/> .
+@prefix rmap: <http://purl.org/ontology/rmap#> .
 
-[] a <http://rmap-project.org/rmap/terms/DiSCO> ;
+[] a <http://purl.org/ontology/rmap#DiSCO> ;
 	dcterms:creator <http://isni.org/isni/0000000122976723> ;
 	dc:description "This is a made up example of an IEEE DiSCO." ;
 	ore:aggregates <http://doi.org/10.1109/disco.test> ;

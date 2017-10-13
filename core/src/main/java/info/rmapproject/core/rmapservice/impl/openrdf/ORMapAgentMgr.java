@@ -67,7 +67,7 @@ import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
  * @author smorrissey, khanson
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
-
+	
 	/**
 	 * Get an Agent using Agent IRI and a specific triplestore instance
 	 *
@@ -371,17 +371,17 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			WHERE { 
 			GRAPH ?rmapObjId  
 				{
-				?rmapObjId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/DiSCO> .	
+				?rmapObjId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#DiSCO> .	
 				} . 
 			 GRAPH ?eventId {
-				?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+				?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 				{?eventId <http://www.w3.org/ns/prov#generated> ?rmapObjId} UNION 
-				{?eventId <http://rmap-project.org/rmap/terms/derivedObject> ?rmapObjId} .
+				{?eventId <http://purl.org/ontology/rmap#derivedObject> ?rmapObjId} .
 				?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 				?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/22573/rmaptestagent> .
 			} .
-			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/tombstonedObject> ?rmapObjId} .
-			FILTER NOT EXISTS {?statusChangeEventId <http://rmap-project.org/rmap/terms/inactivatedObject> ?rmapObjId}
+			FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#tombstonedObject> ?rmapObjId} .
+			FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#inactivatedObject> ?rmapObjId}
 			}
 		 */
 		
@@ -442,7 +442,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		SELECT DISTINCT ?eventId 
 			WHERE {
 					GRAPH ?eventId {
-					 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://rmap-project.org/rmap/terms/Event> .
+					 	?eventId <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> .
 					 	?eventId <http://www.w3.org/ns/prov#startedAtTime> ?startDate .
 					 	?eventId <http://www.w3.org/ns/prov#wasAssociatedWith> <ark:/27927/rmp2543q5> .
 					 	}
@@ -500,6 +500,5 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapAgentNotFoundException("The requesting agent is invalid. No Agent exists with IRI " + agentIri.stringValue());
 		}
 	}
-
-		
+	
 }
