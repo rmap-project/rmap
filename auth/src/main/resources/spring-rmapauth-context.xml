@@ -7,6 +7,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
+    <context:property-placeholder location="${rmap.configFile}" ignore-resource-not-found="true" ignore-unresolvable="true"/>
     <context:property-placeholder location="classpath:/rmapauth.properties" ignore-unresolvable="true"/>
     <context:component-scan base-package="info.rmapproject" />
     <tx:annotation-driven transaction-manager="transactionManager"/>

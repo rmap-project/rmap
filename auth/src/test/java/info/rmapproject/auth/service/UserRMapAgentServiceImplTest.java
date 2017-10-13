@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.auth.service;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -110,6 +111,16 @@ public class UserRMapAgentServiceImplTest extends AuthDBTestAbstract {
 		assertTrue(replaceEvent.getAssociatedKey().toString().equals(TESTKEY));
 		
 	}
+	
+	
+	@Test
+	public void testCreateRMapAdministratorAgent() throws Exception {
+		assertTrue(!agentService.isAdministratorAgentCreated()); //agent not created
+		RMapEvent event = agentService.createRMapAdministratorAgent();
+		assertTrue(agentService.isAdministratorAgentCreated()); // now agent created!
+		assertEquals(event.getAssociatedAgent().toString(),"https://fake-rmap-server.org#Administrator");
+	}
+	
 	
 		
 }

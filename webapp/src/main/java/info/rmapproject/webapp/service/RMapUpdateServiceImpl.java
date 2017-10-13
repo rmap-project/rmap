@@ -36,7 +36,7 @@ import info.rmapproject.core.rmapservice.RMapService;
  *
  * @author khanson
  */
-@Service("userMgtService")
+@Service("rmapUpdateService")
 @Transactional
 public class RMapUpdateServiceImpl implements RMapUpdateService {
 
