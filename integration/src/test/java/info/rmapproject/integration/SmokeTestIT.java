@@ -18,7 +18,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +130,7 @@ public class SmokeTestIT {
         String secret = "NSbdzctrP46ZvhTi";
         URL url = new URL(apiBaseUrl, apiCtxPath + "/discos");
         String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.ttl"));
+        String sampleDisco2 = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoB_v1.rdf"));
 
         try (Response res =
                      http.newCall(new Request.Builder()
@@ -142,6 +142,18 @@ public class SmokeTestIT {
                     201, res.code());
         }
 
+        //make sure we can also create a second DiSCO (Agent record is transferred to 
+        //triplestore on 1st DiSCO, verified on the second)
+        try (Response res =
+                     http.newCall(new Request.Builder()
+                             .post(RequestBody.create(MediaType.parse("application/rdf+xml"), sampleDisco2))
+                             .url(url).addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
+                             .build())
+                             .execute()) {
+            assertEquals(url.toString() + " failed with: '" + res.code() + "', '" + res.message() + "'",
+                    201, res.code());
+        }
+        
         try (Response res =
                      http.newCall(new Request.Builder()
                 .post(RequestBody.create(MediaType.parse("text/turtle"), sampleDisco))
