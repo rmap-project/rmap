@@ -22,6 +22,7 @@ package info.rmapproject.webapp.controllers;
 import static info.rmapproject.webapp.utils.Constants.ADMIN_LOGGEDIN_SESSATTRIB;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -36,10 +37,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import info.rmapproject.auth.model.User;
+import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.webapp.auth.AdminLogin;
 import info.rmapproject.webapp.auth.AdminLoginRequired;
+import info.rmapproject.webapp.domain.DeleteDiSCOForm;
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.RMapUpdateService;
@@ -61,6 +65,8 @@ public class AdminToolController {
 	
 	/**The admin login object created from properties for comparison against entry from user*/
 	private AdminLogin correctAdminLogin;
+	
+	private final static String DISCO_DELFORM_ATTRIB = "deleteDiSCO";
 	
 	
 	@Autowired
@@ -182,7 +188,7 @@ public class AdminToolController {
 	 */
 	@AdminLoginRequired
 	@RequestMapping(value="/admin/user", method=RequestMethod.GET)
-	public String editUser(Model model, HttpSession session, @RequestParam(value="userid", required = true) Integer userId) throws Exception {
+	public String editUser(Model model, HttpSession session, @RequestParam(value="userid", required = true) Integer userId, RedirectAttributes redirectAttributes) throws Exception {
 		try {
 			User user = userMgtService.getUserById(userId);
 			session.setAttribute("user", user);
@@ -190,7 +196,8 @@ public class AdminToolController {
 				throw new RMapWebException(ErrorCode.ER_USER_RECORD_NOT_FOUND);
 			}
 		} catch (Exception ex){
-			model.addAttribute("notice", "Could not retrieve user. Please select a user to edit.");	
+			//true if redirected back to form due to error, for example.
+			redirectAttributes.addFlashAttribute("notice", "Could not retrieve user. Please select a user to edit.");
 			return "redirect:/admin/users";
 		}
 		return "redirect:/admin/user/settings"; 		
@@ -249,87 +256,144 @@ public class AdminToolController {
 	 */
 	@AdminLoginRequired
 	@RequestMapping(value="/admin/keys", method=RequestMethod.GET)
-	public String manageUserKeys(Model model, HttpSession session, @RequestParam(value="userid", required = true) Integer userId) throws Exception {
+	public String manageUserKeys(Model model, HttpSession session, @RequestParam(value="userid", required = true) Integer userId, 
+			RedirectAttributes redirectAttributes) throws Exception {
 		try {
 			User user = userMgtService.getUserById(userId);
 			session.setAttribute("user", user);
 		} catch (Exception ex){
-    		model.addAttribute("notice", "Could not retrieve user keys. Please select a user to edit.");	
+			redirectAttributes.addFlashAttribute("notice", "Could not retrieve user keys. Please select a user to edit.");	
 			return "redirect:/admin/users";
 		}
 				
 		return "redirect:/admin/user/keys"; 		
 	}	
 	
+
 	/**
 	 * Form to enter a DiSCO ID to delete
 	 * @param model
-	 * @param session
-	 * @param notice
+	 * @param redirectAttributes
 	 * @return
 	 * @throws Exception
 	 */
 	@AdminLoginRequired
 	@RequestMapping(value="/admin/disco/delete", method=RequestMethod.GET)
-	public String deleteDiSCOForm(Model model, HttpSession session, @RequestParam(value="notice", required=false) String notice) throws Exception {
-		if (notice!=null){
-			model.addAttribute("notice", notice);	
+	public String deleteDiSCOForm(Model model) throws Exception {
+		if (!model.containsAttribute(DISCO_DELFORM_ATTRIB)) {
+			//return form
+			DeleteDiSCOForm deleteDiSCO = new DeleteDiSCOForm();
+			model.addAttribute(DISCO_DELFORM_ATTRIB, deleteDiSCO);
 		}
 				
 		return "admin/discodelete"; 		
 	}			
 	
 	/**
+	 * Process delete disco form to make sure is valid URI and is deletable
+	 * @param deleteDiSCO
+	 * @param result
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value="/admin/disco/delete", method=RequestMethod.POST)
+	public String searchResults(@Valid @ModelAttribute(DISCO_DELFORM_ATTRIB) DeleteDiSCOForm deleteDiSCO,
+			BindingResult result, Model model, RedirectAttributes redirectAttributes) throws Exception {
+		if (result.hasErrors()){
+			model.addAttribute(DISCO_DELFORM_ATTRIB, deleteDiSCO);
+    		model.addAttribute("notice", "There was an error DiSCO deletion form.");	
+			return "admin/discodelete";
+		}
+		URI discoUri = null;
+		try {
+			discoUri = new URI(deleteDiSCO.getDiscoUri());
+		
+			if (!rmapUpdateService.isDeletableDiscoId(discoUri)) {
+				model.addAttribute(DISCO_DELFORM_ATTRIB, deleteDiSCO);
+	    		model.addAttribute("notice", "Could not find a DiSCO with that URI. The DiSCO either does not exist or has already been deleted.");		
+				return "admin/discodelete";
+			}
+		} catch (URISyntaxException|IllegalArgumentException ex){
+			model.addAttribute(DISCO_DELFORM_ATTRIB, deleteDiSCO);
+    		model.addAttribute("notice", "The DiSCO ID must be a valid URI");	
+			return "admin/discodelete";
+		}
+
+		redirectAttributes.addFlashAttribute(DISCO_DELFORM_ATTRIB, deleteDiSCO);
+		return "redirect:/admin/disco/deleteconfirm"; 		
+	}			
+	
+
+	/**
 	 * Confirmation screen to warn user that deletion will occur if confirm
 	 * @param model
-	 * @param session
-	 * @param discoId
-	 * @param notice
+	 * @param redirectAttributes
 	 * @return
 	 * @throws Exception
 	 */
 	@AdminLoginRequired
 	@RequestMapping(value="/admin/disco/deleteconfirm", method=RequestMethod.GET)
-	public String deleteDiSCOConfirm(Model model, HttpSession session, @RequestParam(value="discoId", required = false) String discoId, 
-			@RequestParam(value="notice", required=false) String notice) throws Exception {
-		if (discoId==null){discoId="";}
-		if (notice!=null){
-			model.addAttribute("notice", notice);	
-		}
-		if (!rmapUpdateService.isDiscoId(new URI(discoId))) {
-			model.addAttribute("notice", "Could not find DiSCO with that URI");	
-			return "redirect: /admin/disco/delete";			
-		}
-		model.addAttribute("discoId", discoId);	
-		return "admin/discodeleteconfirm"; 		
+	public String getDeleteConfirm(Model model, RedirectAttributes redirectAttributes) throws Exception {
+		if (model.containsAttribute(DISCO_DELFORM_ATTRIB)){
+			//true if redirected correctly
+			return "admin/discodeleteconfirm"; 	
+		} else {
+			//otherwise go back to initial delete form
+			redirectAttributes.addFlashAttribute("notice","Blank delete DiSCO form provided. Please complete the deletion form.");
+			return "redirect:/admin/disco/delete";			
+		}	
 	}			
+		
 	
 	/**
 	 * Performs disco deletion and returns to deleted notice
-	 * @param model
-	 * @param session
-	 * @param discoId
-	 * @param notice
+	 * @param deleteDiSCO
+	 * @param result
+	 * @param redirectAttributes
 	 * @return
 	 * @throws Exception
 	 */
 	@AdminLoginRequired
 	@RequestMapping(value="/admin/disco/deleteconfirm", method=RequestMethod.POST)
-	public String deleteDiSCO(Model model, HttpSession session, @RequestParam(value="discoId", required = false) String discoId, 
-			@RequestParam(value="notice", required=false) String notice) throws Exception {
-		if (discoId==null){discoId="";}
-		if (notice!=null){
-			model.addAttribute("notice", notice);	
+	public String deleteDiSCO(@ModelAttribute(DISCO_DELFORM_ATTRIB) DeleteDiSCOForm deleteDiSCO,
+			BindingResult result, RedirectAttributes redirectAttributes) throws Exception {
+		if (deleteDiSCO==null){
+			//true if redirected back to form due to error, for example.
+			redirectAttributes.addFlashAttribute("notice","An error occured during deletion and it could not be completed");
+			return "redirect:/admin/disco/delete";			 
 		}
-		if (!rmapUpdateService.isDiscoId(new URI(discoId))) {
-			model.addAttribute("notice", "Could not find DiSCO with that URI");	
-			return "redirect: /admin/disco/delete";			
+		URI discoUri = null;
+		try {
+			discoUri = new URI(deleteDiSCO.getDiscoUri());
+		} catch (Exception ex) {
+			redirectAttributes.addFlashAttribute("notice", "An error occured during deletion and it could not be completed");
+			return "redirect:/admin/disco/delete";						
 		}
 		
-		model.addAttribute("discoId", discoId);
-		
-		return "admin/discodeleted"; 		
+		RMapEvent event = rmapUpdateService.deleteDiSCO(discoUri);
+		redirectAttributes.addFlashAttribute(DISCO_DELFORM_ATTRIB, deleteDiSCO);
+		redirectAttributes.addFlashAttribute("eventId", event.getId().toString());
+		return "redirect:/admin/disco/deleted"; 		
 	}		
-	
+
+	/**
+	 * Notifies user that deletion was successful and provides EventId for deletion event
+	 * @param model
+	 * @param redirectAttributes
+	 * @return
+	 * @throws Exception
+	 */
+	@AdminLoginRequired
+	@RequestMapping(value="/admin/disco/deleted", method=RequestMethod.GET)
+	public String deleteDiSCOComplete(Model model, RedirectAttributes redirectAttributes) throws Exception {
+		if (model.containsAttribute(DISCO_DELFORM_ATTRIB) && model.containsAttribute("eventId")) {
+			return "admin/discodeleted"; 
+		} else {
+			redirectAttributes.addFlashAttribute("notice", "An error occured during deletion and it could not be completed");
+			return "redirect:/admin/disco/delete";					
+		}		
+	}			
 		
 }

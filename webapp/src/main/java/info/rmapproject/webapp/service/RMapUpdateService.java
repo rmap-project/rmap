@@ -32,12 +32,6 @@ import info.rmapproject.core.model.event.RMapEvent;
 public interface RMapUpdateService {
 
 	/**
-	 * Checks to see that there is an Administrator Agent in RMap, if not it will create one. This is called
-	 * when an administrator logs in to RMap.
-	 */
-	public void prepareRMapAdministratorAgent();
-	
-	/**
 	 * Retrieve DiSCO
 	 * @return matching disco
 	 */
@@ -55,7 +49,7 @@ public interface RMapUpdateService {
 	 * @param discoUri
 	 * @return true if it is  Disco Uri
 	 */
-	public boolean isDiscoId(URI discoUri);
+	public boolean isDeletableDiscoId(URI discoUri);
 	
 	
 }

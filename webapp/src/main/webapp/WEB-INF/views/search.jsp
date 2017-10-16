@@ -11,11 +11,7 @@
 			${notice}
 		</p>
 	</c:if>
-	
-	<c:if test="${search.getSearch()!=null&&search.getSearch().length()>0}">
-		<c:set var="searchVal" value="${search.getSearch()}"/>
-	</c:if>
-	<form:form commandName="search">
+	<form:form modelAttribute="search">
 		<form:label path="search">Enter a URI *</form:label> 
 		<form:input path="search" style="width:320px;float:left;margin-right:10px;" value="${searchVal}"/>
 		<input type="submit" value="GO" style="margin-top:3px;">

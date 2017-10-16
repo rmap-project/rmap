@@ -10,16 +10,15 @@
 			${notice}
 		</p>
 	</c:if>
-	<br/>
 	<h2>What can I do here?</h2>
 	<br/>
-	<p>
-		<ul>
-			<li><a href="<c:url value='/admin/users'/>">Manage all users and administer keys</a></li>
-			<li><a href="<c:url value='/admin/discodelete'/>">Hard delete specific DiSCOs</a> from RMap, per user request.</li> 
-		</ul>
-	</p>
-	<br/>
+	<h3>Manage API User</h3>
+	<p>You can create and manage all user accounts, and assign API keys to users. To do this, visit the 
+	<a href="<c:url value='/admin/users'/>">Manage Users</a> page.</p>
+	<h3>Permanently delete a DiSCO</h3>
+	<p>Users can create, update, and delete DiSCOs as needed. The user-driven deletion leaves the DiSCO data in the RMap database, though it is no longer 
+	visible through the API or GUI. The Administrator Tool provides the option to permanently delete a DiSCO from RMap, only leaving the Event data behind as 
+	a record of what happened to the DiSCO. Visit the <a href="<c:url value='/admin/disco/delete'/>">Delete a DiSCO</a> page to perform this function.</p>
 	<br/>
 	<br/>
 	<br/>

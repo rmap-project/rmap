@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import info.rmapproject.auth.service.RMapAuthService;
+import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.request.RMapRequestAgent;
@@ -48,15 +49,6 @@ public class RMapUpdateServiceImpl implements RMapUpdateService {
 	@Autowired
 	private RMapService rmapService;
 		
-	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.RMapUpdateService#prepareRMapAdministratorAgent()
-	 */
-	@Override
-	public void prepareRMapAdministratorAgent() {
-		if (!rmapAuthService.isAdministratorAgentCreated()) {
-			rmapAuthService.createRMapAdministratorAgent();
-		}		
-	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.webapp.service.RMapUpdateService#readDiSCO()
@@ -71,15 +63,30 @@ public class RMapUpdateServiceImpl implements RMapUpdateService {
 	 */
 	@Override
 	public RMapEvent deleteDiSCO(URI discoUri) {
+		prepareRMapAdministratorAgent();
 		RMapRequestAgent requestAgent = new RMapRequestAgent(rmapAuthService.getAdministratorAgentUri());
 		return rmapService.deleteDiSCO(discoUri, requestAgent);
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.RMapUpdateService#isDiSCOId()
+	 * @see info.rmapproject.webapp.service.RMapUpdateService#isDeletableDiscoId()
 	 */
 	@Override
-	public boolean isDiscoId(URI discoUri) {
-		return rmapService.isDiSCOId(discoUri);
+	public boolean isDeletableDiscoId(URI discoUri) {
+		if (rmapService.isDiSCOId(discoUri) 
+				&& (rmapService.getDiSCOStatus(discoUri) != RMapStatus.DELETED)){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Checks to see that there is an Administrator Agent in RMap, if not it will create one. This is called
+	 * when an administrator logs in to RMap.
+	 */
+	private void prepareRMapAdministratorAgent() {
+		if (!rmapAuthService.isAdministratorAgentCreated()) {
+			rmapAuthService.createRMapAdministratorAgent();
+		}		
 	}
 }

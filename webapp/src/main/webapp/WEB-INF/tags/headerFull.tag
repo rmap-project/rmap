@@ -46,7 +46,8 @@
 				<li id="menu-item-4">
 					<a href="<c:url value='/admin/welcome'/>" title="RMap Admin">RMap Admin<b class="caret"></b></a>
 					<ul class="dropdown-menu">
-						<li><a href="<c:url value='/admin/users'/>">Manage Users</a></li>					
+						<li><a href="<c:url value='/admin/users'/>">Manage Users</a></li>	
+						<li><a href="<c:url value='/admin/disco/delete'/>">Delete DiSCO</a></li>				
 						<li><a href="<c:url value='/admin/logout'/>">Sign out</a></li>
 					</ul>
 				</li>			

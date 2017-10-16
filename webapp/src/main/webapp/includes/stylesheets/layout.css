@@ -84,7 +84,7 @@ a:hover { color: #aaccff; }
 
 h1, h2, h3, h4, h5, h6 { font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; color: #003c67; font-weight: bold; overflow-wrap: break-word; word-wrap: break-word; }
 h1 { font-size: 24px; line-height: 28px; color: #5e7071; margin: 10px 0px 5px 0;}
-h2 { font-size: 18px; line-height: 20px; color: #5e7071; margin: 5px 0 5px 0; }
+h2 { font-size: 18px; line-height: 20px; color: #5e7071; margin: 10px 0 5px 0;}
 h3 { font-size: 14px; line-height: 18px; color: #5e7071; }
 h4 { font-size: 14px; line-height: 18px; color: #5e7071; }
 h5 { font-size: 12px; line-height: 18px; color: #5e7071; }

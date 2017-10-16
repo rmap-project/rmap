@@ -26,7 +26,7 @@ import javax.validation.constraints.Size;
  * Holds search command form results.
  * @author khanson
  */
-public class SearchCommand {
+public class SearchForm {
 	
 	/** The search. */
 	@NotNull

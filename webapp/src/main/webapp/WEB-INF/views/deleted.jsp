@@ -3,7 +3,7 @@
 <%@ taglib prefix="tl" tagdir="/WEB-INF/tags" %>
 
 
-<tl:pageStartStandard user="${user}" pageTitle="System Error"/>
+<tl:pageStartStandard user="${user}" pageTitle="Resource Deleted"/>
     
 	<h1>Resource Deleted</h1>
 	

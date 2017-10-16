@@ -4,13 +4,9 @@
 
 <tl:pageStartStandard user="${null}" pageTitle="DiSCO deleted"/>
 	<h1>DiSCO Deleted</h1>
-	<c:if test="${notice!=null}">
-		<p class="notice">
-			${notice}
-		</p>
-	</c:if>
-	<p> The DiSCO ${discoId} was successfully deleted. The deletion Event ID is <c:url value="/event?uri=${eventId}">${eventId}</c:url>. </p>
-	<p> Return to <c:url value="/admin/welcome">Admin Tool Home</c:url> 
+	<p class="notice">The DiSCO ${deletedDiSCO.getDiSCOUri()} was successfully deleted.<br/> 
+	The deletion Event ID is <strong><a href="<c:url value='/events?uri=${eventId}'/>">${eventId}</a></strong>.</p>
+	<p>Return to <a href="<c:url value='/admin/welcome'/>">Administrator Tool Home</a>
 	<br/>
 	<br/>
 	<br/>
