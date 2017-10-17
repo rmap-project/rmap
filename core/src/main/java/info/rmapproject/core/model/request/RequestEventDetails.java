@@ -81,7 +81,7 @@ public class RequestEventDetails implements Serializable {
 	 * @param agentKeyId the agent key URI - null if none specified
 	 * @param description the description to be applied to the Event	 
 	 */
-	public RequestEventDetails(URI systemAgent, URI agentKeyId, String description) throws RMapException{
+	public RequestEventDetails(URI systemAgent, URI agentKeyId, RMapValue description) throws RMapException{
 		if (systemAgent == null){
 			throw new RMapException("Requesting System Agent cannot be null.");
 		}
