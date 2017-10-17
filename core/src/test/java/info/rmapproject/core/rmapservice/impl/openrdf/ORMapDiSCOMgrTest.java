@@ -54,7 +54,7 @@ import info.rmapproject.core.model.event.RMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -457,9 +457,9 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 		
 		@SuppressWarnings("unused")
-		RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 							
-		rmapService.deleteDiSCO(disco.getId().getIri(), requestAgent);
+		rmapService.deleteDiSCO(disco.getId().getIri(), reqEventDetails);
 
 		try {
 			rmapService.readDiSCO(disco.getId().getIri());
@@ -484,12 +484,12 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
 		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
-		RMapRequestAgent adminReqAgent = new RMapRequestAgent(new URI(adminIri.toString()));
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);
 		
 		//create disco using regular agent
 		@SuppressWarnings("unused")
-		RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 		
 		//delete disco using admin agent
 		RMapEvent delEvent = rmapService.deleteDiSCO(disco.getId().getIri(), adminReqAgent);
@@ -520,14 +520,14 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
 		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
-		RMapRequestAgent adminReqAgent = new RMapRequestAgent(new URI(adminIri.toString()));
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);
 		
 		//create disco using regular agent
 		@SuppressWarnings("unused")
-		RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 		
-		RMapEvent tsEvent = rmapService.tombstoneDiSCO(disco.getId().getIri(), requestAgent);
+		RMapEvent tsEvent = rmapService.tombstoneDiSCO(disco.getId().getIri(), reqEventDetails);
 		assertTrue(tsEvent!=null);
 		//confirm it's tombstoned
 		try {
@@ -564,11 +564,11 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
 		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
-		RMapRequestAgent adminReqAgent = new RMapRequestAgent(new URI(adminIri.toString()));
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);
 		
 		//create disco using regular agent
-		discomgr.createDiSCO(disco, requestAgent, triplestore);
+		discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 		
 		//delete disco using admin agent
 		rmapService.deleteDiSCO(disco.getId().getIri(), adminReqAgent);
@@ -590,14 +590,14 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 
 		//create disco using regular agent
 		@SuppressWarnings("unused")
-		RMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 
 		//create admin agent
 		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
 		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
 		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
-		RMapRequestAgent adminReqAgent = new RMapRequestAgent(new URI(adminIri.toString()));
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);
 		
 		//delete disco using admin agent

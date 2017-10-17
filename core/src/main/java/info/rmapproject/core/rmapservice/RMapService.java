@@ -231,12 +231,12 @@ public interface RMapService {
 	 * Soft delete (tombstone) of a DiSCO.  Can only be performed by same agent that created DiSCO or the designated admin Agent.
 	 *
 	 * @param discoID the URI of the DiSCO to be tombstoned
-	 * @param requestAgent the requesting agent
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return an RMap Event
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent tombstoneDiSCO (URI discoID, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent tombstoneDiSCO (URI discoID, RequestEventDetails reqEventDetails) throws RMapException, RMapDefectiveArgumentException;
 
 	/**
 	 * Hard delete of a DiSCO.  Can only be performed by same agent that created DiSCO or disignated admin Agent. 

@@ -494,17 +494,17 @@ public class ORMapService implements RMapService {
 	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI, java.net.URI)
 	 */
 	@Override
-	public RMapEvent deleteDiSCO(URI discoID, RMapRequestAgent requestAgent) 
+	public RMapEvent deleteDiSCO(URI discoID, RequestEventDetails requestEventDets) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
 		}
-		if (requestAgent==null){
+		if (requestEventDets==null){
 			throw new RMapDefectiveArgumentException ("Null system agent");
 		}
 		RMapEvent deleteEvent = null;
 		try {
-			deleteEvent = discomgr.deleteDiSCO(uri2OpenRdfIri(discoID), requestAgent, triplestore);
+			deleteEvent = discomgr.deleteDiSCO(uri2OpenRdfIri(discoID), requestEventDets, triplestore);
 		} catch (RMapException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction

@@ -372,7 +372,7 @@ public class AdminToolController {
 			return "redirect:/admin/disco/delete";						
 		}
 		
-		RMapEvent event = rmapUpdateService.deleteDiSCO(discoUri);
+		RMapEvent event = rmapUpdateService.deleteDiSCOByAdmin(discoUri, deleteDiSCO.getEventDescription());
 		redirectAttributes.addFlashAttribute(DISCO_DELFORM_ATTRIB, deleteDiSCO);
 		redirectAttributes.addFlashAttribute("eventId", event.getId().toString());
 		return "redirect:/admin/disco/deleted"; 		

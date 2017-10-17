@@ -168,7 +168,7 @@ public class AdminToolControllerTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
 
         mockMvc.perform(post("/admin/disco/delete").sessionAttr(Constants.ADMIN_LOGGEDIN_SESSATTRIB, true).param("discoUri", discoUri))
         		.andExpect(status().is3xxRedirection())
@@ -226,7 +226,7 @@ public class AdminToolControllerTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
 		
         //create mock form using new discoUri
     	DeleteDiSCOForm discoDelete = new DeleteDiSCOForm();

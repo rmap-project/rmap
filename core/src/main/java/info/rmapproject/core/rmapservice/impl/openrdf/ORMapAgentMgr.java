@@ -511,11 +511,11 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 
 	/**
 	 * Verifies whether the request Agent has admin rights
-	 * @param requestAgent
+	 * @param reqEventDetails
 	 * @return
 	 */
-	public boolean agentHasAdminRights(RMapRequestAgent requestAgent) {
-		String reqAgentUri = requestAgent.getSystemAgent().toString();
+	public boolean agentHasAdminRights(RequestEventDetails reqEventDetails) {
+		String reqAgentUri = reqEventDetails.getSystemAgent().toString();
 		if (reqAgentUri.equals(this.adminAgentUri)) {
 			return true;
 		} else {

@@ -29,7 +29,7 @@ import info.rmapproject.auth.service.RMapAuthService;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
 
 /**
@@ -62,10 +62,11 @@ public class RMapUpdateServiceImpl implements RMapUpdateService {
 	 * @see info.rmapproject.webapp.service.RMapUpdateService#deleteDiSCO()
 	 */
 	@Override
-	public RMapEvent deleteDiSCO(URI discoUri) {
+	public RMapEvent deleteDiSCOByAdmin(URI discoUri, String description) {
 		prepareRMapAdministratorAgent();
-		RMapRequestAgent requestAgent = new RMapRequestAgent(rmapAuthService.getAdministratorAgentUri());
-		return rmapService.deleteDiSCO(discoUri, requestAgent);
+		RequestEventDetails requestEventDetails = new RequestEventDetails(rmapAuthService.getAdministratorAgentUri());
+		requestEventDetails.setDescription(description);
+		return rmapService.deleteDiSCO(discoUri, requestEventDetails);
 	}
 
 	/* (non-Javadoc)

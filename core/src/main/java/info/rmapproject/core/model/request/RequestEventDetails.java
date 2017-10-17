@@ -147,7 +147,7 @@ public class RequestEventDetails implements Serializable {
 	 * @param description
 	 */
 	public void setDescription(String description) {
-		if (description!=null){
+		if (description!=null && description.length()>0){
 			RMapValue rDescription = null;
 			try {
 				URI testUri = new URI(description);

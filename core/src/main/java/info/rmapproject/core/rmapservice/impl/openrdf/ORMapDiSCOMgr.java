@@ -437,28 +437,28 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * than statements in the DiSCO. The DiSCO named graph is also deleted from the triplestore.
 	 *
 	 * @param discoId the DiSCO IRI
-	 * @param requestAgent the requesting agent
+	 * @param reqEventDetails the requesting agent
 	 * @param ts the triplestore instance
 	 * @return the RMap Event
 	 * @throws RMapException the RMap exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public RMapEvent deleteDiSCO(IRI discoId, RMapRequestAgent requestAgent, SesameTriplestore ts) 
+	public RMapEvent deleteDiSCO(IRI discoId, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDeletedObjectException, RMapDefectiveArgumentException {
 		// confirm non-null old disco
 		if (discoId==null){
 			throw new RMapException ("Null value for id of DiSCO to be deleted");
 		}
-		if (requestAgent==null){
+		if (reqEventDetails==null){
 			throw new RMapException("System Agent ID required: was null");
 		}
 
 		//validate agent
-		agentmgr.validateRequestAgent(requestAgent, ts);
+		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// make sure same Agent created the DiSCO now being deleted, or they have admin rights
-		if (!this.isSameCreatorAgent(discoId, requestAgent, ts) && !agentmgr.agentHasAdminRights(requestAgent)){
+		if (!this.isSameCreatorAgent(discoId, reqEventDetails, ts) && !agentmgr.agentHasAdminRights(reqEventDetails)){
 			throw new RMapException(
 				"Agent attempting to delete DiSCO is not same as its creating Agent and does not have Administrator rights");
 		}
@@ -466,7 +466,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		ORMapDiSCO disco = readDiSCO(discoId, ts, true);
 		Set<Statement> stmts = disco.getAsModel();
 		// get the event started
-		ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(idSupplier.get()), requestAgent, RMapEventTargetType.DISCO, discoId);
+		ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
 
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;

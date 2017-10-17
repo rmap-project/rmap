@@ -15,10 +15,12 @@
 		<form:label path="search">Enter a URI *</form:label> 
 		<form:input path="search" style="width:320px;float:left;margin-right:10px;" value="${searchVal}"/>
 		<input type="submit" value="GO" style="margin-top:3px;">
+		<!-- optional examples follow, uncomment and customize as needed:
 		<p style="font-size: 85%;">Examples: 
 		<a href="<c:url value='/resources/rmap%3Armd18n8xfs'/>">rmap:rmd18n8xfs</a>, 
 		<a href="<c:url value='/resources/https%3A%2F%2Fdoi.org%2F10.1109%2FInPar.2012.6339604'/>">https://doi.org/10.1109/InPar.2012.6339604</a>, 
 		<a href="<c:url value='/resources/https%3A%2F%2Fosf.io%2Frxgmb%2F'/>">https://osf.io/rxgmb/</a></p><br/>
+		-->
 	</form:form>
 	<br/>
 	<br/>

@@ -38,11 +38,11 @@ public interface RMapUpdateService {
 	public RMapDiSCO readDiSCO(URI discoUri);
 	
 	/**
-	 * Hard delete DiSCO
+	 * Hard delete DiSCO as administrator
 	 * @param discoUri
 	 * @return event from deletion
 	 */
-	public RMapEvent deleteDiSCO(URI discoUri);
+	public RMapEvent deleteDiSCOByAdmin(URI discoUri, String description);
 		
 	/**
 	 * Check if the URI is a disco URI

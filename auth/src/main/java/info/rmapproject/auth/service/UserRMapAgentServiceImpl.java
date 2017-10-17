@@ -170,7 +170,7 @@ public class UserRMapAgentServiceImpl {
 			throw new RMapAuthException(ErrorCode.ER_PROBLEM_GENERATING_NEW_AUTHKEYURI.getMessage(),ex);
 		}	
 		
-		RMapRequestAgent adminReqAgent = new RMapRequestAgent(agentUri);
+		RequestEventDetails adminReqAgent = new RequestEventDetails(agentUri);
 		RMapEvent event = rmapService.createAgent(agentUri, RMAP_ADMINISTRATOR_NAME, agentUri, authKeyUri, adminReqAgent);
 		
 		return event;
