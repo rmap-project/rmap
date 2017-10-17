@@ -49,7 +49,7 @@ public class RequestEventDetails implements Serializable {
 	
 	
 	/**
-	 * Instantiates a new RMap request agent.
+	 * Instantiates a new RMap event details object with System Agent only
 	 *
 	 * @param systemAgent the system agent URI
 	 */
@@ -61,7 +61,7 @@ public class RequestEventDetails implements Serializable {
 	}
 	
 	/**
-	 * Instantiates a new RMap request agent.
+	 * Instantiates a new RMap event details object with System Agent and KeyId
 	 *
 	 * @param systemAgent the system agent URI
 	 * @param agentKeyId the agent key URI - null if none specified
@@ -72,6 +72,22 @@ public class RequestEventDetails implements Serializable {
 		}
 		this.systemAgent = systemAgent;
 		this.agentKeyId = agentKeyId; //null ok
+	}
+		
+	/**
+	 * Instantiates a new RMap event details object with all properties
+	 *
+	 * @param systemAgent the system agent URI
+	 * @param agentKeyId the agent key URI - null if none specified
+	 * @param description the description to be applied to the Event	 
+	 */
+	public RequestEventDetails(URI systemAgent, URI agentKeyId, String description) throws RMapException{
+		if (systemAgent == null){
+			throw new RMapException("Requesting System Agent cannot be null.");
+		}
+		this.systemAgent = systemAgent;
+		this.agentKeyId = agentKeyId; //null ok
+		setDescription(description);
 	}
 	
 	/**

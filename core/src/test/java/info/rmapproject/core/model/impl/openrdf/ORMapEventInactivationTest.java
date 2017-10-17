@@ -172,8 +172,7 @@ public class ORMapEventInactivationTest extends CoreTestAbstract {
 			fail("could not create agent");
 		}
 		RMapLiteral desc = new RMapLiteral("This is an inactivation event");		
-		RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new URI("ark:/29297/testkey"));
-		reqEventDetails.setDescription(desc);
+		RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new URI("ark:/29297/testkey"), desc);
 		ORMapEventInactivation event = new ORMapEventInactivation(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
 		Model model = event.getAsModel();
 		assertEquals(7, model.size());
