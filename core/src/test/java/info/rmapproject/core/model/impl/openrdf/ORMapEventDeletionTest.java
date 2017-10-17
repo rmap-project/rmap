@@ -50,7 +50,7 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
@@ -164,8 +164,9 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			
 			ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
 			
-			RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri(), new java.net.URI("ark:/29297/testkey"));
-			ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent, RMapEventTargetType.DISCO, desc);
+			RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new java.net.URI("ark:/29297/testkey"));
+			reqEventDetails.setDescription(desc);
+			ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
 			RMapIri discoId = ORAdapter.openRdfIri2RMapIri(disco.getDiscoContext());
 			List<RMapIri>deleted = new ArrayList<RMapIri>();
 			deleted.add(discoId);

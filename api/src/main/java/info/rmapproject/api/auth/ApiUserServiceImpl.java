@@ -35,7 +35,7 @@ import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
 import info.rmapproject.auth.service.RMapAuthService;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 
 /**
  * Implementation of the API User Service, which manages interaction between rmap-auth and the API. 
@@ -222,16 +222,16 @@ public class ApiUserServiceImpl implements ApiUserService {
 	}
 
     /* (non-Javadoc)
-	 * @see info.rmapproject.api.auth.ApiUserServiceInt#getCurrentRequestAgent()
+	 * @see info.rmapproject.api.auth.ApiUserServiceInt#getCurrentRequestEventDetails()
 	 */
 	@Override
-	public RMapRequestAgent getCurrentRequestAgent() throws RMapApiException {
+	public RequestEventDetails getCurrentRequestEventDetails() throws RMapApiException {
 		URI currSystemAgent = getCurrentSystemAgentUri();
 		if (currSystemAgent ==  null){
 			throw new RMapApiException(ErrorCode.ER_USER_HAS_NO_AGENT);
 		}
-		RMapRequestAgent requestAgent = new RMapRequestAgent(getCurrentSystemAgentUri(), getApiKeyForEvent());
-		return requestAgent;
+		RequestEventDetails reqEventDetails = new RequestEventDetails(getCurrentSystemAgentUri(), getApiKeyForEvent());
+		return reqEventDetails;
 	}
 
 }

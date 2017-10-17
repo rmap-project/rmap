@@ -62,7 +62,7 @@ public class ResourceDisplayControllerTest extends WebDataRetrievalTestAbstract 
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
 	
         mockMvc.perform(get("/resources/fakefake%3Auri"))
         	.andExpect(view().name("objectnotfound")); 
@@ -81,7 +81,7 @@ public class ResourceDisplayControllerTest extends WebDataRetrievalTestAbstract 
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
         mockMvc.perform(get("/resources/ark%3A%2F27927%2F12121212"))
         	.andExpect(view().name("resources"));     
         

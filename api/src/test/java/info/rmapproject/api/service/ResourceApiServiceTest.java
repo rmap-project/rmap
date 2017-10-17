@@ -65,7 +65,7 @@ public class ResourceApiServiceTest extends ApiDataCreationTestAbstract{
 		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 		String discoURI = rmapDisco.getId().toString();
 		assertNotNull(discoURI);
-		rmapService.createDiSCO(rmapDisco,requestAgent);
+		rmapService.createDiSCO(rmapDisco,requestEventDetails);
 
 		String resourceUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
 		HttpHeaders httpheaders = mock(HttpHeaders.class);

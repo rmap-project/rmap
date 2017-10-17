@@ -167,7 +167,7 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 		String discoURI = rmapDisco.getId().toString();
         assertNotNull(discoURI);
-		rmapService.createDiSCO(rmapDisco, requestAgent);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
 	
 		try {
 			response = discoResponseManager.getRMapDiSCO(URLEncoder.encode(discoURI,StandardCharsets.UTF_8.name()),matchingType);
@@ -204,10 +204,10 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 			/*String discoURI = "rmap:rmd18m7p1b";*/
 			
 			//create a disco using the test agent
-			rmapService.createDiSCO(rmapDiscoV1, requestAgent);
+			rmapService.createDiSCO(rmapDiscoV1, requestEventDetails);
 	
 			//update the disco
-			rmapService.updateDiSCO(new URI(discoURI), rmapDiscoV2, requestAgent);
+			rmapService.updateDiSCO(new URI(discoURI), rmapDiscoV2, requestEventDetails);
 			
 	    	Response response=null;
 	    	
@@ -281,10 +281,10 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		/*String discoURI = "rmap:rmd18m7p1b";*/
 		
 		//create a disco using the test agent
-		rmapService.createDiSCO(rmapDiscoV1, requestAgent);
+		rmapService.createDiSCO(rmapDiscoV1, requestEventDetails);
 
 		//update the disco
-		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
+		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestEventDetails);
 		
     	Response response=null;
     	
@@ -388,9 +388,9 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 		assertNotNull(rmapDisco.getId());
 		String strDiscoUri = rmapDisco.getId().toString();
-		rmapService.createDiSCO(rmapDisco, requestAgent);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
 		//delete and check status
-		rmapService.deleteDiSCO(new URI(strDiscoUri), requestAgent);
+		rmapService.deleteDiSCO(new URI(strDiscoUri), requestEventDetails);
 		List<URI> rmapEvents = rmapService.getDiSCOEvents(new URI(strDiscoUri));
 		assertTrue(rmapEvents.size()==2);
 		RMapEvent event = rmapService.readEvent(rmapEvents.get(0));
@@ -426,10 +426,10 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
         assertNotNull(discoURIV2);
         
 		//create a disco using the test agent
-		rmapService.createDiSCO(rmapDiscoV1, requestAgent);
+		rmapService.createDiSCO(rmapDiscoV1, requestEventDetails);
 
 		//update the disco
-		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
+		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestEventDetails);
 		
     	Response response=null;
     		
@@ -474,13 +474,13 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
         assertNotNull(discoURIV3);
         
 		//create a disco using the test agent
-		rmapService.createDiSCO(rmapDiscoV1, requestAgent);
+		rmapService.createDiSCO(rmapDiscoV1, requestEventDetails);
 		TimeUnit.SECONDS.sleep(3);
 		//update the disco
-		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestAgent);
+		rmapService.updateDiSCO(new URI(discoURIV1), rmapDiscoV2, requestEventDetails);
 		TimeUnit.SECONDS.sleep(3);
 		//update the disco
-		rmapService.updateDiSCO(new URI(discoURIV2), rmapDiscoV3, requestAgent);
+		rmapService.updateDiSCO(new URI(discoURIV2), rmapDiscoV3, requestEventDetails);
 			    		
 		String encodedDiscoUriV1 = URLEncoder.encode(discoURIV1, "UTF-8");
 		String encodedDiscoUriV2 = URLEncoder.encode(discoURIV2, "UTF-8");

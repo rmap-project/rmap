@@ -65,7 +65,7 @@ import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventCreation;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rmapservice.RMapService;
@@ -438,9 +438,9 @@ public class DiscoResponseManager extends ResponseManager {
 			//Ensure user has been converted to an RMapAgent
 			apiUserService.prepareCurrentUserForWriteAccess();
 			//Retrieve agent to associate with Event
-			RMapRequestAgent reqAgent = apiUserService.getCurrentRequestAgent();
+			RequestEventDetails reqEventDetails = apiUserService.getCurrentRequestEventDetails();
 			
-			RMapEventCreation discoEvent = (RMapEventCreation)rmapService.createDiSCO(rmapDisco, reqAgent);
+			RMapEventCreation discoEvent = (RMapEventCreation)rmapService.createDiSCO(rmapDisco, reqEventDetails);
 			if (discoEvent == null) {
 				throw new RMapApiException(ErrorCode.ER_CORE_CREATEDISCO_NOT_COMPLETED);
 			} 
@@ -532,9 +532,9 @@ public class DiscoResponseManager extends ResponseManager {
 			//Ensure user has been converted to an RMapAgent
 			apiUserService.prepareCurrentUserForWriteAccess();
 			//Retrieve agent to associate with Event
-			RMapRequestAgent reqAgent = apiUserService.getCurrentRequestAgent();
+			RequestEventDetails reqEventDetails = apiUserService.getCurrentRequestEventDetails();
 			
-			RMapEvent discoEvent = rmapService.updateDiSCO(uriOrigDiscoUri, newRmapDisco, reqAgent);
+			RMapEvent discoEvent = rmapService.updateDiSCO(uriOrigDiscoUri, newRmapDisco, reqEventDetails);
 			
 			if (discoEvent == null) {
 				throw new RMapApiException(ErrorCode.ER_CORE_UPDATEDISCO_NOT_COMPLETED);
@@ -662,14 +662,14 @@ public class DiscoResponseManager extends ResponseManager {
 			//Ensure user has been converted to an RMapAgent
 			apiUserService.prepareCurrentUserForWriteAccess();
 			//Retrieve agent to associate with Event
-			RMapRequestAgent reqAgent = apiUserService.getCurrentRequestAgent();
+			RequestEventDetails reqEventDets = apiUserService.getCurrentRequestEventDetails();
 			
 			RMapEvent discoEvent = null;
 			if (newStatus.equals("TOMBSTONED"))	{
-				discoEvent = rmapService.deleteDiSCO(uriDiscoUri, reqAgent);
+				discoEvent = rmapService.deleteDiSCO(uriDiscoUri, reqEventDets);
 			}
 			else if (newStatus.equals("INACTIVE"))	{
-				discoEvent = rmapService.inactivateDiSCO(uriDiscoUri, reqAgent);
+				discoEvent = rmapService.inactivateDiSCO(uriDiscoUri, reqEventDets);
 			}
 				
 			if (discoEvent == null) {

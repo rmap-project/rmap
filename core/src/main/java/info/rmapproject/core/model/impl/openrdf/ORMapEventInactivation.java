@@ -29,7 +29,7 @@ import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventInactivation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 import org.openrdf.model.IRI;
@@ -97,23 +97,8 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventInactivation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType);
-		this.setEventTypeStatement(RMapEventType.INACTIVATION);
-	}
-
-	/**
-	 * Instantiates a new RMap Inactivation Event
-	 *
-	 * @param associatedAgent the associated agent
-	 * @param targetType the target type
-	 * @param desc the desc
-	 * @throws RMapException the RMap exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	public ORMapEventInactivation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException, RMapDefectiveArgumentException  {
-		super(id, associatedAgent, targetType, desc);
+	public ORMapEventInactivation(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+		super(id, reqEventDetails, targetType);
 		this.setEventTypeStatement(RMapEventType.INACTIVATION);
 	}
 

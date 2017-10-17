@@ -37,7 +37,7 @@ import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.ResultBatch;
 
@@ -180,13 +180,13 @@ public interface RMapService {
 	/**
 	 * Creates a new DiSCO and returns the creation Event
 	 *
-	 * @param disco the new DiSCO
-	 * @param requestAgent the agent requesting the create
+	 * @param disco the new DiSCOreqEventDetails
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return an RMap Event
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent createDiSCO(RMapDiSCO disco, RMapRequestAgent requestAgent)  throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createDiSCO(RMapDiSCO disco, RequestEventDetails reqEventDetails)  throws RMapException, RMapDefectiveArgumentException;
 
 	/**
 	 * Gets the DiSCO's current status.
@@ -206,25 +206,25 @@ public interface RMapService {
 	 *
 	 * @param oldDiscoId the original DiSCO URI
 	 * @param disco the updated DiSCO
-	 * @param requestAgent the requesting agent
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return an RMap Event
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent updateDiSCO(URI oldDiscoId, RMapDiSCO disco, RMapRequestAgent requestAgent) 
+	public RMapEvent updateDiSCO(URI oldDiscoId, RMapDiSCO disco, RequestEventDetails reqEventDetails) 
 			throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Inactivate a DiSCO.  Can only be performed by same agent that created DiSCO.
 	 *
 	 * @param oldDiscoId the original DiSCO URI
-	 * @param requestAgent the requesting agent
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return an RMap Event
 	 * @throws RMapException an RMapException
 	 * @throws RMapDiSCONotFoundException an RMapDiSCO not found exception
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent inactivateDiSCO(URI oldDiscoId, RMapRequestAgent requestAgent) throws RMapException, RMapDiSCONotFoundException,
+	public RMapEvent inactivateDiSCO(URI oldDiscoId, RequestEventDetails reqEventDetails) throws RMapException, RMapDiSCONotFoundException,
 	RMapDefectiveArgumentException;
 	
 
@@ -232,12 +232,12 @@ public interface RMapService {
 	 * Soft delete (tombstone) of a DiSCO.  Can only be performed by same agent that created DiSCO.
 	 *
 	 * @param discoID the URI of the DiSCO to be tombstoned
-	 * @param requestAgent the requesting agent
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return an RMap Event
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent deleteDiSCO (URI discoID, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent deleteDiSCO (URI discoID, RequestEventDetails reqEventDetails) throws RMapException, RMapDefectiveArgumentException;
 
 	/**
 	 * Get all versions of a DiSCO whether created by original creator of DiSCO or by some
@@ -378,12 +378,12 @@ public interface RMapService {
 	 * - in other words agents typically create their own record if they registered through the GUI.  
 	 *
 	 * @param agent RMapAgent object to be instantiated in system
-	 * @param requestAgent agent creating this new Agent
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return RMapEvent associated with creation of Agent
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent createAgent(RMapAgent agent, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createAgent(RMapAgent agent, RequestEventDetails reqEventDetails) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Create a new agent using the agent properties. Note: In most instances the agentID should match the URI in requesting Agent
@@ -393,12 +393,12 @@ public interface RMapService {
 	 * @param name the name of the new Agent as a string
 	 * @param identityProvider the URI of the Identity Provider used to validate the new Agent
 	 * @param authKeyUri the Auth Key URI of the new Agent
-	 * @param requestAgent the Agent requesting the creation
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return an RMap Event
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent createAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RequestEventDetails reqEventDetails) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Create a new Agent using name, identity provider, and auth key URI. In this method, the requesting Agent
@@ -419,12 +419,12 @@ public interface RMapService {
 	 * Agent
 	 *
 	 * @param agent updated RMap Agent object
-	 * @param requestAgent Agent requesting the update
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return RMapEvent associated with creation of Agent
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent updateAgent(RMapAgent agent, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent updateAgent(RMapAgent agent, RequestEventDetails reqEventDetails) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Update an existing Agent. Typically the Agent being updated will be the same as the requesting
@@ -434,12 +434,12 @@ public interface RMapService {
 	 * @param name the Agent's new name
 	 * @param identityProvider the updated URI for the Identity Provider 
 	 * @param authKeyUri the updated auth key uri
-	 * @param requestAgent the requesting Agent
+	 * @param reqEventDetails client provided event information - contains requesting agent, event description and key uri
 	 * @return an RMap Event
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RMapRequestAgent requestAgent) throws RMapException, RMapDefectiveArgumentException;
+	public RMapEvent updateAgent(URI agentID, String name, URI identityProvider, URI authKeyUri, RequestEventDetails reqEventDetails) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Retrieves a list of Events that affected the Agent record.

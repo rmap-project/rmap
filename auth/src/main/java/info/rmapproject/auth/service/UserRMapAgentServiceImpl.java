@@ -44,7 +44,7 @@ import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
 
 /**
@@ -107,22 +107,26 @@ public class UserRMapAgentServiceImpl {
 				apiKeyUri = new URI(sApiKeyUri);
 			}
 						
-			RMapRequestAgent reqAgent  = new RMapRequestAgent(agentId, apiKeyUri);
-			LOG.debug("RMapRequestAgent instantiated with agentId: {} and apiKeyUri: {}", agentId, (apiKeyUri==null ? "" : apiKeyUri));
-
+			RequestEventDetails reqEventDetails  = new RequestEventDetails(agentId, apiKeyUri);
+			LOG.debug("RequestEventDetails instantiated with agentId: {} and apiKeyUri: {}", agentId, (apiKeyUri==null ? "" : apiKeyUri));
+			
 			//if agent isn't in the triplestore, create it!  otherwise, update it
 			if (rmapService.isAgentId(agentId)){
 				//rmap agent exists - but has there been a change?
 				RMapAgent origAgent = rmapService.readAgent(agentId);
 				if (!origAgent.equals(agent)){	
 					//something has changed, do update
-					event = rmapService.updateAgent(agent, reqAgent);	
+					if (user.getUserId()>0) {
+						reqEventDetails.setDescription("Agent updated from user record");
+					}
+					event = rmapService.updateAgent(agent, reqEventDetails);	
 					LOG.info("rmap:Agent ID {} was updated in RMap using the latest User record information", agent.getId());
 				}				
 			}
 			else { 
+				reqEventDetails.setDescription("Agent created from user record");
 				//id generated but no record created yet - create agent
-				event = rmapService.createAgent(agent, reqAgent);	
+				event = rmapService.createAgent(agent, reqEventDetails);	
 				LOG.info("rmap:Agent ID {} was created for the first time in RMap", agent.getId());			
 			}
 

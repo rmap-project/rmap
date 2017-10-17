@@ -35,7 +35,7 @@ import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
@@ -73,8 +73,8 @@ public abstract class ApiDataCreationTestAbstract extends ApiTestAbstract {
 	/** General use sysagent for testing **/
 	protected ORMapAgent sysagent = null;
 	
-	/** Request agent based on sysagent. Include key */
-	protected RMapRequestAgent requestAgent = null;
+	/** Request event details includes sysagent and optional key URI and event description */
+	protected RequestEventDetails requestEventDetails = null;
 		
 	@Before
 	public void setUp() throws Exception {
@@ -110,14 +110,14 @@ public abstract class ApiDataCreationTestAbstract extends ApiTestAbstract {
 			Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT_NAME);	
 			sysagent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			
-			if (requestAgent==null){
-				requestAgent = new RMapRequestAgent(new URI(TestConstants.SYSAGENT_ID),new URI(TestConstants.SYSAGENT_KEY));
+			if (requestEventDetails==null){
+				requestEventDetails = new RequestEventDetails(new URI(TestConstants.SYSAGENT_ID),new URI(TestConstants.SYSAGENT_KEY));
 			}
 			
 			//create new test agent
 			URI agentId=sysagent.getId().getIri();
 			if (!rmapService.isAgentId(agentId)) {
-				rmapService.createAgent(sysagent,requestAgent);
+				rmapService.createAgent(sysagent,requestEventDetails);
 			}
 
 			// Check the agent was created

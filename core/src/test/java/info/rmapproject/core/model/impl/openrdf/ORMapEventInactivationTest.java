@@ -50,7 +50,7 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
@@ -172,8 +172,8 @@ public class ORMapEventInactivationTest extends CoreTestAbstract {
 			fail("could not create agent");
 		}
 		RMapLiteral desc = new RMapLiteral("This is an inactivation event");		
-		RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri(), new URI("ark:/29297/testkey"));
-		ORMapEventInactivation event = new ORMapEventInactivation(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent,RMapEventTargetType.DISCO, desc);
+		RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new URI("ark:/29297/testkey"), desc);
+		ORMapEventInactivation event = new ORMapEventInactivation(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
 		Model model = event.getAsModel();
 		assertEquals(7, model.size());
 		

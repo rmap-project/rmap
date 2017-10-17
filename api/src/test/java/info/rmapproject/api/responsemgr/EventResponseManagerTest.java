@@ -116,7 +116,7 @@ public class EventResponseManagerTest extends ApiDataCreationTestAbstract {
 		try {			
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			
-			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, requestAgent);
+			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, requestEventDetails);
 			
 			RMapIri eventUri = event.getId();
 			
@@ -154,7 +154,7 @@ public class EventResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			
 			discoIri = rmapDisco.getId();
-			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, requestAgent);
+			event = (RMapEventCreation) rmapService.createDiSCO(rmapDisco, requestEventDetails);
 			
 			RMapIri eventUri = event.getId();
 			

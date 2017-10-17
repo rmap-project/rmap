@@ -71,7 +71,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 
 			//create disco		
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
-			discomgr.createDiSCO(disco, requestAgent, triplestore);
+			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			RMapIri discoId = disco.getId();
 			
 			//get related discos
@@ -96,7 +96,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 			assertTrue(matchingDiscoId.toString().equals(discoId.toString()));
 			
 			
-			discomgr.updateDiSCO(matchingDiscoId, null, requestAgent, true, triplestore);
+			discomgr.updateDiSCO(matchingDiscoId, null, reqEventDetails, true, triplestore);
 			discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
 			assertTrue(discoIds.size()==0);
 			
@@ -117,7 +117,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 		try {
 			//create disco				
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
-			ORMapEvent event = discomgr.createDiSCO(disco, requestAgent, triplestore);
+			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));

@@ -125,7 +125,7 @@ public class StatementResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 			
 			RMapSearchParams params = paramsFactory.newInstance();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
@@ -161,7 +161,7 @@ public class StatementResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 			
 			RMapSearchParams params = paramsFactory.newInstance();
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
@@ -197,7 +197,7 @@ public class StatementResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 
 			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
 			response = 
@@ -226,7 +226,7 @@ public class StatementResponseManagerTest extends ApiDataCreationTestAbstract {
 			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestAgent);
+			rmapService.createDiSCO(rmapDisco, requestEventDetails);
 
 			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
 			response = 

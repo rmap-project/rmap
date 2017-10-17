@@ -63,7 +63,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 	public void testGetAgentDTO() throws Exception{
 		
 		//get the Agent
-		AgentDTO agentDTO = dataDisplayService.getAgentDTO(requestAgent.getSystemAgent().toString());
+		AgentDTO agentDTO = dataDisplayService.getAgentDTO(reqEventDetails.getSystemAgent().toString());
 		
 		assertEquals(agentDTO.getAuthId(), this.sysagent.getAuthId().toString());
 		assertEquals(agentDTO.getEvents().size(),1);
@@ -86,9 +86,9 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco1 = getRMapDiSCOObj(TestFile.DISCOA_XML);
 		String discoUri1 = disco1.getId().toString();
         assertNotNull(discoUri1);
-		rmapService.createDiSCO(disco1, requestAgent);
+		rmapService.createDiSCO(disco1, reqEventDetails);
 
-		ResultBatch<URI> results = dataDisplayService.getAgentDiSCOs(requestAgent.getSystemAgent().toString(), 0);
+		ResultBatch<URI> results = dataDisplayService.getAgentDiSCOs(reqEventDetails.getSystemAgent().toString(), 0);
 		assertEquals(results.getResultList().size(),1);
 		assertEquals(results.getResultList().get(0).toString(),discoUri1.toString());
 
@@ -96,9 +96,9 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco2 = getRMapDiSCOObj(TestFile.DISCOA_XML);
 		String discoUri2 = disco2.getId().toString();
         assertNotNull(discoUri2);
-		rmapService.createDiSCO(disco2, requestAgent);
+		rmapService.createDiSCO(disco2, reqEventDetails);
 
-		results = dataDisplayService.getAgentDiSCOs(requestAgent.getSystemAgent().toString(), 0);
+		results = dataDisplayService.getAgentDiSCOs(reqEventDetails.getSystemAgent().toString(), 0);
 		assertEquals(results.getResultList().size(),2);
 		assertEquals(results.getResultList().get(0).toString(),discoUri1.toString());
 		assertEquals(results.getResultList().get(1).toString(),discoUri2.toString());
@@ -116,7 +116,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
 
 		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 		
@@ -145,12 +145,12 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		RMapEvent event = rmapService.createDiSCO(disco, requestAgent);
+		RMapEvent event = rmapService.createDiSCO(disco, reqEventDetails);
 
 		EventDTO eventDTO = dataDisplayService.getEventDTO(event.getId().toString());
 		
-		assertEquals(eventDTO.getAssociatedAgent(), requestAgent.getSystemAgent().toString()); //0 because current version excluded
-		assertEquals(eventDTO.getAssociatedKey(), requestAgent.getAgentKeyId().toString());
+		assertEquals(eventDTO.getAssociatedAgent(), reqEventDetails.getSystemAgent().toString()); //0 because current version excluded
+		assertEquals(eventDTO.getAssociatedKey(), reqEventDetails.getAgentKeyId().toString());
 		assertEquals(eventDTO.getDescription(), null);
 		assertNotNull(eventDTO.getEndTime());
 		assertEquals(eventDTO.getResourcesAffected().size(),1);
@@ -170,7 +170,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
 		
 		//The following statements contain the URI we will search on... 
 		//	 <ore:aggregates rdf:resource="ark:/27927/56565656"/>
@@ -211,7 +211,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
-		rmapService.createDiSCO(disco, requestAgent);
+		rmapService.createDiSCO(disco, reqEventDetails);
 		String uriInDisco = "fakefake:uri";
 		dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
 	}
@@ -226,7 +226,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		try {		
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
-			rmapService.createDiSCO(disco, requestAgent);
+			rmapService.createDiSCO(disco, reqEventDetails);
 			String discoUri = disco.getId().toString();
 			
 			//ok now lets get a table of data

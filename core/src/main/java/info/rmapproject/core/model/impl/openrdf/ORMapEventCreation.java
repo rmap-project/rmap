@@ -22,19 +22,18 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
+import java.util.List;
+
+import org.openrdf.model.IRI;
+import org.openrdf.model.Statement;
+
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventCreation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
-
-import java.util.List;
-
-import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
+import info.rmapproject.core.model.request.RequestEventDetails;
 
 /**
  * The concrete class representing the Creation Event for the openrdf implementation of RMap
@@ -88,25 +87,9 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventCreation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType)
+	public ORMapEventCreation(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType)
 			throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType);
-		this.setEventTypeStatement(RMapEventType.CREATION);
-	}
-	
-
-	/**
-	 * Instantiates a new RMap Creation Event
-	 *
-	 * @param associatedAgent the associated agent
-	 * @param targetType the target type
-	 * @param desc the desc
-	 * @throws RMapException the RMap exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	public ORMapEventCreation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc)
-			throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType, desc);
+		super(id, reqEventDetails, targetType);
 		this.setEventTypeStatement(RMapEventType.CREATION);
 	}
 	
@@ -115,15 +98,13 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 *
 	 * @param associatedAgent the associated agent
 	 * @param targetType the target type
-	 * @param desc the description
 	 * @param createdObjIds the list of IRIs for created objects
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventCreation(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, RMapValue desc, List<RMapIri> createdObjIds)
+	public ORMapEventCreation(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, List<RMapIri> createdObjIds)
 		throws RMapException, RMapDefectiveArgumentException{
-		this(id, associatedAgent, targetType, desc);
-		this.setEventTypeStatement(RMapEventType.CREATION);
+		this(id, reqEventDetails, targetType);
 		this.setCreatedObjectIds(createdObjIds);	
 	}
 

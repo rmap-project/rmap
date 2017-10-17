@@ -28,7 +28,7 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import org.junit.Test;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
@@ -87,13 +87,14 @@ public class ObjectSerializationTest {
     @Test
     public void serializeEventCreation() throws Exception {
         IRI eventIri = TestUtil.asIri("http://example.com/event/" + count());
-        RMapRequestAgent requestAgent = new RMapRequestAgent(create("http://example.org/agent/" + count()),
+        RequestEventDetails reqEventDetails = new RequestEventDetails(create("http://example.org/agent/" + count()),
                 create("http://example.org/agent/key"));
         RMapEventTargetType type = RMapEventTargetType.DISCO;
         RMapLiteral desc = new RMapLiteral("Creation Event Description");
         List<RMapIri> created = singletonList(TestUtil.asRmapIri("http://example.org/disco/" + count()));
+        reqEventDetails.setDescription(desc);
 
-        ORMapEventCreation event = new ORMapEventCreation(eventIri, requestAgent, type, desc, created);
+        ORMapEventCreation event = new ORMapEventCreation(eventIri, reqEventDetails, type, created);
 
         serializeTest(event);
     }

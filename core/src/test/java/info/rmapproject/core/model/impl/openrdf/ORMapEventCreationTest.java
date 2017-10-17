@@ -47,7 +47,7 @@ import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
 //import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
@@ -100,8 +100,8 @@ public class ORMapEventCreationTest extends CoreTestAbstract {
 			for (IRI iri:iris){
 				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
 			}
-			RMapRequestAgent requestAgent = new RMapRequestAgent(associatedAgent.getIri());
-			ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(create("http://example.org/event/1")), requestAgent, RMapEventTargetType.DISCO, null, createdObjIds);
+			RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri());
+			ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
 			Model eventModel = event.getAsModel();

@@ -32,7 +32,7 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
@@ -92,8 +92,8 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventUpdateWithReplace(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType);
+	public ORMapEventUpdateWithReplace(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+		super(id, reqEventDetails, targetType);
 		this.setEventTypeStatement(RMapEventType.REPLACE);
 	}
 	
@@ -106,9 +106,9 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventUpdateWithReplace(IRI id, RMapRequestAgent associatedAgent, RMapEventTargetType targetType, IRI updateObjectId)
+	public ORMapEventUpdateWithReplace(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI updateObjectId)
 				throws RMapException, RMapDefectiveArgumentException {
-		this(id, associatedAgent, targetType);
+		this(id, reqEventDetails, targetType);
 		this.setUpdatedObjectId(ORAdapter.openRdfIri2RMapIri(updateObjectId));
 		
 	}

@@ -29,11 +29,10 @@ import org.openrdf.model.Statement;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventDeletion;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.request.RMapRequestAgent;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
@@ -90,16 +89,14 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	/**
 	 * Instantiates a new RMap Deletion Event
 	 *
-	 * @param associatedAgent the associated agent
+	 * @param reqEventDetails client provided event details
 	 * @param targetType the target type
-	 * @param desc the desc
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventDeletion(IRI id, RMapRequestAgent associatedAgent,
-			RMapEventTargetType targetType, RMapValue desc)
+	public ORMapEventDeletion(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType)
 			throws RMapException, RMapDefectiveArgumentException {
-		super(id, associatedAgent, targetType, desc);
+		super(id, reqEventDetails, targetType);
 		this.setEventTypeStatement(RMapEventType.DELETION);
 	}
 	
