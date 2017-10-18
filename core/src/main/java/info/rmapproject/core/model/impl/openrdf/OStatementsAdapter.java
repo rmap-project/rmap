@@ -21,18 +21,20 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.IRI;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.FOAF;
@@ -171,7 +173,7 @@ public class OStatementsAdapter {
         if (!referencesAggregate(disco, aggResources, relStatements)) {
             throw new RMapException("related statements do no reference aggregated resources");
         }
-        if (!isConnectedGraph(disco, relStatements)) {
+        if (!isConnectedGraph(disco.getAggregatedResources(), relStatements)) {
             throw new RMapException("related statements do not form a connected graph");
         }
         disco.relatedStatements = relStatements;
@@ -552,60 +554,65 @@ public class OStatementsAdapter {
     }
 
     /**
-     * Check that related statements (along with aggregated resources) are non-disjoint.
+     * Check that a list of statements form a graph that connect to at least one of 
      *
-     * @param disco
+     * @param connectingNodes - list of nodes that all statements must connect to
      * @param relatedStatements ORMapStatements describing aggregated resources
      * @return true if related statements are non-disjoint; else false
      * @throws RMapException the RMap exception
      */
-    protected static boolean isConnectedGraph(ORMapDiSCO disco, List<Statement> relatedStatements)
+    public static boolean isConnectedGraph(List<URI> connectingNodes, List<Statement> statements)
             throws RMapException {
-        if (relatedStatements == null || relatedStatements.size() == 0) {
+        if (statements == null || statements.size() == 0) {
             //there are no statements, so for the purpose of this RMap there are no disconnected statements...
             //i.e. graph is connected
             return true;
         }
-        boolean isConnected = false;
-        HashMap<Value, ORMapDiSCO.Node> nodeMap = new HashMap<Value, ORMapDiSCO.Node>();
-        Set<ORMapDiSCO.Node> visitedNodes = new HashSet<ORMapDiSCO.Node>();
-        // get all the nodes in relatedStatements
-        for (Statement stmt : relatedStatements) {
-            Value subj = stmt.getSubject();
-            Value obj = stmt.getObject();
-            ORMapDiSCO.Node subjN = null;
-            ORMapDiSCO.Node objN = null;
-            subjN = nodeMap.get(subj);
-            if (subjN == null) {
-                subjN = disco.new Node();
-                nodeMap.put(subj, subjN);
-            }
-            objN = nodeMap.get(obj);
-            if (objN == null) {
-                objN = disco.new Node();
-                nodeMap.put(obj, objN);
-            }
-            if (!subjN.getNeighbors().contains(objN)) {
-                subjN.getNeighbors().add(objN);
-            }
+     
+        Set<Resource> startingPoints = new HashSet<Resource>();
+        for (URI node : connectingNodes) {
+        	startingPoints.add(ORAdapter.uri2OpenRdfIri(node));
         }
-        int nodeCount = nodeMap.entrySet().size();
-        // jump-start from first aggregate resource
-        for (Statement stmt : disco.aggregatedResources) {
-            Value aggResource = stmt.getObject();
-            ORMapDiSCO.Node startNode = nodeMap.get(aggResource);
-            if (startNode == null) {
-                continue;
-            }
-            disco.markConnected(visitedNodes, startNode);
-            if (visitedNodes.size() == nodeCount) {
-                break;
-            }
+        
+        Model stmts = new LinkedHashModel(statements);
+        for (Resource res : startingPoints) {
+        	stmts = removeConnected(stmts, res);
+        	if (stmts.size()==0) {
+        		return true;
+        	}
         }
-        if (visitedNodes.size() == nodeCount) {
-            isConnected = true;
-        }
-        return isConnected;
+        
+        return false;
+    }
+    
+    /**
+     * Remove from model any statements that are connected directly or indirectly to the resource specified
+     * @param model
+     * @param resource
+     * @return
+     */
+    public static Model removeConnected(Model model, Resource resource) {
+    	Model remainingStmts = new LinkedHashModel(model);
+    	    	
+    	Set<Value> connectedValues = new HashSet<Value>();
+    	Model stmtsMatchingSubject = model.filter(resource, null, null);   
+    	connectedValues.addAll(stmtsMatchingSubject.objects());
+    	remainingStmts.removeAll(stmtsMatchingSubject);
+    	
+    	Model stmtsMatchingObject = model.filter(null, null, resource);
+    	connectedValues.addAll(stmtsMatchingObject.subjects());
+    	remainingStmts.removeAll(stmtsMatchingObject);
+    	
+    	connectedValues = connectedValues.stream().filter(node -> node instanceof Resource).collect(Collectors.toSet());
+    	    	
+    	for (Value node: connectedValues) {
+    		if (remainingStmts.size()==0) {
+    			return remainingStmts;
+    		}
+    		remainingStmts = removeConnected(remainingStmts, (Resource)node);
+    	}
+    	    	
+    	return remainingStmts;
     }
 
     /**
