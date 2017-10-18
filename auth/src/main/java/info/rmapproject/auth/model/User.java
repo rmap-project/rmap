@@ -353,34 +353,29 @@ public class User {
 	 */
 	public Boolean hasRMapDiSCO() {
 		return (this.rmapDiSCOUri!=null&&this.rmapDiSCOUri.length()>0);
-	}	
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+	}
+
 	@Override
-    public int hashCode() {
-		 return this.name.hashCode() + this.email.hashCode();  
-    }
- 
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+	public int hashCode() {
+		int result = name != null ? name.hashCode() : 0;
+		result = 31 * result + (email != null ? email.hashCode() : 0);
+		return result;
+	}
+
     @Override
-    public boolean equals(Object obj) {
-    	  if (obj instanceof User) {  
-    		   User user = (User) obj;      		  
-    		   if (this.email.equals(user.getEmail())  
-    		     && this.name.equals(user.getName()) )  
-    		    return true;  
-    	  }
-    	  return false;
-    	
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (name != null ? !name.equals(user.name) : user.name != null) return false;
+        return email != null ? email.equals(user.email) : user.email == null;
     }
- 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+
+    /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
 	@Override
     public String toString() {
 		return "id=" + userId + ", name=" + name + ", email=" + email + ";";
