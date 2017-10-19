@@ -21,7 +21,6 @@ package info.rmapproject.auth.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
@@ -135,29 +134,47 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 	
 	@Test
 	public void testGetUsersNoFilter() {
-		User user = new User(testUserName2, testUserEmail2);
-		user.setAuthKeyUri(testAuthKeyUri2);
-		user.setRmapAgentUri(testAgentUri2);
-		rmapAuthService.addUser(user);
-		List<User> users = rmapAuthService.getUsers(null);
-		assertTrue(users.size()==2);
+		//test user might be in database from previous test, look for the record
+		User testUser2 = rmapAuthService.getUserByAuthKeyUri(testAuthKeyUri2);	
+		
+		if (testUser2==null) {
+	        List<User> users = rmapAuthService.getUsers(null);
+	        assertEquals(1, users.size());
+	        
+			//create the test user
+			User user = new User(testUserName2, testUserEmail2);
+			user.setAuthKeyUri(testAuthKeyUri2);
+			user.setRmapAgentUri(testAgentUri2);
+			rmapAuthService.addUser(user);
+		}
+
+        List<User> users = rmapAuthService.getUsers(null);
+        assertEquals(2, users.size());
 	}
 	
 	@Test
 	public void testGetUsersWithFilter() {
-		User user = new User(testUserName2, testUserEmail2);
-		user.setAuthKeyUri(testAuthKeyUri2);
-		user.setRmapAgentUri(testAgentUri2);
-		Integer id = rmapAuthService.addUser(user);
+		//test user might be in database from previous test, look for the record
+		User testUser2 = rmapAuthService.getUserByAuthKeyUri(testAuthKeyUri2);	
+		Integer testUser2Id = 0;		
+		if (testUser2!=null) {
+			testUser2Id = testUser2.getUserId();
+		} else {
+			//create the test user
+			User user = new User(testUserName2, testUserEmail2);
+			user.setAuthKeyUri(testAuthKeyUri2);
+			user.setRmapAgentUri(testAgentUri2);
+			testUser2Id = rmapAuthService.addUser(user);
+		}
 		
 		List<User> users = rmapAuthService.getUsers("tester");
-		assertTrue(users.size()==1);
+		assertEquals(1, users.size());
 		users = rmapAuthService.getUsers("rmap");
-		assertTrue(users.size()==2);
-		users = rmapAuthService.getUsers(id.toString());
-		assertTrue(users.size()==1);
+		assertEquals(2, users.size());
+		users = rmapAuthService.getUsers(testUser2Id.toString());
+		assertEquals(1, users.size());
 		users = rmapAuthService.getUsers("nomatches");
-		assertTrue(users.size()==0);
+		assertEquals(0, users.size()); 
 	}
 	
 	

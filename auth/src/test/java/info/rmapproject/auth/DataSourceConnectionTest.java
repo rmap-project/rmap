@@ -56,7 +56,7 @@ public class DataSourceConnectionTest extends AuthDBTestAbstract {
     @Test
     public void testTableExists() throws Exception {
         Connection c = underTest.getConnection();
-        ResultSet rs = c.prepareCall("SELECT * from Users").executeQuery();
+        ResultSet rs = c.prepareCall("SELECT * from Users where userid=1").executeQuery();
         assertTrue(rs.next());
         assertFalse(rs.next());
         rs.close();
