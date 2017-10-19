@@ -20,7 +20,6 @@
         <sesame.workbench.context>/openrdf-workbench</sesame.workbench.context>
         <sesamehttp.repository.name>its</sesamehttp.repository.name>
         <derby.home>${project.build.testOutputDirectory}/derby</derby.home>
-        <hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
     </properties>
 
     <dependencies>
@@ -230,7 +229,6 @@
                             <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
                             <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
                             <info.aduna.platform.appdata.basedir>${project.build.testOutputDirectory}/sesame</info.aduna.platform.appdata.basedir>
-                            <hibernate.hbm2ddl.auto>${hibernate.hbm2ddl.auto}</hibernate.hbm2ddl.auto>
                         </systemProperties>
                         <dependencies>
                             <dependency>
