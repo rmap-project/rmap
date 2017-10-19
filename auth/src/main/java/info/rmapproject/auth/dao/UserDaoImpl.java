@@ -96,9 +96,10 @@ public class UserDaoImpl implements UserDao {
         } else {
         	//filter by userId, name, email, rmapAgentUri, or authKeyUri
     	    query = session.createQuery("from User "
-											+ "where userId=:idFilter or name like :filter "
-    	    								+ "or email LIKE :filter or rmapAgentUri like :filter "
-    	    								+ "or authKeyUri like :filter");
+											+ "where userId=:idFilter or lower(name) like :filter "
+    	    								+ "or lower(email) like :filter "
+    	    								+ "or lower(rmapAgentUri) like :filter "
+    	    								+ "or lower(authKeyUri) like :filter");
     	    //convert to integer or null for userId filter
     	    Integer idFilter = CheckIfInt.tryParseInt(filter);
 			query.setParameter("idFilter",idFilter);
