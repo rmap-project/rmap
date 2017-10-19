@@ -39,6 +39,7 @@ import org.junit.Test;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
@@ -63,6 +64,7 @@ import info.rmapproject.testdata.service.TestFile;
  * @author khanson
  *
  */
+@TestPropertySource(properties = {"rmapcore.adminAgentUri = https://fakermap.rmap-hub.org#Administrator"})
 public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	
 	@Autowired 

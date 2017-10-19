@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 import info.rmapproject.auth.AuthDBTestAbstract;
 import info.rmapproject.auth.model.User;
@@ -34,6 +35,7 @@ import info.rmapproject.core.model.event.RMapEventCreation;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import info.rmapproject.core.utils.Terms;
 
+@TestPropertySource(properties = {"rmapauth.baseUrl = https://fake-rmap-server.org"})
 public class UserRMapAgentServiceImplTest extends AuthDBTestAbstract {
 	
 	@Autowired
@@ -111,7 +113,6 @@ public class UserRMapAgentServiceImplTest extends AuthDBTestAbstract {
 		assertTrue(replaceEvent.getAssociatedKey().toString().equals(TESTKEY));
 		
 	}
-	
 	
 	@Test
 	public void testCreateRMapAdministratorAgent() throws Exception {

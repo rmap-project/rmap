@@ -33,6 +33,7 @@ import java.net.URI;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -49,6 +50,13 @@ import info.rmapproject.webapp.utils.Constants;
  * @author khanson
  *
  */
+@TestPropertySource(properties = {
+			"rmapauth.baseUrl=https://fake-rmap-server.org",
+			"rmapcore.adminAgentUri=https://fake-rmap-server.org#Administrator",
+			"rmapweb.admin-tool-enabled=true",
+			"rmapweb.admin-username=rmapAdmin",
+			"rmapweb.admin-password=somepass"
+			})
 public class AdminToolControllerTest extends WebDataRetrievalTestAbstract {
 	
     @Autowired
@@ -138,7 +146,7 @@ public class AdminToolControllerTest extends WebDataRetrievalTestAbstract {
 	        .andExpect(redirectedUrl("/admin/user/settings"));  
 
     	//check redirects back to user list if user not found
-        mockMvc.perform(get("/admin/user").sessionAttr(Constants.ADMIN_LOGGEDIN_SESSATTRIB, true).param("userid", "6"))
+        mockMvc.perform(get("/admin/user").sessionAttr(Constants.ADMIN_LOGGEDIN_SESSATTRIB, true).param("userid", "10000"))
         		.andExpect(status().is3xxRedirection())
 		        .andExpect(redirectedUrl("/admin/users"));     
 

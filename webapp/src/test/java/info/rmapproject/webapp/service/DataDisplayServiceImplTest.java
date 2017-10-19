@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapStatus;
@@ -49,6 +50,7 @@ import info.rmapproject.webapp.service.dto.EventDTO;
 /**
  * Tests DataDisplayServiceImpl class
  */
+@TestPropertySource(properties = {"rmapweb.max-table-rows=10"})
 public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 
 	/** The data display service. */

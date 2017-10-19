@@ -25,6 +25,7 @@ import java.net.URI;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
@@ -35,6 +36,10 @@ import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
 /**
  * Tests for RMapUpdateServiceImpl.
  */
+@TestPropertySource(properties = {
+						"rmapauth.baseUrl=https://fake-rmap-server.org",
+						"rmapcore.adminAgentUri=https://fake-rmap-server.org#Administrator"
+						})
 public class RMapUpdateServiceImplTest extends WebDataRetrievalTestAbstract {
 
 	/** The data display service. */
