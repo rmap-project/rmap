@@ -35,7 +35,7 @@
               class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
             <constructor-arg>
                 <list value-type="org.springframework.core.io.Resource">
-                    <value>/WEB-INF/classes/create-rmap-agent.sql</value>
+                    <value>${authdb.script.create-rmap-agent}</value>
                 </list>
             </constructor-arg>
             <property name="continueOnError" value="true"/>

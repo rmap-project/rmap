@@ -43,9 +43,9 @@
         <jdbc:embedded-database id="inmemoryDatasource" type="DERBY"/>
 
         <jdbc:initialize-database enabled="true" data-source="inmemoryDatasource" ignore-failures="ALL">
-            <jdbc:script location="classpath*:/rmap-schema-derby.sql" execution="INIT"/>
-            <jdbc:script location="classpath*:/create-rmap-agent.sql" execution="INIT"/>
-            <jdbc:script location="classpath*:/drop-tables.sql" execution="DESTROY"/>
+            <jdbc:script location="${authdb.script.database-schema}" execution="INIT"/>
+            <jdbc:script location="${authdb.script.create-rmap-agent}" execution="INIT"/>
+            <jdbc:script location="${authdb.script.drop-tables}" execution="DESTROY"/>
         </jdbc:initialize-database>
 
         <bean id="inmemorySessionFactory" parent="sessionFactory">
