@@ -39,16 +39,16 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 	@Autowired
 	private RMapAuthService rmapAuthService;
 	
-	String testUserName = "RMap Test User";
-	String testKeyLabel = "RMap test key";
-	String testAccessKey = "uah2CKDaBsEw3cEQ";
-	String testSecret = "NSbdzctrP46ZvhTi";
-	String testAgentUri = "rmap:testagenturi";
+	private String testUserName = "RMap Test User";
+	private String testKeyLabel = "RMap test key";
+	private String testAccessKey = "uah2CKDaBsEw3cEQ";
+	private String testSecret = "NSbdzctrP46ZvhTi";
+	private String testAgentUri = "rmap:testagenturi";
 	
-	String testUserName2 = "Josephine Tester";
-	String testUserEmail2 = "jtester@example.edu";
-	String testAgentUri2 = "rmap:abcdefg";
-	String testAuthKeyUri2 = "http://authkeytest.org/hijklmno";
+	private String testUserName2 = "Josephine Tester";
+	private String testUserEmail2 = "jtester@example.edu";
+	private String testAgentUri2 = "rmap:abcdefg";
+	private String testAuthKeyUri2 = "authkey:hijklmno";
 	
 	
 	@Test
@@ -175,6 +175,8 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 		assertEquals(1, users.size());
 		users = rmapAuthService.getUsers("nomatches");
 		assertEquals(0, users.size()); 
+		
+		
 	}
 	
 	
