@@ -422,7 +422,7 @@ public abstract class SesameTriplestore  {
 	 * @return true, if connection is open.
 	 */
 	public boolean hasConnectionOpen()	{
-		return (this.connectionOpen && connection!=null);
+		return (this.connectionOpen && connection!=null && connection.isOpen());
 	}
 		
 	/**
