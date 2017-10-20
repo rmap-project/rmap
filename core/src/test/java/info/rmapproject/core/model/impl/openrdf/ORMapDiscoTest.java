@@ -200,40 +200,6 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#isConnectedGraph(java.util.List)}.
-	 */
-	@Test
-	public void testIsConnectedGraph() {
-		ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/" + counter.getAndIncrement())));
-		Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
-		Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
-		disco.aggregatedResources = new ArrayList<Statement>();
-		disco.aggregatedResources.add(rStmt);
-		disco.aggregatedResources.add(rStmt2);
-		relatedStmts.add(s1);
-		relatedStmts.add(s2);
-		relatedStmts.add(s3);
-		relatedStmts.add(s4);
-		boolean isConnected = OStatementsAdapter.isConnectedGraph(disco, relatedStmts);
-		assertTrue (isConnected);
-		// second test disjoint r->a  b->c
-		relatedStmts.remove(s2);
-		relatedStmts.remove(s4);
-		isConnected = OStatementsAdapter.isConnectedGraph(disco, relatedStmts);
-		assertFalse(isConnected);
-		// third test connected r->a  b->c r2->c c->b, handles cycle, duplicates
-		Statement s5 = vf.createStatement(r2,RMAP.DERIVEDOBJECT,c);
-		Statement s6 = vf.createStatement(c,RMAP.DERIVEDOBJECT,b);
-		Statement s7 = vf.createStatement(c,RMAP.DERIVEDOBJECT,b);
-		relatedStmts.add(s6);
-		relatedStmts.add(s5);
-		relatedStmts.add(s7);
-		isConnected = OStatementsAdapter.isConnectedGraph(disco, relatedStmts);
-		assertTrue (isConnected);
-	}
-
-
-	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapDiSCO#getAggregatedResourceStatements()}.
 	 */
 	@Test

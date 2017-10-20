@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import info.rmapproject.core.idservice.IdService;
 import org.openrdf.model.BNode;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
@@ -38,6 +36,7 @@ import org.openrdf.model.vocabulary.DCTERMS;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapResource;
@@ -106,73 +105,6 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		this(id);
 		this.setCreator(creator);
 		this.setAggregatedResources(aggregatedResources);
-	}
-
-	/**
-	 * Convenience class for making + checking graph of statements.
-	 *
-	 * @author smorrissey
-	 */
-	class Node {
-
-		/** The neighbors. */
-		List<Node> neighbors;
-
-		/** The was visited. */
-		boolean wasVisited;
-
-		/**
-		 * Instantiates a new node.
-		 */
-		Node(){
-			this.neighbors = new ArrayList<Node>();
-			wasVisited = false;
-		}
-
-		/**
-		 * Gets the neighbors.
-		 *
-		 * @return the neighbors
-		 */
-		List<Node> getNeighbors(){
-			return neighbors;
-		}
-
-		/**
-		 * Was visited.
-		 *
-		 * @return true, if successful
-		 */
-		boolean wasVisited(){
-			return wasVisited;
-		}
-
-		/**
-		 * Sets the was visited.
-		 *
-		 * @param isVisited the new was visited
-		 */
-		void setWasVisited(boolean isVisited){
-			wasVisited = isVisited;
-		}
-	}
-
-	/**
-	 * Recursive visit to nodes to mark as visited.
-	 *
-	 * @param visitedNodes the visited nodes
-	 * @param startNode the start node
-	 */
-	protected void markConnected (Set<Node> visitedNodes,
-		Node startNode){
-		startNode.setWasVisited(true);
-		visitedNodes.add(startNode);
-		for (Node neighbor:startNode.getNeighbors()){
-			if (! neighbor.wasVisited()){
-				this.markConnected(visitedNodes, neighbor);
-			}
-		}
-		return;
 	}
 
 	/* (non-Javadoc)
