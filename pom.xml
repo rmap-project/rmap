@@ -135,6 +135,7 @@
                 <version>${org.slf4j-version}</version>
             </dependency>
 
+			<!-- Eclipse RDF4J -->
 			<dependency>
 			    <groupId>org.eclipse.rdf4j</groupId>
 			    <artifactId>rdf4j-runtime</artifactId>

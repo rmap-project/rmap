@@ -46,15 +46,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.rdf4j</groupId>
-            <artifactId>rdf4j-http-server</artifactId>
-            <type>war</type>
+			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-http-server</artifactId>
+			<type>war</type>
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.rdf4j</groupId>
-            <artifactId>rdf4j-http-workbench</artifactId>
-            <type>war</type>
+			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-http-workbench</artifactId>
+			<type>war</type>
         </dependency>
 
         <dependency>
@@ -223,7 +223,7 @@
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
                             <derby.system.home>${derby.home}</derby.system.home>
                             <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
-                            <rdf4jhttp.repository.name>${rdf4j.repository.name}</rdf4jhttp.repository.name>
+                            <rdf4jhttp.repository.name>${rdf4jhttp.repository.name}</rdf4jhttp.repository.name>
                             <rdf4jhttp.repository.url>http://localhost:${rmap.webapp.test.port}/rdf4j-server</rdf4jhttp.repository.url>
                             <rdf4jhttp.workbench.url>http://localhost:${rmap.webapp.test.port}/rdf4j-workbench</rdf4jhttp.workbench.url>
                             <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
@@ -266,7 +266,7 @@
                         </deployable>
 
                         <deployable>
-                            <groupId>org.eclipse.rdfj4</groupId>
+                            <groupId>org.eclipse.rdf4j</groupId>
                             <artifactId>rdf4j-http-server</artifactId>
                             <type>war</type>
                             <properties>
@@ -275,7 +275,7 @@
                         </deployable>
 
                         <deployable>
-                            <groupId>org.eclipse.rdfj4</groupId>
+                            <groupId>org.eclipse.rdf4j</groupId>
                             <artifactId>rdf4j-http-workbench</artifactId>
                             <type>war</type>
                             <properties>

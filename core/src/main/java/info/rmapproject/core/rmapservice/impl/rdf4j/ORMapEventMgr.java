@@ -806,9 +806,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			for (Statement stmt:stmts){
 				IRI eventId = (IRI) stmt.getContext();
 				// make sure this is an event
-				if (stmt != null && this.isEventId(eventId, ts));
+				if (stmt != null && this.isEventId(eventId, ts)){
 					returnStmts.add(stmt);
 				}
+			}
 		} catch (Exception e) {
 			throw new RMapException (
 					"Exception thrown when querying for event statements where predicate is " + eventPredicate.toString() + " and id is " + objectUri.stringValue(), e);
