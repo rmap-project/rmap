@@ -209,6 +209,26 @@ public interface RMapAuthService {
 	public RMapEvent createOrUpdateAgentFromUser(User user, String apiKeyUri) throws RMapAuthException;
 		
 	/**
+	 * Checks to see if the Administrator Agent has been created in RMap
+	 * @return true if Administrator Agent is created
+	 */
+	public boolean isAdministratorAgentCreated() throws RMapAuthException;
+	
+	/**
+	 * Generates the RMap Administrator Agent in RMap - this will be associated with Agents that are 
+	 * authorized through the RMap Admin tool
+	 * @return the creation even for the Agent, or null if there isn't one.
+	 */
+	public RMapEvent createRMapAdministratorAgent() throws RMapAuthException;
+	
+	/**
+	 * Retrieves the URI of the Administrator Agent
+	 * @return URI of Administrator RMap Agent
+	 */
+	public URI getAdministratorAgentUri() throws RMapAuthException;
+
+	
+	/**
 	 * Retrieve a the UserIdentityProvider fora given provider name and id - this is an object
 	 * containing details of the user profile on specific id provider.
 	 *

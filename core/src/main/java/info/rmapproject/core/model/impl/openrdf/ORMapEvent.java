@@ -156,7 +156,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}
 
 		RMapValue description = reqEventDetails.getDescription();
-		if (agentKeyUri!=null){
+		if (description!=null){
 			this.setDescription(description);	
 		}
 		

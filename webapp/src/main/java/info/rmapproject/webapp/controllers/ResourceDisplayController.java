@@ -44,7 +44,7 @@ import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
 import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.domain.ResourceDescription;
-import info.rmapproject.webapp.domain.SearchCommand;
+import info.rmapproject.webapp.domain.SearchForm;
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.DataDisplayService;
@@ -113,7 +113,7 @@ public class ResourceDisplayController {
 		    
 		} catch (URISyntaxException|IllegalArgumentException ex){
 			LOG.warn("{}. Submitted value: {}.", ex.getMessage(), sResourceUri);
-			SearchCommand search = new SearchCommand();
+			SearchForm search = new SearchForm();
 			search.setSearch(sResourceUri);
 			redirectAttributes.addFlashAttribute("search", search);
 			redirectAttributes.addFlashAttribute("notice", "<strong>" + sResourceUri + "</strong> is not a valid URI. Currently only URI searches are supported.");	

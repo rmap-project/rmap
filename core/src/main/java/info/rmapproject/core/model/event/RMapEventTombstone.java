@@ -40,6 +40,14 @@ public interface RMapEventTombstone extends RMapEvent {
 	 * @return IRI of the Tombstoned resource
 	 * @throws RMapException 
 	 */
-	public RMapIri getTombstonedResourceId() throws RMapException;
+	public RMapIri getTombstonedObjectId() throws RMapException;
+
+
+	/**
+	 * Set the list of IRIs for the tombstoned objects
+	 * @param deletedObjectIds the deleted object ID list to set
+	 * @throws RMapException 
+	 */
+	public void setTombstonedObjectId(RMapIri tombstonedObjectId) throws RMapException;
 
 }

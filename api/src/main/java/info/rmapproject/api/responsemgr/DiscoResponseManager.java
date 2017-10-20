@@ -666,7 +666,7 @@ public class DiscoResponseManager extends ResponseManager {
 			
 			RMapEvent discoEvent = null;
 			if (newStatus.equals("TOMBSTONED"))	{
-				discoEvent = rmapService.deleteDiSCO(uriDiscoUri, reqEventDets);
+				discoEvent = rmapService.tombstoneDiSCO(uriDiscoUri, reqEventDets);
 			}
 			else if (newStatus.equals("INACTIVE"))	{
 				discoEvent = rmapService.inactivateDiSCO(uriDiscoUri, reqEventDets);

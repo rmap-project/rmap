@@ -21,7 +21,6 @@ package info.rmapproject.auth.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
@@ -31,6 +30,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.auth.AuthDBTestAbstract;
+import info.rmapproject.auth.dao.UserDao;
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
@@ -40,17 +40,23 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 	@Autowired
 	private RMapAuthService rmapAuthService;
 	
-	String testUserName = "RMap Test User";
-	String testKeyLabel = "RMap test key";
-	String testAccessKey = "uah2CKDaBsEw3cEQ";
-	String testSecret = "NSbdzctrP46ZvhTi";
-	String testAgentUri = "rmap:testagenturi";
+	private String testUserName = "RMap Test User";
+	private String testKeyLabel = "RMap test key";
+	private String testAccessKey = "uah2CKDaBsEw3cEQ";
+	private String testSecret = "NSbdzctrP46ZvhTi";
+	private String testAgentUri = "rmap:testagenturi";
 	
-	String testUserName2 = "Josephine Tester";
-	String testUserEmail2 = "jtester@example.edu";
-	String testAgentUri2 = "rmap:abcdefg";
-	String testAuthKeyUri2 = "http://authkeytest.org/hijklmno";
+	private String testUserName2 = "Josephine Unusualname Tester";
+	private String testUserEmail2 = "jtester@example.edu";
+	private String testAgentUri2 = "rmap:fictionalagenturi";
+	private String testAuthKeyUri2 = "authkey:inventedstring";
 	
+	private String testUserName3 = "Larry Unusualname Tester";
+	private String testUserEmail3 = "ltester@example.edu";
+	private String testAuthKeyUri3 = "authkey:madeuptext";
+
+	@Autowired
+	private UserDao userDao;
 	
 	@Test
 	public void testAuthObj() {
@@ -133,33 +139,85 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 		}		
 	}
 	
+	/**
+	 * Tests that the getUsers method returns the correct count.  Because in-memory database holds data through
+	 * all tests, must first determine how many records are in the database using something other than getUsers
+	 */
 	@Test
 	public void testGetUsersNoFilter() {
-		User user = new User(testUserName2, testUserEmail2);
-		user.setAuthKeyUri(testAuthKeyUri2);
-		user.setRmapAgentUri(testAgentUri2);
-		rmapAuthService.addUser(user);
-		List<User> users = rmapAuthService.getUsers(null);
-		assertTrue(users.size()==2);
+		//test user might be in database from previous test, look for the record and create if not there
+		User testUser2 = rmapAuthService.getUserByAuthKeyUri(testAuthKeyUri2);	
+		if (testUser2==null) {
+			//create the test user
+			User newuser = new User(testUserName2, testUserEmail2);
+			newuser.setAuthKeyUri(testAuthKeyUri2);
+			newuser.setRmapAgentUri(testAgentUri2);
+			userDao.addUser(newuser);
+		}
+		
+		//use auto-incrementing id to figure out how many user records exist in the database
+		User user = null;
+		int count = 0;
+		do {
+			count = count+1;
+			user = rmapAuthService.getUserById(count);
+		} while (user!=null);
+		
+		int numUsers = count-1;
+		
+        List<User> users = rmapAuthService.getUsers(null);
+        assertEquals(numUsers, users.size());
 	}
 	
+	/**
+	 * Tests that the getUsers method returns the correct count when filtered.  
+	 */
 	@Test
 	public void testGetUsersWithFilter() {
-		User user = new User(testUserName2, testUserEmail2);
-		user.setAuthKeyUri(testAuthKeyUri2);
-		user.setRmapAgentUri(testAgentUri2);
-		Integer id = rmapAuthService.addUser(user);
+		//add 2 test users, but check they aren't already in DB first
+		User testUser2 = rmapAuthService.getUserByAuthKeyUri(testAuthKeyUri2);	
+		if (testUser2==null) {
+			//create the test user
+			User user2 = new User(testUserName2, testUserEmail2);
+			user2.setAuthKeyUri(testAuthKeyUri2);
+			user2.setRmapAgentUri(testAgentUri2);
+			userDao.addUser(user2);
+		}
 		
-		List<User> users = rmapAuthService.getUsers("tester");
-		assertTrue(users.size()==1);
-		users = rmapAuthService.getUsers("rmap");
-		assertTrue(users.size()==2);
-		users = rmapAuthService.getUsers(id.toString());
-		assertTrue(users.size()==1);
-		users = rmapAuthService.getUsers("nomatches");
-		assertTrue(users.size()==0);
+		User testUser3 = rmapAuthService.getUserByAuthKeyUri(testAuthKeyUri3);	
+		if (testUser3==null) {
+			//create the test user
+			User user3 = new User(testUserName3, testUserEmail3);
+			user3.setAuthKeyUri(testAuthKeyUri3);
+			userDao.addUser(user3);
+		}
+		
+		//search on name in one record.
+		List<User> users = rmapAuthService.getUsers("josephine");
+		assertEquals(1, users.size());
+		assertEquals(testUserName2, users.get(0).getName());
+		
+		//search on name shared by two records
+		users = rmapAuthService.getUsers("unusualname");
+		assertEquals(2, users.size());
+		
+		//search on email
+		users = rmapAuthService.getUsers("ltester");
+		assertEquals(1, users.size());
+		assertEquals(testUserName3, users.get(0).getName());
+		
+		//search on authkey
+		users = rmapAuthService.getUsers("madeuptext");
+		assertEquals(1, users.size());
+		assertEquals(testUserName3, users.get(0).getName());
+		
+		//search on agentid
+		users = rmapAuthService.getUsers("fictionalagenturi");
+		assertEquals(1, users.size());
+		assertEquals(testUserName2, users.get(0).getName());
+		
+		users = rmapAuthService.getUsers("nomatchesatall");
+		assertEquals(0, users.size()); 
 	}
-	
-	
 		
 }

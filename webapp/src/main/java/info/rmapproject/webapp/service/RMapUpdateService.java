@@ -17,39 +17,39 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.webapp.domain;
+package info.rmapproject.webapp.service;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import java.net.URI;
+
+import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.model.event.RMapEvent;
 
 /**
- * Holds search command form results.
+ * RMap update service contains functionality that updates the RMap triplestore.
+ *
  * @author khanson
  */
-public class SearchCommand {
-	
-	/** The search. */
-	@NotNull
-	@Size(min=1)
-	private String search = "";
+public interface RMapUpdateService {
+
+	/**
+	 * Retrieve DiSCO
+	 * @return matching disco
+	 */
+	public RMapDiSCO readDiSCO(URI discoUri);
 	
 	/**
-	 * Gets the search string.
-	 *
-	 * @return the search
+	 * Hard delete DiSCO as administrator
+	 * @param discoUri
+	 * @return event from deletion
 	 */
-	public String getSearch() {
-		return search;
-	}
-	
+	public RMapEvent deleteDiSCOByAdmin(URI discoUri, String description);
+		
 	/**
-	 * Sets the search string.
-	 *
-	 * @param search the new search
+	 * Check if the URI is a disco URI
+	 * @param discoUri
+	 * @return true if it is  Disco Uri
 	 */
-	public void setSearch(String search)	{
-		search = search.trim();
-		this.search = search;
-	}
+	public boolean isDeletableDiscoId(URI discoUri);
+	
 	
 }

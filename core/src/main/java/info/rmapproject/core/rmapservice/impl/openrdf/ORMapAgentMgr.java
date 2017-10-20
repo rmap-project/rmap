@@ -22,13 +22,14 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+
 import java.net.URI;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -51,6 +52,7 @@ import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.model.request.OrderBy;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.model.request.RMapSearchParams;
@@ -59,14 +61,16 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
-
 /**
  * A concrete class for managing RMap Agents, implemented using openrdf
  *
  * @author smorrissey, khanson
  */
 public class ORMapAgentMgr extends ORMapObjectMgr {
+
+	/** User with rights to delete on behalf of other users **/
+	@org.springframework.beans.factory.annotation.Value("${rmapcore.adminAgentUri}")
+	private String adminAgentUri;
 	
 	/**
 	 * Get an Agent using Agent IRI and a specific triplestore instance
@@ -504,5 +508,20 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapAgentNotFoundException("The requesting agent is invalid. No Agent exists with IRI " + agentIri.stringValue());
 		}
 	}
-	
+
+	/**
+	 * Verifies whether the request Agent has admin rights
+	 * @param reqEventDetails
+	 * @return
+	 */
+	public boolean agentHasAdminRights(RequestEventDetails reqEventDetails) {
+		String reqAgentUri = reqEventDetails.getSystemAgent().toString();
+		if (reqAgentUri.equals(this.adminAgentUri)) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	}
+		
 }

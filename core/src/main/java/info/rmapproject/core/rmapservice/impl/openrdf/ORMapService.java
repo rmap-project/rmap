@@ -69,7 +69,8 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 /**
  * The concrete class for RMap Service, implemented using openrdf
  *
- * @author khanson, smorrissey
+ * @author khanson
+ * @author smorrissey
  */
 @Component
 public class ORMapService implements RMapService {
@@ -133,7 +134,7 @@ public class ORMapService implements RMapService {
 	 * Closes triplestore connection if still open. Do this after each set of queries to triplestore
 	 * @throws RMapException
 	 */
-	public void closeConnection() throws RMapException {
+	private void closeConnection() throws RMapException {
 		try {
 			if (triplestore!=null) {
 				triplestore.closeConnection();
@@ -460,10 +461,10 @@ public class ORMapService implements RMapService {
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI, java.net.URI)
+	 * @see info.rmapproject.core.rmapservice.RMapService#tombstoneDiSCO(java.net.URI, java.net.URI)
 	 */
 	@Override
-	public RMapEvent deleteDiSCO(URI discoID, RequestEventDetails reqEventDetails) 
+	public RMapEvent tombstoneDiSCO(URI discoID, RequestEventDetails reqEventDetails) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
@@ -488,6 +489,37 @@ public class ORMapService implements RMapService {
 		return tombstoneEvent;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.rmapservice.RMapService#deleteDiSCO(java.net.URI, java.net.URI)
+	 */
+	@Override
+	public RMapEvent deleteDiSCO(URI discoID, RequestEventDetails requestEventDets) 
+			throws RMapException, RMapDefectiveArgumentException {
+		if (discoID ==null){
+			throw new RMapDefectiveArgumentException ("Null DiSCO id");
+		}
+		if (requestEventDets==null){
+			throw new RMapDefectiveArgumentException ("Null system agent");
+		}
+		RMapEvent deleteEvent = null;
+		try {
+			deleteEvent = discomgr.deleteDiSCO(uri2OpenRdfIri(discoID), requestEventDets, triplestore);
+		} catch (RMapException ex) {
+			try {
+				//there has been an error during an update so try to rollback the transaction
+				triplestore.rollbackTransaction();
+			} catch(RepositoryException rollbackException) {
+				throw new RMapException("Could not rollback changes after error. Please check your DiSCO record for errors.", ex);
+			}
+			throw ex;	
+		} finally {
+			closeConnection();
+		}
+		return deleteEvent;
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.rmapservice.RMapService#getAllDiSCOVersions(java.net.URI)
 	 */

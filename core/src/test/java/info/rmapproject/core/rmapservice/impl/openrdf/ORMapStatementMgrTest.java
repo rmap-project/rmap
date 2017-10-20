@@ -26,7 +26,6 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
  */
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.net.URI;
 import java.text.DateFormat;
@@ -37,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.Test;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
@@ -49,6 +47,7 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
@@ -66,85 +65,74 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 	RMapSearchParamsFactory paramsFactory;
 	
 	@Test
-	public void testGetRelatedDiSCOs() {
-		try {
-
-			//create disco		
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
-			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
-			RMapIri discoId = disco.getId();
-			
-			//get related discos
-			Set <URI> sysAgents = new HashSet<URI>();
-			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
-			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			Date dateFrom = dateFormat.parse("2014-1-1");
-			Date dateTo = dateFormat.parse("2050-1-1");
-			IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-			IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
-			Value object = ORAdapter.getValueFactory().createLiteral("storage management");
-			
-			RMapSearchParams params = paramsFactory.newInstance();
-			params.setStatusCode(RMapStatusFilter.ACTIVE);
-			params.setDateRange(dateFrom, dateTo);
-			
-			List <IRI> discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
-			assertTrue(discoIds.size()==1);
-			Iterator<IRI> iter = discoIds.iterator();
-			IRI matchingDiscoId = iter.next();
-			assertTrue(matchingDiscoId.toString().equals(discoId.toString()));
-			
-			
-			discomgr.updateDiSCO(matchingDiscoId, null, reqEventDetails, true, triplestore);
-			discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
-			assertTrue(discoIds.size()==0);
-			
-			params.setStatusCode(RMapStatusFilter.INACTIVE);
-			discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
-			assertTrue(discoIds.size()==1);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}
+	public void testGetRelatedDiSCOs() throws Exception {
+		//create disco		
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+		discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+		RMapIri discoId = disco.getId();
 		
+		//get related discos
+		Set <URI> sysAgents = new HashSet<URI>();
+		sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date dateFrom = dateFormat.parse("2014-1-1");
+		Date dateTo = dateFormat.parse("2050-1-1");
+		IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+		IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
+		Value object = ORAdapter.getValueFactory().createLiteral("storage management");
+		
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		params.setDateRange(dateFrom, dateTo);
+		
+		List <IRI> discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
+		assertTrue(discoIds.size()==1);
+		Iterator<IRI> iter = discoIds.iterator();
+		IRI matchingDiscoId = iter.next();
+		assertTrue(matchingDiscoId.toString().equals(discoId.toString()));
+		
+		
+		discomgr.updateDiSCO(matchingDiscoId, null, reqEventDetails, true, triplestore);
+		discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
+		assertTrue(discoIds.size()==0);
+		
+		params.setStatusCode(RMapStatusFilter.INACTIVE);
+		discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
+		assertTrue(discoIds.size()==1);
+
 	}
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testGetAssertingAgents() {
-		try {
-			//create disco				
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
-			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
-			
-			Set <URI> sysAgents = new HashSet<URI>();
-			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
-			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			Date dateFrom = dateFormat.parse("2014-1-1");
-			Date dateTo = dateFormat.parse("2050-1-1");
-			IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-			IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
-			Value object = ORAdapter.getValueFactory().createLiteral("storage management");
-			RMapSearchParams params = paramsFactory.newInstance();
-			params.setDateRange(dateFrom, dateTo);
-			params.setSystemAgents(sysAgents);
-						
-			ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-			List<IRI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, params, triplestore);
-			
-			assertTrue(agentIds.size()==1);
+	public void testGetAssertingAgents() throws Exception {
+	
+		//create disco				
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+		ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+		
+		Set <URI> sysAgents = new HashSet<URI>();
+		sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date dateFrom = dateFormat.parse("2014-1-1");
+		Date dateTo = dateFormat.parse("2050-1-1");
+		IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+		IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
+		Value object = ORAdapter.getValueFactory().createLiteral("storage management");
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setDateRange(dateFrom, dateTo);
+		params.setSystemAgents(sysAgents);
+					
+		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
+		List<IRI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, params, triplestore);
+		
+		assertTrue(agentIds.size()==1);
 
-			Iterator<IRI> iter = agentIds.iterator();
-			IRI matchingAgentId = iter.next();
-			assertTrue(matchingAgentId.toString().equals(TestConstants.SYSAGENT_ID));
+		Iterator<IRI> iter = agentIds.iterator();
+		IRI matchingAgentId = iter.next();
+		assertTrue(matchingAgentId.toString().equals(TestConstants.SYSAGENT_ID));
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}
 	}
 	
 }

@@ -37,17 +37,25 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 import org.openrdf.model.IRI;
+import org.openrdf.model.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapNotLatestVersionException;
+import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.event.RMapEventDeletion;
+import info.rmapproject.core.model.event.RMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -56,6 +64,7 @@ import info.rmapproject.testdata.service.TestFile;
  * @author khanson
  *
  */
+@TestPropertySource(properties = {"rmapcore.adminAgentUri = https://fakermap.rmap-hub.org#Administrator"})
 public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	
 	@Autowired 
@@ -281,7 +290,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertEquals(description,description2);
 			RMapTriple triple = rDisco.getRelatedStatements().get(19);
 			assertTrue(triple.getSubject() instanceof RMapIri);
-			rmapService.deleteDiSCO(disco.getId().getIri(), reqEventDetails);
+			rmapService.tombstoneDiSCO(disco.getId().getIri(), reqEventDetails);
 			assertEquals(event.getAssociatedAgent().toString(),TestConstants.SYSAGENT_ID);
 			
 		} catch (Exception ex) {
@@ -320,7 +329,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	}	
 	
 	/**
-	 * Test method creates a DiSCO, updates it, updates again, updates it with a different agent, deletes it, 
+	 * Test method creates a DiSCO, updates it, updates again, updates it with a different agent, tombstones it, 
 	 * then checks to see we have 3 agent versions with dates returned and that these can be ordered correctly.
 	 */
 	@Test
@@ -348,14 +357,12 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri2, disco3, reqEventDetails, false, triplestore);
 			
-
 			IRI dIri3 = ORAdapter.rMapIri2OpenRdfIri(disco3.getId());
 			//update with different agent using latest id
 			ORMapDiSCO disco4 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri3, disco4, reqEventDetails2, false, triplestore);
 
-			
-			rmapService.deleteDiSCO(disco.getId().getIri(), reqEventDetails);
+			rmapService.tombstoneDiSCO(disco.getId().getIri(), reqEventDetails);
 			
 			NavigableMap<Date, java.net.URI> versions = new TreeMap<Date, java.net.URI>();
 			versions.putAll(rmapService.getDiSCOAgentVersionsWithDates(new java.net.URI(dIri3.toString())));
@@ -441,8 +448,175 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			fail();
 		}	
 	}
+
+	/**
+	 * Test method creates a DiSCO, deletes it, then checks that it is gone
+	 */
+	@Test
+	public void testHardDeleteDiSCO() throws Exception {
+
+		// now create DiSCO	
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+		
+		@SuppressWarnings("unused")
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+							
+		rmapService.deleteDiSCO(disco.getId().getIri(), reqEventDetails);
+
+		try {
+			rmapService.readDiSCO(disco.getId().getIri());
+		} catch (RMapDeletedObjectException ex) {
+			assertTrue(ex.getMessage().contains("deleted"));			
+		}
+		
+	}
+	
+
+	/**
+	 * Test method creates a DiSCO, deletes it using and admin, then checks that it is gone
+	 */
+	@Test
+	public void testHardDeleteDiSCOByAdmin() throws Exception {
+
+		// now create DiSCO	
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+
+		//create admin agent
+		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
+		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
+		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
+		rmapService.createAgent(adminAgent, adminReqAgent);
+		
+		//create disco using regular agent
+		@SuppressWarnings("unused")
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+		
+		//delete disco using admin agent
+		RMapEvent delEvent = rmapService.deleteDiSCO(disco.getId().getIri(), adminReqAgent);
+
+		//confirm it's deleted
+		try {
+			rmapService.readDiSCO(disco.getId().getIri());
+		} catch (RMapDeletedObjectException ex) {
+			assertTrue(ex.getMessage().contains("deleted"));			
+		}
+		
+		RMapEventDeletion rDelEvent = (RMapEventDeletion) rmapService.readEvent(delEvent.getId().getIri());
+		assertTrue(rDelEvent.getDeletedObjectId().equals(disco.getId()));
+	}
+
+
+	/**
+	 * Test method creates a DiSCO, tombstones it, then checks you can delete it after tombstone
+	 */
+	@Test
+	public void testHardDeleteDiSCOThatIsTombstoned() throws Exception {
+
+		// now create DiSCO	
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+
+		//create admin agent
+		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
+		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
+		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
+		rmapService.createAgent(adminAgent, adminReqAgent);
+		
+		//create disco using regular agent
+		@SuppressWarnings("unused")
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+		
+		RMapEvent tsEvent = rmapService.tombstoneDiSCO(disco.getId().getIri(), reqEventDetails);
+		assertTrue(tsEvent!=null);
+		//confirm it's tombstoned
+		try {
+			rmapService.readDiSCO(disco.getId().getIri());
+		} catch (RMapTombstonedObjectException ex) {
+			assertTrue(ex.getMessage().contains("soft deleted"));			
+		}
+		
+		//delete disco using admin agent
+		RMapEvent delEvent = rmapService.deleteDiSCO(disco.getId().getIri(), adminReqAgent);
+		//confirm it's deleted
+		try {
+			rmapService.readDiSCO(disco.getId().getIri());
+		} catch (RMapDeletedObjectException ex) {
+			assertTrue(ex.getMessage().contains("deleted"));			
+		}
+		
+		RMapEventDeletion rDelEvent = (RMapEventDeletion) rmapService.readEvent(delEvent.getId().getIri());
+		assertTrue(rDelEvent.getDeletedObjectId().equals(disco.getId()));
+	}
+
+
+	/**
+	 * Check that if you attempt to hard delete a DiSCO twice, the second time you get an object deleted message
+	 */
+	@Test(expected=RMapDeletedObjectException.class)
+	public void testHardDeleteDiSCOThatIsDeleted() throws Exception {
+
+		// now create DiSCO	
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+
+		//create admin agent
+		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
+		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
+		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
+		rmapService.createAgent(adminAgent, adminReqAgent);
+		
+		//create disco using regular agent
+		discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+		
+		//delete disco using admin agent
+		rmapService.deleteDiSCO(disco.getId().getIri(), adminReqAgent);
+
+		//try to delete again, should throw exception
+		rmapService.deleteDiSCO(disco.getId().getIri(), adminReqAgent);
+
+	}
 	
 	
+	/**
+	 * Test method creates a DiSCO, tombstones it using and admin, then checks that it is gone
+	 */
+	@Test
+	public void testTombstoneDiSCOByAdmin() throws Exception {
+
+		// now create DiSCO	
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
+
+		//create disco using regular agent
+		@SuppressWarnings("unused")
+		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+
+		//create admin agent
+		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
+		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
+		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
+		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
+		rmapService.createAgent(adminAgent, adminReqAgent);
+		
+		//delete disco using admin agent
+		RMapEvent tsEvent = rmapService.tombstoneDiSCO(disco.getId().getIri(), adminReqAgent);
+
+		//confirm it's deleted
+		try {
+			rmapService.readDiSCO(disco.getId().getIri());
+		} catch (RMapTombstonedObjectException ex) {
+			assertTrue(ex.getMessage().contains("deleted"));			
+		}
+
+		RMapEventTombstone rTsEvent = (RMapEventTombstone) rmapService.readEvent(tsEvent.getId().getIri());
+		assertTrue(rTsEvent.getTombstonedObjectId().equals(disco.getId()));
+	}
+	
+
 	
 	
 

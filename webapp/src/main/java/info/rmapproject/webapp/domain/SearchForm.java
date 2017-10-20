@@ -17,34 +17,39 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-/**
- * 
- */
-package info.rmapproject.core.model.event;
+package info.rmapproject.webapp.domain;
 
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapIri;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
- * Interface for Events that involve deletion of an object. 
- * Currently only DiSCO deletion is possible.
- * @author smorrissey
- *
+ * Holds search command form results.
+ * @author khanson
  */
-public interface RMapEventDeletion extends RMapEvent {
+public class SearchForm {
+	
+	/** The search. */
+	@NotNull
+	@Size(min=1)
+	private String search = "";
 	
 	/**
-	 * Retrieve the IRI of the deleted RMap object
-	 * @return the IRI of the deleted RMap object
-	 * @throws RMapException 
+	 * Gets the search string.
+	 *
+	 * @return the search
 	 */
-	public RMapIri getDeletedObjectId() throws RMapException;
-
+	public String getSearch() {
+		return search;
+	}
+	
 	/**
-	 * Set the IRI of the deleted object
-	 * @param deletedObjectId the deleted object ID to set
-	 * @throws RMapException 
+	 * Sets the search string.
+	 *
+	 * @param search the new search
 	 */
-	public void setDeletedObjectId(RMapIri deletedObjectId) throws RMapException;
-
+	public void setSearch(String search)	{
+		search = search.trim();
+		this.search = search;
+	}
+	
 }

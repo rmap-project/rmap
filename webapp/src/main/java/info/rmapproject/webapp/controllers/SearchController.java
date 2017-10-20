@@ -32,9 +32,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import info.rmapproject.webapp.domain.SearchCommand;
+import info.rmapproject.webapp.domain.SearchForm;
 
 /**
  * Handles display of the search page .
@@ -57,16 +56,12 @@ public class SearchController {
 	 * @return the search page
 	 */
 	@RequestMapping(method = RequestMethod.GET)
-	public String searchForm(Model model, RedirectAttributes redirectAttributes) {
+	public String searchForm(Model model) {
 		LOG.info("Search page");
 		
-		if (redirectAttributes.containsAttribute("search")){
-			//true if redirected back to form due to error, for example.
-			model.addAttribute("search",redirectAttributes.getFlashAttributes().get("search"));
-			model.addAttribute("notice",redirectAttributes.getFlashAttributes().get("notice"));
-		} else {
-			//otherwise initiate search command.
-			SearchCommand search = new SearchCommand();
+		if (!model.containsAttribute("search")){
+			//otherwise initiate search form.
+			SearchForm search = new SearchForm();
 			model.addAttribute("search", search);			
 		}
 		return "search";
@@ -75,13 +70,13 @@ public class SearchController {
 	/**
 	 * Processes the POSTed search form.
 	 *
-	 * @param search the search command
+	 * @param search the search form object
 	 * @param result the form results
 	 * @return the resource page
 	 * @throws Exception the exception
 	 */
 	@RequestMapping(method=RequestMethod.POST)
-	public String searchResults(@Valid @ModelAttribute("search") SearchCommand search,
+	public String searchResults(@Valid @ModelAttribute("search") SearchForm search,
 									BindingResult result, Model model) throws Exception {
 		if (result.hasErrors()){
 			model.addAttribute("search", search);

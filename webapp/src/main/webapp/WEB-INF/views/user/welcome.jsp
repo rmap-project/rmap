@@ -4,7 +4,7 @@
 
 <tl:pageStartStandard user="${user}" pageTitle="Welcome"/>
 			         
-	<h1>Welcome to the RMap Project</h1>
+	<h1>Welcome to the RMap</h1>
 	<c:if test="${notice!=null}">
 		<p class="notice">
 			${notice}

@@ -19,17 +19,19 @@
  *******************************************************************************/
 package info.rmapproject.auth.service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import info.rmapproject.auth.exception.ErrorCode;
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
 import info.rmapproject.auth.model.UserIdentityProvider;
 import info.rmapproject.core.model.event.RMapEvent;
-
-import java.net.URI;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Implements the RMapAuthServices by combining several other service implementations
@@ -194,6 +196,22 @@ public class RMapAuthServiceImpl implements RMapAuthService {
 	}	
 
 	/* (non-Javadoc)
+	 * @see info.rmapproject.auth.service.RMapAuthService#isAdministratorAgentCreated()
+	 */
+	@Override
+	public boolean isAdministratorAgentCreated() throws RMapAuthException {
+		return agentService.isAdministratorAgentCreated();
+	}
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.auth.service.RMapAuthService#createRMapAdministratorAgent()
+	 */
+	@Override
+	public RMapEvent createRMapAdministratorAgent() throws RMapAuthException {
+		return agentService.createRMapAdministratorAgent();
+	}
+
+	/* (non-Javadoc)
 	 * @see info.rmapproject.auth.service.RMapAuthService#addUserIdProvider(UserIdentityProvider)
 	 */
     @Override
@@ -226,9 +244,28 @@ public class RMapAuthServiceImpl implements RMapAuthService {
 		return userIdProviderService.getUserIdProviders(userId);
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.auth.service.RMapAuthService#assignRMapAgentUri(int)
+	 */
 	@Override
 	public String assignRMapAgentUri(int userId) throws RMapAuthException {
 		return userService.assignRMapAgentUri(userId);
 	}
+
+	/* (non-Javadoc)
+	 * @see info.rmapproject.auth.service.RMapAuthService#getAdministratorAgentUri()
+	 */
+	@Override
+	public URI getAdministratorAgentUri() throws RMapAuthException {
+		String sAgentUri = userService.getRMapAdministratorPath();
+		URI agentUri = null;
+		try {
+			agentUri = new URI(sAgentUri);
+		} catch (URISyntaxException ex) {
+			throw new RMapAuthException(ErrorCode.ER_ADMIN_AGENT_URI_INVALID.getMessage(),ex);
+		}
+		return agentUri;
+	}
+
 		
 }

@@ -108,10 +108,11 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		model.add(tombstoned);
 		return model;
 	}
+	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventTombstone#getTombstonedResourceId()
 	 */
-	public RMapIri getTombstonedResourceId() throws RMapException {
+	public RMapIri getTombstonedObjectId() throws RMapException {
 		RMapIri iri = null;
 		if (this.tombstoned!= null){
 			try {
@@ -126,11 +127,24 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	
 	/**
 	 * Gets the statement referencing the IRI of the tombstoned object
-	 *
 	 * @return the statement referencing the IRI of the tombstoned object
 	 */
 	public Statement getTombstonedResourceStmt(){
 		return this.tombstoned;
+	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventDerivation#setTombstonedObjectId(info.rmapproject.core.model.RMapIri)
+	 */
+	@Override
+	public void setTombstonedObjectId(RMapIri iri) throws RMapException {
+		IRI tombstonedIri = null;
+		try { 
+			tombstonedIri = ORAdapter.rMapIri2OpenRdfIri(iri);
+		} catch (IllegalArgumentException e){
+			throw new RMapException("Could not retrieve RMap Event's tombstoned object ID", e);
+		}
+		this.setTombstonedResourceIdStmt(tombstonedIri);
 	}
 	
 	/**
@@ -146,7 +160,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 			this.tombstoned = stmt;
 		}
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

@@ -19,9 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.openrdf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -38,14 +35,15 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 /**
  * The concrete class representing the Deletion Event for the openrdf implementation of RMap.
  *
- * @author khanson, smorrissey
+ * @author khanson
+ * @author smorrissey
  */
 public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion {
 
 	private static final long serialVersionUID = 1L;
 
-	/** The list of Statements containing deleted object IDs. */
-	protected List<Statement> deletedObjects;
+	/** The statement that defines the tombstoned object. */
+	protected Statement deleted;
 	
 	/**
 	 * Instantiates a new ORMap event deletion.
@@ -79,11 +77,11 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt, 
-			List<Statement> deletedObjects) throws RMapException, RMapDefectiveArgumentException {
+			Statement deleted) throws RMapException, RMapDefectiveArgumentException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
-		this.deletedObjects = deletedObjects;
+		this.deleted = deleted;
 	}
 
 	/**
@@ -91,13 +89,15 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 *
 	 * @param reqEventDetails client provided event details
 	 * @param targetType the target type
+	 * @param deletedResource the IRI of the deleted Resource
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventDeletion(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType)
+	public ORMapEventDeletion(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI deletedResource)
 			throws RMapException, RMapDefectiveArgumentException {
 		super(id, reqEventDetails, targetType);
 		this.setEventTypeStatement(RMapEventType.DELETION);
+		this.setDeletedResourceIdStmt(deletedResource);
 	}
 	
 	/* (non-Javadoc)
@@ -106,60 +106,64 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
-		for (Statement stmt:deletedObjects){
-			model.add(stmt);
-		}
+		model.add(deleted);
 		return model;
-	}
-
-	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventDelete#getDeletedObjectIds()
-	 */
-	public List<RMapIri> getDeletedObjectIds() throws RMapException {
-		List<RMapIri> iris = null;
-		if (this.deletedObjects!= null){
-			try {
-				iris = new ArrayList<RMapIri>();
-				for (Statement stmt:this.deletedObjects){
-					IRI deletedIri = (IRI) stmt.getObject();
-					iris.add(ORAdapter.openRdfIri2RMapIri(deletedIri));
-				}
-			} catch (Exception e) {
-				throw new RMapException("Could not retrieve deleted object IDs as RMapIris", e);
-			}
-		}
-		return iris;
 	}
 	
 	/**
-	 * Gets a list of statements containing deleted object IDs.
-	 *
-	 * @return the list of statements containing the deleted object IDs
+	 * Gets the statement referencing the IRI of the deleted object
+	 * @return the statement referencing the IRI of the deleted object
 	 */
-	public List<Statement> getDeletedObjectStmts(){
-		return this.deletedObjects;
+	public Statement getDeletedResourceStmt(){
+		return this.deleted;
 	}
-
+	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventDelete#setDeletedObjectIds(java.util.List)
+	 * @see info.rmapproject.core.model.RMapEventDelete#getDeletedObjectId()
 	 */
-	public void setDeletedObjectIds(List<RMapIri> deletedObjectIds) 
-			throws RMapException {
-		if (deletedObjectIds != null){
-			try {			
-				List<Statement> stmts = new ArrayList<Statement>();
-				for (RMapIri rid:deletedObjectIds){
-					Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
-							ORAdapter.rMapIri2OpenRdfIri(rid), this.context);
-					stmts.add(stmt);
-				}
-				this.deletedObjects = stmts;
-			} catch (Exception e){
-				throw new RMapException("Could not set Event's deleted object ids", e);
+	public RMapIri getDeletedObjectId() throws RMapException {
+		RMapIri iri = null;
+		if (this.deleted!= null){
+			try {
+				IRI tIri = (IRI) this.deleted.getObject();
+				iri = ORAdapter.openRdfIri2RMapIri(tIri);
+			} catch (IllegalArgumentException ex){
+				throw new RMapException("Could not retrieve Deleted Resource ID",ex);
 			}
 		}
+		return iri;
 	}
 
+	/**
+	 * Sets the statement referencing the IRI of the deleted object
+	 *
+	 * @param deletedResource the IRI of the deleted resource
+	 * @throws RMapException the RMap exception
+	 */
+	private void setDeletedResourceIdStmt(IRI deletedResource) throws RMapException {
+		if (deletedResource != null){
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
+					deletedResource, this.context);
+			this.deleted = stmt;
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.core.model.event.RMapEventDerivation#setDeletedObjectId(info.rmapproject.core.model.RMapIri)
+	 */
+	@Override
+	public void setDeletedObjectId(RMapIri iri) throws RMapException {
+		IRI deletedIri = null;
+		try { 
+			deletedIri = ORAdapter.rMapIri2OpenRdfIri(iri);
+		} catch (IllegalArgumentException e){
+			throw new RMapException("Could not retrieve RMap Event's deleted object ID", e);
+		}
+		this.setDeletedResourceIdStmt(deletedIri);
+	}	
+	
+	
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -168,13 +172,13 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 
 		ORMapEventDeletion that = (ORMapEventDeletion) o;
 
-		return deletedObjects != null ? deletedObjects.equals(that.deletedObjects) : that.deletedObjects == null;
+		return deleted != null ? deleted.equals(that.deleted) : that.deleted == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result + (deletedObjects != null ? deletedObjects.hashCode() : 0);
+		result = 31 * result + (deleted != null ? deleted.hashCode() : 0);
 		return result;
 	}
 }

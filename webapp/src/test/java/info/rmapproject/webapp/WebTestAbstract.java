@@ -40,17 +40,11 @@ public abstract class WebTestAbstract {
 
 	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
 	private static boolean activeProfilesPreSet = System.getProperties().containsKey(SPRING_ACTIVE_PROFILE_PROP);
-
-	private static final String RMAP_CONFIG_PROP = "rmap.configFile";
-	private static boolean configPathPreSet = System.getProperties().containsKey(RMAP_CONFIG_PROP);
 	
 	@BeforeClass
 	public static void setUpSpringProfiles() {
 		if (!activeProfilesPreSet) {
 			System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore");
-		}
-		if (!configPathPreSet) {
-			System.setProperty(RMAP_CONFIG_PROP, "classpath:/rmap.properties");
 		}
 	}
 	
@@ -58,9 +52,6 @@ public abstract class WebTestAbstract {
 	public static void resetSpringProfiles() throws Exception {
 		if (!activeProfilesPreSet) {
 			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
-		}
-		if (!configPathPreSet) {
-			System.getProperties().remove(RMAP_CONFIG_PROP);
 		}
 	}
 	

@@ -390,7 +390,7 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		String strDiscoUri = rmapDisco.getId().toString();
 		rmapService.createDiSCO(rmapDisco, requestEventDetails);
 		//delete and check status
-		rmapService.deleteDiSCO(new URI(strDiscoUri), requestEventDetails);
+		rmapService.tombstoneDiSCO(new URI(strDiscoUri), requestEventDetails);
 		List<URI> rmapEvents = rmapService.getDiSCOEvents(new URI(strDiscoUri));
 		assertTrue(rmapEvents.size()==2);
 		RMapEvent event = rmapService.readEvent(rmapEvents.get(0));

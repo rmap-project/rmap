@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
@@ -79,6 +80,11 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 	/** Create default RequestEventDetails based on sysagent2. No key */
 	protected RequestEventDetails reqEventDetails2 = null;
 
+	/**RMap ID service**/
+	@Autowired
+	IdService rmapIdService;
+	
+	
 
 
 	@Before

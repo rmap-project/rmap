@@ -115,11 +115,9 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			
 			Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 			
-			List<Statement> deletedObjects= new ArrayList<Statement>();
 			IRI dId = ORAdapter.uri2OpenRdfIri(id2);
 			
 			Statement delStmt = vf.createStatement(context, RMAP.DELETEDOBJECT, dId, context);
-			deletedObjects.add(delStmt);
 			
 			Date end = new Date();
 			String endTime = DateUtils.getIsoStringDate(end);
@@ -128,7 +126,7 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			
 			ORMapEvent event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, 
 					associatedAgentStmt,descriptionStmt, startTimeStmt,endTimeStmt, context, 
-					typeStatement, associatedKeyStmt,  deletedObjects);
+					typeStatement, associatedKeyStmt,  delStmt);
 			Model eventModel = event.getAsModel();
 			assertEquals(9, eventModel.size());
 			IRI econtext = event.getContext();
@@ -160,17 +158,13 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
 			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
-			RMapLiteral desc =  new RMapLiteral("this is a deletion event");
 			
 			ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
+			RMapLiteral desc =  new RMapLiteral("this is a deletion event");
+			RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new java.net.URI("ark:/29297/testkey"), desc);
 			
-			RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new java.net.URI("ark:/29297/testkey"));
-			reqEventDetails.setDescription(desc);
-			ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
-			RMapIri discoId = ORAdapter.openRdfIri2RMapIri(disco.getDiscoContext());
-			List<RMapIri>deleted = new ArrayList<RMapIri>();
-			deleted.add(discoId);
-			event.setDeletedObjectIds(deleted);
+			IRI discoId = disco.getDiscoContext();
+			ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, discoId);
 			Date end = new Date();
 			event.setEndTime(end);
 			Model eventModel = event.getAsModel();

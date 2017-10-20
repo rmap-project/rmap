@@ -60,6 +60,7 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
@@ -75,7 +76,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 /**
  * A concrete class for managing RMap DiSCOs, implemented using openrdf.
  *
- * @author khanson, smorrissey
+ * @author khanson
+ * @author smorrissey
  */
 public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
@@ -84,7 +86,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	
 	/** Instance of the RMap Event Manager */
 	private ORMapEventMgr eventmgr;
-	
+		
 	/**
 	 * Instantiates a new RMap DiSCO Manager
 	 *
@@ -97,7 +99,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		this.agentmgr = agentmgr;
 		this.eventmgr = eventmgr;
 	}
-	
 	
 	/**
 	 * Return RMap DiSCO object corresponding to the DiSCO IRI.
@@ -113,6 +114,24 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 */
 	public ORMapDiSCO readDiSCO(IRI discoID, SesameTriplestore ts) 
 	throws RMapTombstonedObjectException, RMapDeletedObjectException, RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
+		return this.readDiSCO(discoID, ts, false);
+	}
+
+	/**
+	 * Return RMap DiSCO object corresponding to the DiSCO IRI.  
+	 *
+	 * @param discoID the DiSCO IRI
+	 * @param ts the triplestore instance
+	 * @param retrieveIfTombstoned true to retrieve a tombstoned DiSCO's data
+	 * @return the RMap DiSCO DTO
+	 * @throws RMapTombstonedObjectException the RMap tombstoned object exception
+	 * @throws RMapDeletedObjectException the RMap deleted object exception
+	 * @throws RMapException the RMap exception
+	 * @throws RMapObjectNotFoundException the RMap object not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
+	private ORMapDiSCO readDiSCO(IRI discoID, SesameTriplestore ts, boolean retrieveIfTombstoned) 
+	throws RMapException, RMapDefectiveArgumentException {
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
 			throw new RMapException ("null discoID");
@@ -126,9 +145,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		RMapStatus status = this.getDiSCOStatus(discoID, ts);
 		switch (status){
 		case TOMBSTONED :
-			throw new RMapTombstonedObjectException("DiSCO "+ discoID.stringValue() + " has been (soft) deleted");
+			if (!retrieveIfTombstoned){
+				throw new RMapTombstonedObjectException("DiSCO "+ discoID.stringValue() + " has been soft deleted");
+			}
+			break;
 		case DELETED :
-			throw new RMapDeletedObjectException ("DiSCO "+ discoID.stringValue() + " has been deleted");
+			throw new RMapDeletedObjectException ("DiSCO "+ discoID.stringValue() + " has been permanently deleted");
 		default:
 			break;		
 		}		
@@ -143,6 +165,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		return disco;		
 	}
+	
+	
 	
 	
 	/**
@@ -354,7 +378,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * Soft-delete a DiSCO.  A read of this DiSCO after the udpate should return tombstone notice rather 
 	 * than statements in the DiSCO, but DiSCO named graph is not deleted from triplestore.
 	 *
-	 * @param oldDiscoId the DiSCO IRI
+	 * @param discoId the DiSCO IRI
 	 * @param requestAgent the requesting agent
 	 * @param ts the triplestore instance
 	 * @return the RMap Event
@@ -362,10 +386,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public RMapEvent tombstoneDiSCO(IRI oldDiscoId, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
+	public RMapEvent tombstoneDiSCO(IRI discoId, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException {
 		// confirm non-null old disco
-		if (oldDiscoId==null){
+		if (discoId==null){
 			throw new RMapException ("Null value for id of DiSCO to be tombstoned");
 		}
 		if (reqEventDetails==null){
@@ -376,13 +400,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// make sure same Agent created the DiSCO now being inactivated
-		if (! this.isSameCreatorAgent(oldDiscoId, reqEventDetails, ts)){
+		if (! this.isSameCreatorAgent(discoId, reqEventDetails, ts) && !agentmgr.agentHasAdminRights(reqEventDetails)){
 			throw new RMapException(
-					"Agent attempting to tombstone DiSCO is not same as its creating Agent");
+					"Agent attempting to tombstone DiSCO is not same as its creating Agent and does not have Administrator rights");
 		}
 			
 		// get the event started
-		ORMapEventTombstone event = new ORMapEventTombstone(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId);
+		ORMapEventTombstone event = new ORMapEventTombstone(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
 
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
@@ -407,6 +431,72 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		return event;
 	}
+	
+	/**
+	 * Hard delete a DiSCO.  A read of this DiSCO after the update should return deleted/gone notice rather 
+	 * than statements in the DiSCO. The DiSCO named graph is also deleted from the triplestore.
+	 *
+	 * @param discoId the DiSCO IRI
+	 * @param reqEventDetails the requesting agent
+	 * @param ts the triplestore instance
+	 * @return the RMap Event
+	 * @throws RMapException the RMap exception
+	 * @throws RMapAgentNotFoundException the RMap agent not found exception
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
+	public RMapEvent deleteDiSCO(IRI discoId, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
+	throws RMapException, RMapAgentNotFoundException, RMapDeletedObjectException, RMapDefectiveArgumentException {
+		// confirm non-null old disco
+		if (discoId==null){
+			throw new RMapException ("Null value for id of DiSCO to be deleted");
+		}
+		if (reqEventDetails==null){
+			throw new RMapException("System Agent ID required: was null");
+		}
+
+		//validate agent
+		agentmgr.validateRequestAgent(reqEventDetails, ts);
+		
+		// make sure same Agent created the DiSCO now being deleted, or they have admin rights
+		if (!this.isSameCreatorAgent(discoId, reqEventDetails, ts) && !agentmgr.agentHasAdminRights(reqEventDetails)){
+			throw new RMapException(
+				"Agent attempting to delete DiSCO is not same as its creating Agent and does not have Administrator rights");
+		}
+			
+		ORMapDiSCO disco = readDiSCO(discoId, ts, true);
+		Set<Statement> stmts = disco.getAsModel();
+		// get the event started
+		ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
+
+		// set up triplestore and start transaction
+		boolean doCommitTransaction = false;
+		try {
+			if (!ts.hasTransactionOpen())	{
+				doCommitTransaction = true;
+				ts.beginTransaction();
+			}
+		} catch (Exception e) {
+			throw new RMapException("Unable to begin Sesame transaction: ", e);
+		}		
+		
+		//remove statements for DiSCO
+		ts.removeStatements(stmts, discoId);
+		
+		// end the event, write the event triples, and commit everything
+		event.setEndTime(new Date());
+		eventmgr.createEvent(event, ts);
+
+		if (doCommitTransaction){
+			try {
+				ts.commitTransaction();
+			} catch (Exception e) {
+				throw new RMapException("Exception thrown committing new triples to triplestore");
+			}
+		}
+		return event;
+	}
+	
+
 	
 	/**
 	 * Get the status of a DiSCO

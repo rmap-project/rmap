@@ -19,24 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.openrdf;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.vocabulary.impl.openrdf.ORE;
-import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
-import org.openrdf.model.BNode;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.FOAF;
-import org.openrdf.model.vocabulary.RDF;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +28,27 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.DC;
+import org.openrdf.model.vocabulary.DCTERMS;
+import org.openrdf.model.vocabulary.FOAF;
+import org.openrdf.model.vocabulary.RDF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.vocabulary.impl.openrdf.ORE;
+import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
+import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+
 /**
  * Adapts sets of RDF statements to RMap objects.
  *
@@ -53,6 +56,9 @@ import java.util.function.Supplier;
  */
 public class OStatementsAdapter {
 
+	
+	private static final Logger LOG = LoggerFactory.getLogger("OStatementsAdapter.class");
+	
     private static final String MISSING_RDF_TYPE = "Missing identifiers in statements; maybe the statements did not " +
             "include an 'rdf:type' predicate?";
 
@@ -116,7 +122,7 @@ public class OStatementsAdapter {
             Resource subject = stmt.getSubject();
             IRI predicate = stmt.getPredicate();
             Value object = stmt.getObject();
-
+            LOG.debug("Processing DiSCO statement: {} - {} - {}", subject, predicate, object);
             // see if disco is subject of statement
             boolean subjectIsDisco = subject.stringValue().equals(identifiers.assertedId.stringValue());
             // convert incoming id to RMap id in subject and object
@@ -211,6 +217,9 @@ public class OStatementsAdapter {
             Resource subject = stmt.getSubject();
             IRI predicate = stmt.getPredicate();
             Value object = stmt.getObject();
+
+            LOG.debug("Processing Agent statement: {} - {} - {}", subject, predicate, object);
+            
             boolean agentIsSubject = subject.stringValue().equals(identifiers.assertedId.stringValue());
             if (agentIsSubject && predicate.equals(RDF.TYPE) && object.equals(RMAP.AGENT) && !typeRecorded) {
                 agent.setTypeStatement(RMapObjectType.AGENT);
@@ -274,9 +283,9 @@ public class OStatementsAdapter {
         //For update events the do a replace
         Statement replacedObjectStatement = null;
         // for Tombstone events
-        Statement tombstoned = null;
+        Statement tombstonedObjectStatement = null;
         // for Delete events
-        List<Statement> deletedObjects = new ArrayList<Statement>();;
+        Statement deletedObjectStatement = null;
         ORMapEvent event = null;
         for (Statement stmt:eventStmts){
             if (context==null){
@@ -336,11 +345,11 @@ public class OStatementsAdapter {
                 continue;
             }
             if (predicate.equals(RMAP.TOMBSTONEDOBJECT)){
-                tombstoned = stmt;
+                tombstonedObjectStatement = stmt;
                 continue;
             }
             if (predicate.equals(RMAP.DELETEDOBJECT)){
-                deletedObjects.add(stmt);
+                deletedObjectStatement = stmt;
                 continue;
             }
             if (predicate.equals(RMAP.UPDATEDOBJECT)){
@@ -461,18 +470,18 @@ public class OStatementsAdapter {
                     createdObjects,derivationStatement,sourceObjectStatement);
         }
         else if (isTombstoneEvent){
-            if (tombstoned==null){
+            if (tombstonedObjectStatement==null){
                 throw new RMapException("Tombstone event missing tombstoned object statement");
             }
             event = new ORMapEventTombstone(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, tombstoned);
+                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, tombstonedObjectStatement);
         }
         else if (isDeleteEvent){
-            if(deletedObjects.size()==0){
-                throw new RMapException ("Delete event has no deleted object ids");
+            if (deletedObjectStatement==null){
+                throw new RMapException ("Delete event missing the deleted object statement");
             }
             event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, deletedObjects);
+                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, deletedObjectStatement);
         }
         else if (isReplaceEvent){
             if (replacedObjectStatement==null){
