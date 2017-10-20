@@ -57,7 +57,7 @@ import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.Terms;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
 import info.rmapproject.webapp.domain.PaginatorType;

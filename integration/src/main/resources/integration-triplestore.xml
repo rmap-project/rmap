@@ -11,7 +11,7 @@
     <context:property-placeholder location="classpath*:/integration-triplestore.properties" ignore-unresolvable="true"/>
 
     <bean primary="true" id="integrationTriplestore"
-          class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jHttpTriplestore" scope="prototype">
+          class="info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jHttpTriplestore" scope="prototype">
       <property name="rdf4jUrl" value="${rdf4jhttp.repository.url}"/>
       <property name="rdf4jReposName" value="${rdf4jhttp.repository.name}"/>
       <property name="rdf4jUserName" value="${rdf4jhttp.repository.user}"/>

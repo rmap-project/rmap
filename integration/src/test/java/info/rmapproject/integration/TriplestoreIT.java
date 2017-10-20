@@ -26,7 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

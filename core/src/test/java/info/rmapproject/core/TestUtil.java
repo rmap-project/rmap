@@ -19,8 +19,8 @@
  *******************************************************************************/
 package info.rmapproject.core;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.rdf4jIri2RMapIri;
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jIri2RMapIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 import static org.junit.Assert.assertTrue;
 
@@ -33,7 +33,7 @@ import org.eclipse.rdf4j.model.Literal;
 
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 
 /**
  * Utility methods that support tests.
