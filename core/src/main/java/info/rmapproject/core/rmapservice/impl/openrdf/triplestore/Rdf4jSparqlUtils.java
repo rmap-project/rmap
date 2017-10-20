@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BindingSet;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.query.BindingSet;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -38,14 +38,14 @@ import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * Some common conversions from openrdf model to SPARQL query pieces.
+ * Some common conversions from RDF4J model to SPARQL query pieces.
  *
  * @author khanson
  */
-public class SesameSparqlUtils {
+public class Rdf4jSparqlUtils {
 
 	/**
-	 * Converts openrdf Iri to a string that can be slotted into a SPARQL query.
+	 * Converts RDF4J Iri to a string that can be slotted into a SPARQL query.
 	 *
 	 * @param iri an IRI to convert to a Sparql parameter
 	 * @return the IRI as a SPARQL snippet 
@@ -57,7 +57,7 @@ public class SesameSparqlUtils {
 	}
 	
 	/**
-	 * Converts openrdf Value to a string that can be slotted into a SPARQL query.
+	 * Converts RDF4J Value to a string that can be slotted into a SPARQL query.
 	 *
 	 * @param value a Value to convert to a Sparql parameter
 	 * @return the Value as a SPARQL snippet 
@@ -232,7 +232,7 @@ public class SesameSparqlUtils {
 	 * @param fieldname name of field to bind as IRI
 	 * @return list of IRIs
 	 */
-	public static List<IRI> bindQueryToIriList(String query, SesameTriplestore ts, String fieldname){
+	public static List<IRI> bindQueryToIriList(String query, Rdf4jTriplestore ts, String fieldname){
 
 		List<IRI> iris = new ArrayList<IRI>();
 		

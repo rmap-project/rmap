@@ -29,10 +29,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
@@ -50,13 +50,13 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * A concrete class for managing RMap Events, implemented using openrdf
+ * A concrete class for managing RMap Events, implemented using RDF4J
  *
  * @author khanson, smorrissey
  */
@@ -70,7 +70,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the iri
 	 * @throws RMapException the RMap exception
 	 */
-	public IRI createEvent (ORMapEvent event, SesameTriplestore ts) throws RMapException {
+	public IRI createEvent (ORMapEvent event, Rdf4jTriplestore ts) throws RMapException {
 		if (event==null){
 			throw new RMapException ("Cannot create null Event");
 		}
@@ -170,7 +170,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the ORMap event
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 */
-	public ORMapEvent readEvent(IRI eventId, SesameTriplestore ts) 
+	public ORMapEvent readEvent(IRI eventId, Rdf4jTriplestore ts) 
 	throws RMapEventNotFoundException {
 		ORMapEvent event = null;
 		if (eventId ==null){
@@ -198,7 +198,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the latest event
 	 * @throws RMapException the RMap exception
 	 */
-	public IRI getLatestEvent (Set<IRI> eventIds,SesameTriplestore ts)
+	public IRI getLatestEvent (Set<IRI> eventIds,Rdf4jTriplestore ts)
 	throws RMapException {
 		Map <Date, IRI>date2event = this.getDate2EventMap(eventIds, ts);
 				new HashMap<Date, IRI>();
@@ -216,7 +216,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return a date-to-EventURI map
 	 * @throws RMapException the RMap exception
 	 */
-	public Map <Date, IRI> getDate2EventMap(Set<IRI> eventIds,SesameTriplestore ts)
+	public Map <Date, IRI> getDate2EventMap(Set<IRI> eventIds,Rdf4jTriplestore ts)
 	throws RMapException {
 		if (eventIds==null){
 			throw new RMapException("List of eventIds is null");
@@ -236,7 +236,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return a list of IRIs for the affected DiSCOs
 	 * @throws RMapException the RMap exception
 	 */
-	public List<IRI> getAffectedDiSCOs(IRI eventId, SesameTriplestore ts) 
+	public List<IRI> getAffectedDiSCOs(IRI eventId, Rdf4jTriplestore ts) 
 			throws RMapException{
 
 		Set<Statement> affectedObjects= new HashSet<Statement>();
@@ -324,7 +324,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap di SCO not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public List<IRI> getDiscoRelatedEventIds(IRI discoid, SesameTriplestore ts) 
+	public List<IRI> getDiscoRelatedEventIds(IRI discoid, Rdf4jTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
 		List<IRI> events = null;
 		if (discoid==null){
@@ -375,7 +375,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 */
-	public List<IRI> getAgentRelatedEventIds(IRI agentid, SesameTriplestore ts) 
+	public List<IRI> getAgentRelatedEventIds(IRI agentid, Rdf4jTriplestore ts) 
 			throws RMapAgentNotFoundException, RMapException {
 		List<IRI> events = null;
 		if (agentid==null){
@@ -420,7 +420,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return a list of IRIs for Resources affected by a specific Event
 	 */
-	public List<IRI> getAffectedResources (IRI eventId,SesameTriplestore ts){
+	public List<IRI> getAffectedResources (IRI eventId,Rdf4jTriplestore ts){
 		Set<IRI> resources = new HashSet<IRI>();
 		// get DiSCO resources
 		Set<IRI> relatedDiSCOs = new HashSet<IRI>();
@@ -444,7 +444,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 */
-	public List<IRI> getAffectedAgents (IRI eventId, SesameTriplestore ts)
+	public List<IRI> getAffectedAgents (IRI eventId, Rdf4jTriplestore ts)
     throws RMapException, RMapAgentNotFoundException, RMapEventNotFoundException {
 
 		List<Statement> affectedObjects= new ArrayList<Statement>();
@@ -493,7 +493,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public RMapEventType getEventType (IRI eventId, SesameTriplestore ts) 
+	public RMapEventType getEventType (IRI eventId, Rdf4jTriplestore ts) 
 	throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
@@ -529,7 +529,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public RMapEventTargetType getEventTargetType (IRI eventId, SesameTriplestore ts) 
+	public RMapEventTargetType getEventTargetType (IRI eventId, Rdf4jTriplestore ts) 
 	throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
@@ -575,7 +575,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Date getEventStartDate (IRI eventId, SesameTriplestore ts) 
+	public Date getEventStartDate (IRI eventId, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
 		return getEventDate (eventId, PROV.STARTEDATTIME, ts);
 	}
@@ -589,7 +589,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Date getEventEndDate (IRI eventId, SesameTriplestore ts) 
+	public Date getEventEndDate (IRI eventId, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
 		return getEventDate (eventId, PROV.ENDEDATTIME, ts);
 	}
@@ -604,7 +604,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	private Date getEventDate (IRI eventId, IRI provDateType, SesameTriplestore ts) 
+	private Date getEventDate (IRI eventId, IRI provDateType, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
@@ -643,7 +643,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is CREATION event
 	 */
-	protected boolean isCreationEvent(IRI eventId, SesameTriplestore ts){
+	protected boolean isCreationEvent(IRI eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.CREATION);
 	}
@@ -655,7 +655,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is update event
 	 */
-	protected boolean isUpdateEvent(IRI eventId, SesameTriplestore ts){
+	protected boolean isUpdateEvent(IRI eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.UPDATE);
 	}
@@ -667,7 +667,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is DERIVATION event
 	 */
-	protected boolean isDerivationEvent (IRI eventId, SesameTriplestore ts){
+	protected boolean isDerivationEvent (IRI eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.DERIVATION);
 	}
@@ -679,7 +679,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is inactivate event
 	 */
-	protected boolean isInactivateEvent (IRI eventId, SesameTriplestore ts){
+	protected boolean isInactivateEvent (IRI eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.INACTIVATION);
 	}
@@ -691,7 +691,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is TOMBSTONE event
 	 */
-	protected boolean isTombstoneEvent(IRI eventId, SesameTriplestore ts){
+	protected boolean isTombstoneEvent(IRI eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.TOMBSTONE);
 	}
@@ -703,7 +703,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is DELETION event
 	 */
-	protected boolean isDeleteEvent(IRI eventId, SesameTriplestore ts){
+	protected boolean isDeleteEvent(IRI eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.DELETION);
 	}
@@ -717,7 +717,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
-	protected IRI getEventAssocAgent (IRI event, SesameTriplestore ts) throws RMapException {
+	protected IRI getEventAssocAgent (IRI event, Rdf4jTriplestore ts) throws RMapException {
 		IRI agent = null;
 		Statement stmt = null;
 		try {
@@ -748,7 +748,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the RMap Object creation event statement
 	 * @throws RMapException the RMap exception
 	 */
-	protected Statement getCreateObjEventStmt(IRI iri, SesameTriplestore ts) throws RMapException {
+	protected Statement getCreateObjEventStmt(IRI iri, Rdf4jTriplestore ts) throws RMapException {
 		Statement createEventStmt = null;
 		Set<Statement> stmts = getEventStmtsByPredicate(PROV.GENERATED, iri, ts);
 		//should only be one, convert to single statement.
@@ -767,7 +767,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the update events
 	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getInactivatedObjEventStmt(IRI targetId, SesameTriplestore ts)
+	protected Set<Statement> getInactivatedObjEventStmt(IRI targetId, Rdf4jTriplestore ts)
 			throws RMapException {
 		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.INACTIVATEDOBJECT, targetId, ts);		
 		return stmts;
@@ -782,7 +782,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the update events
 	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getDerivationSourceEventStmt(IRI targetId, SesameTriplestore ts)
+	protected Set<Statement> getDerivationSourceEventStmt(IRI targetId, Rdf4jTriplestore ts)
 			throws RMapException {
 		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.HASSOURCEOBJECT, targetId, ts);
 		return stmts;
@@ -797,7 +797,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param eventPredicate
 	 * @return
 	 */
-	private Set<Statement> getEventStmtsByPredicate(IRI eventPredicate, IRI objectUri, SesameTriplestore ts) {
+	private Set<Statement> getEventStmtsByPredicate(IRI eventPredicate, IRI objectUri, Rdf4jTriplestore ts) {
 
 		Set<Statement> stmts = null;
 		Set<Statement> returnStmts = new HashSet<Statement>();
@@ -825,7 +825,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return new version of DiSCO from Update event or null if not found
 	 */
-	protected IRI getIdOfOldDisco(IRI eventId, SesameTriplestore ts){
+	protected IRI getIdOfOldDisco(IRI eventId, Rdf4jTriplestore ts){
 		IRI sourceDisco = null;
 		Statement stmt = null;
 		try {
@@ -854,7 +854,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return IRI of created DiSCO from UpdateEvent, or null if not found
 	 */
-	protected IRI getIdOfCreatedDisco(IRI updateEventID, SesameTriplestore ts){
+	protected IRI getIdOfCreatedDisco(IRI updateEventID, Rdf4jTriplestore ts){
 		IRI createdDisco = null;
 		Set<Statement> stmts = null;
 		try {
@@ -887,7 +887,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the list of IRIs for Events that created the RMap Object
 	 * @throws RMapException the RMap exception
 	 */
-	protected List<IRI> getMakeObjectEvents(IRI iri, SesameTriplestore ts) throws RMapException {
+	protected List<IRI> getMakeObjectEvents(IRI iri, Rdf4jTriplestore ts) throws RMapException {
 		List<IRI> returnEventIds = new ArrayList<IRI>();
 		try {
 			//PROV.GENERATED used for all created objects

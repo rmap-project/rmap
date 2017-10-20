@@ -27,6 +27,7 @@ import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfIri2URI;
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembers;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
 
 import java.net.URI;
 import java.util.Date;
@@ -34,11 +35,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
@@ -66,12 +67,13 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects;
 import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
+import info.rmapproject.core.utils.Utils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * A concrete class for managing RMap DiSCOs, implemented using openrdf.
+ * A concrete class for managing RMap DiSCOs, implemented using RDF4J.
  *
  * @author khanson
  * @author smorrissey
@@ -109,7 +111,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapDiSCO readDiSCO(IRI discoID, SesameTriplestore ts) 
+	public ORMapDiSCO readDiSCO(IRI discoID, Rdf4jTriplestore ts) 
 	throws RMapTombstonedObjectException, RMapDeletedObjectException, RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		return this.readDiSCO(discoID, ts, false);
 	}
@@ -127,7 +129,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	private ORMapDiSCO readDiSCO(IRI discoID, SesameTriplestore ts, boolean retrieveIfTombstoned) 
+	private ORMapDiSCO readDiSCO(IRI discoID, Rdf4jTriplestore ts, boolean retrieveIfTombstoned) 
 	throws RMapException, RMapDefectiveArgumentException {
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
@@ -177,7 +179,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEvent createDiSCO(ORMapDiSCO disco, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
+	public ORMapEvent createDiSCO(ORMapDiSCO disco, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 			throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException{		
 		// confirm non-null disco
 		if (disco==null){
@@ -190,7 +192,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// get the event started
-		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
+		ORMapEventCreation event = new ORMapEventCreation(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
 		// Create reified statements for aggregrated resources if needed
 		List<Statement> aggResources = disco.getAggregatedResourceStatements();
 		if (aggResources == null){
@@ -204,7 +206,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				ts.beginTransaction();
 			}
 		} catch (Exception e) {
-			throw new RMapException("Unable to begin Sesame transaction: ", e);
+			throw new RMapException("Unable to begin RDF4J transaction: ", e);
 		} 
 		
 		// create triples for all statements in DiSCO
@@ -257,7 +259,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapNotLatestVersionException 
 	 */
 	//try to roll this back!
-	public RMapEvent updateDiSCO(IRI oldDiscoId, ORMapDiSCO disco, RequestEventDetails reqEventDetails,  boolean justInactivate, SesameTriplestore ts) 
+	public RMapEvent updateDiSCO(IRI oldDiscoId, ORMapDiSCO disco, RequestEventDetails reqEventDetails,  boolean justInactivate, Rdf4jTriplestore ts) 
 	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException, RMapNotLatestVersionException {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
@@ -294,9 +296,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		if (justInactivate){
 			// must be same agent
 			if (creatorSameAsOrig){
-				ORMapEventInactivation iEvent = new ORMapEventInactivation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
-				iEvent.setInactivatedObjectId(ORAdapter.openRdfIri2RMapIri(oldDiscoId));
-				iEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(oldDiscoId), ts)));
+				ORMapEventInactivation iEvent = new ORMapEventInactivation(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
+				iEvent.setInactivatedObjectId(ORAdapter.rdf4jIri2RMapIri(oldDiscoId));
+				iEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(oldDiscoId), ts)));
 				event = iEvent;
 			}
 			else {
@@ -315,12 +317,12 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				throw new RMapDefectiveArgumentException("The DiSCO provided has the same identifier as the DiSCO being replaced.");
 			}
 			if (creatorSameAsOrig){
-				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
+				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
 				uEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(oldDiscoId), ts)));
 				event = uEvent;
 			}
 			else {
-				ORMapEventDerivation dEvent = new ORMapEventDerivation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
+				ORMapEventDerivation dEvent = new ORMapEventDerivation(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
 				dEvent.setLineageProgenitor(disco.getId());
 				event = dEvent;
 			}
@@ -334,7 +336,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				ts.beginTransaction();
 			}
 		} catch (Exception e) {
-			throw new RMapException("Unable to begin Sesame transaction: ", e);
+			throw new RMapException("Unable to begin RDF4J transaction: ", e);
 		}
 		do {
 			if (disco==null){
@@ -387,7 +389,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public RMapEvent tombstoneDiSCO(IRI discoId, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
+	public RMapEvent tombstoneDiSCO(IRI discoId, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException {
 		// confirm non-null old disco
 		if (discoId==null){
@@ -407,9 +409,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 			
 		// get the event started
-		ORMapEventTombstone event = new ORMapEventTombstone(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
-		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(discoId), ts)));
-		
+
+		ORMapEventTombstone event = new ORMapEventTombstone(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
+		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(discoId), ts)));
+
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -418,7 +421,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				ts.beginTransaction();
 			}
 		} catch (Exception e) {
-			throw new RMapException("Unable to begin Sesame transaction: ", e);
+			throw new RMapException("Unable to begin RDF4J transaction: ", e);
 		}
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
@@ -446,7 +449,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public RMapEvent deleteDiSCO(IRI discoId, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
+	public RMapEvent deleteDiSCO(IRI discoId, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDeletedObjectException, RMapDefectiveArgumentException {
 		// confirm non-null old disco
 		if (discoId==null){
@@ -468,9 +471,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		ORMapDiSCO disco = readDiSCO(discoId, ts, true);
 		Set<Statement> stmts = disco.getAsModel();
 		// get the event started
-		ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
-		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(discoId), ts)));
-		
+		ORMapEventDeletion event = new ORMapEventDeletion(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
+		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(discoId), ts)));
+	
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -479,7 +482,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				ts.beginTransaction();
 			}
 		} catch (Exception e) {
-			throw new RMapException("Unable to begin Sesame transaction: ", e);
+			throw new RMapException("Unable to begin RDF4J transaction: ", e);
 		}		
 		
 		//remove statements for DiSCO
@@ -511,7 +514,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public RMapStatus getDiSCOStatus(IRI discoId, SesameTriplestore ts) 
+	public RMapStatus getDiSCOStatus(IRI discoId, Rdf4jTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
 		RMapStatus status = null;
 		if (discoId==null){
@@ -569,7 +572,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
-	public IRI getDiSCOAssertingAgent(IRI discoIri, SesameTriplestore ts) 
+	public IRI getDiSCOAssertingAgent(IRI discoIri, Rdf4jTriplestore ts) 
 			throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
 		IRI assocAgent = null;
 		
@@ -595,7 +598,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
-	public Set<IRI> getRelatedAgents(IRI iri, RMapStatus statusCode, SesameTriplestore ts) 
+	public Set<IRI> getRelatedAgents(IRI iri, RMapStatus statusCode, Rdf4jTriplestore ts) 
 	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
 		Set<IRI>agents = new HashSet<IRI>();
 		do {
@@ -632,6 +635,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		return agents;
 	}
 
+
 	/**
 	 * Confirm 2 identifiers refer to the same creating agent since Agents can only update own DiSCO.
 	 *
@@ -641,7 +645,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return true, if is same creator agent
 	 * @throws RMapException the RMap exception
 	 */
-	protected boolean isSameCreatorAgent (IRI discoIri, RequestEventDetails reqEventDetails, SesameTriplestore ts) 
+	protected boolean isSameCreatorAgent (IRI discoIri, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 			throws RMapException {
 		boolean isSame = false;		
 		Statement stmt = eventmgr.getCreateObjEventStmt(discoIri, ts);

@@ -21,14 +21,14 @@ package info.rmapproject.core.vocabulary.impl.openrdf;
 
 import info.rmapproject.core.utils.Terms;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.SimpleNamespace;
-import org.openrdf.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleNamespace;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /**
- * The ORE ontology class implemented using openrdf model
+ * The ORE ontology class implemented using RDF4J model
  * 
  * @author khanson
  */

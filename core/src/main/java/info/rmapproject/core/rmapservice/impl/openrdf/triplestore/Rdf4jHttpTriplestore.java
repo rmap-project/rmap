@@ -20,32 +20,32 @@
 package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
 import info.rmapproject.spring.triplestore.support.TriplestoreInitializer;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.http.HTTPRepository;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class for a Sesame triplestore in which the API is available via an HTTP path.
+ * Class for a RDF4J triplestore in which the API is available via an HTTP path.
  *
  * @author khanson, smorrissey
  */
-public class SesameHttpTriplestore  extends SesameTriplestore{
+public class Rdf4jHttpTriplestore  extends Rdf4jTriplestore{
 
-	private static final Logger LOG = LoggerFactory.getLogger(SesameHttpTriplestore.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Rdf4jHttpTriplestore.class);
 
-	/** The Sesame URL. */
-	private String sesameUrl = "";
+	/** The RDF4J URL. */
+	private String rdf4jUrl = "";
     
-    /** The Sesame repository name. */
-    private String sesameReposName = "";
+    /** The RDF4J repository name. */
+    private String rdf4jReposName = "";
     
-    /** The Sesame user name. */
-    private String sesameUserName = "";
+    /** The RDF4J user name. */
+    private String rdf4jUserName = "";
     
-    /** The Sesame password. */
-    private String sesamePassword = "";
+    /** The RDF4J password. */
+    private String rdf4jPassword = "";
 
 	/**
 	 * Creates a Triplestore if necessary
@@ -53,14 +53,14 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
 	private TriplestoreInitializer triplestoreInitializer;
 	
     /**
-     * Instantiates a new Sesame HTTP triplestore.
+     * Instantiates a new RDF4J HTTP triplestore.
      */
-    public SesameHttpTriplestore()	{
+    public Rdf4jHttpTriplestore()	{
 
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore#intitializeRepository()
+	 * @see info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore#intitializeRepository()
 	 */
 	protected Repository intitializeRepository() throws RepositoryException {
 
@@ -73,10 +73,10 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
 		}
 
 		if (repository == null) {
-			//Create connection to Sesame DB
+			//Create connection to rdf4j DB
 			HTTPRepository rmapHttpRepo = new HTTPRepository(
-					sesameUrl, sesameReposName);
-			rmapHttpRepo.setUsernameAndPassword(sesameUserName, sesamePassword);
+					rdf4jUrl, rdf4jReposName);
+			rmapHttpRepo.setUsernameAndPassword(rdf4jUserName, rdf4jPassword);
 			repository = rmapHttpRepo;
 			repository.initialize();
 		}
@@ -84,36 +84,36 @@ public class SesameHttpTriplestore  extends SesameTriplestore{
 		return repository;
 	}
 
-	public String getSesameUrl() {
-		return sesameUrl;
+	public String getRdf4jUrl() {
+		return rdf4jUrl;
 	}
 
-	public void setSesameUrl(String sesameUrl) {
-		this.sesameUrl = sesameUrl;
+	public void setRdf4jUrl(String rdf4jUrl) {
+		this.rdf4jUrl = rdf4jUrl;
 	}
 
-	public String getSesameReposName() {
-		return sesameReposName;
+	public String getRdf4jReposName() {
+		return rdf4jReposName;
 	}
 
-	public void setSesameReposName(String sesameReposName) {
-		this.sesameReposName = sesameReposName;
+	public void setRdf4jReposName(String rdf4jReposName) {
+		this.rdf4jReposName = rdf4jReposName;
 	}
 
-	public String getSesameUserName() {
-		return sesameUserName;
+	public String getRdf4jUserName() {
+		return rdf4jUserName;
 	}
 
-	public void setSesameUserName(String sesameUserName) {
-		this.sesameUserName = sesameUserName;
+	public void setRdf4jUserName(String rdf4jUserName) {
+		this.rdf4jUserName = rdf4jUserName;
 	}
 
-	public String getSesamePassword() {
-		return sesamePassword;
+	public String getRdf4jPassword() {
+		return rdf4jPassword;
 	}
 
-	public void setSesamePassword(String sesamePassword) {
-		this.sesamePassword = sesamePassword;
+	public void setRdf4jPassword(String rdf4jPassword) {
+		this.rdf4jPassword = rdf4jPassword;
 	}
 
 	public TriplestoreInitializer getTriplestoreInitializer() {

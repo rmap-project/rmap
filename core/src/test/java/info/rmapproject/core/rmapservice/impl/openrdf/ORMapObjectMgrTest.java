@@ -34,12 +34,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
-import org.openrdf.model.IRI;
-//import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-//import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+//import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+//import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -51,6 +51,9 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
@@ -75,14 +78,14 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	ORMapAgentMgr agentMgr;
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#createStatement(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore, org.openrdf.model.Statement)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#createStatement(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore, org.eclipse.rdf4j.model.Statement)}.
 	 */
 	@Test
 	public void testCreateTriple() {
 		try {
 			java.net.URI id1 =null;
 				id1 = rmapIdService.createId();
-			IRI subject = ORAdapter.uri2OpenRdfIri(id1);
+			IRI subject = ORAdapter.uri2Rdf4jIri(id1);
 			IRI predicate = RDF.TYPE;
 			IRI object = RMAP.DISCO;
 			
@@ -105,25 +108,25 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isRMapType(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore, org.openrdf.model.IRI, org.openrdf.model.IRI)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isRMapType(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore, org.eclipse.rdf4j.model.IRI, org.eclipse.rdf4j.model.IRI)}.
 	 */
 	@Test
 	public void testIsRMapType() {
 		try {
 			//check agent type
-			boolean istype = discomgr.isRMapType(triplestore, ORAdapter.uri2OpenRdfIri(reqEventDetails.getSystemAgent()), RMAP.AGENT);
+			boolean istype = discomgr.isRMapType(triplestore, ORAdapter.uri2Rdf4jIri(reqEventDetails.getSystemAgent()), RMAP.AGENT);
 			assertTrue(istype);
 			
 			//check disco type
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			URI dUri = disco.getId().getIri();
-			IRI dIri = ORAdapter.uri2OpenRdfIri(dUri);			
+			IRI dIri = ORAdapter.uri2Rdf4jIri(dUri);			
 			istype = discomgr.isRMapType(triplestore, dIri, RMAP.DISCO);
 			assertTrue(istype);
 			
 			//check event typs
-			IRI eIri = ORAdapter.rMapIri2OpenRdfIri(event.getId());
+			IRI eIri = ORAdapter.rMapIri2Rdf4jIri(event.getId());
 			istype = discomgr.isRMapType(triplestore, eIri, RMAP.EVENT);
 						
 		} catch (RepositoryException e1) {
@@ -137,7 +140,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isEventId(org.openrdf.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isEventId(org.eclipse.rdf4j.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 */
@@ -150,18 +153,18 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()), associatedAgent, resourceList);
+			RMapIri associatedAgent = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
+			ORMapDiSCO disco = new ORMapDiSCO(ORAdapter.uri2Rdf4jIri(rmapIdService.createId()), associatedAgent, resourceList);
 			// Make list of created objects
 			List<IRI> iris = new ArrayList<IRI>();
 			IRI discoContext = disco.getDiscoContext();
 			iris.add(discoContext);
 			List<RMapIri> createdObjIds = new ArrayList<RMapIri>();
 			for (IRI iri:iris){
-				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
+				createdObjIds.add(ORAdapter.rdf4jIri2RMapIri(iri));
 			}
 			
-			ORMapEventCreation event = new ORMapEventCreation(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
+			ORMapEventCreation event = new ORMapEventCreation(ORAdapter.uri2Rdf4jIri(rmapIdService.createId()), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
 			IRI crEventId = eventMgr.createEvent(event, triplestore);
@@ -174,18 +177,17 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isAgentId(org.openrdf.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#isAgentId(org.eclipse.rdf4j.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore)}.
 	 */
 	@Test
 	public void testIsAgentId() throws URISyntaxException {
 		try {
 			createSystemAgent();
-			assertTrue(agentMgr.isAgentId(ORAdapter.uri2OpenRdfIri(new URI(TestConstants.SYSAGENT_ID)), triplestore));
+			assertTrue(agentMgr.isAgentId(ORAdapter.uri2Rdf4jIri(new URI(TestConstants.SYSAGENT_ID)), triplestore));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("could not create test agent.");
 		}		
-		
 	}
 
 }

@@ -33,10 +33,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapException;
@@ -61,7 +61,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 	private static final AtomicInteger counter = new AtomicInteger();
 		
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
 	 * Runs a valid DiSCO through the asDisco process
 	 */
 	@Test
@@ -75,7 +75,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 	}
 	
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
 	 * Runs a valid DiSCO through the asDisco process
 	 */
 	@Test
@@ -90,7 +90,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 	
 	
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
 	 * Runs a DiSCO with a graph that is not connected through the asDisco process - looks for exception
 	 */
 	@Test
@@ -109,7 +109,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 	}
 	
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter#asDisco(java.util.List, Supplier<URI>)}.
 	 * Runs a DiSCO with a graph that has a non-aggregate root i.e. there is a x -> aggregatedResource connection in the graph
 	 */
 	@Test

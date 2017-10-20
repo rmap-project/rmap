@@ -48,7 +48,7 @@ import info.rmapproject.testdata.service.TestConstants;
 public class ORMapAgentMgrTest extends ORMapMgrTest{
 	
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#readAgent(org.openrdf.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#readAgent(org.eclipse.rdf4j.model.IRI, info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws RMapAgentNotFoundException 
@@ -77,7 +77,7 @@ public class ORMapAgentMgrTest extends ORMapMgrTest{
 	
 
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#updateAgent(org.openrdf.model.IRI, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr#updateAgent(org.eclipse.rdf4j.model.IRI, info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws RMapAgentNotFoundException 

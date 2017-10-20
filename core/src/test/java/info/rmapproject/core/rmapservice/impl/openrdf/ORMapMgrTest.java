@@ -29,12 +29,11 @@ import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import org.junit.After;
 import org.junit.Before;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.CoreTestAbstract;
@@ -44,12 +43,13 @@ import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jSailMemoryTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
@@ -66,7 +66,7 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 	protected RMapService rmapService;
 	
 	@Autowired
-	SesameTriplestore triplestore;
+	Rdf4jTriplestore triplestore;
 	
 	/** General use sysagent for testing **/
 	protected ORMapAgent sysagent = null;
@@ -100,7 +100,7 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 	 */
 	@After
 	public void clearTriplestore() throws Exception {
-		if (triplestore instanceof SesameSailMemoryTriplestore) {
+		if (triplestore instanceof Rdf4jSailMemoryTriplestore) {
 			triplestore.getConnection().clear();
 		}
 	}

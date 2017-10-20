@@ -24,8 +24,8 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import java.util.List;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -36,7 +36,7 @@ import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
 
 /**
- * The concrete class representing the Creation Event for the openrdf implementation of RMap
+ * The concrete class representing the Creation Event for the rdf4j implementation of RMap
  *
  * @author khanson, smorrissey
  */

@@ -19,12 +19,12 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.openrdf;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.vocabulary.FOAF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -35,7 +35,7 @@ import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * Concrete class of RMapAgent, specific to OpenRDF object model.
+ * Concrete class of RMapAgent, specific to RDF4j object model.
  *
  * @author khanson, smorrissey
  */
@@ -90,7 +90,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	}
 		
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapObject#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapObject#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() {
@@ -111,7 +111,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (this.nameStmt!= null){
 			Value value = this.nameStmt.getObject();
 			try {
-				name = ORAdapter.openRdfValue2RMapValue(value);
+				name = ORAdapter.rdf4jValue2RMapValue(value);
 			} catch(Exception e) {
 				throw new RMapException("Could not convert Name value to RMapValue");
 			}
@@ -153,7 +153,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (this.idProviderStmt!= null){
 			try {
 				IRI value = (IRI)this.idProviderStmt.getObject();
-				idProvider = ORAdapter.openRdfIri2RMapIri(value);
+				idProvider = ORAdapter.rdf4jIri2RMapIri(value);
 			} catch(Exception e) {
 				throw new RMapException("Could not retrieve ID Provider as RMapValue");
 			}
@@ -194,7 +194,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (this.authIdStmt!= null){
 			try {
 				IRI value = (IRI)this.authIdStmt.getObject();
-				authIdValue = ORAdapter.openRdfIri2RMapIri(value);
+				authIdValue = ORAdapter.rdf4jIri2RMapIri(value);
 			} catch(Exception e) {
 				throw new RMapException("Could not retrieve ID Provider value as RMapIri",e);
 			}

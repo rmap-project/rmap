@@ -26,14 +26,10 @@
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- sesame framework -->
-       <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-runtime</artifactId>
-        </dependency>
-        <!-- note - there are several libraries that are packaged in sesame but an older version is 
-	  	referenced that does not support all sesame functions!  This will probably be fixed in a 
-	  	future version of sesame runtime, for now we need these -->
+		<dependency>
+		    <groupId>org.eclipse.rdf4j</groupId>
+		    <artifactId>rdf4j-runtime</artifactId>
+		</dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

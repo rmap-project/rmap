@@ -19,20 +19,20 @@ import java.util.function.Consumer;
 import static java.util.Collections.emptyMap;
 
 /**
- * Uses the OpenRDF workbench web application to create a triplestore named according to the value of the {@link
- * #getDefaultName() default repository name} (typically this is set by the caller from the {@code sesamehttp.
- * repository.name} system property).  The OpenRDF sesame API is used to clear or remove the triplestore.  (The OpenRDF
- * sesame API does not provide a mechanism for creating a triplestore.)
+ * Uses the RDF4J workbench web application to create a triplestore named according to the value of the {@link
+ * #getDefaultName() default repository name} (typically this is set by the caller from the {@code rdf4jhttp.
+ * repository.name} system property).  The RDF4J API is used to clear or remove the triplestore. (The RDF4J
+ * API does not provide a mechanism for creating a triplestore.)
  * <p>
- * The creation of a triplestore works by submitting a POST against the OpenRDF workbench web application, normally
+ * The creation of a triplestore works by submitting a POST against the RDF4J workbench web application, normally
  * used in an interactive fashion with a browser.
  * </p>
  *
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
-public class SesameTriplestoreManager implements TriplestoreManager {
+public class Rdf4jTriplestoreManager implements TriplestoreManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SesameTriplestoreManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Rdf4jTriplestoreManager.class);
 
     private static final String ERR_CREATE_FAILURE = "Creation of '%s' repository named '%s' failed.";
 
@@ -156,13 +156,13 @@ public class SesameTriplestoreManager implements TriplestoreManager {
     }
 
     /**
-     * Composes the form that is submitted to the OpenRDF Workbench web application for the creation of a Sesame HTTP
+     * Composes the form that is submitted to the RDF4J Workbench web application for the creation of a RDF4J HTTP
      * repository.
      *
      * @param name the name of the repository
      * @param type the type of the repository
      * @param indexes a comma-separated list of indexes to be created for the repository
-     * @return the form body to be submitted to the OpenRDF Workbench
+     * @return the form body to be submitted to the RDF4J Workbench
      */
     private FormBody createRepositoryFormBody(String name, String type, String indexes) {
         return new FormBody.Builder()
@@ -173,7 +173,7 @@ public class SesameTriplestoreManager implements TriplestoreManager {
     }
 
     /**
-     * Returns the URL that accepts a POST for creating the Sesame HTTP repository.
+     * Returns the URL that accepts a POST for creating the RDF4J HTTP repository.
      *
      * @return the URL for creating a repository
      */
@@ -201,7 +201,7 @@ public class SesameTriplestoreManager implements TriplestoreManager {
     }
 
     /**
-     * Returns the URL used to query a Sesame HTTP repository for statements.  The URL is not guaranteed to exist at the
+     * Returns the URL used to query a RDF4J HTTP repository for statements.  The URL is not guaranteed to exist at the
      * time this method is called.  The repostiory needs to be {@link #createTriplestore() created} first.
      *
      * @param name the name of a repository, which may or may not exist

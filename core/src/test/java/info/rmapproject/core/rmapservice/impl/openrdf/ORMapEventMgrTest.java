@@ -35,8 +35,8 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.model.RMapObjectType;
@@ -59,6 +59,8 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdateWithReplace;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -257,7 +259,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventInactivation event = new ORMapEventInactivation(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO);
 			event.setEndTime(new Date());
-			event.setInactivatedObjectId(ORAdapter.openRdfIri2RMapIri(fakeIri1));
+			event.setInactivatedObjectId(ORAdapter.rdf4jIri2RMapIri(fakeIri1));
 			IRI eventIri = eventmgr.createEvent(event, triplestore);
 
 			RMapEventInactivation eventreadback = (RMapEventInactivation) eventmgr.readEvent(eventIri, triplestore);				
@@ -403,8 +405,8 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOB_V1_XML);
 			ORMapEventCreation event = (ORMapEventCreation) discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 
-			IRI discoIri = ORAdapter.rMapIri2OpenRdfIri(disco.getId());
-			IRI eventIri = ORAdapter.rMapIri2OpenRdfIri(event.getId());
+			IRI discoIri = ORAdapter.rMapIri2Rdf4jIri(disco.getId());
+			IRI eventIri = ORAdapter.rMapIri2Rdf4jIri(event.getId());
 			
 			List<IRI> affectedDiscos = eventmgr.getAffectedDiSCOs(eventIri, triplestore);
 			assertEquals(affectedDiscos.size(),1);	
@@ -414,8 +416,8 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOB_V2_XML);
 			RMapEvent updateEvent = discomgr.updateDiSCO(discoIri, disco2, reqEventDetails, false, triplestore);
 			
-			IRI disco2Iri = ORAdapter.rMapIri2OpenRdfIri(disco2.getId());
-			IRI event2Iri = ORAdapter.rMapIri2OpenRdfIri(updateEvent.getId());
+			IRI disco2Iri = ORAdapter.rMapIri2Rdf4jIri(disco2.getId());
+			IRI event2Iri = ORAdapter.rMapIri2Rdf4jIri(updateEvent.getId());
 
 			affectedDiscos = eventmgr.getAffectedDiSCOs(event2Iri, triplestore);
 			

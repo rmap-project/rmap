@@ -24,34 +24,34 @@ package info.rmapproject.core.rmapservice.impl.openrdf.triplestore;
 
 import java.io.File;
 
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.springframework.context.annotation.Scope;
 
 /**
- * Class for a Sesame triplestore in which the data is stored temporarily in a local memory store. 
+ * Class for a RDF4J triplestore in which the data is stored temporarily in a local memory store. 
  * Good for testing or temporary data.
  * 
  * @author khanson, smorrissey
  *
  */
 @Scope("prototype")
-public class SesameSailMemoryTriplestore extends SesameTriplestore {
+public class Rdf4jSailMemoryTriplestore extends Rdf4jTriplestore {
 			
 	/** The data directory location. */
 	private String dataDirectory = "";
 	
 	/**
-	 * Instantiates a new Sesame Sail memory triplestore.
+	 * Instantiates a new RDF4J Sail memory triplestore.
 	 */
-	public SesameSailMemoryTriplestore() {
+	public Rdf4jSailMemoryTriplestore() {
 
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore#intitializeRepository()
+	 * @see info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore#intitializeRepository()
 	 */
 	@Override
 	protected Repository intitializeRepository() throws RepositoryException {

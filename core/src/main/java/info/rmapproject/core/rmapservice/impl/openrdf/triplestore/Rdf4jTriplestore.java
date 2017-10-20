@@ -26,27 +26,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.QueryResults;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.QueryResults;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
- * The abstract class for  Sesame Triplestore
+ * The abstract class for  RDF4J Triplestore
  *
  * @author khanson, smorrissey
  */
-public abstract class SesameTriplestore  {
+public abstract class Rdf4jTriplestore  {
 
     /** true if the triplestore connection is open. */
     protected boolean connectionOpen = false;
@@ -54,24 +54,24 @@ public abstract class SesameTriplestore  {
     /** true if the triplestore transaction is open. */
     protected boolean transactionOpen = false;
         
-    /** An instance of the Sesame repository. */
+    /** An instance of the RDF4J repository. */
     protected static Repository repository = null;
 
-    /** An instance of the Sesame connection. */
+    /** An instance of the RDF4J connection. */
     protected RepositoryConnection connection = null;
 
-    /** An instance of the Sesame Value Factory for instantiating Sesame types (e.g. BNode). */
+    /** An instance of the RDF4J Value Factory for instantiating RDF4J types (e.g. BNode). */
     protected ValueFactory valueFactory = null;
 	
 	/**
-	 * Instantiates a new Sesame triplestore.
+	 * Instantiates a new RDF4J triplestore.
 	 */
-	protected SesameTriplestore()	{}
+	protected Rdf4jTriplestore()	{}
 
 	/**
 	 * Gets the respository instance. Initiates it if it's not already initialized.
 	 *
-	 * @return the Sesame repository instance
+	 * @return the RDF4J repository instance
 	 * @throws RepositoryException the repository exception
 	 */
 	protected Repository getRepository() throws RepositoryException {

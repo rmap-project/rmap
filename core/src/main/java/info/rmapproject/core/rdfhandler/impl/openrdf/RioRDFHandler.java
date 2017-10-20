@@ -30,15 +30,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -64,7 +64,7 @@ import info.rmapproject.core.rdfhandler.RDFType;
 
 /**
  * Class to convert linked data objects in RMap (RMapDiSCO, RMapTriple etc) to raw RDF
- * Implementation of RDFHandler using openrdf's Rio RDF handler.
+ * Implementation of RDFHandler using RDF4J's Rio RDF handler.
  * @author smorrissey, khanson
  */
 public class RioRDFHandler implements RDFHandler {
@@ -140,7 +140,7 @@ public class RioRDFHandler implements RDFHandler {
 		//Need to do last check to make sure IRIs are compatible with java.net.URI format. 
 		//IRI is less restrictive and will allow e.g. /n in URIs.
 		for (Statement stmt:stmts){
-			if (!ORAdapter.isOpenRdfStmtUriCompatible(stmt)){
+			if (!ORAdapter.isRdf4jStmtUriCompatible(stmt)){
 				throw new RMapException("A statement in the RDF contains an invalid URI: " + stmt.toString());
 			}
 		}
@@ -191,9 +191,9 @@ public class RioRDFHandler implements RDFHandler {
 		Model model = new LinkedHashModel();		
 		
 		for (RMapTriple triple:triples){
-			model.add(ORAdapter.rMapResource2OpenRdfResource(triple.getSubject()), 
-						ORAdapter.rMapIri2OpenRdfIri(triple.getPredicate()), 
-						ORAdapter.rMapValue2OpenRdfValue(triple.getObject()));
+			model.add(ORAdapter.rMapResource2Rdf4jResource(triple.getSubject()), 
+						ORAdapter.rMapIri2Rdf4jIri(triple.getPredicate()), 
+						ORAdapter.rMapValue2Rdf4jValue(triple.getObject()));
 		}
 		OutputStream rdf = this.convertStmtListToRDF(model, rdfFormat);
 		return rdf;

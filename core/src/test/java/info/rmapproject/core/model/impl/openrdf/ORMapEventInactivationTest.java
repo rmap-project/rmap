@@ -22,7 +22,7 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -33,13 +33,13 @@ import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DC;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -49,8 +49,10 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
@@ -63,7 +65,7 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 
 	@Autowired	
-	SesameTriplestore triplestore;
+	Rdf4jTriplestore triplestore;
 	
 	@Autowired
 	private IdService rmapIdService;
@@ -81,7 +83,7 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation#ORMapEventInactivation(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.IRI, org.openrdf.model.Statement, org.openrdf.model.Statement)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventInactivation#ORMapEventInactivation(org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.IRI, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws URISyntaxException 
@@ -101,7 +103,7 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 		// create new disco
 		IRI creatorIRI = vf.createIRI("http://orcid.org/0000-0000-0000-0000");
 		
-		IRI context = ORAdapter.uri2OpenRdfIri(id1);
+		IRI context = ORAdapter.uri2Rdf4jIri(id1);
 		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
@@ -121,7 +123,7 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 		
 		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 		
-		IRI oldDiscoId = ORAdapter.uri2OpenRdfIri(id2);
+		IRI oldDiscoId = ORAdapter.uri2Rdf4jIri(id2);
 		Statement sourceObjectStatement = vf.createStatement(context, RMAP.INACTIVATEDOBJECT, oldDiscoId, context);
 		
 		
@@ -130,7 +132,7 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 		Literal litEnd = vf.createLiteral(endTime);
 		Statement endTimeStmt = vf.createStatement(context, PROV.ENDEDATTIME, litEnd, context);
 		
-		IRI associatedKey = ORAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
+		IRI associatedKey = ORAdapter.uri2Rdf4jIri(new java.net.URI("ark:/29297/testkey"));
 		Statement associatedKeyStmt = vf.createStatement(context, PROV.USED, associatedKey, context);	
 		
 		ORMapEventInactivation event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
@@ -143,7 +145,7 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(9, eventModel.size());
-		assertEquals(oldDiscoId,ORAdapter.rMapIri2OpenRdfIri(event.getInactivatedObjectId()));		
+		assertEquals(oldDiscoId,ORAdapter.rMapIri2Rdf4jIri(event.getInactivatedObjectId()));		
 		assertEquals(desc.stringValue(), event.getDescription().getStringValue());
 
 		try{
@@ -172,7 +174,7 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 		}
 		RMapLiteral desc = new RMapLiteral("This is an inactivation event");		
 		RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new URI("ark:/29297/testkey"), desc);
-		ORMapEventInactivation event = new ORMapEventInactivation(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
+		ORMapEventInactivation event = new ORMapEventInactivation(uri2Rdf4jIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
 		Model model = event.getAsModel();
 		assertEquals(7, model.size());
 		
@@ -184,7 +186,7 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
-		IRI inactivatedObject = ORAdapter.uri2OpenRdfIri(id1);
+		IRI inactivatedObject = ORAdapter.uri2Rdf4jIri(id1);
 		event.setInactivatedObjectStmt(inactivatedObject);
 		model = event.getAsModel();
 		assertEquals(8,model.size());

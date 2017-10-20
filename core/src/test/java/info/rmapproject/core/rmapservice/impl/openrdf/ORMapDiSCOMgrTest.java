@@ -42,8 +42,8 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
@@ -62,6 +62,8 @@ import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
 import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.request.RequestEventDetails;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -77,7 +79,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	ORMapDiSCOMgr discomgr;
 	
 	/**
-	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.openrdf.model.IRI, boolean, Map, Map, ORMapEventMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore)}.
+	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr#readDiSCO(org.eclipse.rdf4j.model.IRI, boolean, Map, Map, ORMapEventMgr, info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 */
@@ -95,7 +97,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
 			RMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
@@ -142,7 +144,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
@@ -225,7 +227,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertTrue(event!=null);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
 			RMapIri rIdIRI = rDisco.getId();
 			assertEquals(idIRI.toString(),rIdIRI.toString());
@@ -249,7 +251,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			}
 			//now update with different agent using latest id
 			try{
-				IRI dIri2 = ORAdapter.rMapIri2OpenRdfIri(disco2.getId());
+				IRI dIri2 = ORAdapter.rMapIri2Rdf4jIri(disco2.getId());
 				discomgr.updateDiSCO(dIri2, disco3, reqEventDetails2, false, triplestore);
 			} catch(Exception ex){
 				ex.printStackTrace();
@@ -288,7 +290,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			
 			RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 						
-			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
@@ -416,7 +418,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2OpenRdfIri(idIRI);
+			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
 			RMapIri rIdIRI = rDisco.getId();
 			assertEquals(idIRI.toString(),rIdIRI.toString());
@@ -424,13 +426,13 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			// now update DiSCO	
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri, disco2, reqEventDetails, false, triplestore);
-			IRI dIri2 = ORAdapter.rMapIri2OpenRdfIri(disco2.getId());
+			IRI dIri2 = ORAdapter.rMapIri2Rdf4jIri(disco2.getId());
 			
 			//update again
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri2, disco3, reqEventDetails, false, triplestore);
 			
-			IRI dIri3 = ORAdapter.rMapIri2OpenRdfIri(disco3.getId());
+			IRI dIri3 = ORAdapter.rMapIri2Rdf4jIri(disco3.getId());
 			//update with different agent using latest id
 			ORMapDiSCO disco4 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri3, disco4, reqEventDetails2, false, triplestore);
@@ -487,7 +489,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			URI dUri = disco.getId().getIri();
-			IRI dIri = ORAdapter.uri2OpenRdfIri(dUri);
+			IRI dIri = ORAdapter.uri2Rdf4jIri(dUri);
 			
 			//read DiSCO back
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
@@ -497,7 +499,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri, disco2, reqEventDetails, false, triplestore);
 			URI dUri2 = disco2.getId().getIri();
-			IRI dIri2 = ORAdapter.uri2OpenRdfIri(dUri2);
+			IRI dIri2 = ORAdapter.uri2Rdf4jIri(dUri2);
 			
 			//update again with different agent to do derivation
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);

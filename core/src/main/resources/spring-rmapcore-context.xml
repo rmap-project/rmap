@@ -32,11 +32,11 @@
 	<!-- production triplestore -->
 	<beans profile="http-triplestore">
 		<context:property-placeholder location="classpath*:/http-triplestore.properties" ignore-unresolvable="true"/>
-		<bean primary="true" id="httpTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype">
-			<property name="sesameUrl" value="${sesamehttp.repository.url}"/>
-			<property name="sesameReposName" value="${sesamehttp.repository.name}"/>
-			<property name="sesameUserName" value="${sesamehttp.repository.user}"/>
-			<property name="sesamePassword" value="${sesamehttp.repository.password}"/>
+		<bean primary="true" id="httpTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jHttpTriplestore" scope="prototype">
+			<property name="rdf4jUrl" value="${rdf4jhttp.repository.url}"/>
+			<property name="rdf4jReposName" value="${rdf4jhttp.repository.name}"/>
+			<property name="rdf4jUserName" value="${rdf4jhttp.repository.user}"/>
+			<property name="rdf4jPassword" value="${rdf4jhttp.repository.password}"/>
 		</bean>
 	</beans>
 
@@ -73,8 +73,8 @@
 	<!-- unit tests -->
 	<beans profile="inmemory-triplestore">
 		<context:property-placeholder location="classpath*:/inmemory-triplestore.properties" ignore-unresolvable="true"/>
-		<bean primary="true" id="inMemoryTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore">
-			<property name="dataDirectory" value="${sesamesail.dataDirectory}"/>
+		<bean primary="true" id="inMemoryTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jSailMemoryTriplestore">
+			<property name="dataDirectory" value="${rdf4jsail.dataDirectory}"/>
 		</bean>
 	</beans>
 

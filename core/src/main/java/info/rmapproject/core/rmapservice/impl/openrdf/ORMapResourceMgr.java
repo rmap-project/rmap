@@ -26,21 +26,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import info.rmapproject.core.model.request.OrderBy;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUtils;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jSparqlUtils;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
@@ -63,7 +64,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public List<IRI> getResourceRelatedDiSCOS(IRI resource, RMapSearchParams params, SesameTriplestore ts)
+	public List<IRI> getResourceRelatedDiSCOS(IRI resource, RMapSearchParams params, Rdf4jTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
 		
 	//query gets discoIds and startDates of created DiSCOs that contain Resource
@@ -99,20 +100,20 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public List<IRI> getResourceAssertingAgents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
+	public List<IRI> getResourceAssertingAgents(IRI resource, RMapSearchParams params, Rdf4jTriplestore ts)
 					throws RMapException, RMapDefectiveArgumentException {		
 
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("Null value provided for the Resource IRI");
 		}
 		
-		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		Set<org.eclipse.rdf4j.model.IRI> systemAgents = ORAdapter.uriSet2Rdf4jIriSet(params.getSystemAgents());
 	
-		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
-		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
-		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
-		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String sResource = Rdf4jSparqlUtils.convertIriToSparqlParam(resource);
+		String sysAgentSparql = Rdf4jSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String statusFilterSparql = Rdf4jSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = Rdf4jSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetSparql = Rdf4jSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 
 		StringBuilder sparqlQuery = 
 				new StringBuilder("SELECT DISTINCT ?agentId "
@@ -141,7 +142,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitOffsetSparql);
 
-		List<IRI> assertingAgents = SesameSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "agentId");
+		List<IRI> assertingAgents = Rdf4jSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "agentId");
 		
 		return assertingAgents;
 
@@ -160,19 +161,19 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	protected List<IRI> getRelatedObjects(IRI resource, RMapSearchParams params, SesameTriplestore ts, IRI rmapType)
+	protected List<IRI> getRelatedObjects(IRI resource, RMapSearchParams params, Rdf4jTriplestore ts, IRI rmapType)
 					throws RMapException, RMapDefectiveArgumentException {	
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("Null value provided for the Resource IRI");
 		}
 		
-		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
+		Set<org.eclipse.rdf4j.model.IRI> systemAgents = ORAdapter.uriSet2Rdf4jIriSet(params.getSystemAgents());
 	
-		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
-		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
-		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
-		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String sResource = Rdf4jSparqlUtils.convertIriToSparqlParam(resource);
+		String sysAgentSparql = Rdf4jSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String statusFilterSparql = Rdf4jSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = Rdf4jSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetSparql = Rdf4jSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 
 		StringBuilder sparqlQuery = 
 				new StringBuilder("SELECT DISTINCT ?rmapObjId "
@@ -201,7 +202,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitOffsetSparql);
 		
-		List<IRI> rmapObjectIds = SesameSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "rmapObjId");
+		List<IRI> rmapObjectIds = Rdf4jSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "rmapObjId");
 		
 		return rmapObjectIds;
 
@@ -218,18 +219,18 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public List<IRI> getResourceRelatedEvents(IRI resource, RMapSearchParams params, SesameTriplestore ts)
+	public List<IRI> getResourceRelatedEvents(IRI resource, RMapSearchParams params, Rdf4jTriplestore ts)
 						throws RMapException, RMapDefectiveArgumentException {		
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("null IRI");
 		}
-		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
+		String sResource = Rdf4jSparqlUtils.convertIriToSparqlParam(resource);
 		
-		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
-		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
-		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
-		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		Set<org.eclipse.rdf4j.model.IRI> systemAgents = ORAdapter.uriSet2Rdf4jIriSet(params.getSystemAgents());
+		String sysAgentSparql = Rdf4jSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String dateFilterSparql = Rdf4jSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetSparql = Rdf4jSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String statusFilterSparql = Rdf4jSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
 		
 		//query gets eventIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?eventId ?startDate 
@@ -275,7 +276,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitOffsetSparql);
 		
-		List<IRI> events = SesameSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "eventId");
+		List<IRI> events = Rdf4jSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "eventId");
 		return events;		
 	}
 
@@ -291,7 +292,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapException the RMap exception
 	 */
-	public List<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, SesameTriplestore ts) {
+	public List<Statement> getRelatedTriples(IRI resource, RMapSearchParams params, Rdf4jTriplestore ts) {
 		return getRelatedTriples(resource, null, params, ts);
 	}
 	
@@ -307,21 +308,21 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapException the RMap exception
 	 */
-	public List<Statement> getRelatedTriples(IRI resource, IRI context, RMapSearchParams params, SesameTriplestore ts) 
+	public List<Statement> getRelatedTriples(IRI resource, IRI context, RMapSearchParams params, Rdf4jTriplestore ts) 
 			throws RMapDefectiveArgumentException, RMapException {
 		if (resource==null){
 			throw new RMapDefectiveArgumentException ("null URI");
 		}
 		List<Statement> relatedStmts = new ArrayList<Statement>();	
 
-		Set<IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
-		String sResource = SesameSparqlUtils.convertIriToSparqlParam(resource);
-		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
-		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
-		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetFilterSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
-		String objectTypeFilterSparql = SesameSparqlUtils.convertObjectExclusionsToFilter(params.excludeIRIs(), params.excludeLiterals());
-		String excludeTypesFilterSparql = SesameSparqlUtils.convertTypeExclusionToFilter(params.excludeTypes());
+		Set<IRI> systemAgents = ORAdapter.uriSet2Rdf4jIriSet(params.getSystemAgents());
+		String sResource = Rdf4jSparqlUtils.convertIriToSparqlParam(resource);
+		String sysAgentSparql = Rdf4jSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String statusFilterSparql = Rdf4jSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = Rdf4jSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetFilterSparql = Rdf4jSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String objectTypeFilterSparql = Rdf4jSparqlUtils.convertObjectExclusionsToFilter(params.excludeIRIs(), params.excludeLiterals());
+		String excludeTypesFilterSparql = Rdf4jSparqlUtils.convertTypeExclusionToFilter(params.excludeTypes());
 		
 		//query gets eventIds and startDates of created DiSCOs that contain Resource
 		/*  SELECT DISTINCT ?s ?p ?o ?startDate 
@@ -389,7 +390,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		//if there a context filter was provided, let's be specific about the graph name
 		String query = sparqlQuery.toString();
 		if (context!=null){
-			String graphid = SesameSparqlUtils.convertIriToSparqlParam(context);
+			String graphid = Rdf4jSparqlUtils.convertIriToSparqlParam(context);
 			query = query.replaceAll("\\?rmapObjId", graphid);
 		}
 		
@@ -431,7 +432,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public List<IRI> getResourceRdfTypes(IRI resourceIri, IRI contextIri,  SesameTriplestore ts)
+	public List<IRI> getResourceRdfTypes(IRI resourceIri, IRI contextIri,  Rdf4jTriplestore ts)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (resourceIri==null || contextIri == null || ts == null){
 			throw new RMapDefectiveArgumentException ("Null parameter");
@@ -470,7 +471,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public Map<IRI, Set<IRI>> getResourceRdfTypesAllContexts(IRI resourceIri, RMapSearchParams params, SesameTriplestore ts) 
+	public Map<IRI, Set<IRI>> getResourceRdfTypesAllContexts(IRI resourceIri, RMapSearchParams params, Rdf4jTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (resourceIri==null || ts == null || params == null){
 			throw new RMapDefectiveArgumentException ("Null parameter");
@@ -501,14 +502,14 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 			LIMIT 30 OFFSET 0
 		 */
 
-		Set<org.openrdf.model.IRI> systemAgents = ORAdapter.uriSet2OpenRdfIriSet(params.getSystemAgents());
-		String sResourceIri = SesameSparqlUtils.convertIriToSparqlParam(resourceIri);
-		String sysAgentSparql = SesameSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
-		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
-		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		Set<org.eclipse.rdf4j.model.IRI> systemAgents = ORAdapter.uriSet2Rdf4jIriSet(params.getSystemAgents());
+		String sResourceIri = Rdf4jSparqlUtils.convertIriToSparqlParam(resourceIri);
+		String sysAgentSparql = Rdf4jSparqlUtils.convertSysAgentIriListToSparqlFilter(systemAgents);
+		String statusFilterSparql = Rdf4jSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = Rdf4jSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
 
 		
-		String limitOffsetFilterSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String limitOffsetFilterSparql = Rdf4jSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 		
 		StringBuilder sparqlQuery = 
 				new StringBuilder("SELECT DISTINCT ?rmapObjId ?type "

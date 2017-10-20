@@ -22,8 +22,8 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfIri2RMapIri;
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.rdf4jIri2RMapIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -39,13 +39,13 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DC;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -55,8 +55,11 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
@@ -69,7 +72,7 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 
 	@Autowired
-	SesameTriplestore triplestore;
+	Rdf4jTriplestore triplestore;
 	
 	@Autowired
 	private IdService rmapIdService;
@@ -85,7 +88,7 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.IRI, info.rmapproject.core.model.event.RMapEventTargetType, org.openrdf.model.IRI, org.openrdf.model.IRI)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.eclipse.rdf4j.model.IRI, info.rmapproject.core.model.event.RMapEventTargetType, org.eclipse.rdf4j.model.IRI, org.eclipse.rdf4j.model.IRI)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws URISyntaxException 
@@ -101,7 +104,7 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
-		IRI sourceObject = ORAdapter.uri2OpenRdfIri(id1);
+		IRI sourceObject = ORAdapter.uri2Rdf4jIri(id1);
 		
 		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
 		try {
@@ -112,11 +115,11 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		ORMapDiSCO newDisco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), openRdfIri2RMapIri(associatedAgent), resourceList);
+		ORMapDiSCO newDisco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/1")), rdf4jIri2RMapIri(associatedAgent), resourceList);
 		IRI derivedObject = newDisco.getDiscoContext();
 
 		RequestEventDetails reqEventDetails = new RequestEventDetails(new URI(associatedAgent.stringValue()), new URI("ark:/29297/testkey"));
-		ORMapEventDerivation event = new ORMapEventDerivation(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, sourceObject, derivedObject);
+		ORMapEventDerivation event = new ORMapEventDerivation(uri2Rdf4jIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, sourceObject, derivedObject);
 		Model model = event.getAsModel();
 		int modelSize = model.size();
 		assertEquals(9,modelSize);
@@ -137,7 +140,7 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 	}
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.IRI, org.openrdf.model.Statement, java.util.List, org.openrdf.model.Statement, org.openrdf.model.Statement)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation#ORMapEventDerivation(org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.IRI, org.eclipse.rdf4j.model.Statement, java.util.List, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 * @throws URISyntaxException 
@@ -165,15 +168,15 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 			e.printStackTrace();
 			fail("unable to create resources");
 		}	
-		RMapIri associatedAgent = openRdfIri2RMapIri(creatorIRI);
-		ORMapDiSCO newDisco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/2")), associatedAgent, resourceList);
+		RMapIri associatedAgent = rdf4jIri2RMapIri(creatorIRI);
+		ORMapDiSCO newDisco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/2")), associatedAgent, resourceList);
 		// Make list of created objects
 		List<IRI> iris = new ArrayList<IRI>();
 		IRI newDiscoContext = newDisco.getDiscoContext();
 		iris.add(newDiscoContext);
 		Model model = newDisco.getAsModel();
 		assertEquals(4,model.size());
-		IRI context = ORAdapter.uri2OpenRdfIri(id1);		
+		IRI context = ORAdapter.uri2Rdf4jIri(id1);		
 		Date start = new Date();
 		String startTime = DateUtils.getIsoStringDate(start);
 		
@@ -197,12 +200,12 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 		Literal desc = vf.createLiteral("This is a delete event");
 		Statement descriptionStmt = vf.createStatement(context, DC.DESCRIPTION, desc, context);	
 
-		IRI associatedKey = ORAdapter.uri2OpenRdfIri(new java.net.URI("ark:/29297/testkey"));
+		IRI associatedKey = ORAdapter.uri2Rdf4jIri(new java.net.URI("ark:/29297/testkey"));
 		Statement associatedKeyStmt = vf.createStatement(context, PROV.USED, associatedKey, context);			
 		
 		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 		
-		IRI oldDiscoId = ORAdapter.uri2OpenRdfIri(id2);
+		IRI oldDiscoId = ORAdapter.uri2Rdf4jIri(id2);
 		Statement sourceObjectStatement = vf.createStatement(context, RMAP.HASSOURCEOBJECT, oldDiscoId, context);
 		
 		Statement derivationStatement = vf.createStatement(context, RMAP.DERIVEDOBJECT, newDiscoContext,
@@ -224,8 +227,8 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(11, eventModel.size());
-		assertEquals(oldDiscoId,ORAdapter.rMapIri2OpenRdfIri(event.getSourceObjectId()));
-		assertEquals(newDiscoContext,ORAdapter.rMapIri2OpenRdfIri(event.getDerivedObjectId()));		
+		assertEquals(oldDiscoId,ORAdapter.rMapIri2Rdf4jIri(event.getSourceObjectId()));
+		assertEquals(newDiscoContext,ORAdapter.rMapIri2Rdf4jIri(event.getDerivedObjectId()));		
 		assertEquals(desc.stringValue(), event.getDescription().getStringValue());
 		
 		try{

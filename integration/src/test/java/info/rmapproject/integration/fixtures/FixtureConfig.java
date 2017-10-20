@@ -1,6 +1,6 @@
 package info.rmapproject.integration.fixtures;
 
-import info.rmapproject.spring.triplestore.support.SesameTriplestoreManager;
+import info.rmapproject.spring.triplestore.support.Rdf4jTriplestoreManager;
 import info.rmapproject.spring.triplestore.support.TriplestoreManager;
 import okhttp3.OkHttpClient;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -31,16 +31,16 @@ public class FixtureConfig {
      */
     @Bean
     public TriplestoreManager triplestoreManager() {
-        SesameTriplestoreManager manager = new SesameTriplestoreManager();
-        manager.setDefaultName(env.getProperty("sesamehttp.repository.name"));
+        Rdf4jTriplestoreManager manager = new Rdf4jTriplestoreManager();
+        manager.setDefaultName(env.getProperty("rdf4jhttp.repository.name"));
         manager.setHttpClient(httpClient());
         try {
-            manager.setRepositoryBaseUrl(new URL(env.getProperty("sesamehttp.repository.url")));
+            manager.setRepositoryBaseUrl(new URL(env.getProperty("rdf4jhttp.repository.url")));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         try {
-            manager.setWorkbenchBaseUrl(new URL(env.getProperty("sesamehttp.workbench.url")));
+            manager.setWorkbenchBaseUrl(new URL(env.getProperty("rdf4jhttp.workbench.url")));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

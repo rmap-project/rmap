@@ -28,17 +28,17 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.openrdf.model.BNode;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.FOAF;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.vocabulary.DC;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,7 @@ public class OStatementsAdapter {
             throw new RMapDefectiveArgumentException(NULL_STATEMENTS);
         }
 
-        // Assuming RDF comes in, OpenRDF parser will create a bNode for the DiSCO
+        // Assuming RDF comes in, RDF4J parser will create a bNode for the DiSCO
         // itself, and use that BNode identifier as resource - or
         // possibly also submitter used a local (non-RMap) identifier in RDF
 
@@ -101,7 +101,7 @@ public class OStatementsAdapter {
 
         if (identifiers.officalId == null || identifiers.officalId.stringValue().trim().length() == 0) {
             //if disco has come in without a context, generate ID. This will happen if it's a new disco
-            identifiers.officalId = ORAdapter.uri2OpenRdfIri(idSupplier.get());
+            identifiers.officalId = ORAdapter.uri2Rdf4jIri(idSupplier.get());
         }
 
         ORMapDiSCO disco = new ORMapDiSCO((IRI) identifiers.officalId);
@@ -204,7 +204,7 @@ public class OStatementsAdapter {
 
         if (identifiers.officalId == null || identifiers.officalId.stringValue().trim().length() == 0) {
             //if disco has come in without a context, generate ID. This will happen if it's a new disco
-            identifiers.officalId = ORAdapter.uri2OpenRdfIri(idSupplier.get());
+            identifiers.officalId = ORAdapter.uri2Rdf4jIri(idSupplier.get());
         }
 
         ORMapAgent agent = new ORMapAgent((IRI)identifiers.officalId);
@@ -257,7 +257,7 @@ public class OStatementsAdapter {
     }
 
     /**
-     * Construct ORMapEvent object from OpenRdf Statements.
+     * Construct ORMapEvent object from RDF4J Statements.
      *
      * @param eventStmts the set of statements that form the Event object
      * @return the RMap Event object
@@ -580,7 +580,7 @@ public class OStatementsAdapter {
      
         Set<Resource> startingPoints = new HashSet<Resource>();
         for (URI node : connectingNodes) {
-        	startingPoints.add(ORAdapter.uri2OpenRdfIri(node));
+        	startingPoints.add(ORAdapter.uri2Rdf4jIri(node));
         }
         
         Model stmts = new LinkedHashModel(statements);

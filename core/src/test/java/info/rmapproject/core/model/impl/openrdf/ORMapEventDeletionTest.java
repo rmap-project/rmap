@@ -22,7 +22,7 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -34,13 +34,13 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DC;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -50,8 +50,12 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
@@ -68,7 +72,7 @@ public class ORMapEventDeletionTest extends ORMapCommonEventTest {
 	protected IdService rmapIdService;
 
 	@Autowired
-	protected SesameTriplestore triplestore;
+	protected Rdf4jTriplestore triplestore;
 		
 	protected ValueFactory vf = null;
 	
@@ -81,7 +85,7 @@ public class ORMapEventDeletionTest extends ORMapCommonEventTest {
 	}
 	
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion#ORMapEventDeletion(org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.Statement, org.openrdf.model.IRI, org.openrdf.model.Statement, java.util.List)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.openrdf.ORMapEventDeletion#ORMapEventDeletion(org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.IRI, org.eclipse.rdf4j.model.Statement, java.util.List)}.
 	 */
 	@Test
 	public void testORMapEventDeletionStatementStatementStatementStatementStatementStatementURIStatementListOfStatement() {
@@ -90,7 +94,7 @@ public class ORMapEventDeletionTest extends ORMapCommonEventTest {
 			java.net.URI id1 = null, id2 = null;
 			id1 = rmapIdService.createId();
 			id2 = rmapIdService.createId();
-			IRI context = ORAdapter.uri2OpenRdfIri(id1);
+			IRI context = ORAdapter.uri2Rdf4jIri(id1);
 			
 			Date start = new Date();
 			String startTime = DateUtils.getIsoStringDate(start);
@@ -115,7 +119,7 @@ public class ORMapEventDeletionTest extends ORMapCommonEventTest {
 			
 			Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
 			
-			IRI dId = ORAdapter.uri2OpenRdfIri(id2);
+			IRI dId = ORAdapter.uri2Rdf4jIri(id2);
 			
 			Statement delStmt = vf.createStatement(context, RMAP.DELETEDOBJECT, dId, context);
 			
@@ -157,14 +161,14 @@ public class ORMapEventDeletionTest extends ORMapCommonEventTest {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
+			RMapIri associatedAgent = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			
-			ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
+			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
 			RMapLiteral desc =  new RMapLiteral("this is a deletion event");
 			RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new java.net.URI("ark:/29297/testkey"), desc);
 			
 			IRI discoId = disco.getDiscoContext();
-			ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, discoId);
+			ORMapEventDeletion event = new ORMapEventDeletion(uri2Rdf4jIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, discoId);
 			Date end = new Date();
 			event.setEndTime(end);
 			Model eventModel = event.getAsModel();

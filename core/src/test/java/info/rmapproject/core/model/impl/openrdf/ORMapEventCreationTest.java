@@ -22,7 +22,7 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,20 +38,22 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
-//import info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
@@ -62,7 +64,7 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 public class ORMapEventCreationTest extends ORMapCommonEventTest {
 	@Autowired
-	private SesameTriplestore triplestore;
+	private Rdf4jTriplestore triplestore;
 	
 	@Autowired
 	private ORMapEventMgr eventmgr;
@@ -89,8 +91,8 @@ public class ORMapEventCreationTest extends ORMapCommonEventTest {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
 					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri associatedAgent = ORAdapter.openRdfIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
+			RMapIri associatedAgent = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
+			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/1")), associatedAgent, resourceList);
 			// Make list of created objects
 			List<IRI> iris = new ArrayList<IRI>();
 			IRI discoContext = disco.getDiscoContext();
@@ -99,10 +101,10 @@ public class ORMapEventCreationTest extends ORMapCommonEventTest {
 			assertEquals(4,model.size());
 			List<RMapIri> createdObjIds = new ArrayList<RMapIri>();
 			for (IRI iri:iris){
-				createdObjIds.add(ORAdapter.openRdfIri2RMapIri(iri));
+				createdObjIds.add(ORAdapter.rdf4jIri2RMapIri(iri));
 			}
 			RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri());
-			ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
+			ORMapEventCreation event = new ORMapEventCreation(uri2Rdf4jIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
 			Model eventModel = event.getAsModel();

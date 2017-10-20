@@ -26,9 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -40,7 +40,7 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * The concrete class representing the Update Event for the openrdf implementation of RMap.
+ * The concrete class representing the Update Event for the rdf4j implementation of RMap.
  * @author khanson
  * @author smorrissey
  *
@@ -127,7 +127,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEventWithNewObjects#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
@@ -149,7 +149,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		if (this.inactivatedObjectStatement!= null){
 			try {
 				IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
-				rid = ORAdapter.openRdfIri2RMapIri(iri);
+				rid = ORAdapter.rdf4jIri2RMapIri(iri);
 			} catch (IllegalArgumentException ex){
 				throw new RMapException("Could not retrieve Inactivated Object Id", ex);
 			}
@@ -162,7 +162,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 */
 	@Override
 	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI inactiveIri = ORAdapter.rMapIri2OpenRdfIri(iri);
+		IRI inactiveIri = ORAdapter.rMapIri2Rdf4jIri(iri);
 		this.setInactivatedObjectStmt(inactiveIri);
 	}
 	
@@ -197,7 +197,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 		if (this.derivationStatement!= null){
 			try {
 				IRI iri = (IRI) this.derivationStatement.getObject();
-				rid = ORAdapter.openRdfIri2RMapIri(iri);
+				rid = ORAdapter.rdf4jIri2RMapIri(iri);
 			} catch (IllegalArgumentException ex){
 				throw new RMapException("Could not retrieve Inactivated Object Id", ex);
 			}
@@ -219,7 +219,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 */
 	@Override
 	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
+		IRI derivedIRI = ORAdapter.rMapIri2Rdf4jIri(iri);
 		this.setDerivationStmt(derivedIRI);
 	}
 	

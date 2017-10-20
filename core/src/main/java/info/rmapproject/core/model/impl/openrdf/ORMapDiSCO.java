@@ -24,15 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openrdf.model.BNode;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.vocabulary.DC;
-import org.openrdf.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.vocabulary.DC;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -121,7 +121,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 					IRI resource = (IRI)value;
 					java.net.URI rmapResource = null;
 					try {
-						rmapResource = ORAdapter.openRdfIri2URI(resource);
+						rmapResource = ORAdapter.rdf4jIri2URI(resource);
 					} catch(IllegalArgumentException e) {
 						throw new RMapException("Could not convert Aggregated Resource value to URI",e);
 					}
@@ -137,9 +137,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	}
 
 	/**
-	 * Get list of aggregated resources as list of OpenRDF Statements.
+	 * Get list of aggregated resources as list of RDF4J Statements.
 	 *
-	 * @return list of aggregated resources as list of OpenRDF Statements
+	 * @return list of aggregated resources as list of RDF4J Statements
 	 * @throws RMapException the RMap exception
 	 */
 	public List<Statement> getAggregatedResourceStatements() throws RMapException{
@@ -159,7 +159,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			aggResources = new ArrayList<Statement>();
 			try {
 				for (java.net.URI rmapResource:aggregatedResources){
-					Resource resource = ORAdapter.uri2OpenRdfIri(rmapResource);
+					Resource resource = ORAdapter.uri2Rdf4jIri(rmapResource);
 					Statement newStmt = ORAdapter.getValueFactory().createStatement
 								(this.context, predicate,resource,this.context);
 					aggResources.add(newStmt);
@@ -179,7 +179,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		RMapIri creator = null;
 		if (this.creator != null){
 			try {
-				vCreator = ORAdapter.openRdfValue2RMapValue(this.creator.getObject());
+				vCreator = ORAdapter.rdf4jValue2RMapValue(this.creator.getObject());
 				if (vCreator instanceof RMapIri){
 					creator = (RMapIri)vCreator;
 				}
@@ -211,7 +211,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			IRI predicate = DCTERMS.CREATOR;
 			try {
 				Resource subject = this.context;
-				IRI vcreator = ORAdapter.rMapIri2OpenRdfIri(creator);
+				IRI vcreator = ORAdapter.rMapIri2Rdf4jIri(creator);
 				stmt = ORAdapter.getValueFactory().createStatement(subject,predicate,vcreator,this.context);
 			} catch (Exception e) {
 				throw new RMapException("Exception occurred while setting DiSCO creator", e);
@@ -227,7 +227,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		RMapValue desc = null;
 		if (this.description!=null){
 			try {
-				desc = ORAdapter.openRdfValue2RMapValue(this.description.getObject());
+				desc = ORAdapter.rdf4jValue2RMapValue(this.description.getObject());
 			} catch (Exception e) {
 				throw new RMapException("Error while retrieving DiSCO creator",e);
 			}
@@ -253,7 +253,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			IRI predicate = DC.DESCRIPTION;
 			try {
 				Resource subject = this.context;
-				Value vdesc = ORAdapter.rMapValue2OpenRdfValue(description);
+				Value vdesc = ORAdapter.rMapValue2Rdf4jValue(description);
 				stmt = ORAdapter.getValueFactory().createStatement(subject,predicate,vdesc,this.context);
 			} catch (Exception e) {
 				throw new RMapException("Error while setting DiSCO description: " + e.getMessage(), e);
@@ -304,7 +304,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		RMapIri provGeneratedBy = null;
 		if (this.provGeneratedByStmt != null){
 			try {
-				vProvGeneratedBy = ORAdapter.openRdfValue2RMapValue(this.provGeneratedByStmt.getObject());
+				vProvGeneratedBy = ORAdapter.rdf4jValue2RMapValue(this.provGeneratedByStmt.getObject());
 				provGeneratedBy = (RMapIri)vProvGeneratedBy;
 			} catch (Exception e) {
 				throw new RMapException("prov:generatedBy value could not be retrieved", e);
@@ -331,7 +331,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			IRI predicate = PROV.WASGENERATEDBY;
 			try {
 				Resource subject = this.context;
-				IRI vprovgeneratedby = ORAdapter.rMapIri2OpenRdfIri(provGeneratedBy);
+				IRI vprovgeneratedby = ORAdapter.rMapIri2Rdf4jIri(provGeneratedBy);
 				stmt = ORAdapter.getValueFactory().createStatement(subject,predicate,vprovgeneratedby,this.context);
 			} catch (Exception e) {
 				throw new RMapException("Error while setting prov:generatedBy", e);
@@ -342,7 +342,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapObject#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapObject#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
@@ -381,9 +381,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		if (this.relatedStatements!= null){
 			for (Statement stmt:relatedStatements){
 				try {
-					RMapResource subject = ORAdapter.openRdfResource2RMapResource(stmt.getSubject());
-					RMapIri predicate = ORAdapter.openRdfIri2RMapIri(stmt.getPredicate());
-					RMapValue object = ORAdapter.openRdfValue2RMapValue(stmt.getObject());
+					RMapResource subject = ORAdapter.rdf4jResource2RMapResource(stmt.getSubject());
+					RMapIri predicate = ORAdapter.rdf4jIri2RMapIri(stmt.getPredicate());
+					RMapValue object = ORAdapter.rdf4jValue2RMapValue(stmt.getObject());
 					RMapTriple triple = new RMapTriple(subject, predicate, object);
 					triples.add(triple);
 				} catch (IllegalArgumentException e) {
@@ -417,9 +417,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				IRI predicate = null;
 				Value object = null;
 				try {
-					subject = ORAdapter.rMapResource2OpenRdfResource(triple.getSubject());
-					predicate=ORAdapter.rMapIri2OpenRdfIri(triple.getPredicate());
-					object = ORAdapter.rMapValue2OpenRdfValue(triple.getObject());
+					subject = ORAdapter.rMapResource2Rdf4jResource(triple.getSubject());
+					predicate=ORAdapter.rMapIri2Rdf4jIri(triple.getPredicate());
+					object = ORAdapter.rMapValue2Rdf4jValue(triple.getObject());
 				}
 				catch(IllegalArgumentException e) {
 					throw new RMapException("Error while defining related statements in DiSCO", e);
@@ -476,7 +476,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 							throw new RMapException (e);
 						}
 
-						bReplace = ORAdapter.uri2OpenRdfIri(newId);
+						bReplace = ORAdapter.uri2Rdf4jIri(newId);
 						bnode2iri.put(bSubject, bReplace);
 						newSubject = bReplace;
 					}
@@ -497,7 +497,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 						} catch (Exception e) {
 							throw new RMapException (e);
 						}
-						bReplace = ORAdapter.uri2OpenRdfIri(newId);
+						bReplace = ORAdapter.uri2Rdf4jIri(newId);
 						bnode2iri.put(bObject, bReplace);
 						newObject = bReplace;
 					}

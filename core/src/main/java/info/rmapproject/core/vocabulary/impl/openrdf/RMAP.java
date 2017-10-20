@@ -21,15 +21,15 @@ package info.rmapproject.core.vocabulary.impl.openrdf;
 
 import info.rmapproject.core.utils.Terms;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.SimpleNamespace;
-import org.openrdf.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleNamespace;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /**
  * Vocabulary constants for the RMapProject Metadata Element Set, version 1.0
- * The RMap ontology class implemented using openrdf model
+ * The RMap ontology class implemented using RDF4J model
  * 
  * @see http://purl.org/ontology/rmap
  * @author khanson

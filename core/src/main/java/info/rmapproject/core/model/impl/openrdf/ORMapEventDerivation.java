@@ -26,9 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -40,7 +40,7 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * The concrete class representing the Derivation Event for the openrdf implementation of RMap.
+ * The concrete class representing the Derivation Event for the rdf4j implementation of RMap.
  * @author smorrissey, khanson
  *
  */
@@ -129,7 +129,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEventWithNewObjects#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
@@ -151,7 +151,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		if (this.derivationStatement!= null){
 			try {
 				IRI iri = (IRI) this.derivationStatement.getObject();
-				rid = ORAdapter.openRdfIri2RMapIri(iri);
+				rid = ORAdapter.rdf4jIri2RMapIri(iri);
 			} catch (Exception e) {
 				throw new RMapException("Could not retrieve RMap Event's derived object ID", e);
 			}
@@ -175,7 +175,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	public void setDerivedObjectId(RMapIri iri) throws RMapException {
 		IRI derivedIRI = null;
 		try { 
-			derivedIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
+			derivedIRI = ORAdapter.rMapIri2Rdf4jIri(iri);
 		} catch (IllegalArgumentException e){
 			throw new RMapException("Could not retrieve RMap Event's derived object ID", e);
 		}
@@ -206,7 +206,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		if (this.sourceObjectStatement != null){
 			try {
 				IRI iri = (IRI) this.sourceObjectStatement.getObject();
-				rid = ORAdapter.openRdfIri2RMapIri(iri);
+				rid = ORAdapter.rdf4jIri2RMapIri(iri);
 			} catch (Exception e) {
 				throw new RMapException("Problem while retrieving Event Source Object ID", e);
 			}
@@ -237,7 +237,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		IRI sourceIRI = null;
 		if (iri!=null) {
 			try {
-				sourceIRI = ORAdapter.rMapIri2OpenRdfIri(iri);
+				sourceIRI = ORAdapter.rMapIri2Rdf4jIri(iri);
 			} catch (IllegalArgumentException ex) {
 				throw new RMapDefectiveArgumentException("Source Object ID could not be converted to an IRI",ex);
 			}

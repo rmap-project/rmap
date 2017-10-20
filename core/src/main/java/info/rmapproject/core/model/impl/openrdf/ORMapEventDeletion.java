@@ -19,9 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.openrdf;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -33,7 +33,7 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * The concrete class representing the Deletion Event for the openrdf implementation of RMap.
+ * The concrete class representing the Deletion Event for the rdf4j implementation of RMap.
  *
  * @author khanson
  * @author smorrissey
@@ -101,7 +101,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEvent#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
@@ -126,7 +126,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 		if (this.deleted!= null){
 			try {
 				IRI tIri = (IRI) this.deleted.getObject();
-				iri = ORAdapter.openRdfIri2RMapIri(tIri);
+				iri = ORAdapter.rdf4jIri2RMapIri(tIri);
 			} catch (IllegalArgumentException ex){
 				throw new RMapException("Could not retrieve Deleted Resource ID",ex);
 			}
@@ -155,7 +155,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	public void setDeletedObjectId(RMapIri iri) throws RMapException {
 		IRI deletedIri = null;
 		try { 
-			deletedIri = ORAdapter.rMapIri2OpenRdfIri(iri);
+			deletedIri = ORAdapter.rMapIri2Rdf4jIri(iri);
 		} catch (IllegalArgumentException e){
 			throw new RMapException("Could not retrieve RMap Event's deleted object ID", e);
 		}

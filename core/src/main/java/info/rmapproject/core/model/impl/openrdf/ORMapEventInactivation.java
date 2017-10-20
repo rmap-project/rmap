@@ -31,12 +31,12 @@ import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
 
 /**
- * The concrete class representing the Inactivation Event for the openrdf implementation of RMap.
+ * The concrete class representing the Inactivation Event for the rdf4j implementation of RMap.
  * @author smorrissey
  * @author khanson
  *
@@ -111,7 +111,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 		if (this.inactivatedObjectStatement!= null){
 			try {
 			IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
-			rid = ORAdapter.openRdfIri2RMapIri(iri);
+			rid = ORAdapter.rdf4jIri2RMapIri(iri);
 			} catch (IllegalArgumentException ex){
 				throw new RMapException("Inactivated object ID could not be converted.",ex);
 			}
@@ -134,7 +134,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	 */
 	@Override
 	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI inactiveIri = ORAdapter.rMapIri2OpenRdfIri(iri);
+		IRI inactiveIri = ORAdapter.rMapIri2Rdf4jIri(iri);
 		this.setInactivatedObjectStmt(inactiveIri);
 	}
 
@@ -154,7 +154,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEvent#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {

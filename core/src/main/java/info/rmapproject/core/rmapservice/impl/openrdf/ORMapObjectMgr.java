@@ -26,19 +26,19 @@ import java.net.URI;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.idservice.IdService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * An abstract class for openrdf versions of RMap Objects, implemented using openrdf
+ * An abstract class for RDF4J versions of RMap Objects, implemented using RDF4J
  *
  * @author khanson
  * @author smorrissey
@@ -58,7 +58,7 @@ public abstract class ORMapObjectMgr {
 	 * @param stmt the statement to be persisted
 	 * @throws RMapException the RMap exception
 	 */
-	public void createStatement(SesameTriplestore ts, Statement stmt) throws RMapException {
+	public void createStatement(Rdf4jTriplestore ts, Statement stmt) throws RMapException {
 		try {
 			ts.addStatement(stmt);
 		} catch (Exception e) {
@@ -75,7 +75,7 @@ public abstract class ORMapObjectMgr {
 	 * @return true, if the id parameter has the type specified in typeIRI
 	 * @throws RMapException the RMap exception
 	 */
-	public boolean isRMapType(SesameTriplestore ts, IRI id, IRI typeIRI) throws RMapException {
+	public boolean isRMapType(Rdf4jTriplestore ts, IRI id, IRI typeIRI) throws RMapException {
 		if (ts==null || id==null || typeIRI==null){
 			throw new RMapException("Null parameter passed");
 		}
@@ -112,7 +112,7 @@ public abstract class ORMapObjectMgr {
 	 * @return true, if the IRI is a DiSCO IRI
 	 * @throws RMapException the RMap exception
 	 */
-	public boolean isDiscoId(IRI id, SesameTriplestore ts) throws RMapException {	
+	public boolean isDiscoId(IRI id, Rdf4jTriplestore ts) throws RMapException {	
 		return this.isRMapType(ts, id, RMAP.DISCO);		
 	}
 	
@@ -124,7 +124,7 @@ public abstract class ORMapObjectMgr {
 	 * @return true, if the IRI is a Event IRI
 	 * @throws RMapException the RMap exception
 	 */
-	public boolean isEventId (IRI id, SesameTriplestore ts) throws RMapException {	
+	public boolean isEventId (IRI id, Rdf4jTriplestore ts) throws RMapException {	
 		return this.isRMapType(ts, id, RMAP.EVENT);
 	}
 	
@@ -136,7 +136,7 @@ public abstract class ORMapObjectMgr {
 	 * @return true, if the IRI is an Agent IRI
 	 * @throws RMapException the RMap exception
 	 */
-	public boolean isAgentId(IRI id, SesameTriplestore ts) throws RMapException {	
+	public boolean isAgentId(IRI id, Rdf4jTriplestore ts) throws RMapException {	
 		return this.isRMapType(ts, id, RMAP.AGENT);		
 	}
 	
@@ -150,7 +150,7 @@ public abstract class ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getNamedGraph(IRI id, SesameTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+	protected Set<Statement> getNamedGraph(IRI id, Rdf4jTriplestore ts) throws RMapObjectNotFoundException, RMapException {
 		Set<Statement> matchingTriples = null;
 		try {
 			matchingTriples = ts.getStatements(null, null, null, false, id);     

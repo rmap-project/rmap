@@ -22,11 +22,11 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findDerivativesfrom;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembers;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembersWithDates;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -66,10 +66,10 @@ import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.model.request.ResultBatchImpl;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 
 /**
- * The concrete class for RMap Service, implemented using openrdf
+ * The concrete class for RMap Service, implemented using RDF4J
  *
  * @author khanson
  * @author smorrissey
@@ -92,10 +92,10 @@ public class ORMapService implements RMapService {
 	/** Instance of the RMap Event Manager */
 	private ORMapEventMgr eventmgr;
 	
-	/** An instance of the sesame triplestore for database changes.
+	/** An instance of the RDF4J triplestore for database changes.
 	 * It is declared in the ORMapService so that it can be passed to multiple functions
 	 * across a single interaction */
-	private SesameTriplestore triplestore;
+	private Rdf4jTriplestore triplestore;
 
 	private RMapSearchParamsFactory paramsFactory;
 
@@ -109,7 +109,7 @@ public class ORMapService implements RMapService {
 	 * @param agentmgr the RMap Agent Manager
 	 * @param statementmgr the RMap Statement Manager
 	 * @param eventmgr the RMap Event Manager
-	 * @param triplestore the Sesame triplestore
+	 * @param triplestore the triplestore
 	 * @param idService used to generate and assign identifiers to newly created RMap objects
 	 */
 	@Autowired
@@ -118,7 +118,7 @@ public class ORMapService implements RMapService {
 						ORMapAgentMgr agentmgr,
 						ORMapStatementMgr statementmgr,
 						ORMapEventMgr eventmgr,
-						SesameTriplestore triplestore,
+						Rdf4jTriplestore triplestore,
 						RMapSearchParamsFactory paramsFactory,
 						IdService idService) {
 		this.resourcemgr = resourcemgr;
@@ -175,8 +175,8 @@ public class ORMapService implements RMapService {
 			if (params==null){
 				params = paramsFactory.newInstance();
 			}
-			org.openrdf.model.IRI mIri = uri2OpenRdfIri(uri);
-			org.openrdf.model.IRI mContextIri = uri2OpenRdfIri(context);
+			org.eclipse.rdf4j.model.IRI mIri = uri2Rdf4jIri(uri);
+			org.eclipse.rdf4j.model.IRI mContextIri = uri2Rdf4jIri(context);
 					
 			List<Statement> stmts;
 			
@@ -190,7 +190,7 @@ public class ORMapService implements RMapService {
 			
 			List<RMapTriple> triples = new ArrayList<RMapTriple>();
 			for (Statement stmt:stmts){
-				RMapTriple triple = ORAdapter.openRdfStatement2RMapTriple(stmt);
+				RMapTriple triple = ORAdapter.rdf4jStatement2RMapTriple(stmt);
 				triples.add(triple);
 			}
 			
@@ -265,15 +265,15 @@ public class ORMapService implements RMapService {
 		if (discoUri==null){
 			throw new RMapDefectiveArgumentException("Null context URI");
 		}
-		org.openrdf.model.IRI resourceIri = uri2OpenRdfIri(resourceUri);
-		org.openrdf.model.IRI contextIri = uri2OpenRdfIri(discoUri);
+		org.eclipse.rdf4j.model.IRI resourceIri = uri2Rdf4jIri(resourceUri);
+		org.eclipse.rdf4j.model.IRI contextIri = uri2Rdf4jIri(discoUri);
 
 		try {
-			List<org.openrdf.model.IRI> uris = resourcemgr.getResourceRdfTypes(resourceIri, contextIri, triplestore);
+			List<org.eclipse.rdf4j.model.IRI> uris = resourcemgr.getResourceRdfTypes(resourceIri, contextIri, triplestore);
 			if (uris == null){
 				return null;
 			}
-			List<URI> returnSet = ORAdapter.openRdfIriList2UriList(uris);
+			List<URI> returnSet = ORAdapter.rdf4jIriList2UriList(uris);
 			return returnSet;
 		}
 		finally {
@@ -294,7 +294,7 @@ public class ORMapService implements RMapService {
 		if (params==null){
 			params = paramsFactory.newInstance();
 		}
-		IRI rUri = uri2OpenRdfIri(resourceUri);
+		IRI rUri = uri2Rdf4jIri(resourceUri);
 		Map<URI, Set<URI>> map = null;
 		try {
 			Map<IRI, Set<IRI>> typesMap = resourcemgr.getResourceRdfTypesAllContexts(rUri, params, triplestore);
@@ -302,8 +302,8 @@ public class ORMapService implements RMapService {
 				map = new HashMap<URI, Set<URI>>();
 				for (IRI uri : typesMap.keySet()){
 					Set<IRI> types = typesMap.get(uri);
-					URI key = ORAdapter.openRdfIri2URI(uri);
-					Set<URI> values = ORAdapter.openRdfIriSet2UriSet(types);
+					URI key = ORAdapter.rdf4jIri2URI(uri);
+					Set<URI> values = ORAdapter.rdf4jIriSet2UriSet(types);
 					map.put(key, values);
 				}				
 			}
@@ -343,7 +343,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("Null DiSCO id provided");
 		}
 		try {
-			ORMapDiSCO disco = discomgr.readDiSCO(uri2OpenRdfIri(discoID), triplestore);
+			ORMapDiSCO disco = discomgr.readDiSCO(uri2Rdf4jIri(discoID), triplestore);
 			return disco;
 		} finally {
 			closeConnection();
@@ -383,7 +383,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("Null DiSCO id provided");
 		}
 		try {
-			RMapStatus status = discomgr.getDiSCOStatus(uri2OpenRdfIri(discoId), triplestore);
+			RMapStatus status = discomgr.getDiSCOStatus(uri2Rdf4jIri(discoId), triplestore);
 			return status;
 		} finally {
 			closeConnection();
@@ -412,7 +412,7 @@ public class ORMapService implements RMapService {
 		RMapEvent updateEvent = null;
 		try {
 			updateEvent = discomgr.updateDiSCO(
-										uri2OpenRdfIri(oldDiscoId),
+										uri2Rdf4jIri(oldDiscoId),
 										(ORMapDiSCO)disco, 
 										reqEventDetails,
 										false, 
@@ -447,7 +447,7 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent inactivateEvent = null;
 		try {
-			inactivateEvent = discomgr.updateDiSCO(uri2OpenRdfIri(oldDiscoId), null, reqEventDetails, true, triplestore);
+			inactivateEvent = discomgr.updateDiSCO(uri2Rdf4jIri(oldDiscoId), null, reqEventDetails, true, triplestore);
 		} catch (RMapException | RMapDefectiveArgumentException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction
@@ -476,7 +476,7 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent tombstoneEvent = null;
 		try {
-			tombstoneEvent = discomgr.tombstoneDiSCO(uri2OpenRdfIri(discoID), reqEventDetails, triplestore);
+			tombstoneEvent = discomgr.tombstoneDiSCO(uri2Rdf4jIri(discoID), reqEventDetails, triplestore);
 		} catch (RMapException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction
@@ -506,7 +506,7 @@ public class ORMapService implements RMapService {
 		}
 		RMapEvent deleteEvent = null;
 		try {
-			deleteEvent = discomgr.deleteDiSCO(uri2OpenRdfIri(discoID), requestEventDets, triplestore);
+			deleteEvent = discomgr.deleteDiSCO(uri2Rdf4jIri(discoID), requestEventDets, triplestore);
 		} catch (RMapException ex) {
 			try {
 				//there has been an error during an update so try to rollback the transaction
@@ -627,8 +627,8 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
 		}
 		try {
-			List<IRI> events = eventmgr.getDiscoRelatedEventIds(uri2OpenRdfIri(discoID), triplestore);
-			List<URI> uris = ORAdapter.openRdfIriList2UriList(events);
+			List<IRI> events = eventmgr.getDiscoRelatedEventIds(uri2Rdf4jIri(discoID), triplestore);
+			List<URI> uris = ORAdapter.rdf4jIriList2UriList(events);
 			return uris;
 		} finally {
 			closeConnection();
@@ -645,7 +645,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("Null event id");
 		}
 		try {
-			return eventmgr.readEvent(uri2OpenRdfIri(eventId), triplestore);
+			return eventmgr.readEvent(uri2Rdf4jIri(eventId), triplestore);
 		} finally {
 			closeConnection();
 		}
@@ -660,8 +660,8 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("Null event id");
 		}
 		try {
-			List<IRI> resources = eventmgr.getAffectedResources(uri2OpenRdfIri(eventID), triplestore);
-			List<URI> resourceIds = ORAdapter.openRdfIriList2UriList(resources);
+			List<IRI> resources = eventmgr.getAffectedResources(uri2Rdf4jIri(eventID), triplestore);
+			List<URI> resourceIds = ORAdapter.rdf4jIriList2UriList(resources);
 			return resourceIds;
 		} finally {
 			closeConnection();
@@ -677,8 +677,8 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("Null event id");
 		}
 		try {
-			List<IRI> discos = eventmgr.getAffectedDiSCOs(uri2OpenRdfIri(eventID), triplestore);
-			List<URI> discoIds = ORAdapter.openRdfIriList2UriList(discos);
+			List<IRI> discos = eventmgr.getAffectedDiSCOs(uri2Rdf4jIri(eventID), triplestore);
+			List<URI> discoIds = ORAdapter.rdf4jIriList2UriList(discos);
 			return discoIds;
 		} finally {
 			closeConnection();
@@ -694,8 +694,8 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("Null event id");
 		}
 		try {
-			List<IRI> agents = eventmgr.getAffectedAgents(uri2OpenRdfIri(eventID), triplestore);
-			List<URI> agentIds = ORAdapter.openRdfIriList2UriList(agents);
+			List<IRI> agents = eventmgr.getAffectedAgents(uri2Rdf4jIri(eventID), triplestore);
+			List<URI> agentIds = ORAdapter.rdf4jIriList2UriList(agents);
 			return agentIds;
 		} finally {
 			closeConnection();
@@ -712,7 +712,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException("Null agentid");
 		}
 		try {
-			ORMapAgent agent = agentmgr.readAgent(uri2OpenRdfIri(agentId), triplestore);
+			ORMapAgent agent = agentmgr.readAgent(uri2Rdf4jIri(agentId), triplestore);
 			return agent;
 		} finally {
 			closeConnection();
@@ -776,9 +776,9 @@ public class ORMapService implements RMapService {
 		}
 				
 		Value nameValue = ORAdapter.getValueFactory().createLiteral(name);
-		IRI oAgentId = uri2OpenRdfIri(agentID);
-		IRI oIdentityProvider = uri2OpenRdfIri(identityProvider);
-		IRI oAuthKeyUri = uri2OpenRdfIri(authKeyUri);
+		IRI oAgentId = uri2Rdf4jIri(agentID);
+		IRI oIdentityProvider = uri2Rdf4jIri(identityProvider);
+		IRI oAuthKeyUri = uri2Rdf4jIri(authKeyUri);
 		RMapAgent agent = new ORMapAgent(oAgentId, oIdentityProvider, oAuthKeyUri, nameValue);
 		RMapEvent event = createAgent(agent, reqEventDetails);
 		return event;
@@ -803,9 +803,9 @@ public class ORMapService implements RMapService {
 		RMapEvent event = null;
 		try {
 			Value rName = ORAdapter.getValueFactory().createLiteral(name);
-			IRI rIdentityProvider = uri2OpenRdfIri(identityProvider);
-			IRI rAuthKeyUri = uri2OpenRdfIri(authKeyUri);
-			RMapAgent agent = new ORMapAgent(uri2OpenRdfIri(idService.createId()), rIdentityProvider, rAuthKeyUri, rName);
+			IRI rIdentityProvider = uri2Rdf4jIri(identityProvider);
+			IRI rAuthKeyUri = uri2Rdf4jIri(authKeyUri);
+			RMapAgent agent = new ORMapAgent(uri2Rdf4jIri(idService.createId()), rIdentityProvider, rAuthKeyUri, rName);
 			RequestEventDetails reqEventDetails = new RequestEventDetails(new URI(agent.getId().toString()));
 			event = createAgent(agent, reqEventDetails);
 		} catch (URISyntaxException e) {
@@ -875,9 +875,9 @@ public class ORMapService implements RMapService {
 		}
 		
 		Value nameValue = ORAdapter.getValueFactory().createLiteral(name);
-		IRI oAgentId = uri2OpenRdfIri(agentID);
-		IRI oIdentityProvider = uri2OpenRdfIri(identityProvider);
-		IRI oAuthKeyUri = uri2OpenRdfIri(authKeyUri);
+		IRI oAgentId = uri2Rdf4jIri(agentID);
+		IRI oIdentityProvider = uri2Rdf4jIri(identityProvider);
+		IRI oAuthKeyUri = uri2Rdf4jIri(authKeyUri);
 		RMapAgent agent = new ORMapAgent(oAgentId, oIdentityProvider, oAuthKeyUri, nameValue);
 		RMapEvent event = updateAgent(agent, reqEventDetails);
 		return event;
@@ -903,13 +903,13 @@ public class ORMapService implements RMapService {
 	@Override
 	public List<URI> getAgentEvents(URI agentId) throws RMapException,
 			RMapDefectiveArgumentException, RMapAgentNotFoundException {
-		IRI uri = uri2OpenRdfIri(agentId);
+		IRI uri = uri2Rdf4jIri(agentId);
 		if (agentId==null){
 			throw new RMapDefectiveArgumentException("Null agentId");
 		}
 		try {
 			List<IRI> eventset = eventmgr.getAgentRelatedEventIds(uri, triplestore);		
-			List <URI> eventUris = ORAdapter.openRdfIriList2UriList(eventset);
+			List <URI> eventUris = ORAdapter.rdf4jIriList2UriList(eventset);
 			return eventUris;
 		} finally {
 			closeConnection();
@@ -938,7 +938,7 @@ public class ORMapService implements RMapService {
 		if (agentId==null){
 			throw new RMapDefectiveArgumentException ("Null agentId");
 		}
-		IRI id = uri2OpenRdfIri(agentId);
+		IRI id = uri2Rdf4jIri(agentId);
 		try {
 			RMapStatus status = agentmgr.getAgentStatus(id, triplestore);
 			return status;
@@ -956,7 +956,7 @@ public class ORMapService implements RMapService {
 		if (agentId==null){
 			throw new RMapDefectiveArgumentException ("Null Agent ID");
 		}
-		IRI id = uri2OpenRdfIri(agentId);
+		IRI id = uri2Rdf4jIri(agentId);
 		try {
 			boolean isAgentId = agentmgr.isAgentId(id, triplestore);
 			return isAgentId;
@@ -973,7 +973,7 @@ public class ORMapService implements RMapService {
 		if (eventId==null){
 			throw new RMapDefectiveArgumentException ("Null Event ID");
 		}
-		IRI id = uri2OpenRdfIri(eventId);
+		IRI id = uri2Rdf4jIri(eventId);
 		try {
 			boolean isEventId = eventmgr.isEventId(id, triplestore);
 			return isEventId;
@@ -990,7 +990,7 @@ public class ORMapService implements RMapService {
 		if (discoId==null){
 			throw new RMapDefectiveArgumentException ("Null DiSCO ID");
 		}
-		IRI id = uri2OpenRdfIri(discoId);
+		IRI id = uri2Rdf4jIri(discoId);
 		try {
 			boolean isDiSCOId = discomgr.isDiscoId(id, triplestore);
 			return isDiSCOId;
@@ -1005,7 +1005,7 @@ public class ORMapService implements RMapService {
 	 */
 	@FunctionalInterface
 	private interface UriBatchRequest {
-	  public List<IRI> retrieve(IRI uri, RMapSearchParams params, SesameTriplestore triplestore);
+	  public List<IRI> retrieve(IRI uri, RMapSearchParams params, Rdf4jTriplestore triplestore);
 	}
 	
 	
@@ -1024,15 +1024,15 @@ public class ORMapService implements RMapService {
 		if (params==null){
 			params = paramsFactory.newInstance();
 		}
-		org.openrdf.model.IRI resource = uri2OpenRdfIri(uri);
+		org.eclipse.rdf4j.model.IRI resource = uri2Rdf4jIri(uri);
 		
 		//set flag to check for next batch (this will get one extra record over requested amount)
 		params.setCheckNext(true);
 		
 		try {
-			List<org.openrdf.model.IRI> iris = uriBatchRequest.retrieve(resource, params, triplestore);
+			List<org.eclipse.rdf4j.model.IRI> iris = uriBatchRequest.retrieve(resource, params, triplestore);
 			
-			List<URI> uris = ORAdapter.openRdfIriList2UriList(iris);
+			List<URI> uris = ORAdapter.rdf4jIriList2UriList(iris);
 			
 			//if records go up to limit, there are more records to be retrieved
 			boolean hasNext = (uris.size()>params.getLimit());
@@ -1054,7 +1054,7 @@ public class ORMapService implements RMapService {
 	 */
 	@FunctionalInterface
 	private interface StmtUriBatchRequest {
-	  public List<IRI> retrieve(IRI subject, IRI predicate, Value object, RMapSearchParams params, SesameTriplestore triplestore);
+	  public List<IRI> retrieve(IRI subject, IRI predicate, Value object, RMapSearchParams params, Rdf4jTriplestore triplestore);
 	}
 	
 	/**
@@ -1083,16 +1083,16 @@ public class ORMapService implements RMapService {
 		if (params==null){
 			params = paramsFactory.newInstance();
 		}
-		IRI orSubject = uri2OpenRdfIri(subject);
-		IRI orPredicate = uri2OpenRdfIri(predicate);
-		Value orObject = ORAdapter.rMapValue2OpenRdfValue(object);
+		IRI orSubject = uri2Rdf4jIri(subject);
+		IRI orPredicate = uri2Rdf4jIri(predicate);
+		Value orObject = ORAdapter.rMapValue2Rdf4jValue(object);
 		
 		//set flag to check for next
 		params.setCheckNext(true);
 
 		try {
-			List<org.openrdf.model.IRI> iris = uriBatchRequest.retrieve(orSubject, orPredicate, orObject, params, triplestore);
-			List<URI> uris = ORAdapter.openRdfIriList2UriList(iris);
+			List<org.eclipse.rdf4j.model.IRI> iris = uriBatchRequest.retrieve(orSubject, orPredicate, orObject, params, triplestore);
+			List<URI> uris = ORAdapter.rdf4jIriList2UriList(iris);
 			
 			//if records are greater than limit, there are more records to be retrieved
 			boolean hasNext = (uris.size()>params.getLimit());

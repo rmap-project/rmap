@@ -19,11 +19,11 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.openrdf;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -34,7 +34,7 @@ import info.rmapproject.core.model.RMapObjectType;
 import java.io.Serializable;
 
 /**
- * Base class for OpenRDF implementation classes of RMapObjects.
+ * Base class for RDF4j implementation classes of RMapObjects.
  *
  * @author khanson, smorrissey
  */
@@ -73,7 +73,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 		RMapIri id = null;
 		if (this.id!=null){
 			try {
-				id = ORAdapter.openRdfIri2RMapIri(this.id);
+				id = ORAdapter.rdf4jIri2RMapIri(this.id);
 			} catch (Exception e) {
 				throw new RMapException("Could not retrieve a valid ID for RMap object", e);
 			}
@@ -94,7 +94,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 	}
 
 	/**
-	 * Gets the object as an openrdf model. This is basically a Set of openrdf Statements
+	 * Gets the object as an RDF4J model. This is basically a Set of RDF4J Statements
 	 * @return the object model
 	 * @throws RMapException the RMap exception
 	 */
@@ -121,7 +121,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 			throw new RMapException("The object ID and context value must be set before creating a type statement");
 		}
 		try {
-			IRI typeIri = ORAdapter.rMapIri2OpenRdfIri(type.getPath());
+			IRI typeIri = ORAdapter.rMapIri2Rdf4jIri(type.getPath());
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.id, RDF.TYPE, typeIri, this.context);
 			this.typeStatement = stmt;
 		} catch (Exception e) {
@@ -137,7 +137,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 		try {
 			Value v = this.getTypeStatement().getObject();
 			IRI vIri = (IRI)v;
-			RMapIri iri = ORAdapter.openRdfIri2RMapIri(vIri);
+			RMapIri iri = ORAdapter.rdf4jIri2RMapIri(vIri);
 			type = RMapObjectType.getObjectType(iri);
 		} catch (Exception ex){
 			throw new RMapException("Type statement object could not convert to an IRI",ex);						

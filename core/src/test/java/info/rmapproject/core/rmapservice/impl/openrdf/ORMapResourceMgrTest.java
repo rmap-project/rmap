@@ -39,9 +39,9 @@ import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -53,6 +53,8 @@ import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
 import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapStatusFilter;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
+import info.rmapproject.core.rmapservice.impl.openrdf.ORMapResourceMgr;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
@@ -185,9 +187,9 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			
 			//get related events
 			RMapIri eventId = event.getId();
-			IRI discoId = ORAdapter.rMapIri2OpenRdfIri(disco.getId());
+			IRI discoId = ORAdapter.rMapIri2Rdf4jIri(disco.getId());
 			RMapEvent updateEvent = discomgr.updateDiSCO(discoId, disco2, reqEventDetails, false, triplestore);
-			IRI updateEventId = ORAdapter.rMapIri2OpenRdfIri(updateEvent.getId());
+			IRI updateEventId = ORAdapter.rMapIri2Rdf4jIri(updateEvent.getId());
 			
 			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 			Set <URI> sysAgents = new HashSet<URI>();
@@ -274,7 +276,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 		try {
 
 			java.net.URI context = rmapIdService.createId();
-			IRI resource01 = ORAdapter.uri2OpenRdfIri(context);
+			IRI resource01 = ORAdapter.uri2Rdf4jIri(context);
 			context = rmapIdService.createId();
 			IRI resource02 = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
 			
@@ -321,7 +323,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			
 			URI uri = new URI(TestConstants.TEST_DISCO_DOI);
 			
-			Map<IRI, Set<IRI>> map = resourcemgr.getResourceRdfTypesAllContexts(ORAdapter.uri2OpenRdfIri(uri), params, triplestore);
+			Map<IRI, Set<IRI>> map = resourcemgr.getResourceRdfTypesAllContexts(ORAdapter.uri2Rdf4jIri(uri), params, triplestore);
 			assertNotNull(map);
 			assertEquals(2,map.keySet().size());
 			IRI discoid1 = ORAdapter.getValueFactory().createIRI(disco.getId().getStringValue());

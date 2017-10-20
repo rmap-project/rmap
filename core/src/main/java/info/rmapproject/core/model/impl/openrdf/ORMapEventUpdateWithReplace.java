@@ -22,9 +22,9 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -36,7 +36,7 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * The concrete class representing the Update with Replace Event for the openrdf implementation of RMap.
+ * The concrete class representing the Update with Replace Event for the rdf4j implementation of RMap.
  * @author khanson, smorrissey
  */
 public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEventUpdateWithReplace {
@@ -109,12 +109,12 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	public ORMapEventUpdateWithReplace(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI updateObjectId)
 				throws RMapException, RMapDefectiveArgumentException {
 		this(id, reqEventDetails, targetType);
-		this.setUpdatedObjectId(ORAdapter.openRdfIri2RMapIri(updateObjectId));
+		this.setUpdatedObjectId(ORAdapter.rdf4jIri2RMapIri(updateObjectId));
 		
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEvent#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
@@ -133,7 +133,7 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 		if (this.updatedObjectIdStmt!= null){
 			try {
 				IRI iri = (IRI) this.updatedObjectIdStmt.getObject();
-				updatedObjectIri = ORAdapter.openRdfIri2RMapIri(iri);
+				updatedObjectIri = ORAdapter.rdf4jIri2RMapIri(iri);
 			} catch (IllegalArgumentException ex){
 				throw new RMapException("Could not retrieve update object id", ex);
 			}
@@ -157,7 +157,7 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 			throws RMapException, RMapDefectiveArgumentException {
 		if (updatedObjectId != null){
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.UPDATEDOBJECT,
-					ORAdapter.rMapIri2OpenRdfIri(updatedObjectId), this.context);
+					ORAdapter.rMapIri2Rdf4jIri(updatedObjectId), this.context);
 			this.updatedObjectIdStmt = stmt;
 		}
 	}

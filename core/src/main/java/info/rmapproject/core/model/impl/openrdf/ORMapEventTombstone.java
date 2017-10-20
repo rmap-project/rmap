@@ -22,9 +22,9 @@
  */
 package info.rmapproject.core.model.impl.openrdf;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -36,7 +36,7 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
 /**
- * The concrete class representing the Tombstone Event for the openrdf implementation of RMap.
+ * The concrete class representing the Tombstone Event for the rdf4j implementation of RMap.
  * @author khanson, smorrissey
  *
  */
@@ -100,7 +100,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEvent#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
@@ -117,7 +117,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 		if (this.tombstoned!= null){
 			try {
 				IRI tIri = (IRI) this.tombstoned.getObject();
-				iri = ORAdapter.openRdfIri2RMapIri(tIri);
+				iri = ORAdapter.rdf4jIri2RMapIri(tIri);
 			} catch (IllegalArgumentException ex){
 				throw new RMapException("Could not retrieve Tombstoned Resource ID",ex);
 			}
@@ -140,7 +140,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	public void setTombstonedObjectId(RMapIri iri) throws RMapException {
 		IRI tombstonedIri = null;
 		try { 
-			tombstonedIri = ORAdapter.rMapIri2OpenRdfIri(iri);
+			tombstonedIri = ORAdapter.rMapIri2Rdf4jIri(iri);
 		} catch (IllegalArgumentException e){
 			throw new RMapException("Could not retrieve RMap Event's tombstoned object ID", e);
 		}

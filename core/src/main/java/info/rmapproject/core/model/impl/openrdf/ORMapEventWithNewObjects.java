@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -39,7 +39,7 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 
 /**
- * Abstract class representing all Events that generate new objects for the openrdf implementation of RMap.
+ * Abstract class representing all Events that generate new objects for the rdf4j implementation of RMap.
  * @author smorrissey
  *
  */
@@ -108,7 +108,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 				iris = new ArrayList<RMapIri>();
 				for (Statement stmt:this.createdObjects){
 					IRI idIRI = (IRI) stmt.getObject();
-					RMapIri rid = ORAdapter.openRdfIri2RMapIri(idIRI);
+					RMapIri rid = ORAdapter.rdf4jIri2RMapIri(idIRI);
 					iris.add(rid);
 				}
 			} catch (IllegalArgumentException ex){
@@ -128,7 +128,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 		if (createdObjects != null){
 			stmts = new ArrayList<Statement>();
 			for (RMapIri rIri:createdObjects){
-				IRI id = ORAdapter.rMapIri2OpenRdfIri(rIri);
+				IRI id = ORAdapter.rMapIri2Rdf4jIri(rIri);
 				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV.GENERATED, id, this.context);
 				stmts.add(stmt);
 			}
@@ -165,7 +165,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.impl.openrdf.ORMapEvent#getAsModel()
+	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEvent#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {

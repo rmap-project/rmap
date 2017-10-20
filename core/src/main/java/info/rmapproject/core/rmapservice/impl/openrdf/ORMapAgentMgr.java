@@ -22,7 +22,7 @@
  */
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2Rdf4jIri;
 
 import java.net.URI;
 import java.util.Date;
@@ -30,12 +30,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.FOAF;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -56,14 +56,14 @@ import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.model.request.OrderBy;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUtils;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jSparqlUtils;
+import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * A concrete class for managing RMap Agents, implemented using openrdf
+ * A concrete class for managing RMap Agents, implemented using RDF4J
  *
  * @author smorrissey, khanson
  */
@@ -96,7 +96,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapDeletedObjectException the RMap deleted object exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapAgent readAgent(IRI agentId, SesameTriplestore ts)
+	public ORMapAgent readAgent(IRI agentId, Rdf4jTriplestore ts)
 			throws RMapAgentNotFoundException, RMapException,  RMapTombstonedObjectException, 
 	       RMapDeletedObjectException, RMapDefectiveArgumentException {		
 		if (agentId == null){
@@ -137,7 +137,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
-	public RMapStatus getAgentStatus(IRI agentId, SesameTriplestore ts) throws RMapException, RMapAgentNotFoundException {
+	public RMapStatus getAgentStatus(IRI agentId, Rdf4jTriplestore ts) throws RMapException, RMapAgentNotFoundException {
 		RMapStatus status = null;
 		if (agentId==null){
 			throw new RMapException ("Null disco");
@@ -188,7 +188,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEvent createAgent (ORMapAgent agent, RequestEventDetails reqEventDetails, SesameTriplestore ts)
+	public ORMapEvent createAgent (ORMapAgent agent, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
 		if (agent==null){
 			throw new RMapException ("null agent");
@@ -197,8 +197,8 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapException ("null triplestore");
 		}
 				
-		IRI newAgentId = ORAdapter.rMapIri2OpenRdfIri(agent.getId());
-		IRI requestAgentId = ORAdapter.uri2OpenRdfIri(reqEventDetails.getSystemAgent());
+		IRI newAgentId = ORAdapter.rMapIri2Rdf4jIri(agent.getId());
+		IRI requestAgentId = ORAdapter.uri2Rdf4jIri(reqEventDetails.getSystemAgent());
 
 		if (!newAgentId.equals(requestAgentId)){
 			// Usually agents create themselves, where this isn't the case we need to check the creating agent exists already
@@ -211,7 +211,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		
 		// Get the event started (key is null for agent creates since only done through bootstrap)
-		ORMapEventCreation event = new ORMapEventCreation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.AGENT);
+		ORMapEventCreation event = new ORMapEventCreation(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.AGENT);
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
 		try {
@@ -220,7 +220,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				ts.beginTransaction();
 			}
 		} catch (Exception e) {
-			throw new RMapException("Unable to begin Sesame transaction: ", e);
+			throw new RMapException("Unable to begin RDF4J transaction: ", e);
 		}
 		// keep track of objects created during this event
 		Set<IRI> created = new HashSet<IRI>();
@@ -261,7 +261,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEvent updateAgent (ORMapAgent updatedAgent, RequestEventDetails reqEventDetails, SesameTriplestore ts)
+	public ORMapEvent updateAgent (ORMapAgent updatedAgent, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts)
 	throws RMapException, RMapDefectiveArgumentException {
 		if (updatedAgent==null){
 			throw new RMapException ("null agent");
@@ -273,7 +273,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			throw new RMapException ("null triplestore");
 		}
 
-		IRI agentId = ORAdapter.rMapIri2OpenRdfIri(updatedAgent.getId());
+		IRI agentId = ORAdapter.rMapIri2Rdf4jIri(updatedAgent.getId());
 				
 		//check Agent Id exists
 		if (!this.isAgentId(agentId, ts)){
@@ -297,12 +297,12 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 				ts.beginTransaction();
 			}
 		} catch (Exception e) {
-			throw new RMapException("Unable to begin Sesame transaction", e);
+			throw new RMapException("Unable to begin RDF4J transaction", e);
 		}
 				
 		// Get the event started
 		ORMapEventUpdateWithReplace event = 
-				new ORMapEventUpdateWithReplace(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.AGENT, agentId);
+				new ORMapEventUpdateWithReplace(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.AGENT, agentId);
 		
 		String sEventDescrip = "";
 		if (reqEventDetails.getDescription()!=null && reqEventDetails.getDescription().toString().length()>0) {
@@ -313,13 +313,13 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		
 		//Remove elements of original agent and replace them with new elements
 		try {
-			Value origName = ORAdapter.rMapValue2OpenRdfValue(origAgent.getName());
-			IRI origIdProvider = ORAdapter.rMapIri2OpenRdfIri(origAgent.getIdProvider());
-			IRI origAuthId = ORAdapter.rMapIri2OpenRdfIri(origAgent.getAuthId());
+			Value origName = ORAdapter.rMapValue2Rdf4jValue(origAgent.getName());
+			IRI origIdProvider = ORAdapter.rMapIri2Rdf4jIri(origAgent.getIdProvider());
+			IRI origAuthId = ORAdapter.rMapIri2Rdf4jIri(origAgent.getAuthId());
 			
-			Value newName = ORAdapter.rMapValue2OpenRdfValue(updatedAgent.getName());
-			IRI newIdProvider = ORAdapter.rMapIri2OpenRdfIri(updatedAgent.getIdProvider());
-			IRI newAuthId = ORAdapter.rMapIri2OpenRdfIri(updatedAgent.getAuthId());
+			Value newName = ORAdapter.rMapValue2Rdf4jValue(updatedAgent.getName());
+			IRI newIdProvider = ORAdapter.rMapIri2Rdf4jIri(updatedAgent.getIdProvider());
+			IRI newAuthId = ORAdapter.rMapIri2Rdf4jIri(updatedAgent.getAuthId());
 			
 			//as a precaution take one predicate at a time to make sure we don't delete anything we shouldn't
 			if (!origName.equals(newName)) {
@@ -378,7 +378,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public List<IRI> getAgentDiSCOs(IRI agentId, RMapSearchParams params, SesameTriplestore ts) 
+	public List<IRI> getAgentDiSCOs(IRI agentId, RMapSearchParams params, Rdf4jTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agentId==null){
 			throw new RMapDefectiveArgumentException ("null agentId");
@@ -404,9 +404,9 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			}
 		 */
 		
-		String statusFilterSparql = SesameSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
-		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitFiltersSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String statusFilterSparql = Rdf4jSparqlUtils.convertRMapStatusToSparqlFilter(params.getStatusCode(), "?rmapObjId");
+		String dateFilterSparql = Rdf4jSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitFiltersSparql = Rdf4jSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 		
 		StringBuilder sparqlQuery = 
 				new StringBuilder("SELECT DISTINCT ?rmapObjId "
@@ -432,7 +432,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitFiltersSparql);
 		
-		List<IRI> discos = SesameSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "rmapObjId");
+		List<IRI> discos = Rdf4jSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "rmapObjId");
 		return discos;
 	}
 	
@@ -446,15 +446,15 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */	
-	public List<IRI> getAgentEventsInitiated(IRI agentId, RMapSearchParams params, SesameTriplestore ts) 
+	public List<IRI> getAgentEventsInitiated(IRI agentId, RMapSearchParams params, Rdf4jTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (agentId==null){
 			throw new RMapDefectiveArgumentException ("null agentId");
 		}
 
-		String sAgentId = SesameSparqlUtils.convertIriToSparqlParam(agentId);
-		String dateFilterSparql = SesameSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
-		String limitOffsetSparql = SesameSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
+		String sAgentId = Rdf4jSparqlUtils.convertIriToSparqlParam(agentId);
+		String dateFilterSparql = Rdf4jSparqlUtils.convertDateRangeToSparqlFilter(params.getDateRange(), "?startDate");
+		String limitOffsetSparql = Rdf4jSparqlUtils.convertLimitOffsetToSparqlFilter(params.getLimitForQuery(), params.getOffset());
 		
 		//query gets eventIds and startDates of Events initiated by agent
 		/*  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -488,7 +488,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		}
 		sparqlQuery.append(limitOffsetSparql);
 		
-		List<IRI> events = SesameSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "eventId");
+		List<IRI> events = Rdf4jSparqlUtils.bindQueryToIriList(sparqlQuery.toString(), ts, "eventId");
 		return events;		
 	}
 	
@@ -501,7 +501,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
-	public void validateRequestAgent(RequestEventDetails reqEventDetails, SesameTriplestore ts) 
+	public void validateRequestAgent(RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 			throws RMapException, RMapDefectiveArgumentException, RMapAgentNotFoundException{
 		if (reqEventDetails==null){
 			throw new RMapException("A request agent is required, it's value was null");
@@ -510,7 +510,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		URI agentUri = reqEventDetails.getSystemAgent();		
 		IRI agentIri = null;
 		try {
-			agentIri = ORAdapter.uri2OpenRdfIri(agentUri);
+			agentIri = ORAdapter.uri2Rdf4jIri(agentUri);
 		} catch(RMapException ex){
 			throw new RMapException("The requesting agent parameter is invalid. System Agent could not be converted to an IRI.");
 		}
