@@ -74,7 +74,10 @@ public enum TestFile {
 
 	/** DiSCO "A" as XML with no additional statements or aggregates*/
 	DISCOA_XML_NO_BODY_NO_AGGREGATES("/discos/discoA_nobody_noaggregates.rdf","RDFXML"),
-		
+
+	/** DiSCO "A" as turtle with some inverse relationships that form new roots and break the directionality of the DiSCO
+	 * Can be used to check any connected graph OK even if it's not a one directional graph rooted from aggregates*/
+	DISCOA_TURTLE_NON_AGGREGATE_ROOTS("/discos/discoA_nonaggregateroots.ttl","TURTLE"),
 	
 	/** Based on Portico data, working DiSCO "B" version 1, use for tests where you just want a working 
 	 *  DiSCO. This DiSCO contains 1 aggregated resource, 3 authors (2 BNodes, one with ORCID), a 

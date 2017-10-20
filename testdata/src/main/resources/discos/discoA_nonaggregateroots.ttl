@@ -1,0 +1,55 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix prism: <http://prismstandard.org/namespaces/basic/2.0/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ieee: <http://data.ieee.org/ieee/terms/> .
+@prefix ore: <http://www.openarchives.org/ore/terms/> .
+@prefix rmap: <http://purl.org/ontology/rmap#> .
+
+[] a <http://purl.org/ontology/rmap#DiSCO> ;
+	dcterms:creator <http://isni.org/isni/0000000122976723> ;
+	dc:description "This is a made up example of an IEEE DiSCO." ;
+	ore:aggregates <http://doi.org/10.1109/disco.test> ;
+	ore:aggregates <http://ieeexplore.ieee.org/example/000000-mm.zip> .
+
+<http://doi.org/10.1109/disco.test> 
+	a <http://purl.org/spar/fabio/ConferencePaper> ;
+	dcterms:identifier <ark:/35911/amsid/111111>, <ark:/35911/idams/1b1b1b1b1b1b> ;
+	ieee:content-type "orig-research" ;
+	ieee:inspec-accession-number "123456789" ;
+	dcterms:isPartOf <ark:/35911/amsid/222222>, <urn:isbn:9781467326322>, <urn:isbn:9781467326315> , <ark:/35911/amsid/333333> ;
+	dc:hasPart <http://ieeexplore.ieee.org/example/000000-mm.zip> ;
+	
+	dc:creator "Brown, A." ;
+	dc:creator "Green, M." ;
+	dc:creator "White, D." ;
+	dc:creator "Black, B." ;
+				
+	dc:title "Made up article about GPUs" ;
+	prism:doi <doi:10.1109/discoa.test> ;	
+	
+	cito:isCitedBy <http://dx.doi.org/10.1109/111111> ;
+	dc:subject "storage management", "resource allocation" , "fragmentation",
+					"massively parallel dynamic memory allocation", 
+					"resource management", "graphics processing units" . 
+					
+<http://ieeexplore.ieee.org/example/000000-mm.zip>
+	dc:format "application" ;
+	dc:description "Zip file containing AVI movie and README file in Word format" ;
+	dc:hasPart <http://ieeexplore.ieee.org/example/000000-mm.zip#video.avi> ;
+	dc:hasPart <http://ieeexplore.ieee.org/example/000000-mm.zip#README.docx> .
+
+<http://ieeexplore.ieee.org/example/000000-mm.zip#video.avi>
+	dc:format "video/x-msvideo" ;
+	dc:extent "194KB" .
+
+<http://doi.org/10.1109/another.paper> 
+	cito:cites <http://doi.org/10.1109/disco.test> ;
+	dc:description "A paper that cites one of the aggregated resources" .
+	
+<http://doi.org/10.0000/video.doi>
+	dcterms:identifier <http://ieeexplore.ieee.org/example/000000-mm.zip#video.avi> .
+	
+
+	
