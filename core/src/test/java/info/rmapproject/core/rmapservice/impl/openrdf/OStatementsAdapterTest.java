@@ -21,6 +21,7 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static java.net.URI.create;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -48,6 +49,11 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
+/**
+ * Tests for OStatementAdapter
+ * @author khanson
+ *
+ */
 public class OStatementsAdapterTest extends CoreTestAbstract {
 
 	//TODO: the asDisco tests are quick tests to catch exceptions, this does not do a full validation of results - need to add better validation
@@ -65,7 +71,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(TestFile.DISCOA_JSONLD.getType()), "");
 		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts,
 				() -> create("http://example.org/disco/" + counter.getAndIncrement()));
-		assertTrue(disco!=null);	
+		assertNotNull(disco);	
 	}
 	
 	/**
@@ -79,7 +85,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(TestFile.DISCOB_V1_XML.getType()), "");
 		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts,
 				() -> create("http://example.org/disco/" + counter.getAndIncrement()));
-		assertTrue(disco!=null);
+		assertNotNull(disco);
 	}
 	
 	
@@ -113,7 +119,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(TestFile.DISCOA_TURTLE_NON_AGGREGATE_ROOTS.getType()), "");
 		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts,
 				() -> create("http://example.org/disco/" + counter.getAndIncrement()));
-		assertTrue(disco!=null);
+		assertNotNull(disco);
 	}
 	
 	/**
