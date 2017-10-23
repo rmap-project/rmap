@@ -13,13 +13,13 @@
 		</div>
 	
 		<div class="footer-columns one-third column">
-			<h2><i class="fa fa-money fa-3"></i> Funding</h2>
-			<p>The project is funded by the Alfred P. Sloan Foundation and undertaken by the Data Conservancy, Portico, and IEEE.</p>
+			<h2><i class="fa fa-user fa-3"></i> Contact</h2>
+			<p>Contact the RMap team at rmap.project@gmail.com</p>
 		</div>
 	
 		<div class="footer-columns one-third column">
-			<h2><i class="fa fa-user fa-3"></i> About Us</h2>
-			<p>The goal of the RMap Project is to create a prototype service that can capture the maps of relationships amongst the components of a modern scholarly publication, and preserve those maps over the long term.</p>
+			<h2><i class="fa fa-money fa-3"></i> Funding</h2>
+			<p>The RMap project was funded by the Alfred P. Sloan Foundation and undertaken by the Data Conservancy, Portico, and IEEE.</p>
 		</div>
 	
 	</div>
@@ -27,7 +27,7 @@
 	<div id="footer-base">
 		<div class="container">
 			<div class="eight columns">
-				<a href="http://www.opendesigns.org/design/icebrrrg/">Icebrrg Website Template</a> &copy; 2012
+				<a href="http://www.opendesigns.org/design/icebrrrg/">Icebrrg Website Template</a> &copy; 2017
 			</div>
 	
 			<div class="eight columns far-edge">

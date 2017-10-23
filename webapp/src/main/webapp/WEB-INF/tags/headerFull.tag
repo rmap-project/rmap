@@ -35,11 +35,8 @@
 			<li id="menu-item-1">
 				<a href="<c:url value='/home'/>">Home</a>
 			</li>
-			<li id="menu-item-2">
-				<a href="<c:url value='/search'/>">Search</a>
-			</li>
 			<li id="menu-item-3">
-				<a href="<c:url value='/contact'/>">Contact</a>
+				<a href="<c:url value='/about'/>">About</a>
 			</li>
 			
 			<c:if test="${sessionScope.adminLoggedIn}">

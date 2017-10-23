@@ -32,7 +32,7 @@ h1 a { text-indent: -9999px; }
 #main-nav { float: right; }
 #main-nav ul, #main-nav li { list-style: none; padding: 0; margin: 0; display: inline; } 
 #main-nav ul li { float: left; position: relative; }
-#main-nav ul li a { display: inline-block; padding: 32px 10px 28px 10px; margin: 0 5px; text-decoration: none; font-size: 14px; border-bottom: 3px solid transparent; }
+#main-nav ul li a { display: inline-block; padding: 40px 10px 29px 10px; margin: 0 5px; text-decoration: none; font-size: 14px; border-bottom: 3px solid transparent; }
 #main-nav ul li:hover { border-bottom: 3px solid #0000C1 !important; }
 .current { font-weight: bold !important; color: #444 !important; border-bottom: 3px solid #0000C1 !important; }
 
@@ -44,7 +44,7 @@ h1 a { text-indent: -9999px; }
        position: absolute;
        z-index: 999;
        left: 0;
-       top: 83px;
+       top: 95px;
    }
       
 #main-nav ul li:hover ul.dropdown-menu{
@@ -67,7 +67,7 @@ h1 a { text-indent: -9999px; }
        position: absolute;
        z-index: 999;
        left: 0;
-       top: 83px;
+       top: 92px;
    }
 #main-nav ul li:hover .signin-menu{
        display: block;	/* Display the dropdown */
@@ -83,7 +83,7 @@ a, a:visited { text-decoration: none; color: #0000C1; transition: color 0.3s lin
 a:hover { color: #aaccff; }
 
 h1, h2, h3, h4, h5, h6 { font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; color: #003c67; font-weight: bold; overflow-wrap: break-word; word-wrap: break-word; }
-h1 { font-size: 24px; line-height: 28px; color: #5e7071; margin: 10px 0px 5px 0;}
+h1 { font-size: 24px; line-height: 45px; color: #5e7071; margin: 10px 0px 5px 0;}
 h2 { font-size: 18px; line-height: 20px; color: #5e7071; margin: 10px 0 5px 0;}
 h3 { font-size: 14px; line-height: 18px; color: #5e7071; }
 h4 { font-size: 14px; line-height: 18px; color: #5e7071; }
@@ -537,6 +537,14 @@ input[readonly]{background-color:#f0f0f0;}
   z-index: 100;
 }
 
+#searchbox {
+	width:320px;
+	float:left;
+	margin-right:10px;" 
+}
 
-
+#textnote {
+	font-size:12px;
+	font-style: italic; 
+}
 
