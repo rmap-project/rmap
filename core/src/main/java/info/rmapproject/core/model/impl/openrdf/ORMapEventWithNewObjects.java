@@ -68,11 +68,12 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	protected ORMapEventWithNewObjects(Statement eventTypeStmt,
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,
-			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt)
+			Statement endTimeStmt, IRI context, Statement typeStatement, 
+			Statement associatedKeyStmt, Statement lineage)
 			throws RMapException {
 		super(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,
 				descriptionStmt, startTimeStmt, endTimeStmt, context,
-				typeStatement, associatedKeyStmt);
+				typeStatement, associatedKeyStmt, lineage);
 	}
 
 	/**

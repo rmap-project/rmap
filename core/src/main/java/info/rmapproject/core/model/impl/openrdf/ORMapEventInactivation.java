@@ -25,7 +25,6 @@ package info.rmapproject.core.model.impl.openrdf;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventInactivation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -68,10 +67,11 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	public ORMapEventInactivation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt, Statement inactivatedObjectStatement) 
+			Statement typeStatement, Statement associatedKeyStmt, 
+			Statement inactivatedObjectStatement, Statement lineage) 
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt);
+				startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt, lineage);
 		if (inactivatedObjectStatement==null){
 			throw new RMapException("Null inactivated object statement");
 		}

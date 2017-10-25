@@ -213,7 +213,7 @@ public class ORMapEventDerivationTest extends CoreTestAbstract {
 		Statement endTimeStmt = vf.createStatement(context, PROV.ENDEDATTIME, litEnd, context);
 		
 		ORMapEventDerivation event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt,
+				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, null,
 				createdObjects, derivationStatement, sourceObjectStatement) ;
 		assertEquals(1,event.getCreatedObjectStatements().size());
 		assertEquals(1,event.getCreatedObjectIds().size());
@@ -229,25 +229,25 @@ public class ORMapEventDerivationTest extends CoreTestAbstract {
 		
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt,
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, null, 
 					null, derivationStatement, sourceObjectStatement) ;
 			fail("Should not allow null created objects");
 		}catch(RMapException r){}
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, null,
 					new ArrayList<Statement>(), derivationStatement, sourceObjectStatement) ;
 			fail("Should not allow empty created objects");
 		}catch(RMapException r){}
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, null,
 					createdObjects, null, sourceObjectStatement) ;
 			fail("Should not allow null derived object");
 		}catch(RMapException r){}
 		try{
 			event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
+					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, null,
 					createdObjects, derivationStatement, null) ;
 			fail("Should not allow null source object");
 		}catch(RMapException r){}		

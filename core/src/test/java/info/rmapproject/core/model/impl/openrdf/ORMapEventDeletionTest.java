@@ -126,7 +126,7 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			
 			ORMapEvent event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, 
 					associatedAgentStmt,descriptionStmt, startTimeStmt,endTimeStmt, context, 
-					typeStatement, associatedKeyStmt,  delStmt);
+					typeStatement, associatedKeyStmt,  delStmt, null);
 			Model eventModel = event.getAsModel();
 			assertEquals(9, eventModel.size());
 			IRI econtext = event.getContext();

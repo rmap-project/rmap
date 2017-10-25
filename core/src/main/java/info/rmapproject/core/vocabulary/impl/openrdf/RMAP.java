@@ -135,6 +135,9 @@ public class RMAP {
 	/** IRI for the rmap:hasStatus property*/
 	public static final IRI HASSTATUS;
 	
+	/** IRI for naming lineage via its progenitor DiSCO*/
+	public static final IRI LINEAGE_PROGENITOR;
+	
 	static {
 		final ValueFactory f = SimpleValueFactory.getInstance();
 
@@ -178,5 +181,8 @@ public class RMAP {
 		PROVIDERID = f.createIRI(NAMESPACE, Terms.RMAP_PROVIDERID);
 		IDENTITYPROVIDER = f.createIRI(NAMESPACE, Terms.RMAP_IDENTITYPROVIDER);	
 		USERAUTHID = f.createIRI(NAMESPACE, Terms.RMAP_USERAUTHID);	
+		
+		//Other properties
+		LINEAGE_PROGENITOR = f.createIRI(NAMESPACE, Terms.RMAP_LINEAGE_PROGENITOR);
 	}
 }

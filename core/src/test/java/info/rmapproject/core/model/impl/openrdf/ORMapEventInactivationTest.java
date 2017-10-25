@@ -136,7 +136,7 @@ public class ORMapEventInactivationTest extends CoreTestAbstract {
 		
 		ORMapEventInactivation event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
 				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt,
-				sourceObjectStatement) ;
+				sourceObjectStatement, null) ;
 		String eventTypeUrl = RMAP.INACTIVATION.toString();
 		assertEquals(eventTypeUrl, event.getEventType().getPath().toString());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
@@ -150,7 +150,7 @@ public class ORMapEventInactivationTest extends CoreTestAbstract {
 		try{
 			event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
 					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
-					null) ;
+					null, null) ;
 			fail("Should not allow null source object");
 		}catch(RMapException r){}	
 	}

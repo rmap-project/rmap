@@ -112,6 +112,9 @@ public final class Terms  {
 
  	/** The term for the tombstoned status. */
  	public static final String RMAP_TOMBSTONED = "tombstoned";
+ 	
+    /** Progenitor DiSCO as lineage ID */
+ 	public static final String RMAP_LINEAGE_PROGENITOR = "progenitor";
 
  	/*Path requests...*/
 	 /** The full path for the RMap Object class. */

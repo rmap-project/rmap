@@ -77,10 +77,10 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt,
-			Statement updatedObjectIdStmt) throws RMapException {
+			Statement updatedObjectIdStmt, Statement lineage) throws RMapException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineage);
 		this.updatedObjectIdStmt = updatedObjectIdStmt;
 	}
 

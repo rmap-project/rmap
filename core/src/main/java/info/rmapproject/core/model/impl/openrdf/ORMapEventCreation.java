@@ -72,10 +72,10 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	public ORMapEventCreation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt, List<Statement> createdObjects) 
+			Statement typeStatement, Statement associatedKeyStmt, Statement lineage, List<Statement> createdObjects) 
 					throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineage);
 		this.createdObjects = createdObjects;
 	}
 	

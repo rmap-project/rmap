@@ -24,6 +24,7 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Optional;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -77,6 +78,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	
 	/** The associated key stmt. */
 	protected Statement associatedKeyStmt; // set by constructor
+	
+	/** The optional lineage stmt */
+	protected Statement lineageStmt;
    
 	/**
 	 * Instantiates a new ORMapEvent.
@@ -92,13 +96,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param context the context
 	 * @param typeStatement the type statement
 	 * @param associatedKeyStmt the associated key stmt
+	 * @param lineageStmt the associated lineage stmt; nullable
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt) 
+			Statement typeStatement, Statement associatedKeyStmt, Statement lineageStmt) 
 					throws RMapException, RMapDefectiveArgumentException {
 		super(context);
 		this.eventTypeStmt = eventTypeStmt;
@@ -108,6 +113,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		this.startTimeStmt = startTimeStmt;
 		this.endTimeStmt = endTimeStmt;
 		this.associatedKeyStmt = associatedKeyStmt;
+		this.lineageStmt = lineageStmt;
 		setTypeStatement(RMapObjectType.EVENT);
 	}
 	
@@ -479,6 +485,23 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			eventModel.add(associatedKeyStmt);
 		}
 		return eventModel;
+	}
+	
+	@Override
+	public void setLineageProgenitor(RMapIri lineageiri) {
+	    this.lineageStmt = ORAdapter.getValueFactory().createStatement(
+	            this.context,
+	            RMAP.LINEAGE_PROGENITOR, 
+	            ORAdapter.rMapIri2OpenRdfIri(lineageiri));
+	}
+	
+	@Override
+	public RMapIri getLineageProgenitor() {
+	    return Optional.ofNullable(lineageStmt)
+	            .map(Statement::getObject)
+	            .map(value -> (IRI) value)
+	            .map(ORAdapter::openRdfIri2RMapIri)
+	            .orElse(null);
 	}
 
 	@Override

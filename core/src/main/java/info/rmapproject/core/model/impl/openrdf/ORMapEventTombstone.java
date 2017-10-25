@@ -77,10 +77,10 @@ public class ORMapEventTombstone extends ORMapEvent implements
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt,
-			Statement tombstoned) throws RMapException {
+			Statement tombstoned, Statement lineage) throws RMapException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineage);
 		this.tombstoned = tombstoned;
 	}
 
