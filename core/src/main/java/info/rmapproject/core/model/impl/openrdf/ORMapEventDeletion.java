@@ -77,7 +77,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt, 
-			Statement deleted, Statement lineage) throws RMapException, RMapDefectiveArgumentException {
+			Statement lineage, Statement deleted) throws RMapException, RMapDefectiveArgumentException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineage);

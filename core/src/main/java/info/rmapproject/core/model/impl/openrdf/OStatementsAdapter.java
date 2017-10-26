@@ -461,7 +461,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventInactivation(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    inactivatedObjectStatement, lineageStatement);
+                    lineageStatement, inactivatedObjectStatement);
         }
         else if (isDerivationEvent){
             if (sourceObjectStatement==null){
@@ -484,7 +484,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventTombstone(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, 
-                    tombstonedObjectStatement, lineageStatement);
+                    lineageStatement, tombstonedObjectStatement);
         }
         else if (isDeleteEvent){
             if (deletedObjectStatement==null){
@@ -492,7 +492,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, 
-                    deletedObjectStatement, lineageStatement);
+                    lineageStatement, deletedObjectStatement);
         }
         else if (isReplaceEvent){
             if (replacedObjectStatement==null){
@@ -500,7 +500,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventUpdateWithReplace(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    replacedObjectStatement, lineageStatement);
+                    lineageStatement, replacedObjectStatement);
         }
         else {
             throw new RMapException ("Unrecognized event type");

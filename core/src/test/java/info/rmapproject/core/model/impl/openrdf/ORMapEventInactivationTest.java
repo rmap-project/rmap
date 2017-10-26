@@ -42,7 +42,6 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdService;
@@ -61,7 +60,7 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  *
  */
 
-public class ORMapEventInactivationTest extends CoreTestAbstract {
+public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 
 	@Autowired	
 	SesameTriplestore triplestore;
@@ -136,7 +135,7 @@ public class ORMapEventInactivationTest extends CoreTestAbstract {
 		
 		ORMapEventInactivation event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
 				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt,
-				sourceObjectStatement, null) ;
+				null, sourceObjectStatement) ;
 		String eventTypeUrl = RMAP.INACTIVATION.toString();
 		assertEquals(eventTypeUrl, event.getEventType().getPath().toString());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
@@ -201,5 +200,27 @@ public class ORMapEventInactivationTest extends CoreTestAbstract {
 		assertEquals(RMAP.EVENT, tStmt.getObject());
 	
 	}
+
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
+            Date endTime, RMapIri associatedKey, RMapIri lineage) {
+        
+        final ORMapEventInactivation event = new ORMapEventInactivation(ORAdapter.rMapIri2OpenRdfIri(context));
+        
+        event.setAssociatedAgentStatement(ORAdapter.rMapIri2OpenRdfIri(associatedAgent));
+        event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
+        event.setDescription(description);
+        event.setEndTime(endTime);
+        event.setAssociatedKeyStatement(ORAdapter.rMapIri2OpenRdfIri(associatedKey));
+        event.setLineageProgenitor(lineage);
+        event.setInactivatedObjectId(new RMapIri(URI.create("test:inactivated")));
+        
+        return event;
+    }
 
 }

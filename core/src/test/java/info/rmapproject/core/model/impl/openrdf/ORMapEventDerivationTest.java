@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -47,11 +48,11 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
@@ -65,7 +66,7 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  *
  */
 
-public class ORMapEventDerivationTest extends CoreTestAbstract {
+public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 
 	@Autowired
 	SesameTriplestore triplestore;
@@ -253,6 +254,26 @@ public class ORMapEventDerivationTest extends CoreTestAbstract {
 		}catch(RMapException r){}		
 				
 	}
+
+
+    @Override
+    protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
+            Date endTime, RMapIri associatedKey, RMapIri lineage) {
+        
+        final ORMapEventDerivation event = new ORMapEventDerivation(ORAdapter.rMapIri2OpenRdfIri(context));
+        
+        event.setAssociatedAgentStatement(ORAdapter.rMapIri2OpenRdfIri(associatedAgent));
+        event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
+        event.setDescription(description);
+        event.setEndTime(endTime);
+        event.setAssociatedKeyStatement(ORAdapter.rMapIri2OpenRdfIri(associatedKey));
+        event.setLineageProgenitor(lineage);
+        event.setSourceObjectId(new RMapIri(URI.create("test:sourceObject")));
+        event.setDerivedObjectId(new RMapIri(URI.create("test:derivedObject")));
+        event.setCreatedObjectIds(Arrays.asList(new RMapIri(URI.create("test:createdObject"))));
+        
+        return event;
+    }
 
 
 }

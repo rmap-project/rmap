@@ -29,8 +29,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -42,8 +44,8 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.ValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
@@ -58,7 +60,7 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  *
  */
 
-public class ORMapEventCreationTest extends CoreTestAbstract {
+public class ORMapEventCreationTest extends ORMapCommonEventTest {
 	@Autowired
 	private SesameTriplestore triplestore;
 	
@@ -130,5 +132,23 @@ public class ORMapEventCreationTest extends CoreTestAbstract {
 		
 	}
 
+
+
+    @Override
+    protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
+            Date endTime, RMapIri associatedKey, RMapIri lineage) {
+        
+        final ORMapEventCreation event = new ORMapEventCreation(ORAdapter.rMapIri2OpenRdfIri(context));
+        
+        event.setAssociatedAgentStatement(ORAdapter.rMapIri2OpenRdfIri(associatedAgent));
+        event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
+        event.setDescription(description);
+        event.setEndTime(endTime);
+        event.setAssociatedKeyStatement(ORAdapter.rMapIri2OpenRdfIri(associatedKey));
+        event.setLineageProgenitor(lineage);
+        event.setCreatedObjectIds(Arrays.asList(new RMapIri(URI.create("test:created"))));
+        
+        return event;
+    }
 
 }

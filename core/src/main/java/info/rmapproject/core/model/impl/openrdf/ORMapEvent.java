@@ -430,6 +430,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	public Statement getEndTimeStmt(){
 		return this.endTimeStmt;
 	}
+	
+	/** Get the lineage progenitor statement.
+	 * 
+	 * @return the statement containing the lineage progenitor.
+	 */
+	public Statement getLineageProgenitorStmt() {
+	    return this.lineageStmt;
+	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#setEndTime(java.util.Date)
@@ -489,10 +497,13 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	
 	@Override
 	public void setLineageProgenitor(RMapIri lineageiri) {
-	    this.lineageStmt = ORAdapter.getValueFactory().createStatement(
-	            this.context,
-	            RMAP.LINEAGE_PROGENITOR, 
-	            ORAdapter.rMapIri2OpenRdfIri(lineageiri));
+	    if (lineageiri != null) {
+	        this.lineageStmt = ORAdapter.getValueFactory().createStatement(
+	                this.context,
+	                RMAP.LINEAGE_PROGENITOR, 
+	                ORAdapter.rMapIri2OpenRdfIri(lineageiri), 
+	                this.context);
+	    }
 	}
 	
 	@Override
@@ -523,6 +534,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		if (startTimeStmt != null ? !startTimeStmt.equals(that.startTimeStmt) : that.startTimeStmt != null)
 			return false;
 		if (endTimeStmt != null ? !endTimeStmt.equals(that.endTimeStmt) : that.endTimeStmt != null) return false;
+		if (lineageStmt != null ? !lineageStmt.equals(that.lineageStmt) : that.lineageStmt != null) return false;
 		return associatedKeyStmt != null ? associatedKeyStmt.equals(that.associatedKeyStmt) : that.associatedKeyStmt == null;
 	}
 
@@ -536,6 +548,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		result = 31 * result + (startTimeStmt != null ? startTimeStmt.hashCode() : 0);
 		result = 31 * result + (endTimeStmt != null ? endTimeStmt.hashCode() : 0);
 		result = 31 * result + (associatedKeyStmt != null ? associatedKeyStmt.hashCode() : 0);
+		result = 31 * result + (lineageStmt != null ? lineageStmt.hashCode() : 0);
 		return result;
 	}
 }

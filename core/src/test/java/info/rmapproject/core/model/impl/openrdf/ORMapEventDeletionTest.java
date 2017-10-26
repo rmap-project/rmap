@@ -27,6 +27,7 @@ import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,7 +43,6 @@ import org.openrdf.model.vocabulary.DC;
 import org.openrdf.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdService;
@@ -62,7 +62,7 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  *
  */
 
-public class ORMapEventDeletionTest extends CoreTestAbstract {
+public class ORMapEventDeletionTest extends ORMapCommonEventTest {
 
 	@Autowired
 	protected IdService rmapIdService;
@@ -126,7 +126,7 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			
 			ORMapEvent event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, 
 					associatedAgentStmt,descriptionStmt, startTimeStmt,endTimeStmt, context, 
-					typeStatement, associatedKeyStmt,  delStmt, null);
+					typeStatement, associatedKeyStmt, null, delStmt);
 			Model eventModel = event.getAsModel();
 			assertEquals(9, eventModel.size());
 			IRI econtext = event.getContext();
@@ -180,5 +180,23 @@ public class ORMapEventDeletionTest extends CoreTestAbstract {
 			fail(e.getMessage());
 		}
 	}
+
+
+    @Override
+    protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
+            Date endTime, RMapIri associatedKey, RMapIri lineage) {
+        
+        final ORMapEventDeletion event = new ORMapEventDeletion(ORAdapter.rMapIri2OpenRdfIri(context));
+        
+        event.setAssociatedAgentStatement(ORAdapter.rMapIri2OpenRdfIri(associatedAgent));
+        event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
+        event.setDescription(description);
+        event.setEndTime(endTime);
+        event.setAssociatedKeyStatement(ORAdapter.rMapIri2OpenRdfIri(associatedKey));
+        event.setLineageProgenitor(lineage);
+        event.setDeletedObjectId(new RMapIri(URI.create("test:deletedObject")));
+        
+        return event;
+    }
 
 }

@@ -68,7 +68,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
 			Statement typeStatement, Statement associatedKeyStmt, 
-			Statement inactivatedObjectStatement, Statement lineage) 
+			Statement lineage, Statement inactivatedObjectStatement) 
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
 				startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt, lineage);
