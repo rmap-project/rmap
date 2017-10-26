@@ -77,10 +77,10 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
 			Statement descriptionStmt, Statement startTimeStmt,  
 			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt, 
-			Statement deleted) throws RMapException, RMapDefectiveArgumentException {
+			Statement lineageProgenitor, Statement deleted) throws RMapException, RMapDefectiveArgumentException {
 		
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineageProgenitor);
 		this.deleted = deleted;
 	}
 

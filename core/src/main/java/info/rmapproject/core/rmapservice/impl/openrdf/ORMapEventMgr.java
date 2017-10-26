@@ -81,6 +81,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		this.createStatement(ts, event.getAssociatedAgentStmt());
 		this.createStatement(ts, event.getStartTimeStmt());
 		this.createStatement(ts, event.getEndTimeStmt());
+		if (event.getLineageProgenitorStmt() != null) {
+		    this.createStatement(ts, event.getLineageProgenitorStmt());
+		}	
 		if (event.getDescriptionStmt()!= null){
 			this.createStatement(ts, event.getDescriptionStmt());
 		}

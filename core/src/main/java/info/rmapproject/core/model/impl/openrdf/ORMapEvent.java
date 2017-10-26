@@ -24,6 +24,7 @@ package info.rmapproject.core.model.impl.openrdf;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Optional;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -77,6 +78,9 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	
 	/** The associated key stmt. */
 	protected Statement associatedKeyStmt; // set by constructor
+	
+	/** The optional lineage progenitor stmt */
+	protected Statement lineageProgenitorStmt;
    
 	/**
 	 * Instantiates a new ORMapEvent.
@@ -92,13 +96,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param context the context
 	 * @param typeStatement the type statement
 	 * @param associatedKeyStmt the associated key stmt
+	 * @param lineageProgenitorStmt the associated lineage stmt; nullable
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt) 
+			Statement typeStatement, Statement associatedKeyStmt, Statement lineageProgenitorStmt) 
 					throws RMapException, RMapDefectiveArgumentException {
 		super(context);
 		this.eventTypeStmt = eventTypeStmt;
@@ -108,6 +113,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		this.startTimeStmt = startTimeStmt;
 		this.endTimeStmt = endTimeStmt;
 		this.associatedKeyStmt = associatedKeyStmt;
+		this.lineageProgenitorStmt = lineageProgenitorStmt;
 		setTypeStatement(RMapObjectType.EVENT);
 	}
 	
@@ -424,6 +430,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	public Statement getEndTimeStmt(){
 		return this.endTimeStmt;
 	}
+	
+	/** Get the lineage progenitor statement.
+	 * 
+	 * @return the statement containing the lineage progenitor.
+	 */
+	public Statement getLineageProgenitorStmt() {
+	    return this.lineageProgenitorStmt;
+	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEvent#setEndTime(java.util.Date)
@@ -480,6 +494,26 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}
 		return eventModel;
 	}
+	
+	@Override
+	public void setLineageProgenitor(RMapIri lineageiri) {
+	    if (lineageiri != null) {
+	        this.lineageProgenitorStmt = ORAdapter.getValueFactory().createStatement(
+	                this.context,
+	                RMAP.LINEAGE_PROGENITOR, 
+	                ORAdapter.rMapIri2OpenRdfIri(lineageiri), 
+	                this.context);
+	    }
+	}
+	
+	@Override
+	public RMapIri getLineageProgenitor() {
+	    return Optional.ofNullable(lineageProgenitorStmt)
+	            .map(Statement::getObject)
+	            .map(value -> (IRI) value)
+	            .map(ORAdapter::openRdfIri2RMapIri)
+	            .orElse(null);
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -500,6 +534,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		if (startTimeStmt != null ? !startTimeStmt.equals(that.startTimeStmt) : that.startTimeStmt != null)
 			return false;
 		if (endTimeStmt != null ? !endTimeStmt.equals(that.endTimeStmt) : that.endTimeStmt != null) return false;
+		if (lineageProgenitorStmt != null ? !lineageProgenitorStmt.equals(that.lineageProgenitorStmt) : that.lineageProgenitorStmt != null) return false;
 		return associatedKeyStmt != null ? associatedKeyStmt.equals(that.associatedKeyStmt) : that.associatedKeyStmt == null;
 	}
 
@@ -513,6 +548,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		result = 31 * result + (startTimeStmt != null ? startTimeStmt.hashCode() : 0);
 		result = 31 * result + (endTimeStmt != null ? endTimeStmt.hashCode() : 0);
 		result = 31 * result + (associatedKeyStmt != null ? associatedKeyStmt.hashCode() : 0);
+		result = 31 * result + (lineageProgenitorStmt != null ? lineageProgenitorStmt.hashCode() : 0);
 		return result;
 	}
 }

@@ -19,6 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.core.model;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * Models the concept of an RDF Literal.  Literals have a string value. 
  * They can also optionally have a language and datatype
@@ -60,8 +63,7 @@ public class RMapLiteral implements RMapValue {
 	 * Instantiates a new RMap literal.
 	 *
 	 * @param value the value
-	 * @param language the language (can be null)
-	 * @throws IllegalArgumentException if value argument is null
+	 * @param language the language (can be null).
 	 */
 	public RMapLiteral(String value, String language){
 		this();
@@ -136,6 +138,26 @@ public class RMapLiteral implements RMapValue {
 	@Override
 	public String toString(){
 		return getStringValue();
+	}
+	
+	public boolean equals(Object o) {
+	    if (o != null && o instanceof RMapLiteral) {
+	        RMapLiteral that = (RMapLiteral) o;
+	        
+	        return value.equals(that.value)
+	                && Optional.ofNullable(language)
+	                        .map(l -> l.equals(that.language))
+	                        .orElse(that.language == null)
+	                && Optional.ofNullable(datatype)
+	                        .map(d -> d.equals(that.datatype))
+	                        .orElse(that.datatype == null);
+	    }
+	    
+	    return false;
+	}
+	
+	public int hashCode() {
+	    return Objects.hash(value, language, datatype);
 	}
 
 }

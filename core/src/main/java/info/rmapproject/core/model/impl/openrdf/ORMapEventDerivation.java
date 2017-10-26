@@ -108,11 +108,11 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	public ORMapEventDerivation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt, List<Statement> createdObjects,
-			Statement derivationStatement, Statement sourceObjectStatement) 
+			Statement typeStatement, Statement associatedKeyStmt, Statement lineageProgenitorStmnt, 
+			List<Statement> createdObjects, Statement derivationStatement, Statement sourceObjectStatement) 
 	throws RMapException {
 		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt);
+				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineageProgenitorStmnt);
 		
 		if (createdObjects==null || createdObjects.size()==0){
 			throw new RMapException ("Null or empty list of created object in Update");

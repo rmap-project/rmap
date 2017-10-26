@@ -107,5 +107,19 @@ public interface RMapEvent extends RMapObject{
 	 */
 	public void setDescription(RMapValue description) throws RMapException;
 	
+	/**
+	 * Gets the IRI of the lineage progenitor DiSCO, if applicable
+	 *
+	 * @return lineage progenitor DiSCO IRI, or null if not applicable.
+	 * @throws RMapException
+	 */
+	public RMapIri getLineageProgenitor() throws RMapException;
 	
+	/**
+	 * Sets the ID of the lineage progenitor DiSCOe.
+	 *
+	 * @param iri IRI of the lineage progenitor DiSCO.
+	 * @throws RMapException
+	 */
+	public void setLineageProgenitor(RMapIri iri) throws RMapException;
 }
