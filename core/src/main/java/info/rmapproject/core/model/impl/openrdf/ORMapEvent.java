@@ -79,8 +79,8 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	/** The associated key stmt. */
 	protected Statement associatedKeyStmt; // set by constructor
 	
-	/** The optional lineage stmt */
-	protected Statement lineageStmt;
+	/** The optional lineage progenitor stmt */
+	protected Statement lineageProgenitorStmt;
    
 	/**
 	 * Instantiates a new ORMapEvent.
@@ -96,14 +96,14 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @param context the context
 	 * @param typeStatement the type statement
 	 * @param associatedKeyStmt the associated key stmt
-	 * @param lineageStmt the associated lineage stmt; nullable
+	 * @param lineageProgenitorStmt the associated lineage stmt; nullable
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
 	protected  ORMapEvent(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
 			Statement associatedAgentStmt,  Statement descriptionStmt, 
 			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt, Statement lineageStmt) 
+			Statement typeStatement, Statement associatedKeyStmt, Statement lineageProgenitorStmt) 
 					throws RMapException, RMapDefectiveArgumentException {
 		super(context);
 		this.eventTypeStmt = eventTypeStmt;
@@ -113,7 +113,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		this.startTimeStmt = startTimeStmt;
 		this.endTimeStmt = endTimeStmt;
 		this.associatedKeyStmt = associatedKeyStmt;
-		this.lineageStmt = lineageStmt;
+		this.lineageProgenitorStmt = lineageProgenitorStmt;
 		setTypeStatement(RMapObjectType.EVENT);
 	}
 	
@@ -436,7 +436,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	 * @return the statement containing the lineage progenitor.
 	 */
 	public Statement getLineageProgenitorStmt() {
-	    return this.lineageStmt;
+	    return this.lineageProgenitorStmt;
 	}
 
 	/* (non-Javadoc)
@@ -498,7 +498,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	@Override
 	public void setLineageProgenitor(RMapIri lineageiri) {
 	    if (lineageiri != null) {
-	        this.lineageStmt = ORAdapter.getValueFactory().createStatement(
+	        this.lineageProgenitorStmt = ORAdapter.getValueFactory().createStatement(
 	                this.context,
 	                RMAP.LINEAGE_PROGENITOR, 
 	                ORAdapter.rMapIri2OpenRdfIri(lineageiri), 
@@ -508,7 +508,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	
 	@Override
 	public RMapIri getLineageProgenitor() {
-	    return Optional.ofNullable(lineageStmt)
+	    return Optional.ofNullable(lineageProgenitorStmt)
 	            .map(Statement::getObject)
 	            .map(value -> (IRI) value)
 	            .map(ORAdapter::openRdfIri2RMapIri)
@@ -534,7 +534,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		if (startTimeStmt != null ? !startTimeStmt.equals(that.startTimeStmt) : that.startTimeStmt != null)
 			return false;
 		if (endTimeStmt != null ? !endTimeStmt.equals(that.endTimeStmt) : that.endTimeStmt != null) return false;
-		if (lineageStmt != null ? !lineageStmt.equals(that.lineageStmt) : that.lineageStmt != null) return false;
+		if (lineageProgenitorStmt != null ? !lineageProgenitorStmt.equals(that.lineageProgenitorStmt) : that.lineageProgenitorStmt != null) return false;
 		return associatedKeyStmt != null ? associatedKeyStmt.equals(that.associatedKeyStmt) : that.associatedKeyStmt == null;
 	}
 
@@ -548,7 +548,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		result = 31 * result + (startTimeStmt != null ? startTimeStmt.hashCode() : 0);
 		result = 31 * result + (endTimeStmt != null ? endTimeStmt.hashCode() : 0);
 		result = 31 * result + (associatedKeyStmt != null ? associatedKeyStmt.hashCode() : 0);
-		result = 31 * result + (lineageStmt != null ? lineageStmt.hashCode() : 0);
+		result = 31 * result + (lineageProgenitorStmt != null ? lineageProgenitorStmt.hashCode() : 0);
 		return result;
 	}
 }

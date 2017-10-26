@@ -289,7 +289,7 @@ public class OStatementsAdapter {
         // for Delete events
         Statement deletedObjectStatement = null;
         
-        Statement lineageStatement = null;
+        Statement lineageProgenitorStatement = null;
         
         ORMapEvent event = null;
         for (Statement stmt:eventStmts){
@@ -362,7 +362,7 @@ public class OStatementsAdapter {
                 continue;
             }
             if (predicate.equals(RMAP.LINEAGE_PROGENITOR)) {
-                lineageStatement = stmt;
+                lineageProgenitorStatement = stmt;
                 continue;
             }
         }
@@ -437,7 +437,7 @@ public class OStatementsAdapter {
             else {
                 event = new ORMapEventCreation(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                         descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt,
-                        lineageStatement, createdObjects);
+                        lineageProgenitorStatement, createdObjects);
             }
         }
         else if (isUpdateEvent){
@@ -453,7 +453,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventUpdate(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageStatement, createdObjects,derivationStatement,inactivatedObjectStatement);
+                    lineageProgenitorStatement, createdObjects,derivationStatement,inactivatedObjectStatement);
         }
         else if (isInactivateEvent){
             if (inactivatedObjectStatement==null){
@@ -461,7 +461,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventInactivation(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageStatement, inactivatedObjectStatement);
+                    lineageProgenitorStatement, inactivatedObjectStatement);
         }
         else if (isDerivationEvent){
             if (sourceObjectStatement==null){
@@ -476,7 +476,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventDerivation(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageStatement, createdObjects,derivationStatement,sourceObjectStatement);
+                    lineageProgenitorStatement, createdObjects,derivationStatement,sourceObjectStatement);
         }
         else if (isTombstoneEvent){
             if (tombstonedObjectStatement==null){
@@ -484,7 +484,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventTombstone(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, 
-                    lineageStatement, tombstonedObjectStatement);
+                    lineageProgenitorStatement, tombstonedObjectStatement);
         }
         else if (isDeleteEvent){
             if (deletedObjectStatement==null){
@@ -492,7 +492,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, 
-                    lineageStatement, deletedObjectStatement);
+                    lineageProgenitorStatement, deletedObjectStatement);
         }
         else if (isReplaceEvent){
             if (replacedObjectStatement==null){
@@ -500,7 +500,7 @@ public class OStatementsAdapter {
             }
             event = new ORMapEventUpdateWithReplace(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
                     descriptionStmt, startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageStatement, replacedObjectStatement);
+                    lineageProgenitorStatement, replacedObjectStatement);
         }
         else {
             throw new RMapException ("Unrecognized event type");

@@ -114,7 +114,7 @@ public final class Terms  {
  	public static final String RMAP_TOMBSTONED = "tombstoned";
  	
     /** Progenitor DiSCO as lineage ID */
- 	public static final String RMAP_LINEAGE_PROGENITOR = "progenitor";
+ 	public static final String RMAP_LINEAGE_PROGENITOR = "lineageProgenitor";
 
  	/*Path requests...*/
 	 /** The full path for the RMap Object class. */
