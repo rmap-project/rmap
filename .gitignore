@@ -4,4 +4,5 @@
 *.iml
 .project
 .classpath
+.settings/
 target/
