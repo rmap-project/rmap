@@ -1153,7 +1153,11 @@ public class ORMapService implements RMapService {
 
     @Override
     public URI getLineageProgenitor(URI discoUri) {
-        return findLineageProgenitor(discoUri, triplestore);
+        try {
+            return findLineageProgenitor(discoUri, triplestore);
+        } finally {
+            closeConnection();
+        }
     }
 	
 }

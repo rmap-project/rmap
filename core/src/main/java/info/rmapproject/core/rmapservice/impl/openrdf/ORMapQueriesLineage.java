@@ -66,22 +66,22 @@ abstract class ORMapQueriesLineage {
      * @param triplestore
      * @return URI of the progenitor, null if not present;
      */
+    @SuppressWarnings("resource")
     static URI findLineageProgenitor(URI disco, SesameTriplestore ts) {
-        try (RepositoryConnection c = ts.getConnection()) {
+        final RepositoryConnection c = ts.getConnection();
 
-            final TupleQuery q = c.prepareTupleQuery(QUERY_LINEAGE_SEARCH);
+        final TupleQuery q = c.prepareTupleQuery(QUERY_LINEAGE_SEARCH);
 
-            q.setBinding(BINDING_RESOURCE, c.getValueFactory().createIRI(disco.toString()));
+        q.setBinding(BINDING_RESOURCE, c.getValueFactory().createIRI(disco.toString()));
 
-            try (TupleQueryResult result = q.evaluate()) {
+        try (TupleQueryResult result = q.evaluate()) {
+            if (result.hasNext()) {
+                final URI found = URI.create(result.next().getBinding(BINDING_LINEAGE).getValue().toString());
                 if (result.hasNext()) {
-                    final URI found = URI.create(result.next().getBinding(BINDING_LINEAGE).getValue().toString());
-                    if (result.hasNext()) {
-                        throw new RuntimeException(String.format("Two lineages found for resource <>: <> and <>",
-                                disco, found, result.next().getBinding(BINDING_LINEAGE).toString()));
-                    }
-                    return found;
+                    throw new RuntimeException(String.format("Two lineages found for resource <>: <> and <>",
+                            disco, found, result.next().getBinding(BINDING_LINEAGE).toString()));
                 }
+                return found;
             }
         }
 
