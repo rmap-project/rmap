@@ -19,6 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.core;
 
+import java.net.URI;
+import java.util.UUID;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -55,5 +58,7 @@ public abstract class CoreTestAbstract {
 		}
 	}
 	
-	
+    public static URI randomURI() {
+        return URI.create("urn:uuid:" + UUID.randomUUID().toString());
+    }
 }

@@ -197,6 +197,9 @@ public final class Terms  {
 
  	/** The full path for the userAuthId property of an Agent. */
  	public static final String RMAP_USERAUTHID_PATH = RMAP_NAMESPACE + RMAP_USERAUTHID;
+ 	
+ 	/** The full path for the lineageProgenitor property of an Event. */
+ 	public static final String RMAP_LINEAGE_PROGENITOR_PATH = RMAP_NAMESPACE + RMAP_LINEAGE_PROGENITOR;
 
  	
  	

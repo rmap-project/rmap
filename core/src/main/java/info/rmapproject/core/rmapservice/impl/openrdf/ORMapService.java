@@ -23,6 +23,7 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -1149,5 +1150,14 @@ public class ORMapService implements RMapService {
 			closeConnection();
 		}		
 	}
+
+    @Override
+    public URI getLineageProgenitor(URI discoUri) {
+        try {
+            return findLineageProgenitor(discoUri, triplestore);
+        } finally {
+            closeConnection();
+        }
+    }
 	
 }
