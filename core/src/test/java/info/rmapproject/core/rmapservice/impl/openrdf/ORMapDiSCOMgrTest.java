@@ -24,10 +24,16 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.rMapIri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
+
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -298,6 +304,63 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			fail(ex.getMessage());
 		}	
 	}
+	
+	/* Creating a DiSCO should define a lineage with that disco as progenitor */
+    @Test
+    public void testCreateDiscoLineage() throws Exception {
+        ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+                new RMapIri(randomURI()), 
+                Arrays.asList(randomURI()));
+
+        discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+
+        assertEquals(disco.getId().getIri(), findLineageProgenitor(disco.getId().getIri(), triplestore));
+    }
+
+	/* Updates (by the same agent) should all have the same lineage progenitor */
+    @Test
+    public void testUpdateDiscoLineage() {
+
+        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+                new RMapIri(randomURI()), 
+                Arrays.asList(randomURI()));
+
+        final ORMapDiSCO updatedDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+                new RMapIri(randomURI()), 
+                Arrays.asList(randomURI()));
+
+        discomgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
+
+        discomgr.updateDiSCO(
+                rMapIri2OpenRdfIri(originalDisco.getId()), updatedDisco, reqEventDetails, false, triplestore);
+
+        assertEquals(findLineageProgenitor(originalDisco.getId().getIri(), triplestore),
+                findLineageProgenitor(updatedDisco.getId().getIri(), triplestore));
+
+    }
+    
+    /* Derived discos (updated by different agent) should be a progenitor of a new lineage */
+    @Test
+    public void testDerivedDiscoLineage() {
+        
+        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+                new RMapIri(randomURI()), 
+                Arrays.asList(randomURI()));
+        
+        final ORMapDiSCO derivedDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+                new RMapIri(randomURI()), 
+                Arrays.asList(randomURI()));
+  
+        discomgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
+        
+        discomgr.updateDiSCO(
+                rMapIri2OpenRdfIri(originalDisco.getId()), derivedDisco, reqEventDetails2, false, triplestore);
+        
+        assertNotEquals(findLineageProgenitor(originalDisco.getId().getIri(), triplestore),
+                findLineageProgenitor(derivedDisco.getId().getIri(), triplestore));
+        
+        assertEquals(derivedDisco.getId().getIri(), findLineageProgenitor(derivedDisco.getId().getIri(), triplestore));
+    }
 	
 	/**
 	 * Verifies that the Agent Key ID was associated with the Event on create.

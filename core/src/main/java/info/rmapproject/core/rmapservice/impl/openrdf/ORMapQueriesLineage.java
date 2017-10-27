@@ -59,21 +59,26 @@ abstract class ORMapQueriesLineage {
                             RMAP_INACTIVATEDOBJECT_PATH) +
                     "}}";
 
-    static URI findLineage(URI object, SesameTriplestore ts) {
+    /**
+     * Find the lineage progenitor for the given disco.
+     *
+     * @param disco URI of the disco
+     * @param triplestore
+     * @return URI of the progenitor, null if not present;
+     */
+    static URI findLineageProgenitor(URI disco, SesameTriplestore ts) {
         try (RepositoryConnection c = ts.getConnection()) {
 
             final TupleQuery q = c.prepareTupleQuery(QUERY_LINEAGE_SEARCH);
 
-            q.setBinding(BINDING_RESOURCE, c.getValueFactory().createIRI(object.toString()));
-
-            System.out.println(QUERY_LINEAGE_SEARCH);
+            q.setBinding(BINDING_RESOURCE, c.getValueFactory().createIRI(disco.toString()));
 
             try (TupleQueryResult result = q.evaluate()) {
                 if (result.hasNext()) {
                     final URI found = URI.create(result.next().getBinding(BINDING_LINEAGE).getValue().toString());
                     if (result.hasNext()) {
                         throw new RuntimeException(String.format("Two lineages found for resource <>: <> and <>",
-                                object, found, result.next().getBinding(BINDING_LINEAGE).toString()));
+                                disco, found, result.next().getBinding(BINDING_LINEAGE).toString()));
                     }
                     return found;
                 }

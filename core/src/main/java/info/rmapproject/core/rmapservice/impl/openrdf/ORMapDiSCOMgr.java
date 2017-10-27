@@ -25,7 +25,7 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfIri2URI;
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineage;
+import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -302,7 +302,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			if (creatorSameAsOrig){
 				ORMapEventInactivation iEvent = new ORMapEventInactivation(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
 				iEvent.setInactivatedObjectId(ORAdapter.openRdfIri2RMapIri(oldDiscoId));
-				iEvent.setLineageProgenitor(new RMapIri(findLineage(openRdfIri2URI(oldDiscoId), ts)));
+				iEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(oldDiscoId), ts)));
 				event = iEvent;
 			}
 			else {
@@ -322,7 +322,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			if (creatorSameAsOrig){
 				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
-				uEvent.setLineageProgenitor(new RMapIri(findLineage(openRdfIri2URI(oldDiscoId), ts)));
+				uEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(oldDiscoId), ts)));
 				event = uEvent;
 			}
 			else {
@@ -414,7 +414,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			
 		// get the event started
 		ORMapEventTombstone event = new ORMapEventTombstone(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
-		event.setLineageProgenitor(new RMapIri(findLineage(openRdfIri2URI(discoId), ts)));
+		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(discoId), ts)));
 		
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
@@ -475,7 +475,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		Set<Statement> stmts = disco.getAsModel();
 		// get the event started
 		ORMapEventDeletion event = new ORMapEventDeletion(uri2OpenRdfIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
-		event.setLineageProgenitor(new RMapIri(findLineage(openRdfIri2URI(discoId), ts)));
+		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(discoId), ts)));
 		
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;

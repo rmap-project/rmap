@@ -22,14 +22,13 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static info.rmapproject.core.model.event.RMapEventTargetType.DISCO;
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineage;
+import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +75,7 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
 
         eventmgr.createEvent(event, ts);
 
-        assertEquals(lineageURI, findLineage(discoURI, ts));
+        assertEquals(lineageURI, findLineageProgenitor(discoURI, ts));
     }
 
     @Test
@@ -96,8 +95,8 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         eventmgr.createEvent(event, ts);
 
         // Discovering the same lineage from both the new and old discos is expected
-        assertEquals(lineageURI, findLineage(oldDiscoUri, ts));
-        assertEquals(lineageURI, findLineage(discoURI, ts));
+        assertEquals(lineageURI, findLineageProgenitor(oldDiscoUri, ts));
+        assertEquals(lineageURI, findLineageProgenitor(discoURI, ts));
     }
 
     @Test
@@ -117,12 +116,7 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
 
         // We shouldn't find the lineage of the thing that this event was derived from,
         // we should only find the lineage of the newly created (derived) object
-        assertEquals(lineageURI, findLineage(discoURI, ts));
-        assertNull(findLineage(oldDiscoUri, ts));
+        assertEquals(lineageURI, findLineageProgenitor(discoURI, ts));
+        assertNull(findLineageProgenitor(oldDiscoUri, ts));
     }
-
-    private URI randomURI() {
-        return URI.create("urn:uuid:" + UUID.randomUUID().toString());
-    }
-
 }
