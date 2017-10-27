@@ -325,17 +325,27 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
 
-        final ORMapDiSCO updatedDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+        final ORMapDiSCO updatedDisco1 = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+                new RMapIri(randomURI()), 
+                Arrays.asList(randomURI()));
+        
+        final ORMapDiSCO updatedDisco2 = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
 
         discomgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
 
         discomgr.updateDiSCO(
-                rMapIri2OpenRdfIri(originalDisco.getId()), updatedDisco, reqEventDetails, false, triplestore);
+                rMapIri2OpenRdfIri(originalDisco.getId()), updatedDisco1, reqEventDetails, false, triplestore);
+        
+        discomgr.updateDiSCO(
+                rMapIri2OpenRdfIri(updatedDisco1.getId()), updatedDisco2, reqEventDetails, false, triplestore);
 
         assertEquals(findLineageProgenitor(originalDisco.getId().getIri(), triplestore),
-                findLineageProgenitor(updatedDisco.getId().getIri(), triplestore));
+                findLineageProgenitor(updatedDisco1.getId().getIri(), triplestore));
+        
+        assertEquals(findLineageProgenitor(updatedDisco1.getId().getIri(), triplestore),
+                findLineageProgenitor(updatedDisco2.getId().getIri(), triplestore));
 
     }
     
