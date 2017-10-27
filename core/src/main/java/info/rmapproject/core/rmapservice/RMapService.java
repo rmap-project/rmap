@@ -525,4 +525,12 @@ public interface RMapService {
 	 */
 	public boolean isEventId(URI id) throws RMapException, RMapDefectiveArgumentException;
 
+	/**
+	 * Gets the lineage progenitor of the given disco
+	 *
+	 * @param discoUri URI of a DiSCO for which we want to find the lineage progenitor.
+	 * @return URI of the progenitor.
+	 */
+	public URI getLineageProgenitor(URI discoUri);
+
 }
