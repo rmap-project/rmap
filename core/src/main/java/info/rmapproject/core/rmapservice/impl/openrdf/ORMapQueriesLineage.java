@@ -21,11 +21,9 @@
 package info.rmapproject.core.rmapservice.impl.openrdf;
 
 import static info.rmapproject.core.utils.Terms.PROV_GENERATED_PATH;
-import static info.rmapproject.core.utils.Terms.RMAP_DELETEDOBJECT_PATH;
+import static info.rmapproject.core.utils.Terms.RMAP_DERIVATION_PATH;
 import static info.rmapproject.core.utils.Terms.RMAP_EVENT_PATH;
-import static info.rmapproject.core.utils.Terms.RMAP_INACTIVATEDOBJECT_PATH;
 import static info.rmapproject.core.utils.Terms.RMAP_LINEAGE_PROGENITOR_PATH;
-import static info.rmapproject.core.utils.Terms.RMAP_UPDATEDOBJECT_PATH;
 
 import java.net.URI;
 
@@ -47,16 +45,14 @@ abstract class ORMapQueriesLineage {
     static final String BINDING_RESOURCE = "resource";
 
     static final String QUERY_LINEAGE_SEARCH =
-            String.format("SELECT DISTINCT ?%s\n", BINDING_LINEAGE) +
+            String.format("SELECT ?%s\n", BINDING_LINEAGE) +
                     "WHERE {\nGRAPH ?g { \n" +
                     String.format("?e a <%s> .\n", RMAP_EVENT_PATH) +
                     String.format("?e <%s> ?%s .\n", RMAP_LINEAGE_PROGENITOR_PATH, BINDING_LINEAGE) +
                     String.format("?e ?rel ?%s .\n", BINDING_RESOURCE) +
-                    String.format("FILTER (?rel IN (<%s>, <%s>, <%s>, <%s>) )",
+                    String.format("FILTER (?rel IN (<%s>, <%s>) )",
                             PROV_GENERATED_PATH,
-                            RMAP_UPDATEDOBJECT_PATH,
-                            RMAP_DELETEDOBJECT_PATH,
-                            RMAP_INACTIVATEDOBJECT_PATH) +
+                            RMAP_DERIVATION_PATH) +
                     "}}";
 
     /**

@@ -24,7 +24,7 @@ import static info.rmapproject.core.model.event.RMapEventTargetType.DISCO;
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotEquals;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -83,16 +83,23 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
 
         final URI oldDiscoUri = randomURI();
 
-        final ORMapEventUpdate event = new ORMapEventUpdate(
+        final ORMapEventCreation creation = new ORMapEventCreation(
+                uri2OpenRdfIri(randomURI()),
+                new RequestEventDetails(randomURI()), DISCO,
+                Arrays.asList(new RMapIri(oldDiscoUri)));
+        creation.setEndTime(new Date());
+        creation.setLineageProgenitor(new RMapIri(lineageURI));
+
+        final ORMapEventUpdate update = new ORMapEventUpdate(
                 uri2OpenRdfIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
                 uri2OpenRdfIri(oldDiscoUri),
                 uri2OpenRdfIri(discoURI));
+        update.setEndTime(new Date());
+        update.setLineageProgenitor(new RMapIri(lineageURI));
 
-        event.setEndTime(new Date());
-        event.setLineageProgenitor(new RMapIri(lineageURI));
-
-        eventmgr.createEvent(event, ts);
+        eventmgr.createEvent(creation, ts);
+        eventmgr.createEvent(update, ts);
 
         // Discovering the same lineage from both the new and old discos is expected
         assertEquals(lineageURI, findLineageProgenitor(oldDiscoUri, ts));
@@ -104,19 +111,63 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
 
         final URI oldDiscoUri = randomURI();
 
-        final ORMapEventDerivation event = new ORMapEventDerivation(
+        final ORMapEventCreation creation = new ORMapEventCreation(
+                uri2OpenRdfIri(randomURI()),
+                new RequestEventDetails(randomURI()), DISCO,
+                Arrays.asList(new RMapIri(oldDiscoUri)));
+        creation.setEndTime(new Date());
+        creation.setLineageProgenitor(new RMapIri(randomURI()));
+
+        final ORMapEventDerivation derivation = new ORMapEventDerivation(
                 uri2OpenRdfIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
                 uri2OpenRdfIri(oldDiscoUri), uri2OpenRdfIri(discoURI));
 
-        event.setEndTime(new Date());
-        event.setLineageProgenitor(new RMapIri(lineageURI));
+        derivation.setEndTime(new Date());
+        derivation.setLineageProgenitor(new RMapIri(lineageURI));
 
-        eventmgr.createEvent(event, ts);
+        eventmgr.createEvent(creation, ts);
+        eventmgr.createEvent(derivation, ts);
 
-        // We shouldn't find the lineage of the thing that this event was derived from,
-        // we should only find the lineage of the newly created (derived) object
         assertEquals(lineageURI, findLineageProgenitor(discoURI, ts));
-        assertNull(findLineageProgenitor(oldDiscoUri, ts));
+        assertNotEquals(lineageURI, findLineageProgenitor(oldDiscoUri, ts));
+    }
+
+    @Test
+    public void viaDerivationOfUpdatedTest() {
+
+        final URI firstDiscoURI = randomURI();
+        final URI secondDiscoUri = randomURI();
+
+        final ORMapEventCreation creation = new ORMapEventCreation(
+                uri2OpenRdfIri(randomURI()),
+                new RequestEventDetails(randomURI()), DISCO,
+                Arrays.asList(new RMapIri(firstDiscoURI)));
+        creation.setEndTime(new Date());
+        creation.setLineageProgenitor(new RMapIri(firstDiscoURI));
+
+        final ORMapEventUpdate update = new ORMapEventUpdate(
+                uri2OpenRdfIri(randomURI()),
+                new RequestEventDetails(randomURI()), DISCO,
+                uri2OpenRdfIri(firstDiscoURI),
+                uri2OpenRdfIri(secondDiscoUri));
+        update.setEndTime(new Date());
+        update.setLineageProgenitor(new RMapIri(firstDiscoURI));
+
+        final ORMapEventDerivation derivation = new ORMapEventDerivation(
+                uri2OpenRdfIri(randomURI()),
+                new RequestEventDetails(randomURI()), DISCO,
+                uri2OpenRdfIri(secondDiscoUri), uri2OpenRdfIri(discoURI));
+        derivation.setEndTime(new Date());
+        derivation.setLineageProgenitor(new RMapIri(lineageURI));
+
+        eventmgr.createEvent(creation, ts);
+        eventmgr.createEvent(derivation, ts);
+        eventmgr.createEvent(update, ts);
+
+        assertEquals(lineageURI, findLineageProgenitor(discoURI, ts));
+        assertNotEquals(lineageURI, findLineageProgenitor(firstDiscoURI, ts));
+        assertNotEquals(lineageURI, findLineageProgenitor(secondDiscoUri, ts));
+        assertEquals(findLineageProgenitor(firstDiscoURI, ts), findLineageProgenitor(secondDiscoUri, ts));
     }
 }
