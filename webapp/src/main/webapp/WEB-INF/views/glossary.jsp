@@ -29,12 +29,12 @@
 	<div id="Resource"></div>
 	<h2>Resource</h2>
 	<p>
-		Like <a href="#Graph">"graph"</a>, in RMap, the use of the word "resource" comes from the linked data technology that underlies the system. 
+		In RMap, the use of the word "resource" comes from the linked data technology that underlies the system. 
 		In linked data, <em>everything</em> that can be described could potentially be a "Resource", and in fact the technology used to represent linked data is called 
 		"Resource Description Framework" (RDF). The focus of RMap is on scholarly research, so imagine a research project. Within a research project, every person that worked
 		on the project could be thought of as a Resource in RMap. Every article written about the project, every data file produced, every piece of software written, could be 
 		a Resource. The institutions involved such as the researcher affiliations, funders, or publishers all could be Resources.  A grant could be a Resource. RMap supports the 
-		description of these Resources and the connections between them at any level of detail.  As soon as something is described in RMap as part of a <a href="#DiSCO">DiSCO</a>, 
+		description of these Resources and the connections between them at any level of detail. As soon as something is described in RMap as part of a <a href="#RMapDiSCO">DiSCO</a>, 
 		it becomes a "Resource". Ideally Resources are represented using unique identifiers, such as DOIs, ORCIDs, or URLs. Where these are used consistently, they will become 
 		more and more interconnected in the RMap database allowing users to navigate from person to publication to funder etc. 
 		In RMap you will see representations of how Resources are connected, and any additional properties (such as names, titles etc.) that have been provided.
@@ -50,11 +50,12 @@
 	
 	<div id="RMapAgent"></div>
 	<h2>RMap Agent</h2>
-	<p>An "RMap Agent" is a special type of <a href="#Agent">Agent</a> that can act upon the RMap database by creating <a href="RMapDiSCO">DiSCOs</a>. Currently the only way to create DiSCOs 
-	is by registering for an API key and interacting with the REST API. The first time a user interacts with the API, they become and RMap Agent. Every change made to the database is connected 
-	to that RMap Agent record. Depending on how the RMap site is configured, a user can create their RMap Agent account either by signing in and self registering using Google, Twitter, or ORCID 
-	log-ins, or by requesting an account using the RMap contact information.</p>
-
+	<p>
+		An "RMap Agent" is a special type of <a href="#Agent">Agent</a> that can act upon the RMap database by creating <a href="RMapDiSCO">DiSCOs</a>. Currently the only way to create DiSCOs 
+		is by registering for an API key and interacting with the REST API. The first time a user interacts with the API, they become and RMap Agent. Every change made to the database is connected 
+		to that RMap Agent record. Depending on how the RMap site is configured, a user can create their RMap Agent account either by signing in and self registering using Google, Twitter, or ORCID 
+		log-ins, or by requesting an account using the RMap contact information.
+	</p>
 	
 	<div id="RMapDiSCO"></div>
 	<h2>RMap DiSCO</h2>
