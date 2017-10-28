@@ -54,6 +54,9 @@ public class GraphNodeType {
 
 	/** The node type image path. */
 	private String image = "";
+
+	/** A brief description of the node type. */
+	private String description = "";
 	
 	/**
 	 * Instantiates a new graph node type.
@@ -61,6 +64,7 @@ public class GraphNodeType {
 	 * @param name the nodetype name
 	 */
 	public GraphNodeType(String name, MessageSource colors){
+		
 		//just pass in name, the rest is constructed using configuration
 		if (name!=null){
 			this.name=name;
@@ -77,9 +81,13 @@ public class GraphNodeType {
 				String[] props = nodeProps.split("\\|");
 				this.color = props[0];
 				this.shape = props[1];
-				if (this.shape.equals(Constants.NODESHAPE_IMAGE) && props.length==3){
-					this.image = props[2];					
+				if (this.shape.equals(Constants.NODESHAPE_IMAGE) && props.length==4){
+					this.image = props[2];
+					this.description = props[3];
+				} else {
+					this.description = props[2];
 				}
+				
 			} else { //set defaults
 				this.color=Constants.DEFAULT_NODE_COLOR;
 				this.shape=Constants.DEFAULT_NODE_SHAPE;
@@ -130,6 +138,22 @@ public class GraphNodeType {
 	 */
 	public String getImage() {
 		return image;
+	}
+
+	/**
+	 * Gets the node type description
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * Sets the node type description
+	 * @param description
+	 */
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

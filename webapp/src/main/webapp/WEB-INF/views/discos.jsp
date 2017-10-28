@@ -14,7 +14,9 @@
 		
 		<tl:tabsGraphTable/>
 		
-		<h1>RMap DiSCO</h1>
+		<h1 class="lineContinues">RMap DiSCO</h1>
+		<tl:tooltip toolTipText="DiSCOs represent aggregations of one or more scholarly resources and most contain additional information about those connected resources." 
+					readMoreLink="/about/glossary#RMapDiSCO"/>
 		<h2>URI: ${DISCO.getUri()}</h2>
 		<p>
 			<c:set var="dProviderId" value="${DISCO.getProviderId()}"/>
@@ -50,7 +52,11 @@
 	<aside class="four columns right-sidebar">
 	     
 		<div class="sidebar-widget">
-			<div class="status${DISCO.getStatus().toString()}"><h1>${DISCO.getStatus().toString()}</h1></div>
+			<div class="status${DISCO.getStatus().toString()}">
+				${DISCO.getStatus().toString()}
+				<tl:tooltip toolTipText="The DiSCO status. A DiSCO is ACTIVE if the data is considered valid and up to date. It is INACTIVE if there is a newer version, or it has been marked INACTIVE by the data provider." 
+							readMoreLink="/about/glossary#Status"/>
+			</div>
 			<h2>Related Events</h2>
 			<ul>
 				<c:forEach var="event" items="${DISCO.getEvents()}">
@@ -60,7 +66,7 @@
 			
 			<c:set var="agentVersions" value="${DISCO.getAgentVersions()}"/>
 			<h2>Other DiSCO Versions</h2>
-			<h3>Same agent</h3>
+			<h3>Same Agent</h3>
 			<c:if test="${agentVersions!=null && agentVersions.size()>0}">
 				<ul>
 				<c:forEach var="version" items="${agentVersions}">
@@ -73,7 +79,7 @@
 			</c:if>
 	
 			<c:set var="otherAgentVersions" value="${DISCO.getOtherAgentVersions()}"/>
-			<h3>Other agents</h3>
+			<h3>Other Agents</h3>
 			<c:if test="${otherAgentVersions!=null && otherAgentVersions.size()>0}">
 				<ul>
 				<c:forEach var="version" items="${otherAgentVersions}">

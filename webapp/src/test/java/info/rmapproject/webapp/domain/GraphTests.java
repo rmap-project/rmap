@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import java.net.URI;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.model.IRI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +47,11 @@ public class GraphTests extends WebTestAbstract {
 	 * Test graph node type creation.
 	 */
 	@Test
-	@Ignore("FIXME")
 	public void testGraphNodeTypeCreation() {
 		GraphNodeType nodetype = graphFactory.newGraphNodeType("Physical_object");
 		assertTrue(nodetype.getName().equals("Physical_object"));
-		assertTrue(nodetype.getShape().equals("dot"));
-		assertTrue(nodetype.getColor().equals("#996600"));
+		assertTrue(nodetype.getShape().equals("image"));
+		assertTrue(nodetype.getDescription().contains("painting"));
 	}
 
 	/**

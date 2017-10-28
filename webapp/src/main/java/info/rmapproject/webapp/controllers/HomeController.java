@@ -66,4 +66,9 @@ public class HomeController {
 		return "about";
 	}
 	
+	@RequestMapping(value={"/about/glossary"}, method=RequestMethod.GET)
+	public String glossary(Model model) {
+		return "glossary";
+	}	
+	
 }

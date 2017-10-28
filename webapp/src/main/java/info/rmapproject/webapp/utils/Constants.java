@@ -56,8 +56,8 @@ public final class Constants  {
     /** Term used to define node shape as "image". */
     public static final String NODESHAPE_IMAGE = "image";
     
-    /** Label for node type "Undefined". */
-    public static final String NODETYPE_UNCATEGORIZED = "Uncategorized";
+    /** Label for node type "Other". */
+    public static final String NODETYPE_OTHER = "Other";
     
     /** Default node color in case config fails*. */
     public static final String DEFAULT_NODE_COLOR = "#87CEFA";

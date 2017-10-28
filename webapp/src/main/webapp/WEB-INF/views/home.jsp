@@ -4,15 +4,13 @@
 <%@ taglib prefix="tl" tagdir="/WEB-INF/tags" %>
 
 <tl:pageStartStandard user="${user}" pageTitle="Home"/>
-
-	<h1>Welcome to RMap!</h1>
-		<c:if test="${notice!=null}">
+	<h1>Welcome to RMap</h1>
+	<c:if test="${notice!=null}">
 		<p class="notice">
 			${notice}
 		</p>
 	</c:if>
-	<p>RMap aims to capture and preserve maps of scholarly works. To search RMap, start by entering a 
-	URI* for a person, institution, or work in the search below.</p>
+	<p>RMap captures and preserves maps of scholarly works. Enter a URI* for a person, institution, or work in the search below.</p>
 	<c:url var="post_url"  value="/search" />
 	<form:form modelAttribute="search" action="${post_url}">
 		<form:input path="search" placeholder="Search for a URI in RMap" id="searchbox" value="${searchVal}"/>
@@ -26,6 +24,7 @@
 	</form:form>
 	<p id="textnote">* A URI is a Uniform Resource Identifier. URIs typically contain a colon to separate the prefix from an identifier. 
 	Examples of valid URIs include URLs, ARK IDs, DOIs (all formats), and ORCID IDs.</p>
+	<br/>
 	<br/>
 	<br/>
 	<br/>

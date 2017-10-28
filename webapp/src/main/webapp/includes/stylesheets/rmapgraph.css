@@ -131,9 +131,36 @@ div.loadbarOuterBorder {
    }	
 
 .legendlabel {
-  font-size:9pt; 
+  font-size:smaller; 
   margin-left:25px;
   margin-bottom:3px;
+  display:inline-block;
+  color:#0000C1;
+}
+
+.legendlabel:hover {
+	color:lightblue;
+}
+
+
+.legendlabel .tooltiptext {
+    visibility: hidden;
+    background-color: #6f6f6f;
+    color: #ffffff;
+    font-weight: normal;
+    font-size: small;
+    border-radius: 3px;
+    padding: 5px;
+    margin-top:4px;
+    position: absolute;
+    z-index: 10;
+    top: -5px;
+    left: 105%;
+    width: 120px;
+}
+
+.legendlabel:hover .tooltiptext {
+    visibility: visible;
 }
 
 /*nodeinfo popup*/
@@ -204,4 +231,3 @@ img{
     -webkit-user-select: none;
     user-select: none;
 }
-

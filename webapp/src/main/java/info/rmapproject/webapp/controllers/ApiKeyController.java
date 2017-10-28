@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.KeyStatus;
@@ -74,6 +75,7 @@ public class ApiKeyController {
 	public String showKeyList(Model model, HttpSession session) throws Exception {
 		User user = (User) session.getAttribute("user"); //retrieve user being edited
         model.addAttribute("apiKeyList", this.userMgtService.listApiKeyByUser(user.getUserId()));
+        
         return "user/keys";	
 	}
 	
@@ -107,7 +109,7 @@ public class ApiKeyController {
 	 */
 	@LoginRequired
 	@RequestMapping(value={"/user/key/new","/admin/user/key/new"}, method=RequestMethod.POST)
-	public String createKey(@Valid ApiKey apiKey, BindingResult result, ModelMap model, HttpSession session) throws Exception {
+	public String createKey(@Valid ApiKey apiKey, BindingResult result, ModelMap model, HttpSession session, RedirectAttributes redirectAttributes) throws Exception {
 		User user = (User) session.getAttribute("user"); //retrieve logged in user
         if (result.hasErrors()) {
     		model.addAttribute("notice", "Errors found, key could not be created.");
@@ -116,7 +118,7 @@ public class ApiKeyController {
         }
 		apiKey.setUserId(user.getUserId());
 		this.userMgtService.addApiKey(apiKey);
-		model.addAttribute("notice", "Your new key was successfully created!");	
+		redirectAttributes.addFlashAttribute("notice", "Your new key was successfully created!");	
 		Boolean isAdmin = (Boolean) session.getAttribute(Constants.ADMIN_LOGGEDIN_SESSATTRIB);
 		if (isAdmin!=null && isAdmin) {
 			return "redirect:/admin/user/keys"; 			
@@ -165,7 +167,7 @@ public class ApiKeyController {
 	 */
 	@LoginRequired
 	@RequestMapping(value={"/user/key/edit","/admin/user/key/edit"}, method=RequestMethod.POST)
-	public String updateUserKey(@Valid ApiKey apiKey, BindingResult result, ModelMap model, HttpSession session) throws Exception {
+	public String updateUserKey(@Valid ApiKey apiKey, BindingResult result, ModelMap model, HttpSession session, RedirectAttributes redirectAttributes) throws Exception {
 		User user = (User) session.getAttribute("user"); //retrieve logged in user
         if (result.hasErrors() || user.getUserId()!=apiKey.getUserId()) {
 			model.addAttribute("targetPage", "keyedit");
@@ -173,7 +175,7 @@ public class ApiKeyController {
             return "user/key";
         }
 		this.userMgtService.updateApiKey(apiKey);	
-		model.addAttribute("notice", "Key settings have been saved.");	
+		redirectAttributes.addFlashAttribute("notice", "Key settings have been saved.");	
 		Boolean isAdmin = (Boolean) session.getAttribute(Constants.ADMIN_LOGGEDIN_SESSATTRIB);
 		if (isAdmin!=null && isAdmin) {
 			return "redirect:/admin/user/keys"; 			
