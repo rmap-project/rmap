@@ -7,11 +7,13 @@
 			viewMode="visual" resourceUri="${RESOURCEURI.toString()}"/>
 
 	<div>
-		<h1>RMap Agent</h1>
+		<h1 class="lineContinues">RMap Agent</h1>
+		<tl:tooltip standardDescName="RMapAgent"/>
 		<h2>${AGENT.getUri()}</h2>
 	</div>
-	
-	<tl:graphLarge nodeTypes="${GRAPH.getNodeTypes()}" summaryview="/agents/${my:httpEncodeUri(AGENT.getUri())}"/>
+		
+	<div id="graphview" class="tabcontent">
+		<tl:loadingIcon/>
+	</div>
 
 <tl:pageEndShort/>
-	

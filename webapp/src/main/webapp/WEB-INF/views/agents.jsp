@@ -15,8 +15,7 @@
 		<tl:tabsGraphTable/>
 		
 		<h1 class="lineContinues">RMap Agent</h1>
-		<tl:tooltip toolTipText="An RMap Agent can create data in RMap in the form of DiSCOs." 
-					readMoreLink="/about/glossary#RMapAgent"/>
+		<tl:tooltip standardDescName="RMapAgent"/>
 		<h2>URI: ${agentUri}</h2>
 	
 		<div id="graphview" class="tabcontent">

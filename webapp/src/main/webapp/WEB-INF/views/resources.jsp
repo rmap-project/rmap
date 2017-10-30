@@ -14,7 +14,7 @@
 		<tl:tabsGraphTable/>
 		
 		<h1 class="lineContinues">Resource Summary</h1>
-		<tl:tooltip toolTipText="A Resource represents anything that can be described. For example, a person, institution, grant, article, data file could be a Resource" 
+		<tl:tooltip toolTipText="A Resource represents anything that can be described. For example, a person, institution, grant, article, or data file could be a Resource" 
 					readMoreLink="/about/glossary#Resource"/>
 		<h2>URI: <tl:linkExternal uri="${RESOURCEURI}"/></h2>
 	

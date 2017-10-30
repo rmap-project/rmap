@@ -15,8 +15,7 @@
 		<tl:tabsGraphTable/>
 		
 		<h1 class="lineContinues">RMap DiSCO</h1>
-		<tl:tooltip toolTipText="DiSCOs represent aggregations of one or more scholarly resources and most contain additional information about those connected resources." 
-					readMoreLink="/about/glossary#RMapDiSCO"/>
+		<tl:tooltip standardDescName="RMapDiSCO"/>
 		<h2>URI: ${DISCO.getUri()}</h2>
 		<p>
 			<c:set var="dProviderId" value="${DISCO.getProviderId()}"/>

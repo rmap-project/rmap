@@ -26,7 +26,7 @@
  </c:forEach>	
 </div>
 <div id="visualWrapperSmall">
-	<div class="graphcontrol graphresize" title="View full page visualization"><a href="<c:url value='${visualuri}'/>" target="_blank">&nbsp;<i class="fa fa-expand"></i>&nbsp;</a></div>	
+	<div class="graphcontrol graphresize" title="View full page visualization"><a href="<c:url value='${visualuri}'/>">&nbsp;<i class="fa fa-expand"></i>&nbsp;</a></div>	
 	<div id="mynetwork" class="cysmall"></div>
 	<div id="loadbar" class="loadbarSmall">
 		<div class="loadbarOuterBorder">

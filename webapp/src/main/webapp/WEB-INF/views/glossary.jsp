@@ -34,7 +34,7 @@
 		"Resource Description Framework" (RDF). The focus of RMap is on scholarly research, so imagine a research project. Within a research project, every person that worked
 		on the project could be thought of as a Resource in RMap. Every article written about the project, every data file produced, every piece of software written, could be 
 		a Resource. The institutions involved such as the researcher affiliations, funders, or publishers all could be Resources.  A grant could be a Resource. RMap supports the 
-		description of these Resources and the connections between them at any level of detail.  As soon as something is described in RMap as part of a <a href="#DiSCO">DiSCO</a>, 
+		description of these Resources and the connections between them at any level of detail.  As soon as something is described in RMap as part of a <a href="#RMapDiSCO">DiSCO</a>, 
 		it becomes a "Resource". Ideally Resources are represented using unique identifiers, such as DOIs, ORCIDs, or URLs. Where these are used consistently, they will become 
 		more and more interconnected in the RMap database allowing users to navigate from person to publication to funder etc. 
 		In RMap you will see representations of how Resources are connected, and any additional properties (such as names, titles etc.) that have been provided.
@@ -68,8 +68,8 @@
 	<div id="RMapEvent"></div>
 	<h2>RMap Event</h2>
 	<p>
-		RMap Events describe the activity within RMap. Each time an <a href="#RMapDiSCO">RMap DiSCO</a> or <a href="#RMapAgent">RMap Agent</a>is created or updated
-		an RMap Event captures information about the change - when it occurred and who initiated the change.
+		RMap Events describe the activity within RMap. Each time an <a href="#RMapDiSCO">RMap DiSCO</a> or <a href="#RMapAgent">RMap Agent</a> is created or updated
+		an RMap Event captures information about the change - what changed, when it occurred, and who initiated the change.
 	</p>
 	
 	<div id="Status"></div>

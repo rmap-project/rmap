@@ -6,7 +6,9 @@
 <tl:pageStartGraph pageTitle="Visualization | RMap Agent" user="${user}" pageType="agent"  
 			viewMode="widget" resourceUri="${RESOURCEURI.toString()}"/>  
 
-<tl:graphWidget nodeTypes="${GRAPH.getNodeTypes()}" rmapviewuri="/agents/${my:httpEncodeUri(AGENT.getUri())}"/>
+	<div id="graphview" class="tabcontent">
+		<tl:loadingIcon/>
+	</div>
 
 </body>
 </html>
