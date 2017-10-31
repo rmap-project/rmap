@@ -17,7 +17,9 @@
  	<bean id="discomgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr" scope="prototype" parent="abstractManager"/>
  	<bean id="statementmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr" scope="prototype" parent="abstractManager"/>
  	<bean id="eventmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr" scope="prototype" parent="abstractManager"/>
- 	<bean id="agentmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr" scope="prototype" parent="abstractManager"/>
+ 	<bean id="agentmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr" parent="abstractManager">
+		<constructor-arg ref="eventmgr"/>
+	</bean>
 	<bean id="rmapSearchParams" class="info.rmapproject.core.model.request.RMapSearchParams" scope="prototype" parent="abstractManager"/>
 
 	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
