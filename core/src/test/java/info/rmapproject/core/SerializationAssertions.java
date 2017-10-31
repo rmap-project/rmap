@@ -19,11 +19,19 @@
  *******************************************************************************/
 package info.rmapproject.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.util.function.Supplier;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,6 +43,8 @@ import static org.junit.Assert.assertNotNull;
  */
 public class SerializationAssertions {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SerializationAssertions.class.getName());
+
     /**
      * Serializes the supplied object using {@link ObjectOutputStream} and attempts to read it back in using
      * {@link ObjectInputStream}.  The {@code equals(Object)} method is used to compare the results.
@@ -45,19 +55,50 @@ public class SerializationAssertions {
      */
     public static void serializeTest(Object expectedObject) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        doSerializationAndPerformAssertions(expectedObject, bos, () -> new ByteArrayInputStream(bos.toByteArray()));
+        LOG.debug("Serialized object {} size: {} bytes", expectedObject.getClass().getSimpleName(), bos.size());
+    }
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+    /**
+     * Serializes the supplied object with GZip compression using {@link ObjectOutputStream} and attempts to read it
+     * back in using {@link ObjectInputStream}.  The {@code equals(Object)} method is used to compare the results.
+     *
+     * @param expectedObject the object to serialize, and used for comparison against the round-tripped object
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static void serializeWithCompression(Object expectedObject) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        GZIPOutputStream compressedOs = compress(bos);
+        doSerializationAndPerformAssertions(expectedObject, compressedOs, () -> {
+            try {
+                return new GZIPInputStream(new ByteArrayInputStream(bos.toByteArray()));
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        });
+        LOG.debug("Serialized object {} size: {} bytes", expectedObject.getClass().getSimpleName(), bos.size());
+    }
+
+    private static void doSerializationAndPerformAssertions(Object expectedObject, OutputStream serializationOs,
+                                                     Supplier<InputStream> inputStreamSupplier)
+            throws IOException, ClassNotFoundException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(serializationOs)) {
             oos.writeObject(expectedObject);
         }
 
         Object actualObject = null;
 
-        try (ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
-             ObjectInputStream ois = new ObjectInputStream(bin)) {
+        try (ObjectInputStream ois = new ObjectInputStream(inputStreamSupplier.get())) {
             actualObject = ois.readObject();
         }
 
         assertNotNull(actualObject);
         assertEquals(expectedObject, actualObject);
     }
+
+    private static GZIPOutputStream compress(OutputStream os) throws IOException {
+        return new GZIPOutputStream(os, true);
+    }
+
 }
