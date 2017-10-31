@@ -14,7 +14,8 @@
 		
 		<tl:tabsGraphTable/>
 		
-		<h1>RMap Agent Summary</h1>
+		<h1 class="lineContinues">RMap Agent</h1>
+		<tl:tooltip standardDescName="RMapAgent"/>
 		<h2>URI: ${agentUri}</h2>
 	
 		<div id="graphview" class="tabcontent">
@@ -35,8 +36,10 @@
 		    
 	<aside class="four columns right-sidebar">
 		<div class="sidebar-widget">
-			<div class="status${AGENT.getStatus()}"><h1>${AGENT.getStatus()}</h1></div>
-			<h2>Agent Events</h2>
+			<h2>&nbsp;</h2>
+			<h2 class="lineContinues">Agent Events</h2>
+			<tl:tooltip toolTipText="The Events in this list describe any changes to the RMap Agent record." 
+						readMoreLink="/about/glossary#RMapEvent"/>
 			<c:if test="${AGENT.getNumEvents()>20}">
 				<em>(Displaying <strong>20</strong> out of <strong>${AGENT.getNumEvents()})</strong></em><br/><br/>
 			</c:if>

@@ -42,7 +42,6 @@ import info.rmapproject.webapp.domain.SearchForm;
  */
 @Controller
 @SessionAttributes({"user","account"})
-@RequestMapping(value="/search")
 public class SearchController {
 
 	/** The log. */
@@ -55,7 +54,7 @@ public class SearchController {
 	 * @param redirectAttributes holds flash attributes passed from a redirect
 	 * @return the search page
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value={"/search"}, method = RequestMethod.GET)
 	public String searchForm(Model model) {
 		LOG.info("Search page");
 		
@@ -75,7 +74,7 @@ public class SearchController {
 	 * @return the resource page
 	 * @throws Exception the exception
 	 */
-	@RequestMapping(method=RequestMethod.POST)
+	@RequestMapping(value={"/search","/"}, method = RequestMethod.POST)
 	public String searchResults(@Valid @ModelAttribute("search") SearchForm search,
 									BindingResult result, Model model) throws Exception {
 		if (result.hasErrors()){

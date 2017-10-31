@@ -67,6 +67,7 @@ import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.dto.AgentDTO;
 import info.rmapproject.webapp.service.dto.DiSCODTO;
 import info.rmapproject.webapp.service.dto.EventDTO;
+import info.rmapproject.webapp.utils.Constants;
 import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
@@ -131,8 +132,8 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			agentNodeType = WebappUtils.getNodeType(new URI(Terms.RMAP_AGENT_PATH));
 		} catch (Exception e){
 			//set default
-			discoNodeType = "Undefined";
-			agentNodeType = "Undefined";
+			discoNodeType = Constants.NODETYPE_OTHER;
+			agentNodeType = Constants.NODETYPE_OTHER;
 		}
 	}
 		

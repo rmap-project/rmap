@@ -36,14 +36,14 @@
 				<a href="<c:url value='/home'/>">Home</a>
 			</li>
 			<li id="menu-item-2">
-				<a href="<c:url value='/search'/>">Search</a>
-			</li>
-			<li id="menu-item-3">
-				<a href="<c:url value='/contact'/>">Contact</a>
+				<a href="<c:url value='/about'/>">About</a>
+				<ul class="dropdown-menu">
+					<li><a href="<c:url value='/about/glossary'/>">Glossary</a></li>	
+				</ul>
 			</li>
 			
 			<c:if test="${sessionScope.adminLoggedIn}">
-				<li id="menu-item-4">
+				<li id="menu-item-3">
 					<a href="<c:url value='/admin/welcome'/>" title="RMap Admin">RMap Admin<b class="caret"></b></a>
 					<ul class="dropdown-menu">
 						<li><a href="<c:url value='/admin/users'/>">Manage Users</a></li>	
@@ -56,7 +56,7 @@
 			<c:if test="${SITEPROPS.isOauthEnabled()&&!sessionScope.adminLoggedIn}">
 				
 				<c:if test="${uid>0}">
-				<li id="menu-item-4">
+				<li id="menu-item-3">
 					<a href="<c:url value='/user/welcome'/>" title="${uname}"><span id="truncate">${uname}<b class="caret"></b></span></a>
 					<ul class="dropdown-menu">
 						<li><a href="<c:url value='/user/keys'/>">Manage API keys</a></li>
@@ -68,7 +68,7 @@
 				</c:if>
 				
 				<c:if test="${uid==0&&uname.length()>0}">
-				<li id="menu-item-4">
+				<li id="menu-item-3">
 					<a href="<c:url value='/user/settings'/>" title="${uname}"><span id="truncate">${uname}</span></a>
 					<ul class="dropdown-menu">
 						<li><a href="<c:url value='/user/logout'/>">Sign out</a></li>
@@ -77,7 +77,7 @@
 				</c:if>
 				
 				<c:if test="${uid==0&&uname.length()==0}">
-				<li id="menu-item-4">
+				<li id="menu-item-3">
 					<a href="<c:url value='/user/login'/>" title="Sign in to manage API access keys for write access.">Sign in</a>
 					<div class="signin-menu">
 						<c:if test="${SITEPROPS.isGoogleEnabled()}">

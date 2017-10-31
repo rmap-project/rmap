@@ -12,9 +12,8 @@
 		</p>
 	</c:if>
 	<form:form modelAttribute="search">
-		<form:label path="search">Enter a URI *</form:label> 
-		<form:input path="search" style="width:320px;float:left;margin-right:10px;" value="${searchVal}"/>
-		<input type="submit" value="GO" style="margin-top:3px;">
+		<form:input path="search" placeholder="Search for a URI* in RMap" id="searchbox" value="${searchVal}"/>
+		<input type="submit" value="Search" style="margin-top:3px;">
 		<!-- optional examples follow, uncomment and customize as needed:
 		<p style="font-size: 85%;">Examples: 
 		<a href="<c:url value='/resources/rmap%3Armd18n8xfs'/>">rmap:rmd18n8xfs</a>, 

@@ -10,7 +10,8 @@
 					resourceUri="${RESOURCEURI.toString()}"/>
 
 	<div>
-		<h1>RMap DiSCO</h1>
+		<h1 class="lineContinues">RMap DiSCO</h1>
+		<tl:tooltip standardDescName="RMapDiSCO"/>
 		<h2>${DISCO.getUri()}</h2>
 	</div>
 	

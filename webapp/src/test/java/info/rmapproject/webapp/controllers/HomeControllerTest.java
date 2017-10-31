@@ -68,10 +68,10 @@ public class HomeControllerTest extends WebTestAbstract {
      * @throws Exception
      */
     @Test
-    public void testGetContactPage() throws Exception {
-        mockMvc.perform(get("/contact"))
+    public void testGetAboutPage() throws Exception {
+        mockMvc.perform(get("/about"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("contact"))
+                .andExpect(view().name("about"))
                 .andExpect(model().attributeExists(Constants.SITE_PROPERTIES_ATTRIBNAME));      
     }
 }

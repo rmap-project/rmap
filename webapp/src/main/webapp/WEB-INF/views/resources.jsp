@@ -13,7 +13,9 @@
 		
 		<tl:tabsGraphTable/>
 		
-		<h1>Resource Summary</h1>
+		<h1 class="lineContinues">Resource Summary</h1>
+		<tl:tooltip toolTipText="A Resource represents anything that can be described. For example, a person, institution, grant, article, or data file could be a Resource" 
+					readMoreLink="/about/glossary#Resource"/>
 		<h2>URI: <tl:linkExternal uri="${RESOURCEURI}"/></h2>
 	
 		<tl:resourceTypeList resource_types="${RESOURCE_TYPES}"/>
@@ -32,7 +34,9 @@
 	<aside class="four columns right-sidebar">
 	    <div class="sidebar-widget">
 			<h1>&nbsp;</h1>
-			<h2>Related Active DiSCOs</h2>
+			<h2 class="lineContinues">Related Active DiSCOs</h2>
+			<tl:tooltip toolTipText="DiSCOs represent aggregations of one or more scholarly resources. DiSCOs listed here mention the Resource on this page." 
+					readMoreLink="/about/glossary#RMapDiSCO"/>
 			<div id="resourceRelatedDiscos" data-offset="${resource_discos_offset}"><tl:loadingIcon/></div>
 		</div>
 	</aside>

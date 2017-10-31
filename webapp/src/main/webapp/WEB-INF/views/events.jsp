@@ -4,7 +4,8 @@
 
 <tl:pageStartStandard user="${user}" pageTitle="RMap Event"/>
 
-<h1>RMap Event Summary</h1>
+<h1 class="lineContinues">RMap Event</h1>
+<tl:tooltip standardDescName="RMapEvent"/>
 <h2>URI: ${EVENT.getUri()}</h2>
 <div class="CSSTableGenerator">
 	<table>

@@ -160,13 +160,11 @@ function toggle(tag)
 	if (status=="on") {
 		removeNodeType(type);
 		$(tag).attr("data-status","off");		
-		$('.label' + type).css('color','#d3d3d3');
 		}
 	else 
 		{
 		addNodeType(type);
 		$(tag).attr("data-status","on");
-		$('.label' + type).css('color','#111111');
 	}   
 }
 

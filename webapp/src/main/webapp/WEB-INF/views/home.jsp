@@ -1,24 +1,33 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib prefix="tl" tagdir="/WEB-INF/tags" %>
 
 <tl:pageStartStandard user="${user}" pageTitle="Home"/>
-
-	<h1>Welcome to the RMap Project!</h1>
-	
-	<p>RMap Project is an Alfred P. Sloan Foundation-funded initiative undertaken by the Data Conservancy, Portico, and IEEE. 
-	The goal of RMap is to make it possible to preserve the many-to-many complex relationships among scholarly publications 
-	and their underlying data, thereby supporting the continual development of scholarly communication and digital publishing. 
-	Active work on RMap project began in April 2014.</p>
-	<p>
-	For addition information about the project, visit the <a href="http://rmap-project.info">RMap website</a>.  
-	For documentation on how to use the RMap API please visit the <a href="https://rmap-project.atlassian.net/wiki">RMap technical wiki</a>.
-	</p>
-	<p>The video below offers a short introduction to some of the concepts behind the RMap Project:</p>
+	<h1>Welcome to RMap</h1>
+	<c:if test="${notice!=null}">
+		<p class="notice">
+			${notice}
+		</p>
+	</c:if>
+	<p>RMap captures and preserves maps of scholarly works. Enter a URI* for a person, institution, or work in the search below.</p>
+	<c:url var="post_url"  value="/search" />
+	<form:form modelAttribute="search" action="${post_url}">
+		<form:input path="search" placeholder="Search for a URI in RMap" id="searchbox" value="${searchVal}"/>
+		<input type="submit" value="Search" style="margin-top:3px;">
+		<!-- optional examples follow, uncomment and customize as needed:
+		<p style="font-size: 85%;">Examples: 
+		<a href="<c:url value='/resources/rmap%3Armd18n8xfs'/>">rmap:rmd18n8xfs</a>, 
+		<a href="<c:url value='/resources/https%3A%2F%2Fdoi.org%2F10.1109%2FInPar.2012.6339604'/>">https://doi.org/10.1109/InPar.2012.6339604</a>, 
+		<a href="<c:url value='/resources/https%3A%2F%2Fosf.io%2Frxgmb%2F'/>">https://osf.io/rxgmb/</a></p><br/>
+		-->
+	</form:form>
+	<p id="textnote">* A URI is a Uniform Resource Identifier. URIs typically contain a colon to separate the prefix from an identifier. 
+	Examples of valid URIs include URLs, ARK IDs, DOIs (all formats), and ORCID IDs.</p>
 	<br/>
-	<p align="center">
-	<iframe width="560" height="315" style="border-width:1px;" src="https://www.youtube.com/embed/R0xCjScWbJs" allowfullscreen></iframe>
-	</p>
+	<br/>
+	<br/>
+	<br/>
 	<br/>
 	<br/>
 <tl:pageEndStandard/>
