@@ -60,6 +60,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUt
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A concrete class for managing RMap Agents, implemented using openrdf
@@ -74,6 +75,7 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	
 	private ORMapEventMgr eventMgr;
 
+	@Autowired
 	public ORMapAgentMgr(ORMapEventMgr eventMgr) {
 		if (eventMgr == null) {
 			throw new IllegalArgumentException("ORMapEventMgr must not be null.");
