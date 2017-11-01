@@ -14,12 +14,12 @@
     <import resource="classpath:/spring-rmapcore-context.xml" />
 
     <bean id="transactionManager" autowire="byType"
-          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
     </bean>
 
     <!-- Hibernate 4 SessionFactory Bean definition -->
     <bean abstract="true" id="sessionFactory" autowire="byType"
-        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="annotatedClasses">
             <list>
                 <value>info.rmapproject.auth.model.ApiKey</value>

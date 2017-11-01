@@ -46,7 +46,7 @@ public class ApiKey {
 	
 	/** Unique id column for API Key table*. */
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int apiKeyId;
 	
 	/** String of base64 characters that are used as a key to write to RMap API*. */
