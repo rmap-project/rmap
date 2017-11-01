@@ -22,10 +22,10 @@
  */
 package info.rmapproject.core.rmapservice.impl.rdf4j;
 
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findDerivativesfrom;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembers;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembersWithDates;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findDerivativesfrom;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.getLineageMembers;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.getLineageMembersWithDates;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findLineageProgenitor;
 import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
 
 import java.net.URI;

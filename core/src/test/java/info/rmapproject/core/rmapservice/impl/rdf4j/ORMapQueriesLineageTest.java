@@ -18,14 +18,14 @@
  * collaboration between Data Conservancy, Portico, and IEEE.
  */
 
-package info.rmapproject.core.rmapservice.impl.openrdf;
+package info.rmapproject.core.rmapservice.impl.rdf4j;
 
 import static info.rmapproject.core.model.event.RMapEventTargetType.DISCO;
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findDerivativesfrom;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembers;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembersWithDates;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findDerivativesfrom;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findLineageProgenitor;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.getLineageMembers;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.getLineageMembersWithDates;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -44,11 +44,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventDerivation;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventUpdate;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEventDerivation;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEventUpdate;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 
 /**
  * @author apb@jhu.edu
@@ -56,7 +56,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 public class ORMapQueriesLineageTest extends CoreTestAbstract {
 
     @Autowired
-    private SesameTriplestore ts;
+    private Rdf4jTriplestore ts;
 
     @Autowired
     private ORMapEventMgr eventmgr;
@@ -75,7 +75,7 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
     public void viaCreateEventTest() {
 
         final ORMapEventCreation event = new ORMapEventCreation(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
                 asList(new RMapIri(discoURI)));
         event.setEndTime(new Date());
@@ -92,17 +92,17 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         final URI oldDiscoUri = randomURI();
 
         final ORMapEventCreation creation = new ORMapEventCreation(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
                 asList(new RMapIri(oldDiscoUri)));
         creation.setEndTime(new Date());
         creation.setLineageProgenitor(new RMapIri(lineageURI));
 
         final ORMapEventUpdate update = new ORMapEventUpdate(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(oldDiscoUri),
-                uri2OpenRdfIri(discoURI));
+                uri2Rdf4jIri(oldDiscoUri),
+                uri2Rdf4jIri(discoURI));
         update.setEndTime(new Date());
         update.setLineageProgenitor(new RMapIri(lineageURI));
 
@@ -120,16 +120,16 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         final URI oldDiscoUri = randomURI();
 
         final ORMapEventCreation creation = new ORMapEventCreation(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
                 Arrays.asList(new RMapIri(oldDiscoUri)));
         creation.setEndTime(new Date());
         creation.setLineageProgenitor(new RMapIri(randomURI()));
 
         final ORMapEventDerivation derivation = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(oldDiscoUri), uri2OpenRdfIri(discoURI));
+                uri2Rdf4jIri(oldDiscoUri), uri2Rdf4jIri(discoURI));
 
         derivation.setEndTime(new Date());
         derivation.setLineageProgenitor(new RMapIri(lineageURI));
@@ -148,24 +148,24 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         final URI secondDiscoUri = randomURI();
 
         final ORMapEventCreation creation = new ORMapEventCreation(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
                 asList(new RMapIri(firstDiscoURI)));
         creation.setEndTime(new Date());
         creation.setLineageProgenitor(new RMapIri(firstDiscoURI));
 
         final ORMapEventUpdate update = new ORMapEventUpdate(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(firstDiscoURI),
-                uri2OpenRdfIri(secondDiscoUri));
+                uri2Rdf4jIri(firstDiscoURI),
+                uri2Rdf4jIri(secondDiscoUri));
         update.setEndTime(new Date());
         update.setLineageProgenitor(new RMapIri(firstDiscoURI));
 
         final ORMapEventDerivation derivation = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+        		uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(secondDiscoUri), uri2OpenRdfIri(discoURI));
+                uri2Rdf4jIri(secondDiscoUri), uri2Rdf4jIri(discoURI));
         derivation.setEndTime(new Date());
         derivation.setLineageProgenitor(new RMapIri(lineageURI));
 

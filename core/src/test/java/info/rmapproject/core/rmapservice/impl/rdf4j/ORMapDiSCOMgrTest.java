@@ -28,9 +28,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.rMapIri2OpenRdfIri;
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findLineageProgenitor;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -310,7 +310,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	/* Creating a DiSCO should define a lineage with that disco as progenitor */
     @Test
     public void testCreateDiscoLineage() throws Exception {
-        ORMapDiSCO disco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+        ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
 
@@ -323,25 +323,25 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
     @Test
     public void testUpdateDiscoLineage() {
 
-        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
 
-        final ORMapDiSCO updatedDisco1 = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+        final ORMapDiSCO updatedDisco1 = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
         
-        final ORMapDiSCO updatedDisco2 = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+        final ORMapDiSCO updatedDisco2 = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
 
         discomgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
 
         discomgr.updateDiSCO(
-                rMapIri2OpenRdfIri(originalDisco.getId()), updatedDisco1, reqEventDetails, false, triplestore);
+                rMapIri2Rdf4jIri(originalDisco.getId()), updatedDisco1, reqEventDetails, false, triplestore);
         
         discomgr.updateDiSCO(
-                rMapIri2OpenRdfIri(updatedDisco1.getId()), updatedDisco2, reqEventDetails, false, triplestore);
+                rMapIri2Rdf4jIri(updatedDisco1.getId()), updatedDisco2, reqEventDetails, false, triplestore);
 
         assertEquals(findLineageProgenitor(originalDisco.getId().getIri(), triplestore),
                 findLineageProgenitor(updatedDisco1.getId().getIri(), triplestore));
@@ -355,18 +355,18 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
     @Test
     public void testDerivedDiscoLineage() {
         
-        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
         
-        final ORMapDiSCO derivedDisco = new ORMapDiSCO(uri2OpenRdfIri(randomURI()), 
+        final ORMapDiSCO derivedDisco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
                 new RMapIri(randomURI()), 
                 Arrays.asList(randomURI()));
   
         discomgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
         
         discomgr.updateDiSCO(
-                rMapIri2OpenRdfIri(originalDisco.getId()), derivedDisco, reqEventDetails2, false, triplestore);
+                rMapIri2Rdf4jIri(originalDisco.getId()), derivedDisco, reqEventDetails2, false, triplestore);
         
         assertNotEquals(findLineageProgenitor(originalDisco.getId().getIri(), triplestore),
                 findLineageProgenitor(derivedDisco.getId().getIri(), triplestore));

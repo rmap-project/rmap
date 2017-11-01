@@ -36,21 +36,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
-import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapEventMgr;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
@@ -140,13 +137,13 @@ public class ORMapEventCreationTest extends ORMapCommonEventTest {
     protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
             Date endTime, RMapIri associatedKey, RMapIri lineage) {
         
-        final ORMapEventCreation event = new ORMapEventCreation(ORAdapter.rMapIri2OpenRdfIri(context));
+        final ORMapEventCreation event = new ORMapEventCreation(ORAdapter.rMapIri2Rdf4jIri(context));
         
-        event.setAssociatedAgentStatement(ORAdapter.rMapIri2OpenRdfIri(associatedAgent));
+        event.setAssociatedAgentStatement(ORAdapter.rMapIri2Rdf4jIri(associatedAgent));
         event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
         event.setDescription(description);
         event.setEndTime(endTime);
-        event.setAssociatedKeyStatement(ORAdapter.rMapIri2OpenRdfIri(associatedKey));
+        event.setAssociatedKeyStatement(ORAdapter.rMapIri2Rdf4jIri(associatedKey));
         event.setLineageProgenitor(lineage);
         event.setCreatedObjectIds(Arrays.asList(new RMapIri(URI.create("test:created"))));
         

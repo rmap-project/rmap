@@ -501,7 +501,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	        this.lineageProgenitorStmt = ORAdapter.getValueFactory().createStatement(
 	                this.context,
 	                RMAP.LINEAGE_PROGENITOR, 
-	                ORAdapter.rMapIri2OpenRdfIri(lineageiri), 
+	                ORAdapter.rMapIri2Rdf4jIri(lineageiri), 
 	                this.context);
 	    }
 	}
@@ -511,7 +511,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	    return Optional.ofNullable(lineageProgenitorStmt)
 	            .map(Statement::getObject)
 	            .map(value -> (IRI) value)
-	            .map(ORAdapter::openRdfIri2RMapIri)
+	            .map(ORAdapter::rdf4jIri2RMapIri)
 	            .orElse(null);
 	}
 

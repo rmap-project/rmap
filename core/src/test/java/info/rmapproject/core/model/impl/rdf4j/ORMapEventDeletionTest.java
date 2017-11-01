@@ -190,13 +190,13 @@ public class ORMapEventDeletionTest extends ORMapCommonEventTest {
     protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
             Date endTime, RMapIri associatedKey, RMapIri lineage) {
         
-        final ORMapEventDeletion event = new ORMapEventDeletion(ORAdapter.rMapIri2OpenRdfIri(context));
+        final ORMapEventDeletion event = new ORMapEventDeletion(ORAdapter.rMapIri2Rdf4jIri(context));
         
-        event.setAssociatedAgentStatement(ORAdapter.rMapIri2OpenRdfIri(associatedAgent));
+        event.setAssociatedAgentStatement(ORAdapter.rMapIri2Rdf4jIri(associatedAgent));
         event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
         event.setDescription(description);
         event.setEndTime(endTime);
-        event.setAssociatedKeyStatement(ORAdapter.rMapIri2OpenRdfIri(associatedKey));
+        event.setAssociatedKeyStatement(ORAdapter.rMapIri2Rdf4jIri(associatedKey));
         event.setLineageProgenitor(lineage);
         event.setDeletedObjectId(new RMapIri(URI.create("test:deletedObject")));
         

@@ -18,7 +18,7 @@
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
 
-package info.rmapproject.core.model.impl.openrdf;
+package info.rmapproject.core.model.impl.rdf4j;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -26,18 +26,19 @@ import static org.junit.Assert.assertNull;
 import java.net.URI;
 import java.util.Date;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.openrdf.model.IRI;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
+import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapEventMgr;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 
 /**
  * Common tests for events
@@ -47,7 +48,7 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 public abstract class ORMapCommonEventTest extends CoreTestAbstract {
 
     @Autowired
-    private SesameTriplestore triplestore;
+    private Rdf4jTriplestore triplestore;
 
     @Autowired
     private ORMapEventMgr eventmgr;

@@ -121,7 +121,7 @@ When the `pre-integration-test` phase is entered, Tomcat is started with four we
  When the RMap applications start, a few things happen:
  1. Hibernate connects to the database and creates the table schema for RMap if it doesn't already exist.
  2. Spring JDBC initialization populates the database with an RMap Agent, used by the ITs to authenticate to the API and perform tests.  If any data exists in the database, initialization will _not_ occur; existing data is preserved.
- 3. Upon construction, the `Rdf4jHttpTriplestore` will attempt to _create_ a RDF4J triplestore using the OpenRDF Workbench web application.  Attempts to create a triplestore when one already exists are ignored.  The "home directory" for created triplestores is `integration/target/test-classes/rdf4j`.
+ 3. Upon construction, the `Rdf4jHttpTriplestore` will attempt to _create_ an RDF4J triplestore using the RDF4J Workbench web application.  Attempts to create a triplestore when one already exists are ignored.  The "home directory" for created triplestores is `integration/target/test-classes/rdf4j`.
    
 It is important to remember that these initialization steps only occur in the integration environment.  More specifically, they only occur when the `integration-db` and `integration-triplestore` Spring profiles are active.  When the integration profiles are active, collaborating beans are wired together such that they are compelled to perform initialization.  In a production environment, these profiles are not active, and no initialization of any kind takes place.
 

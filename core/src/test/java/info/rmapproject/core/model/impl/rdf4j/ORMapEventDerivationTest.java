@@ -263,13 +263,13 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
     protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
             Date endTime, RMapIri associatedKey, RMapIri lineage) {
         
-        final ORMapEventDerivation event = new ORMapEventDerivation(ORAdapter.rMapIri2OpenRdfIri(context));
+        final ORMapEventDerivation event = new ORMapEventDerivation(ORAdapter.rMapIri2Rdf4jIri(context));
         
-        event.setAssociatedAgentStatement(ORAdapter.rMapIri2OpenRdfIri(associatedAgent));
+        event.setAssociatedAgentStatement(ORAdapter.rMapIri2Rdf4jIri(associatedAgent));
         event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
         event.setDescription(description);
         event.setEndTime(endTime);
-        event.setAssociatedKeyStatement(ORAdapter.rMapIri2OpenRdfIri(associatedKey));
+        event.setAssociatedKeyStatement(ORAdapter.rMapIri2Rdf4jIri(associatedKey));
         event.setLineageProgenitor(lineage);
         event.setSourceObjectId(new RMapIri(URI.create("test:sourceObject")));
         event.setDerivedObjectId(new RMapIri(URI.create("test:derivedObject")));

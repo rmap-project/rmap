@@ -22,8 +22,8 @@ package info.rmapproject.core.rmapservice.impl.rdf4j;
 
 import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jIri2URI;
 import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
-import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembers;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findLineageProgenitor;
+import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.getLineageMembers;
 
 import java.net.URI;
 import java.util.Date;
@@ -314,7 +314,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			if (creatorSameAsOrig){
 				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
-				uEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(openRdfIri2URI(oldDiscoId), ts)));
+				uEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(oldDiscoId), ts)));
 				event = uEvent;
 			}
 			else {

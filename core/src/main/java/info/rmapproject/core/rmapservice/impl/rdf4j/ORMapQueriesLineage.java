@@ -18,7 +18,7 @@
  * collaboration between Data Conservancy, Portico, and IEEE.
  */
 
-package info.rmapproject.core.rmapservice.impl.openrdf;
+package info.rmapproject.core.rmapservice.impl.rdf4j;
 
 import static info.rmapproject.core.utils.Terms.PROV_ENDEDATTIME_PATH;
 import static info.rmapproject.core.utils.Terms.PROV_GENERATED_PATH;
@@ -36,13 +36,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.openrdf.model.Literal;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.RepositoryConnection;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 
 /**
  * Lineage-related sparql queries and lookups
@@ -91,8 +91,7 @@ abstract class ORMapQueriesLineage {
      * @param triplestore
      * @return URI of the progenitor, null if not present;
      */
-    @SuppressWarnings("resource")
-    static URI findLineageProgenitor(URI disco, SesameTriplestore ts) {
+    static URI findLineageProgenitor(URI disco, Rdf4jTriplestore ts) {
         final RepositoryConnection c = ts.getConnection();
 
         final TupleQuery q = c.prepareTupleQuery(QUERY_LINEAGE_SEARCH);
