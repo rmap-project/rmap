@@ -26,11 +26,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java-version>1.8</java-version>
-        <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
+        <org.springframework-version>5.0.1.RELEASE</org.springframework-version>
         <org.aspectj-version>1.6.10</org.aspectj-version>
         <org.powermock-version>1.6.6</org.powermock-version>
         <org.slf4j-version>1.7.25</org.slf4j-version>
-        <jackson.version>2.7.4</jackson.version>
+        <jackson.version>2.9.2</jackson.version>
         <logback.version>1.2.3</logback.version>
         <openrdf.version>4.1.1</openrdf.version>
         <httpclient.version>4.5.2</httpclient.version>
@@ -38,13 +38,13 @@
         <commons-collections.version>4.0</commons-collections.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
         <jstl.version>1.2</jstl.version>
         <jsp-api.version>2.1</jsp-api.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <jsoup.version>1.8.3</jsoup.version>
-        <hibernate.version>4.3.11.Final</hibernate.version>
-        <hibernate-validator.version>4.3.2.Final</hibernate-validator.version>
+        <hibernate.version>5.2.10.Final</hibernate.version>
+        <hibernate-validator.version>5.2.5.Final</hibernate-validator.version>
         <mysql-connector.version>5.1.6</mysql-connector.version>
         <mockito.version>2.11.0</mockito.version>
         <scribejava.version>2.1.0</scribejava.version>
@@ -54,6 +54,7 @@
         <build-helper.plugin.version>1.10</build-helper.plugin.version>
         <okhttp.version>3.8.0</okhttp.version>
         <ant.version>1.10.1</ant.version>
+        <javax-el.version>3.0.1-b08</javax-el.version>
     </properties>
 
     <build>
@@ -339,6 +340,11 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>${hibernate-validator.version}</version>
+            </dependency>
+            <dependency> <!-- runtime dep of hibernate-validator -->
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>${javax-el.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-dbcp</groupId>

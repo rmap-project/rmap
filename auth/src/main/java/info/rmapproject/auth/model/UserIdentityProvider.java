@@ -40,7 +40,7 @@ public class UserIdentityProvider {
 	
 	/** Primary key for UserIdentityProviders table, incrementing integer. */
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int userIdentityProviderId;
 	
 	/**Name of identityProvider as a URL e.g. http://www.google.com*/

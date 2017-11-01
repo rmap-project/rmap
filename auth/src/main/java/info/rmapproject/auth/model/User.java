@@ -49,7 +49,7 @@ public class User {
 	
 	/** Primary key for Users database, incrementing integer. */
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int userId;
 
 	/** Name of user*. */
