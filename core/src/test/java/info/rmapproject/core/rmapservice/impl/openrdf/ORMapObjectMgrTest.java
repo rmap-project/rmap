@@ -68,6 +68,12 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	@Autowired 
 	ORMapDiSCOMgr discomgr;
 
+	@Autowired
+	ORMapEventMgr eventMgr;
+
+	@Autowired
+	ORMapAgentMgr agentMgr;
+
 	/**
 	 * Test method for {@link info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr#createStatement(info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore, org.openrdf.model.Statement)}.
 	 */
@@ -158,7 +164,6 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			ORMapEventCreation event = new ORMapEventCreation(ORAdapter.uri2OpenRdfIri(rmapIdService.createId()), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
 			Date end = new Date();
 			event.setEndTime(end);
-			ORMapEventMgr eventMgr = new ORMapEventMgr();
 			IRI crEventId = eventMgr.createEvent(event, triplestore);
 			assertTrue(eventMgr.isEventId(crEventId, triplestore));
 			
@@ -175,7 +180,6 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	public void testIsAgentId() throws URISyntaxException {
 		try {
 			createSystemAgent();
-			ORMapAgentMgr agentMgr = new ORMapAgentMgr();
 			assertTrue(agentMgr.isAgentId(ORAdapter.uri2OpenRdfIri(new URI(TestConstants.SYSAGENT_ID)), triplestore));
 		} catch (Exception e) {
 			e.printStackTrace();
