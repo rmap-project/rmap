@@ -259,11 +259,10 @@ public interface RMapService {
 	 * @throws RMapObjectNotFoundException an RMap object not found exception
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getDiSCOAllVersions(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	public List<URI> getDiSCODVersionsAndDerivatives(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Get list of versions of a DiSCO whose creating Agent is the same as the creator
-	 * of that DiSCO.
+	 * Get list of versions/revisions of a given DiSCO 
 	 *
 	 * @param discoID the DiSCO URI
 	 * @return A list of URIs for all versions of the DiSCO from the same Agent
@@ -271,11 +270,14 @@ public interface RMapService {
 	 * @throws RMapObjectNotFoundException an RMap object not found exception
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getDiSCOAgentVersions(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	public List<URI> getDiSCOVersions(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Get Map of versions of a DiSCO whose creating Agent is the same as the creator of that 
-	 * DiSCO.  Map is ordered by date and contains key=date of creation (prov:endedAtTime), value=DiSCO URI
+	 * Get all versions/revisions of a given DiSCO keyed by date.  
+	 * 
+	 * <p>
+	 * Map is ordered by date and contains key=date of creation (prov:endedAtTime), value=DiSCO URI
+	 *</p>
 	 *
 	 * @param discoID the DiSCO URI
 	 * @return A list of URIs for all versions of the DiSCO from the same Agent
@@ -283,7 +285,7 @@ public interface RMapService {
 	 * @throws RMapObjectNotFoundException an RMap object not found exception
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public Map<Date,URI> getDiSCOAgentVersionsWithDates(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
+	public Map<Date,URI> getDiSCOVersionsWithDates(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Gets the URI of the latest version of a DiSCO
@@ -297,7 +299,7 @@ public interface RMapService {
 	public URI getDiSCOIdLatestVersion(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 
 	/**
-	 * Gets the URI of the previous version of a DiSCO that was created by the same Agent
+	 * Gets the URI of the previous version of a DiSCO
 	 *
 	 * @param discoID the DiSCO URI
 	 * @return the URI of the previous version of the DiSCO
@@ -308,7 +310,7 @@ public interface RMapService {
 	public URI getDiSCOIdPreviousVersion(URI discoID) throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException;
 	
 	/**
-	 * Gets the URI of the next version of a DiSCO that was created by the same Agent
+	 * Gets the URI of the next version of a DiSCO
 	 *
 	 * @param discoID the DiSCO URI
 	 * @return the URI of the next version of a DiSCO

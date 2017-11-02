@@ -524,7 +524,7 @@ public class ORMapService implements RMapService {
 	
 
 	@Override
-	public List<URI> getDiSCOAllVersions(URI discoID) 
+	public List<URI> getDiSCODVersionsAndDerivatives(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
@@ -546,7 +546,7 @@ public class ORMapService implements RMapService {
 	}
 	
 	@Override
-	public List<URI> getDiSCOAgentVersions(URI discoID) 
+	public List<URI> getDiSCOVersions(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
@@ -559,7 +559,7 @@ public class ORMapService implements RMapService {
 	}
 	
 	@Override
-	public Map<Date,URI> getDiSCOAgentVersionsWithDates(URI discoID) 
+	public Map<Date,URI> getDiSCOVersionsWithDates(URI discoID) 
 	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		if (discoID ==null){
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
@@ -578,7 +578,7 @@ public class ORMapService implements RMapService {
 			throw new RMapDefectiveArgumentException ("Null DiSCO id");
 		}
 		try {
-		    final List<URI> members = getLineageMembers(findLineageProgenitor(discoID, triplestore), triplestore);
+            final List<URI> members = getLineageMembers(findLineageProgenitor(discoID, triplestore), triplestore);
 			return members.get(members.size() - 1);
 		} finally {
 			closeConnection();

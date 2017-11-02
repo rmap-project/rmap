@@ -654,10 +654,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			IRI eventId = (IRI)stmt.getSubject();
 			IRI createAgent = eventmgr.getEventAssocAgent(eventId, ts);
-			String iriSysAgent = reqEventDetails.getSystemAgent().toString();			
+			String iriSysAgent = reqEventDetails.getSystemAgent().toString();
 			isSame = (iriSysAgent.equals(createAgent.stringValue()));
-		}while (false);
-		return isSame;
-	}
+        }while (false);
+        return isSame;
+    }
 
 }

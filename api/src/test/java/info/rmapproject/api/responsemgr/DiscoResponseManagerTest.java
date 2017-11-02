@@ -487,7 +487,7 @@ public class DiscoResponseManagerTest extends ApiDataCreationTestAbstract {
 		String encodedDiscoUriV3 = URLEncoder.encode(discoURIV3, "UTF-8");
 		
 		//get versions list and use this to make test times
-		Map<Date, URI> versions = rmapService.getDiSCOAgentVersionsWithDates(new URI(discoURIV1));
+		Map<Date, URI> versions = rmapService.getDiSCOVersionsWithDates(new URI(discoURIV1));
 		ResourceVersions resourceVersions = new ResourceVersions(versions);
 		Date dat1 = resourceVersions.getFirstDate();
 		Calendar cal1 = Calendar.getInstance();

@@ -211,12 +211,12 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         eventmgr.createEvent(update, ts);
 
         final List<URI> members = getLineageMembers(firstDiscoURI, ts);
-        // final Map<Date, URI> dates = getLineageMembersWithDates(firstDiscoURI, ts);
+        final Map<Date, URI> dates = getLineageMembersWithDates(firstDiscoURI, ts);
 
         assertTrue(members.containsAll(asList(firstDiscoURI, secondDiscoUri)));
-        // assertTrue(dates.values().containsAll(members));
-        // assertEquals(2, members.size());
-        // assertEquals(2, dates.size());
+        assertTrue(dates.values().containsAll(members));
+        assertEquals(2, members.size());
+        assertEquals(2, dates.size());
     }
 
     @Test

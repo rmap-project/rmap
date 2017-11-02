@@ -262,7 +262,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			String description3 = rDisco2.getDescription().toString();
 			assertEquals(description,description3);
 
-			List<java.net.URI> agentVersions = rmapService.getDiSCOAgentVersions(rIdIRI2.getIri());
+			List<java.net.URI> agentVersions = rmapService.getDiSCOVersions(rIdIRI2.getIri());
 			assertTrue(agentVersions.size()==2);
 						
 		} catch (Exception e) {
@@ -438,7 +438,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			rmapService.tombstoneDiSCO(disco.getId().getIri(), reqEventDetails);
 			
 			NavigableMap<Date, java.net.URI> versions = new TreeMap<Date, java.net.URI>();
-			versions.putAll(rmapService.getDiSCOAgentVersionsWithDates(new java.net.URI(dIri3.toString())));
+			versions.putAll(rmapService.getDiSCOVersionsWithDates(new java.net.URI(dIri3.toString())));
 			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
 			Entry<Date,java.net.URI> version3 = versions.lowerEntry(new Date());
 			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
@@ -448,7 +448,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertTrue(version1.getValue().toString().equals(dIri.toString()));
 			versions.clear();
 			
-			versions.putAll(rmapService.getDiSCOAgentVersionsWithDates(new java.net.URI(dIri2.toString())));
+			versions.putAll(rmapService.getDiSCOVersionsWithDates(new java.net.URI(dIri2.toString())));
 			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
 
 			version3 = versions.lowerEntry(new Date());
@@ -459,7 +459,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertTrue(version1.getValue().toString().equals(dIri.toString()));
 			versions.clear();
 
-			versions.putAll(rmapService.getDiSCOAgentVersionsWithDates(new java.net.URI(dIri.toString())));
+			versions.putAll(rmapService.getDiSCOVersionsWithDates(new java.net.URI(dIri.toString())));
 			version3 = versions.lowerEntry(new Date());
 			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
 			version2 = versions.lowerEntry(version3.getKey());
@@ -481,7 +481,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	 * 2 versions from perspective of derived version
 	 */
 	@Test
-	public void testGetDiSCOAllAgentVersions() {
+	public void testGetDiSCOAllVersionsAndDerivatives() {
 		try {
 			// now create DiSCO	
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -503,16 +503,32 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri2, disco3, reqEventDetails2, false, triplestore);
 			URI dUri3 = disco3.getId().getIri();
+			IRI dIri3 = ORAdapter.uri2OpenRdfIri(dUri3);
 			
-			List<URI> versionsForSource = rmapService.getDiSCOAllVersions(dUri2);
-			assertTrue(versionsForSource.size()==3);
-			assertTrue(versionsForSource.contains(dUri));
-			assertTrue(versionsForSource.contains(dUri2));
-			assertTrue(versionsForSource.contains(dUri3));
+			// Now update that derived disco
+			ORMapDiSCO disco4 = getRMapDiSCO(TestFile.DISCOA_XML);
+            discomgr.updateDiSCO(dIri3, disco4, reqEventDetails2, false, triplestore);
+            URI dUri4 = disco4.getId().getIri();
 			
-			List<URI> versionsForDerived = rmapService.getDiSCOAllVersions(dUri3);
-			assertTrue(versionsForDerived.size()==1);
+            // Two members of the original lineage, two of derived.
+			List<URI> versionsAndDerivatives = rmapService.getDiSCODVersionsAndDerivatives(dUri2);
+			assertEquals(4, versionsAndDerivatives.size());
+			assertTrue(versionsAndDerivatives.contains(dUri));
+			assertTrue(versionsAndDerivatives.contains(dUri2));
+			assertTrue(versionsAndDerivatives.contains(dUri3));
+			assertTrue(versionsAndDerivatives.contains(dUri4));
+			
+			// There are only two members of the original lineage
+			List<URI> versionsInLineage = rmapService.getDiSCOVersions(dUri2);
+			assertEquals(2, versionsInLineage.size());
+			assertTrue(versionsInLineage.contains(dUri));
+            assertTrue(versionsInLineage.contains(dUri2));
+			
+            // The derived lineage has two members
+			List<URI> versionsForDerived = rmapService.getDiSCOVersions(dUri3);
+			assertEquals(2, versionsForDerived.size());
 			assertTrue(versionsForDerived.contains(dUri3));
+			assertTrue(versionsForDerived.contains(dUri4));
 			
 		} catch (Exception e) {
 			e.printStackTrace();
