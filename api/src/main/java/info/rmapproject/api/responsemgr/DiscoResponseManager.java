@@ -200,7 +200,7 @@ public class DiscoResponseManager extends ResponseManager {
 			}
 					
 			ResourceVersions versions = 
-					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+					new ResourceVersions(rmapService.getDiSCOVersionsWithDates(uriDiscoUri));
 
 			Date matchdate = null;
 			try {
@@ -302,7 +302,7 @@ public class DiscoResponseManager extends ResponseManager {
 			}
 
 			ResourceVersions versions = 
-					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+					new ResourceVersions(rmapService.getDiSCOVersionsWithDates(uriDiscoUri));
 			
 			DiSCOResponseLinks discoLinks = new DiSCOResponseLinks(uriDiscoUri, status, versions);
 			Link[] links = discoLinks.getDiSCOResponseLinks();
@@ -360,7 +360,7 @@ public class DiscoResponseManager extends ResponseManager {
 			}
 							
 			ResourceVersions versions = 
-					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+					new ResourceVersions(rmapService.getDiSCOVersionsWithDates(uriDiscoUri));
 			
 			RMapStatus discoStatus = rmapService.getDiSCOStatus(uriDiscoUri);
 			if (discoStatus==null){
@@ -774,10 +774,10 @@ public class DiscoResponseManager extends ResponseManager {
 			List <URI> uriList = null;
 			
 			if (retAgentVersionsOnly)	{
-				uriList = rmapService.getDiSCOAgentVersions(uriDiscoUri);				
+				uriList = rmapService.getDiSCOVersions(uriDiscoUri);				
 			}
 			else	{
-				uriList = rmapService.getDiSCOAllVersions(uriDiscoUri);						
+				uriList = rmapService.getDiSCODVersionsAndDerivatives(uriDiscoUri);						
 			}
 
 			if (uriList==null || uriList.size()==0)	{ 
@@ -847,7 +847,7 @@ public class DiscoResponseManager extends ResponseManager {
 				throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
 			}
 			
-			Map<Date, URI> timemapHolder = rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri);
+			Map<Date, URI> timemapHolder = rmapService.getDiSCOVersionsWithDates(uriDiscoUri);
 			
 			if (timemapHolder==null || timemapHolder.size()==0)	{ 
 				//should always have at least one version... the one being requested!
@@ -855,7 +855,7 @@ public class DiscoResponseManager extends ResponseManager {
 			}	
 
 			ResourceVersions versions = 
-					new ResourceVersions(rmapService.getDiSCOAgentVersionsWithDates(uriDiscoUri));
+					new ResourceVersions(rmapService.getDiSCOVersionsWithDates(uriDiscoUri));
 						
 			HttpLinkBuilder links = new HttpLinkBuilder();
 			
