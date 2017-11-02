@@ -251,11 +251,10 @@ public interface RMapService {
 	public RMapEvent deleteDiSCO (URI discoID, RequestEventDetails reqEventDetails) throws RMapException, RMapDefectiveArgumentException;
 
 	/**
-	 * Get all versions of a DiSCO whether created by original creator of DiSCO or by some
-	 * other agent.
+	 * Get all versions in a DiSCO lineage, plus all DiSCOs in lineages that were derived from them
 	 *
 	 * @param discoID the DiSCO URI
-	 * @return A list of URIs for all versions of the DiSCO 
+	 * @return A list of URIs for all versions and derivative versions of the DiSCO 
 	 * @throws RMapException an RMapException
 	 * @throws RMapObjectNotFoundException an RMap object not found exception
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception

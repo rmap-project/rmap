@@ -511,9 +511,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertTrue(versionsForSource.contains(dUri3));
 			
 			List<URI> versionsForDerived = rmapService.getDiSCOAllVersions(dUri3);
-			assertTrue(versionsForDerived.size()==3);
-			assertTrue(versionsForDerived.contains(dUri));
-			assertTrue(versionsForDerived.contains(dUri2));
+			assertTrue(versionsForDerived.size()==1);
 			assertTrue(versionsForDerived.contains(dUri3));
 			
 		} catch (Exception e) {

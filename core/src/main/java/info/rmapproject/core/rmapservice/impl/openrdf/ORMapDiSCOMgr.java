@@ -26,17 +26,13 @@ package info.rmapproject.core.rmapservice.impl.openrdf;
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfIri2URI;
 import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
 import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.findLineageProgenitor;
+import static info.rmapproject.core.rmapservice.impl.openrdf.ORMapQueriesLineage.getLineageMembers;
 
+import java.net.URI;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
@@ -49,7 +45,6 @@ import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapDiSCONotFoundException;
-import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapInactiveVersionException;
 import info.rmapproject.core.exception.RMapNotLatestVersionException;
@@ -72,7 +67,6 @@ import info.rmapproject.core.model.impl.openrdf.ORMapEventWithNewObjects;
 import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.core.utils.Utils;
 import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
 
@@ -275,15 +269,15 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}		
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
+		final URI latestDiscoURI = getLineageMembers(findLineageProgenitor(openRdfIri2URI(oldDiscoId), ts), ts)
+		        .stream().reduce((a, b) -> b).get();
 		//check that they are updating the latest version of the DiSCO otherwise throw exception
-		Map<IRI,IRI>event2disco=this.getAllDiSCOVersions(oldDiscoId, true, ts);
-		IRI latestDiscoIri = this.getLatestDiSCOIri(oldDiscoId, ts, event2disco);
-		if (!latestDiscoIri.stringValue().equals(oldDiscoId.stringValue())){
+		if (!latestDiscoURI.toString().equals(oldDiscoId.stringValue())){
 			//NOTE:the IRI of the latest DiSCO should always appear in angle brackets at the end of the message
 			//so that it can be parsed as needed
 			throw new RMapNotLatestVersionException("The DiSCO '" + oldDiscoId.toString() + "' has a newer version. "
 									+ "Only the latest version of the DiSCO can be updated. The latest version can be found at "
-									+ "<" + latestDiscoIri.stringValue() +">");
+									+ "<" + latestDiscoURI +">");
 		}		
 		
 		//check that they are updating an active DiSCO
@@ -566,181 +560,6 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	}
 
 	/**
-	 * Method to get all versions of DiSCO
-	 * If matchAgent = true, then return only versions created by same agent as creating agent
-	 *                 if false, then return all versions by all agents.
-	 *
-	 * @param discoId the DiSCO IRI
-	 * @param matchAgent true if searching for versions of DiSCO by a particular agent;
-	 *                   false if searching for all versions regardless of agent
-	 * @param ts triplestore
-	 * @return Map from IRI of an Event to the IRI of DiSCO created by event, either as creation, update, or derivation
-	 * @throws RMapObjectNotFoundException the RMap object not found exception
-	 * @throws RMapException the RMap exception
-	 */
-	public Map<IRI,IRI> getAllDiSCOVersions(IRI discoId, boolean matchAgent, SesameTriplestore ts) 
-			throws RMapObjectNotFoundException, RMapException {
-		if (discoId==null){
-			throw new RMapException ("Null disco");
-		}
-		if (! this.isDiscoId(discoId, ts)){
-			throw new RMapDiSCONotFoundException("No disco found with identifer " + 
-					discoId.stringValue());
-		}
-		Map<IRI,IRI> event2Disco = lookBack(discoId, null, true, matchAgent, ts);		
-		return event2Disco;
-	}
-	
-
-	/**
-	 * Method to get all versions of DiSCO including the creation date (prov:endedAtTime)
-	 * If matchAgent = true, then return only versions created by same agent as creating agent
-	 *                 if false, then return all versions by all agents.
-	 *
-	 * @param discoId the DiSCO IRI
-	 * @param matchAgent true if searching for versions of DiSCO by a particular agent;
-	 *                   false if searching for all versions regardless of agent
-	 * @param ts triplestore
-	 * @return Map from Date of DiSCO creation to the IRI of DiSCO in date order
-	 * @throws RMapObjectNotFoundException the RMap object not found exception
-	 * @throws RMapException the RMap exception
-	 */
-	public Map<Date, IRI> getAllDiSCOVersionsWithDates(IRI discoId, boolean matchAgent, SesameTriplestore ts)
-		throws RMapObjectNotFoundException, RMapException {
-		/* TODO: here and elsewhere in RMap, version ordering was implemented based on datetime of Event rather 
-		 * than the order as determined by the Event linkage. Using Map with the date as the key assumes there 
-		 * will not be duplicate dates. There is a TINY chance when using matchAgent=false that 
-		 * two DiSCO versions could have the same event date to the millisecond. Currently the API only makes use of this 
-		 * method with matchAgent=true.  In a future iteration, therefore, it might be worth the extra work to make things
-		 * more robust by creating the version list using the Event links.  See also ORMapEventMgr.getDate2EventMap  */
-		if (discoId==null){
-			throw new RMapException ("Null disco");
-		}
-		if (! this.isDiscoId(discoId, ts)){
-			throw new RMapDiSCONotFoundException("No disco found with identifer " + 
-					discoId.stringValue());
-		}
-		Map<Date,IRI> versions = new TreeMap<Date, IRI>();
-		Map<IRI,IRI> event2disco = lookBack(discoId, null, true, matchAgent, ts);	
-
-		for (Entry<IRI,IRI> version:event2disco.entrySet()){
-			Date eventEndDate = eventmgr.getEventEndDate(version.getKey(), ts);			
-			versions.put(eventEndDate, version.getValue());
-		}
-				
-		return versions;
-	}
-	
-	
-	
-	
-	/**
-	 * When retrieving a list of DiSCO versions, this method retrieves a list of IRIs for previous versions (value)
-	 * and their corresponding Event IRI (key). If lookForward is set to true, it will also retrieve next versions using
-	 * the lookForward() method
-	 *
-	 * @param discoId the DiSCO IRI
-	 * @param agentId the Agent IRI
-	 * @param lookForward if true, look for Next versions; if false only look at previous versions.
-	 * @param matchAgent if true only versions of DiSCOs matching the current DiSCO should be included;		
-	 * 					if false all DiSCO versions included.
-	 * @param ts the triplestore instance
-	 * @return the map of event to disco version IRI
-	 * @throws RMapObjectNotFoundException the RMap object not found exception
-	 * @throws RMapException the RMap exception
-	 */
-	protected Map<IRI,IRI> lookBack(IRI discoId, IRI agentId, boolean lookForward, boolean matchAgent, SesameTriplestore ts) 
-					throws RMapObjectNotFoundException, RMapException {
-		Statement eventStmt = eventmgr.getCreateObjEventStmt(discoId, ts);
-		if (eventStmt==null){
-			throw new RMapEventNotFoundException("No creating event found for DiSCO id " +
-		             discoId.stringValue());
-		}
-		Map<IRI,IRI> event2Disco = new HashMap<IRI,IRI>();
-		do {
-			IRI eventId = (IRI)eventStmt.getSubject();
-			IRI oldAgentId = agentId;
-			if (matchAgent){
-				IRI discoAgentUri = eventmgr.getEventAssocAgent(eventId, ts);
-				// first time through, agentID will be null
-				if (agentId==null){
-					oldAgentId = discoAgentUri;
-				}
-				if (!(oldAgentId.equals(discoAgentUri))){
-					break;
-				}
-			}
-			event2Disco.put(eventId,discoId);			
-			if(eventmgr.isCreationEvent(eventId, ts)){					
-				if (lookForward){
-					event2Disco.putAll(this.lookFoward(discoId, oldAgentId, matchAgent,ts));
-				}
-				break;
-			}
-			if ((eventmgr.isUpdateEvent(eventId, ts)) || (eventmgr.isDerivationEvent(eventId, ts))){
-				// get id of old DiSCO
-				IRI oldDiscoID = eventmgr.getIdOfOldDisco(eventId, ts);
-				if (oldDiscoID==null){
-					throw new RMapDiSCONotFoundException("Event " + eventId.stringValue() + 
-							" does not have Derived Object DiSCO for DISCO " + discoId.stringValue());
-				}
-				// look back recursively on create/updates for oldDiscoID
-				// DONT look forward on the backward search - you'll already have stuff
-				 event2Disco.putAll(this.lookBack(oldDiscoID, oldAgentId, false, matchAgent, ts));
-				// now look ahead for any derived discos
-				 event2Disco.putAll(this.lookFoward(discoId, oldAgentId, matchAgent, ts));
-				break;
-			}
-		} while (false);		
-		return event2Disco;
-	}
-	
-	/**
-	 * When retrieving a list of DiSCO versions, this method retrieves a list of IRIs for future versions 
-	 * and their corresponding Event IRI. 
-	 *
-	 * @param discoId the DiSCO IRI
-	 * @param agentId the Agent IRI
-	 * @param matchAgent if true only versions of DiSCOs matching the current DiSCO should be included;		
-	 * 					if false all DiSCO versions included.
-	 * @param ts the triplestore instance
-	 * @return the map
-	 * @throws RMapObjectNotFoundException the RMap object not found exception
-	 */
-	protected Map<IRI,IRI> lookFoward(IRI discoId, IRI agentId, boolean matchAgent, SesameTriplestore ts) throws RMapObjectNotFoundException{
-		Map<IRI,IRI> event2Disco = new HashMap<IRI,IRI>();	
-		do {
-			Set<Statement> eventStmts = eventmgr.getInactivatedObjEventStmt(discoId, ts);	
-			eventStmts.addAll(eventmgr.getDerivationSourceEventStmt(discoId, ts));
-			if (eventStmts==null || eventStmts.size()==0){
-				break;
-			}
-			// get created objects from update event, and find the DiSCO
-			for (Statement eventStmt:eventStmts){
-				IRI updateEventId = (IRI) eventStmt.getSubject();
-				// confirm matching agent if necessary	
-				if (matchAgent){
-					IRI uAgent = eventmgr.getEventAssocAgent(updateEventId, ts);
-					if (!(agentId.equals(uAgent))){
-						continue;
-					}	
-				}
-				// get id of new DiSCO
-				IRI newDisco = eventmgr.getIdOfCreatedDisco(updateEventId, ts);
-				if (newDisco != null && !newDisco.equals(discoId)){
-					event2Disco.put(updateEventId,newDisco);
-					// follow new DiSCO forward
-					event2Disco.putAll(lookFoward(newDisco,agentId,matchAgent,ts));
-				}
-			}				
-		} while (false);			 
-		return event2Disco;
-	}	
-	
-	
-
-	
-	/**
 	 * Get IRI of Agent that asserted a DiSCO i.e isAssociatedWith the create or derive event
 	 *
 	 * @param discoIri the DiSCO IRI
@@ -812,116 +631,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		} while (false);		
 		return agents;
 	}
-	
-	/**
-	 * Get IRI of the latest version of a DiSCO (might be same as current DiSCO).
-	 *
-	 * @param disco IRI of DiSCO whose latest version is being requested
-	 * @param ts the triplestore instance
-	 * @param event2disco Map from events to all versions of DiSCOs
-	 * @return IRI of latest version of DiSCO
-	 * @throws RMapException the RMap exception
-	 * @throws RMapObjectNotFoundException the RMap object not found exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected IRI getLatestDiSCOIri(IRI disco, SesameTriplestore ts, Map<IRI,IRI>event2disco)
-	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
-		if (disco ==null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}	
-		if (event2disco==null){
-			throw new RMapDefectiveArgumentException ("Null event2disco map");
-		}
-		IRI lastEvent = eventmgr.getLatestEvent(event2disco.keySet(),ts);
-		IRI discoId = event2disco.get(lastEvent);
-		return discoId;
-	}
-	
-	/**
-	 * Get IRI of previous version of this DiSCO.
-	 *
-	 * @param discoID IRI of DiSCO
-	 * @param event2disco Map from events to all versions of DiSCOs
-	 * @param date2event  Map from date events associated with version of DiSCO
-	 * @param ts the triplestore instance
-	 * @return IRI of previous version of this DiSCO, or null if none found
-	 * @throws RMapException the RMap exception
-	 * @throws RMapObjectNotFoundException the RMap object not found exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected IRI getPreviousIRI(IRI discoID, Map<IRI,IRI>event2disco, Map<Date, IRI> date2event, SesameTriplestore ts)
-	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
-		if (discoID ==null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}	
-		if (event2disco==null){
-			throw new RMapDefectiveArgumentException ("Null event2disco map");
-		}
-		Map<IRI,IRI> disco2event = 
-				Utils.invertMap(event2disco);
-		
-		if (date2event==null){
-			date2event = eventmgr.getDate2EventMap(event2disco.keySet(),ts);
-		}
-		
-		Map<IRI,Date> event2date = Utils.invertMap(date2event);
-		
-		IRI discoEventId = disco2event.get(discoID);
-		Date eventDate = event2date.get(discoEventId);
-		
-		SortedSet<Date> sortedDates = new TreeSet<Date>();
-		sortedDates.addAll(date2event.keySet());
-		SortedSet<Date>earlierDates = sortedDates.headSet(eventDate);
-		IRI prevDiscoId = null;
-		if (earlierDates.size()>0){
-			Date previousDate = earlierDates.last()	;
-			IRI prevEventId = date2event.get(previousDate);
-			prevDiscoId = event2disco.get(prevEventId);
-		}
-		return prevDiscoId;
-	}
-	
-	/**
-	 * Get IRI of next version of a DiSCO.
-	 *
-	 * @param discoID  IRI of DISCO
-	 * @param event2disco Map from events to all versions of DiSCOs
-	 * @param date2event  Map from date events associated with version of DiSCO
-	 * @param ts the triplestore instance
-	 * @return IRI of next version of DiSCO, or null if none found
-	 * @throws RMapException the RMap exception
-	 * @throws RMapObjectNotFoundException the RMap object not found exception
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected IRI getNextIRI(IRI discoID, Map<IRI,IRI>event2disco, Map<Date, IRI> date2event, SesameTriplestore ts)
-	throws RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
-		if (discoID ==null){
-			throw new RMapDefectiveArgumentException ("null DiSCO id");
-		}	
-		if (event2disco==null){
-			throw new RMapDefectiveArgumentException ("Null event2disco map");
-		}
-		Map<IRI,IRI> disco2event = 
-				Utils.invertMap(event2disco);		
-		if (date2event==null){
-			date2event = eventmgr.getDate2EventMap(event2disco.keySet(),ts);
-		}		
-		Map<IRI,Date> event2date = Utils.invertMap(date2event);		
-		IRI discoEventId = disco2event.get(discoID);
-		Date eventDate = event2date.get(discoEventId);
-		SortedSet<Date> sortedDates = new TreeSet<Date>();
-		sortedDates.addAll(date2event.keySet());
-		SortedSet<Date> laterDates = sortedDates.tailSet(eventDate);
-		IRI nextDiscoId = null;
-		if (laterDates.size()>1){
-			Date[] dateArray = laterDates.toArray(new Date[laterDates.size()]);	
-			IRI nextEventId = date2event.get(dateArray[1]);
-			nextDiscoId = event2disco.get(nextEventId);
-		}
-		return nextDiscoId;
-	}
 
-	
 	/**
 	 * Confirm 2 identifiers refer to the same creating agent since Agents can only update own DiSCO.
 	 *
