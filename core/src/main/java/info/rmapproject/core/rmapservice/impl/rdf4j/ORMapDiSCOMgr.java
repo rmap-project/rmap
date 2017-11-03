@@ -64,7 +64,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapEventWithNewObjects;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.core.utils.Utils;
 import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
 import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
@@ -267,7 +266,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}		
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
-		final URI latestDiscoURI = getLineageMembers(findLineageProgenitor(openRdfIri2URI(oldDiscoId), ts), ts)
+		final URI latestDiscoURI = getLineageMembers(findLineageProgenitor(rdf4jIri2URI(oldDiscoId), ts), ts)
 		        .stream().reduce((a, b) -> b).get();
 		//check that they are updating the latest version of the DiSCO otherwise throw exception
 		if (!latestDiscoURI.toString().equals(oldDiscoId.stringValue())){

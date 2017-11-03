@@ -21,7 +21,7 @@
 package info.rmapproject.core.rmapservice.impl.rdf4j;
 
 import static info.rmapproject.core.model.event.RMapEventTargetType.DISCO;
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
 import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findDerivativesfrom;
 import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findLineageProgenitor;
 import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.getLineageMembers;
@@ -185,24 +185,24 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         final URI secondDiscoUri = randomURI();
 
         final ORMapEventCreation creation = new ORMapEventCreation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
                 asList(new RMapIri(firstDiscoURI)));
         creation.setEndTime(new Date(0));
         creation.setLineageProgenitor(new RMapIri(firstDiscoURI));
 
         final ORMapEventUpdate update = new ORMapEventUpdate(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(firstDiscoURI),
-                uri2OpenRdfIri(secondDiscoUri));
+                uri2Rdf4jIri(firstDiscoURI),
+                uri2Rdf4jIri(secondDiscoUri));
         update.setEndTime(new Date(1));
         update.setLineageProgenitor(new RMapIri(firstDiscoURI));
 
         final ORMapEventDerivation derivation = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(secondDiscoUri), uri2OpenRdfIri(discoURI));
+                uri2Rdf4jIri(secondDiscoUri), uri2Rdf4jIri(discoURI));
         derivation.setEndTime(new Date(2));
         derivation.setLineageProgenitor(new RMapIri(lineageURI));
 
@@ -225,24 +225,24 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         final URI secondDiscoUri = randomURI();
 
         final ORMapEventDerivation creation = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(randomURI()), uri2OpenRdfIri(firstDiscoURI));
+                uri2Rdf4jIri(randomURI()), uri2Rdf4jIri(firstDiscoURI));
         creation.setEndTime(new Date(0));
         creation.setLineageProgenitor(new RMapIri(firstDiscoURI));
 
         final ORMapEventUpdate update = new ORMapEventUpdate(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(firstDiscoURI),
-                uri2OpenRdfIri(secondDiscoUri));
+                uri2Rdf4jIri(firstDiscoURI),
+                uri2Rdf4jIri(secondDiscoUri));
         update.setEndTime(new Date(1));
         update.setLineageProgenitor(new RMapIri(firstDiscoURI));
 
         final ORMapEventDerivation derivation = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(secondDiscoUri), uri2OpenRdfIri(discoURI));
+                uri2Rdf4jIri(secondDiscoUri), uri2Rdf4jIri(discoURI));
         derivation.setEndTime(new Date(2));
         derivation.setLineageProgenitor(new RMapIri(lineageURI));
 
@@ -277,25 +277,25 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
         // Now the initial lineage chain
         // Start with a derivative, since that's the most challenging
         final ORMapEventDerivation l1c = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(randomURI()), uri2OpenRdfIri(l1));
+                uri2Rdf4jIri(randomURI()), uri2Rdf4jIri(l1));
         l1c.setEndTime(new Date(0));
         l1c.setLineageProgenitor(new RMapIri(l1));
 
         final ORMapEventUpdate l2u = new ORMapEventUpdate(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(l1),
-                uri2OpenRdfIri(l2));
+                uri2Rdf4jIri(l1),
+                uri2Rdf4jIri(l2));
         l2u.setEndTime(new Date(1));
         l2u.setLineageProgenitor(new RMapIri(l1));
 
         final ORMapEventUpdate l3u = new ORMapEventUpdate(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(l2),
-                uri2OpenRdfIri(l3));
+                uri2Rdf4jIri(l2),
+                uri2Rdf4jIri(l3));
         l3u.setEndTime(new Date(2));
         l3u.setLineageProgenitor(new RMapIri(l1));
 
@@ -303,25 +303,25 @@ public class ORMapQueriesLineageTest extends CoreTestAbstract {
 
         // ... of l1
         final ORMapEventDerivation l1d = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(l1), uri2OpenRdfIri(d1));
+                uri2Rdf4jIri(l1), uri2Rdf4jIri(d1));
         l1d.setEndTime(new Date(3));
         l1d.setLineageProgenitor(new RMapIri(randomURI()));
 
         // ... of l2
         final ORMapEventDerivation l3d = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(l3), uri2OpenRdfIri(d3));
+                uri2Rdf4jIri(l3), uri2Rdf4jIri(d3));
         l3d.setEndTime(new Date(4));
         l3d.setLineageProgenitor(new RMapIri(randomURI()));
 
         // ... of the derivative of l1 (a derivative of a derivative)
         final ORMapEventDerivation l1dd = new ORMapEventDerivation(
-                uri2OpenRdfIri(randomURI()),
+                uri2Rdf4jIri(randomURI()),
                 new RequestEventDetails(randomURI()), DISCO,
-                uri2OpenRdfIri(dd1), uri2OpenRdfIri(randomURI()));
+                uri2Rdf4jIri(dd1), uri2Rdf4jIri(randomURI()));
         l1dd.setEndTime(new Date(5));
         l1dd.setLineageProgenitor(new RMapIri(randomURI()));
 

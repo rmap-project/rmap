@@ -112,8 +112,7 @@ abstract class ORMapQueriesLineage {
         return null;
     }
 
-    @SuppressWarnings("resource")
-    static Set<URI> findDerivativesfrom(URI disco, SesameTriplestore ts) {
+    static Set<URI> findDerivativesfrom(URI disco, Rdf4jTriplestore ts) {
 
         final Set<URI> derivatives = new HashSet<>();
         final RepositoryConnection c = ts.getConnection();
@@ -130,8 +129,7 @@ abstract class ORMapQueriesLineage {
         return derivatives;
     }
 
-    @SuppressWarnings("resource")
-    static Map<Date, URI> getLineageMembersWithDates(URI progenitor, SesameTriplestore ts) {
+    static Map<Date, URI> getLineageMembersWithDates(URI progenitor, Rdf4jTriplestore ts) {
 
         final Map<Date, URI> members = new TreeMap<>();
 
@@ -155,7 +153,7 @@ abstract class ORMapQueriesLineage {
         return members;
     }
 
-    static List<URI> getLineageMembers(URI progenitor, SesameTriplestore ts) {
+    static List<URI> getLineageMembers(URI progenitor, Rdf4jTriplestore ts) {
 
         return new ArrayList<>(getLineageMembersWithDates(progenitor, ts).values());
     }

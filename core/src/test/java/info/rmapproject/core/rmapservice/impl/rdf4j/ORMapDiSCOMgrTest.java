@@ -505,7 +505,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri2, disco3, reqEventDetails2, false, triplestore);
 			URI dUri3 = disco3.getId().getIri();
-			IRI dIri3 = ORAdapter.uri2OpenRdfIri(dUri3);
+			IRI dIri3 = ORAdapter.uri2Rdf4jIri(dUri3);
 			
 			// Now update that derived disco
 			ORMapDiSCO disco4 = getRMapDiSCO(TestFile.DISCOA_XML);
