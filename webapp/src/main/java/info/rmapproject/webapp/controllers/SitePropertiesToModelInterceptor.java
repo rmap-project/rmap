@@ -77,7 +77,9 @@ public class SitePropertiesToModelInterceptor implements HandlerInterceptor {
 	 */
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		modelAndView.addObject(SITE_PROPERTIES_ATTRIBNAME, this.siteProperties);
+		if (modelAndView!=null){
+			modelAndView.addObject(SITE_PROPERTIES_ATTRIBNAME, this.siteProperties);
+		}
 	}
 
 }

@@ -29,6 +29,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Proxy;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -42,6 +43,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name="ApiKeys")
+@Proxy(lazy=false)
 public class ApiKey {
 	
 	/** Unique id column for API Key table*. */
