@@ -159,7 +159,7 @@ public class ApiKeyController {
 	/**
 	 * Receives the POSTed Edit API Key form to be processed. Returns any form errors.
 	 *
-	 * @param apiKey the API Key object
+	 * @param apiKeyForm the API Key object
 	 * @param result the form result
 	 * @param model the Spring model
 	 * @return the user key page
@@ -167,14 +167,16 @@ public class ApiKeyController {
 	 */
 	@LoginRequired
 	@RequestMapping(value={"/user/key/edit","/admin/user/key/edit"}, method=RequestMethod.POST)
-	public String updateUserKey(@Valid ApiKey apiKey, BindingResult result, ModelMap model, HttpSession session, RedirectAttributes redirectAttributes) throws Exception {
+	public String updateUserKey(@Valid ApiKey apiKeyForm, BindingResult result, ModelMap model, HttpSession session, RedirectAttributes redirectAttributes) throws Exception {
 		User user = (User) session.getAttribute("user"); //retrieve logged in user
-        if (result.hasErrors() || user.getUserId()!=apiKey.getUserId()) {
+        //refresh key from db - form bound key does not include userId but we should check session user id matches key user id
+		ApiKey origApiKey = userMgtService.getApiKeyById(apiKeyForm.getApiKeyId());
+		if (result.hasErrors() || user.getUserId()!=origApiKey.getUserId()) {
 			model.addAttribute("targetPage", "keyedit");
     		model.addAttribute("notice", "Errors found, key could not be saved.");	
             return "user/key";
         }
-		this.userMgtService.updateApiKey(apiKey);	
+		this.userMgtService.updateApiKey(apiKeyForm);	
 		redirectAttributes.addFlashAttribute("notice", "Key settings have been saved.");	
 		Boolean isAdmin = (Boolean) session.getAttribute(Constants.ADMIN_LOGGEDIN_SESSATTRIB);
 		if (isAdmin!=null && isAdmin) {

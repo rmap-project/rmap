@@ -33,6 +33,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Proxy;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -45,6 +46,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Table(name="Users")
+@Proxy(lazy=false)
 public class User {
 	
 	/** Primary key for Users database, incrementing integer. */

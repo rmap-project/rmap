@@ -27,6 +27,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Proxy;
+
 /**
  * Java representation of UserIdentityProviders database table.
  * Stores details of ID provider accounts for User
@@ -36,6 +38,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="UserIdentityProviders")
+@Proxy(lazy=false)
 public class UserIdentityProvider {
 	
 	/** Primary key for UserIdentityProviders table, incrementing integer. */
