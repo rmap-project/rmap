@@ -19,18 +19,18 @@
  *******************************************************************************/
 package info.rmapproject.auth.dao;
 
-import info.rmapproject.auth.exception.RMapAuthException;
-import info.rmapproject.auth.model.UserIdentityProvider;
-
 import java.util.List;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import info.rmapproject.auth.exception.RMapAuthException;
+import info.rmapproject.auth.model.UserIdentityProvider;
 
 /**
  * Implementation of UserIdProviderDao used to interact with data in the UserIdProvider table
@@ -80,7 +80,7 @@ public class UserIdProviderDaoImpl implements UserIdProviderDao {
 	public UserIdentityProvider getUserIdProvider(String idProviderUrl, String providerAccountId) 
 			throws RMapAuthException{
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createQuery("from UserIdentityProvider "
+        Query<UserIdentityProvider> query = session.createQuery("from UserIdentityProvider "
         								+ "	where identityProvider=:providerUrl "
         								+ " and providerAccountId=:accountId");
         query.setParameter("providerUrl",idProviderUrl);
@@ -103,12 +103,11 @@ public class UserIdProviderDaoImpl implements UserIdProviderDao {
 	@SuppressWarnings("unchecked")
 	public List<UserIdentityProvider> getUserIdProviders(int userId) throws RMapAuthException {
 		Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createQuery("from UserIdentityProvider where userId=:userId");
+        Query<UserIdentityProvider> query = session.createQuery("from UserIdentityProvider where userId=:userId");
         query.setParameter("userId",userId);
 		List <UserIdentityProvider> userIdProviders = query.list();
 		LOG.info("User identity provider list loaded successfully");
         return userIdProviders;
 	}
-	
 	
 }
