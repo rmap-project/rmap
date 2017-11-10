@@ -21,9 +21,9 @@ package info.rmapproject.auth.dao;
 
 import java.util.List;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +89,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<User> getUsers(String filter) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query;
+        Query<User> query;
         
         if (filter==null || filter.length()==0) {
         	query = session.createQuery("from User");
@@ -119,7 +119,7 @@ public class UserDaoImpl implements UserDao {
 	@SuppressWarnings("unchecked")
 	public User getUserByProviderAccount(String idProvider, String providerAccountId) throws RMapAuthException{
 		Session session = this.sessionFactory.getCurrentSession();   
-	    Query query = session.createSQLQuery("select Users.* from Users "
+	    Query<User> query = session.createNativeQuery("select Users.* from Users "
 	        									+ "inner join UserIdentityProviders on UserIdentityProviders.userId = Users.userId "
 	        									+ "where identityProvider=:idProvider and providerAccountId=:providerAccountId");
 	    query.setParameter("idProvider",idProvider);
@@ -142,7 +142,7 @@ public class UserDaoImpl implements UserDao {
     @SuppressWarnings("unchecked")
 	public User getUserByAuthKeyUri(String authKeyUri) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createQuery("from User where authKeyUri=:authKeyUri");
+        Query<User> query = session.createQuery("from User where authKeyUri=:authKeyUri");
         query.setParameter("authKeyUri",authKeyUri);
 		List<User> users = query.list();
 		if (users != null && !users.isEmpty()) {
@@ -161,7 +161,7 @@ public class UserDaoImpl implements UserDao {
     @SuppressWarnings("unchecked")
 	public User getUserByKeySecret(String key, String secret) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createQuery("from ApiKey where accessKey=:key and secret=:secret");
+        Query<ApiKey> query = session.createQuery("from ApiKey where accessKey=:key and secret=:secret");
 	    query.setParameter("key",key);
         query.setParameter("secret",secret);
         List<ApiKey> apiKeys = query.list();

@@ -23,9 +23,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +90,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
     @SuppressWarnings("unchecked")
 	public ApiKey getApiKeyByKeySecret(String accessKey, String secret) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createQuery("from ApiKey where accessKey=:accessKey and secret=:secret");
+        Query<ApiKey> query = session.createQuery("from ApiKey where accessKey=:accessKey and secret=:secret");
         query.setParameter("accessKey",accessKey);
         query.setParameter("secret",secret);
 		List<ApiKey> apiKeys = query.list();
@@ -110,7 +110,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
     @SuppressWarnings("unchecked")
 	public ApiKey getApiKeyByKeyUri(String keyUri) throws RMapAuthException {
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createQuery("from ApiKey where keyUri=:keyUri");
+        Query<ApiKey> query = session.createQuery("from ApiKey where keyUri=:keyUri");
         query.setParameter("keyUri",keyUri);
 		List<ApiKey> apiKeys = query.list();
 		if (apiKeys != null && !apiKeys.isEmpty()) {
@@ -130,7 +130,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
 	public URI getAgentUriByKeySecret(String accessKey, String secret) throws RMapAuthException {
     	URI agentUri = null;
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createSQLQuery("select distinct rmapAgentUri from ApiKeys "
+        Query<String> query = session.createNativeQuery("select distinct rmapAgentUri from ApiKeys "
         									+ "inner join Users on ApiKeys.userId = Users.userId "
         									+ "where accessKey=:accessKey and secret=:secret");
         query.setParameter("accessKey",accessKey);
@@ -156,7 +156,7 @@ public class ApiKeyDaoImpl implements ApiKeyDao {
     @SuppressWarnings("unchecked")
 	public List<ApiKey> listApiKeyByUser(int userId) {
         Session session = this.sessionFactory.getCurrentSession();   
-        Query query = session.createQuery("from ApiKey where userId=:userId");
+        Query<ApiKey> query = session.createQuery("from ApiKey where userId=:userId");
         query.setParameter("userId",userId);
 		List <ApiKey> apiKeys = query.list();
         LOG.info("Api key list loaded successfully");
