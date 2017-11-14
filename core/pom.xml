@@ -50,6 +50,17 @@
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
         </dependency>
+        <!-- persistent file-based store -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2-mvstore</artifactId>
+        </dependency>
+        <!-- EZID service -->
+        <dependency>
+            <groupId>edu.ucsb.nceas</groupId>
+            <artifactId>ezid</artifactId>
+        </dependency>
+
         <!-- spring framework -->
         <dependency>
             <groupId>org.springframework</groupId>
