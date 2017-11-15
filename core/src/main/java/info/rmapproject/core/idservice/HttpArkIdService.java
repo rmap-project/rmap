@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 
 public class HttpArkIdService implements IdService {
@@ -56,7 +57,7 @@ public class HttpArkIdService implements IdService {
     private String idRegex = "";
 
     /**file for persistent reserved ID storage **/
-    private String idStoreFile = "/tmp/idStoreFile";
+    private String idStoreFile = "";
     private static final String DATA = "ezidData";
     /** the MVMap for storing the reserved EZIDs **/
     private MVMap<Integer, String> ezids;
@@ -69,6 +70,14 @@ public class HttpArkIdService implements IdService {
      * Instantiates a new ARK ID service.
      */
     public HttpArkIdService() {
+        try{
+            if (idStoreFile.length() == 0) {
+                idStoreFile = File.createTempFile("EZID", ".cache").toString();
+            }
+        } catch (IOException ioe) {
+            log.error("Could not create temporary file for caching EZIDs. Please specify a valid value for idservice.idStoreFile",
+                    ioe.getMessage());
+        }
 
     }
 
