@@ -56,7 +56,7 @@
         <ant.version>1.10.1</ant.version>
         <javax-el.version>3.0.1-b08</javax-el.version>
         <h2-mvstore.version>1.4.196</h2-mvstore.version>
-        <ezid.version>1.0.2-SNAPSHOT</ezid.version>
+        <ezid.version>1.0.1</ezid.version>
     </properties>
 
     <build>
@@ -109,6 +109,19 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <repositories>
+        <repository>
+            <id>dataone.org</id>
+            <url>http://dev-testing.dataone.org/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
