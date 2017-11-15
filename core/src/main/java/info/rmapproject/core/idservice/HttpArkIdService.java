@@ -23,6 +23,7 @@ import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URI;
 
 public class HttpArkIdService implements IdService {
@@ -131,7 +132,7 @@ public class HttpArkIdService implements IdService {
 			//OR THE EZID SERVER BEING BUSY SERVICING ANOTHER REQUEST.
 			if(shouldRetry) {
                 try {
-                    wait(RETRY_WAIT_TIME);
+                    Thread.sleep(RETRY_WAIT_TIME);
                 } catch (InterruptedException ie) {
                     log.error("Wait interrupted in retry loop", ie);
                 }
@@ -186,7 +187,7 @@ public class HttpArkIdService implements IdService {
 			//OR THE EZID SERVER BEING BUSY SERVICING ANOTHER REQUEST.
 			if(shouldRetry){
 				try{
-					wait(RETRY_WAIT_TIME);
+					Thread.sleep(RETRY_WAIT_TIME);
 				}catch(InterruptedException ie){
 					log.error("Wait interrupted in retry loop", ie);
 				}
