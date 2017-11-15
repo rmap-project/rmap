@@ -120,7 +120,6 @@ public class HttpArkIdService implements IdService {
     }
 
     private synchronized String getEzid() throws Exception {
-        String id;
         //if we are out of IDs, let's get some more from the EZID service endpoint
         if(ezids.size() < 1){
            if(!replenishingCache) {
@@ -181,7 +180,7 @@ public class HttpArkIdService implements IdService {
                 client.shutdown();
                 replenishingCache = false;
             }
-            
+
             shouldRetry = ((retryCounter < maxRetryAttempts) && (ezids.size() == 0));
 			//WAIT FOR 5 SECS BEFORE RE-TRYING TO OVERCOME TEMPORARY NETWORK FAILURES
 			//OR THE EZID SERVER BEING BUSY SERVICING ANOTHER REQUEST.
