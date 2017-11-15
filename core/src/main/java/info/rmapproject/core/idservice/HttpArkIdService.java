@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 
 public class HttpArkIdService implements IdService {
@@ -56,8 +55,12 @@ public class HttpArkIdService implements IdService {
     /** String regex to validate an ID against. */
     private String idRegex = "";
 
-    /**file for persistent reserved ID storage **/
-    private String idStoreFile = "";
+    /**Default file for persistent reserved ID storage
+     * Should be overridden in the rmap.properties file (idservice.idStoreFile),
+     * default is included here as a failsafe
+     * **/
+    private String idStoreFile = System.getProperty("java.io.tmpdir") + File.pathSeparatorChar + "EZID.cache";
+    /** the string name for the cache map **/
     private static final String DATA = "ezidData";
     /** the MVMap for storing the reserved EZIDs **/
     private MVMap<Integer, String> ezids;
@@ -70,14 +73,6 @@ public class HttpArkIdService implements IdService {
      * Instantiates a new ARK ID service.
      */
     public HttpArkIdService() {
-        try{
-            if (idStoreFile.length() == 0) {
-                idStoreFile = File.createTempFile("EZID", ".cache").toString();
-            }
-        } catch (IOException ioe) {
-            log.error("Could not create temporary file for caching EZIDs. Please specify a valid value for idservice.idStoreFile",
-                    ioe.getMessage());
-        }
 
     }
 
@@ -112,17 +107,20 @@ public class HttpArkIdService implements IdService {
      * @see info.rmapproject.core.idservice.IdService#createId()
      */
     public URI createId() throws Exception {
+        MVStore mvs = MVStore.open(idStoreFile);
+        ezids = mvs.openMap(DATA);
+
         try {
             return new URI(getEzid());
         } catch (Exception e) {
             throw new Exception("Failed to create a new ID.", e);
+        } finally {
+            mvs.close();
         }
     }
 
     private synchronized String getEzid() throws Exception {
         String id;
-        MVStore mvs = MVStore.open(idStoreFile);
-        ezids = mvs.openMap(DATA);
         //if we are out of IDs, let's get some more from the EZID service endpoint
         if(ezids.size() < 1){
            if(!replenishingCache) {
@@ -160,11 +158,8 @@ public class HttpArkIdService implements IdService {
             throw new RuntimeException("EZID cache is empty, unable to provide one");
         }
 
-        //we take this id off of our cache
-        id=ezids.remove(i);
-
-        mvs.close();
-        return id;
+        //we take this id off of our cache and return it
+        return ezids.remove(i);
     }
 
     private void getMoreEzids() {
@@ -177,20 +172,16 @@ public class HttpArkIdService implements IdService {
             log.debug("Minting ids from " + serviceUrl);
             try {
                 client.login(userName, userPassword);
-                for (Integer i = 1; !ezids.keyList().contains(i) && i <= maxStoreSize; i++) {//first test condition allows us to refresh a partially populated cache in the future
-                    String id = client.mintIdentifier(idPrefix,null);
-                    if(isValidId(id)) {
-                        ezids.put(i, id);
-                    }
+                for (Integer i = 1; !ezids.containsKey(i) && i <= maxStoreSize; i++) {
+                    ezids.put(i, client.mintIdentifier(idPrefix,null));
                 }
             } catch (EZIDException e) {//thrown by client.mintIdentifier()
                 log.error("Could not mint EZID for shoulder " + idPrefix, e.getMessage());
-            } catch (Exception e) { //happens if the id is not valid - we do not put it on the map, and fail here
-                log.error("EZID for " + idPrefix + " was not a valid ID", e.getMessage());
             } finally {
                 client.shutdown();
                 replenishingCache = false;
             }
+            
             shouldRetry = ((retryCounter < maxRetryAttempts) && (ezids.size() == 0));
 			//WAIT FOR 5 SECS BEFORE RE-TRYING TO OVERCOME TEMPORARY NETWORK FAILURES
 			//OR THE EZID SERVER BEING BUSY SERVICING ANOTHER REQUEST.
@@ -200,8 +191,7 @@ public class HttpArkIdService implements IdService {
 				}catch(InterruptedException ie){
 					log.error("Wait interrupted in retry loop", ie);
 				}
-
-			}
+            }
 
         } while (shouldRetry);
     }

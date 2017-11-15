@@ -59,7 +59,6 @@ public class HttpArkIdServiceTest extends CoreTestAbstract {
         }
     }
 
-
     /**
      * Tests valid IDs using properties set in http-arkidservice.properties.
      */
