@@ -40,8 +40,8 @@ public class HttpArkIdService implements IdService {
     /** The ID prefix to be added. */
     private String idPrefix = "";
 
-    /** Set a maximum retry attempts value if you want to cap the property setting. -1 means no maximum */
-    private int maxRetryAttempts = -1;
+    /** Set a maximum retry attempts value */
+    private int maxRetryAttempts = 5;
 
     /** User name if using Basic Auth. */
     private String userName = "";
@@ -55,16 +55,18 @@ public class HttpArkIdService implements IdService {
     /** String regex to validate an ID against. */
     private String idRegex = "";
 
-    /**Default file for persistent reserved ID storage
-     * Should be overridden in the rmap.properties file (idservice.idStoreFile),
-     * default is included here as a failsafe
-     * **/
-    private String idStoreFile = System.getProperty("java.io.tmpdir") + File.pathSeparatorChar + "EZID.cache";
+    /** File for persistent ID cache storage */
+    private String idStoreFile;
+
     /** the string name for the cache map **/
     private static final String DATA = "ezidData";
+
     /** the MVMap for storing the reserved EZIDs **/
     private MVMap<Integer, String> ezids;
+
+    /** the maximum number of IDs we would like to have on hand */
     private int maxStoreSize=200;
+
     /** indicates whether we have a process running which is replenishing the cache **/
     private boolean replenishingCache = false;
 
