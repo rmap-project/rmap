@@ -55,6 +55,8 @@
         <okhttp.version>3.8.0</okhttp.version>
         <ant.version>1.10.1</ant.version>
         <javax-el.version>3.0.1-b08</javax-el.version>
+        <h2-mvstore.version>1.4.196</h2-mvstore.version>
+        <ezid.version>1.0.1</ezid.version>
     </properties>
 
     <build>
@@ -107,6 +109,19 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <repositories>
+        <repository>
+            <id>dataone.org</id>
+            <url>http://dev-testing.dataone.org/maven</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -405,6 +420,19 @@
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
                 <version>${ant.version}</version>
+            </dependency>
+
+            <!-- EZID service dependencies -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2-mvstore</artifactId>
+                <version>${h2-mvstore.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>edu.ucsb.nceas</groupId>
+                <artifactId>ezid</artifactId>
+                <version>${ezid.version}</version>
             </dependency>
 
         </dependencies>
