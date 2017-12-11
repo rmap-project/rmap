@@ -19,6 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.webapp.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.extractors.AccessTokenExtractor;
 import com.github.scribejava.core.extractors.JsonTokenExtractor;
@@ -33,21 +36,22 @@ import com.github.scribejava.core.utils.OAuthEncoder;
  */
 public class OrcidApi20 extends DefaultApi20  {
 
-    /** The authentication URL. */
-    private static final String AUTH_URL = "https://orcid.org/oauth/authorize?client_id=%s&scope=%s&response_type=%s&redirect_uri=%s";
-    
-    /** The token URL. */
-    private static final String TOKEN_URL = "https://pub.orcid.org/oauth/token?grant_type=";
-    
+	/** The log. */
+	protected static final Logger LOG = LoggerFactory.getLogger(OrcidApi20.class);
+	    
+	private static final String AUTH_URL_PRODUCTION = "https://orcid.org/oauth/authorize?client_id=%s&scope=%s&response_type=%s&redirect_uri=%s";
+	private static final String TOKEN_URL_PRODUCTION = "https://pub.orcid.org/oauth/token?grant_type=" + OAuthConstants.AUTHORIZATION_CODE;
+		
     /** Response type code. */
-    private static final String RESPONSE_TYPE_CODE = "code";
+    protected static final String RESPONSE_TYPE_CODE = "code";
 
     /* (non-Javadoc)
      * @see com.github.scribejava.core.builder.api.DefaultApi20#getAccessTokenEndpoint()
      */
     @Override
-    public String getAccessTokenEndpoint() {
-        return TOKEN_URL + OAuthConstants.AUTHORIZATION_CODE;
+    public String getAccessTokenEndpoint() {    
+		LOG.debug("Token URL: {}", TOKEN_URL_PRODUCTION);
+		return TOKEN_URL_PRODUCTION;
     }
 
     /* (non-Javadoc)
@@ -63,10 +67,7 @@ public class OrcidApi20 extends DefaultApi20  {
      */
     @Override
     public String getAuthorizationUrl(OAuthConfig oAuthConfig) {
-        // #show_login skips showing the registration form, which is only
-        // cluttersome.
-        return String.format(AUTH_URL, oAuthConfig.getApiKey(), OAuthEncoder.encode(oAuthConfig.getScope()), 
-        		RESPONSE_TYPE_CODE, OAuthEncoder.encode(oAuthConfig.getCallback()));
+		return formatAuthUrl(AUTH_URL_PRODUCTION,oAuthConfig);
     }    
 
     /* (non-Javadoc)
@@ -75,6 +76,18 @@ public class OrcidApi20 extends DefaultApi20  {
     @Override
     public AccessTokenExtractor getAccessTokenExtractor() {
         return new JsonTokenExtractor();
+    }
+    
+    /**
+     * Formats auth url based on url template and config
+     * @param authUrl
+     * @param oAuthConfig
+     * @return formatted auth url
+     */
+    protected String formatAuthUrl(String authUrl, OAuthConfig oAuthConfig) {
+		LOG.debug("Auth URL: {}; clientID: {}; scope: {}; responsetype:{}", authUrl, oAuthConfig.getApiKey(), OAuthEncoder.encode(oAuthConfig.getScope()), RESPONSE_TYPE_CODE);
+    	return String.format(authUrl, oAuthConfig.getApiKey(), OAuthEncoder.encode(oAuthConfig.getScope()), 
+        		RESPONSE_TYPE_CODE, OAuthEncoder.encode(oAuthConfig.getCallback()));
     }
 
 

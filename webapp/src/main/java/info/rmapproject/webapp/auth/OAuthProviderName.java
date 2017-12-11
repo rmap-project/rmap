@@ -29,7 +29,7 @@ public enum OAuthProviderName {
 	GOOGLE ("https://www.google.com"),
 	
 	/** ORCID. */
-	ORCID ("http://orcid.org"),
+	ORCID ("https://orcid.org"),
 	
 	/** Twitter. */
 	TWITTER ("https://twitter.com/");

@@ -5,8 +5,12 @@
 
 <tl:pageStartStandard user="${user}" pageTitle="Login"/>
 	
-	<h1>Sign in</h1>
-	<br/>
+	<h1>Sign in</h1>	
+	<c:if test="${notice!=null}">
+		<p class="notice">
+			${notice}
+		</p>
+	</c:if>
 	<p>Signing in to RMap allows you to initiate an RMap System Agent and manage API access keys that can be used to write DiSCOs to the RMap API. 
 	API documentation can be found on the <a href="https://rmap-project.atlassian.net/wiki">RMap technical wiki</a></p>
 	<fieldset>
