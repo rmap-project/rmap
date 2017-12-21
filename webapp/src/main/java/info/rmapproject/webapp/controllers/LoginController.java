@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.github.scribejava.core.model.Token;
 
@@ -115,12 +116,11 @@ public class LoginController {
 			return "redirect:/home";
 		}
 		
-		OAuthProviderName idProvider = OAuthProviderName.GOOGLE;
 		Token accessToken = oAuthProviderGoogle.createAccessToken(null, oauthVerifier);
 
 		//load profile from request to service
 		OAuthProviderAccount account = 
-				oAuthProviderGoogle.loadOAuthProviderAccount(accessToken, idProvider);
+				oAuthProviderGoogle.loadOAuthProviderAccount(accessToken, OAuthProviderName.GOOGLE);
 		
 		// store access token as a session attribute
 		session.setAttribute("account", account);
@@ -139,7 +139,6 @@ public class LoginController {
 		}
 	}
 	
-
 	/**
 	 * Login using ORCID.
 	 *
@@ -163,7 +162,7 @@ public class LoginController {
 	}
 	
 	/**
-	 * Orcid callback page.
+	 * ORCID callback page.
 	 *
 	 * @param oauthVerifier the oauth verifier
 	 * @param session the HTTP session
@@ -171,18 +170,23 @@ public class LoginController {
 	 * @return the signup or welcome page depending on whether account exists.
 	 */
 	@RequestMapping(value={"/user/orcidcallback"}, method = RequestMethod.GET)
-	public String orcidcallback(@RequestParam(value="code", required=false) String oauthVerifier, HttpSession session, Model model) {
+	public String orcidcallback(@RequestParam(value="code", required=false) String oauthVerifier, 
+			@RequestParam(value="error", required=false) String error, @RequestParam(value="error_description", required=false) String errorDescription, 
+			RedirectAttributes redirectAttributes, HttpSession session, Model model) {
 		if (!siteProperties.isOrcidEnabled()) {
 			LOG.debug("ORCID OAuth unavailable, redirecting to home page");
 			return "redirect:/home";
 		}
-		OAuthProviderName idProvider = OAuthProviderName.ORCID;
+		if (error!=null && error.equals("access_denied")){
+			redirectAttributes.addFlashAttribute("notice", "The ORCID Login failed with the following error:" + errorDescription);
+			return "redirect:/user/login";
+		}
 		
 		Token accessToken = oAuthProviderOrcid.createAccessToken(null, oauthVerifier);
 
 		//load profile from request to service
 		OAuthProviderAccount account = 
-				oAuthProviderOrcid.loadOAuthProviderAccount(accessToken, idProvider);
+				oAuthProviderOrcid.loadOAuthProviderAccount(accessToken, OAuthProviderName.ORCID);
 		// store account as a session attribute
 		session.setAttribute("account", account);
 		
@@ -244,13 +248,12 @@ public class LoginController {
 			return "redirect:/user/login";
 		}
 		
-		OAuthProviderName idProvider = OAuthProviderName.TWITTER;
 		Token accessToken = 
 				oAuthProviderTwitter.createAccessToken(requestToken,oauthVerifier);
 
 		//load profile from request to service
 		OAuthProviderAccount account = 
-				oAuthProviderTwitter.loadOAuthProviderAccount(accessToken, idProvider);
+				oAuthProviderTwitter.loadOAuthProviderAccount(accessToken, OAuthProviderName.TWITTER);
 		
 		// store access token as a session attribute
 		session.setAttribute("account", account);

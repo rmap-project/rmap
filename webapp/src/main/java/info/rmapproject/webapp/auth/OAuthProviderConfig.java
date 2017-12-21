@@ -20,140 +20,55 @@
 package info.rmapproject.webapp.auth;
 
 import org.springframework.context.annotation.Scope;
+
+import com.github.scribejava.core.model.OAuthConfig;
 	
 /**
  * Holds configuration information for OAuth provider
+ * 
  * @author khanson
  */
 @Scope("session")
 @SuppressWarnings("rawtypes")
-public class OAuthProviderConfig {
-	
-	/** The provider name. */
-	private OAuthProviderName providerName;
-	
-	/** The API key. */
-	private String apiKey;
-	
-	/** The API secret. */
-	private String apiSecret;
-	
-	/** The callback. */
-	private String callback;
-	
+public class OAuthProviderConfig extends OAuthConfig {
+		
 	/** The API class. */
 	private Class apiClass;
-	
-	/** The scope. */
-	private String scope;
-	
+		
 	/** The profile url. */
 	private String profileUrl;
 	
 	/**
 	 * Instantiates a new OAuth provider config.
+	 * 
+	 * @param apiKey
+	 * @param apiSecret
+	 * @param callback
+	 * @param apiClass
+	 * @param scope
+	 * @param profileUrl
 	 */
-	public OAuthProviderConfig() {
-	}
-	
-	/**
-	 * Instantiates a new OAuth provider config.
-	 *
-	 * @param providerName the provider name
-	 * @param apiKey the api key
-	 * @param apiSecret the api secret
-	 * @param callback the callback
-	 * @param apiClass the api class
-	 * @param scope the scope
-	 * @param profileUrl the profile url
-	 */
-	public OAuthProviderConfig(OAuthProviderName providerName, String apiKey, String apiSecret, String callback, 
+	public OAuthProviderConfig(String apiKey, String apiSecret, String callback, 
 								Class apiClass, String scope, String profileUrl) {
-	    super();
-	    this.setProviderName(providerName);
-	    this.setApiKey(apiKey);
-	    this.setApiSecret(apiSecret);
-	    this.setCallback(callback);
+		super(apiKey, apiSecret, callback, null, scope, null, null,null, null);
 	    this.setApiClass(apiClass);
-	    this.setScope(scope);
 	    this.setProfileUrl(profileUrl);
-    }
-	
+	}
+
 	/**
 	 * Instantiates a new OAuth provider config.
-	 *
-	 * @param providerName the provider name
-	 * @param apiKey the api key
-	 * @param apiSecret the api secret
-	 * @param callback the callback
-	 * @param apiClass the api class
-	 * @param profileUrl the profile url
+	 * 
+	 * @param apiKey
+	 * @param apiSecret
+	 * @param callback
+	 * @param apiClass
+	 * @param scope
 	 */
-	//no scope
-	public OAuthProviderConfig(OAuthProviderName providerName, String apiKey, String apiSecret, String callback, 
+	public OAuthProviderConfig(String apiKey, String apiSecret, String callback, 
 								Class apiClass, String profileUrl) {
-	    super();
-	    this.setProviderName(providerName);
-	    this.setApiKey(apiKey);
-	    this.setApiSecret(apiSecret);
-	    this.setCallback(callback);
+		super(apiKey, apiSecret, callback, null, "", null, null,null, null);
 	    this.setApiClass(apiClass);
-	    this.setScope("");
 	    this.setProfileUrl(profileUrl);
-    }
-
-	/**
-	 * Gets the api key.
-	 *
-	 * @return the api key
-	 */
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	/**
-	 * Sets the api key.
-	 *
-	 * @param apiKey the new api key
-	 */
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
-
-	/**
-	 * Gets the api secret.
-	 *
-	 * @return the api secret
-	 */
-	public String getApiSecret() {
-		return apiSecret;
-	}
-
-	/**
-	 * Sets the api secret.
-	 *
-	 * @param apiSecret the new api secret
-	 */
-	public void setApiSecret(String apiSecret) {
-		this.apiSecret = apiSecret;
-	}
-
-	/**
-	 * Gets the callback.
-	 *
-	 * @return the callback
-	 */
-	public String getCallback() {
-		return callback;
-	}
-
-	/**
-	 * Sets the callback.
-	 *
-	 * @param callback the new callback
-	 */
-	public void setCallback(String callback) {
-		this.callback = callback;
 	}
 
 	/**
@@ -174,25 +89,6 @@ public class OAuthProviderConfig {
 		this.apiClass = apiClass;
 	}
 	
-
-	/**
-	 * Gets the scope.
-	 *
-	 * @return the scope
-	 */
-	public String getScope() {
-		return scope;
-	}
-
-	/**
-	 * Sets the scope.
-	 *
-	 * @param scope the new scope
-	 */
-	public void setScope(String scope) {
-		this.scope = scope;
-	}
-
 	/**
 	 * Gets the profile url.
 	 *
@@ -210,23 +106,4 @@ public class OAuthProviderConfig {
 	public void setProfileUrl(String profileUrl) {
 		this.profileUrl = profileUrl;
 	}
-
-	/**
-	 * Gets the provider name.
-	 *
-	 * @return the provider name
-	 */
-	public OAuthProviderName getProviderName() {
-		return providerName;
-	}
-
-	/**
-	 * Sets the provider name.
-	 *
-	 * @param providerName the new provider name
-	 */
-	public void setProviderName(OAuthProviderName providerName) {
-		this.providerName = providerName;
-	}
-
 }

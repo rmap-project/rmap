@@ -77,21 +77,18 @@
 	<!-- OAUTH Configuration -->		
 	<!-- twitter oauth config -->	
 	<beans:bean id="twitterOAuthConfig" class="info.rmapproject.webapp.auth.OAuthProviderConfig">
-		<beans:constructor-arg value="TWITTER"/>
 		<beans:constructor-arg value="${rmapweb.twitter-key}" />
 		<beans:constructor-arg value="${rmapweb.twitter-secret}"/>
 		<beans:constructor-arg value="${rmapweb.twitter-callback}"/>
 		<beans:constructor-arg value="com.github.scribejava.apis.TwitterApi.Authenticate"/>
 		<beans:constructor-arg value="https://api.twitter.com/1.1/account/verify_credentials.json"/>
-	</beans:bean>	  
-	
+	</beans:bean>	
 	<beans:bean id="oAuthProviderTwitter" class="info.rmapproject.webapp.auth.TwitterOAuthProvider">
 		<beans:property name="config" ref="twitterOAuthConfig"/>	
 	</beans:bean>
 	
 	<!-- google oauth config -->			
 	<beans:bean id="googleOAuthConfig" class="info.rmapproject.webapp.auth.OAuthProviderConfig">
-		<beans:constructor-arg value="GOOGLE"/>
 		<beans:constructor-arg value="${rmapweb.google-key}" />
 		<beans:constructor-arg value="${rmapweb.google-secret}"/>
 		<beans:constructor-arg value="${rmapweb.google-callback}"/>
@@ -105,13 +102,12 @@
 	
 	<!-- orcid oauth config -->	
 	<beans:bean id="orcidOAuthConfig" class="info.rmapproject.webapp.auth.OAuthProviderConfig">
-		<beans:constructor-arg value="ORCID"/>
 		<beans:constructor-arg value="${rmapweb.orcid-key}" />
 		<beans:constructor-arg value="${rmapweb.orcid-secret}"/>
 		<beans:constructor-arg value="${rmapweb.orcid-callback}"/> 
-		<beans:constructor-arg value="info.rmapproject.webapp.auth.OrcidApi20"/>
+		<beans:constructor-arg value="${rmapweb.orcid-oauth-class}"/>
 		<beans:constructor-arg value="/authenticate"/>
-		<beans:constructor-arg value="https://pub.orcid.org/v1.2/"/>
+		<beans:constructor-arg value="https://pub.orcid.org/v2.1/"/>
 	</beans:bean> 
 	<beans:bean id="oAuthProviderOrcid" class="info.rmapproject.webapp.auth.OrcidOAuthProvider">
 		<beans:property name="config" ref="orcidOAuthConfig"/>	

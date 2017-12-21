@@ -20,6 +20,8 @@
 package info.rmapproject.webapp.auth;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 
 import com.github.scribejava.core.model.Token;
@@ -30,6 +32,8 @@ import com.github.scribejava.core.model.Token;
  */
 @Scope("session")
 public class OrcidOAuthProvider extends OAuthProvider {
+
+	private static final Logger LOG = LoggerFactory.getLogger(OrcidOAuthProvider.class);
 	
 	/**
 	 * Instantiates a new ORCID OAuth provider.
@@ -52,8 +56,8 @@ public class OrcidOAuthProvider extends OAuthProvider {
 		//example of rawResponse:
 		//{"access_token":"####-#####-#####-####","token_type":"bearer","refresh_token":"####-#####-#####-####",
 		//"expires_in":631138518,"scope":"/authenticate","name":"Karen L. Hanson","orcid":"0000-0002-9354-8328"}
-
 		String jsonString = accessToken.getRawResponse();
+		LOG.debug("Raw response: {}", jsonString);
 		JSONObject root = new JSONObject(jsonString);		
 		String displayName = root.getString("name");
 		String accountId = root.getString("orcid"); 

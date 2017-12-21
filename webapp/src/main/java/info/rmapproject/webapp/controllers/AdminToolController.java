@@ -164,13 +164,10 @@ public class AdminToolController {
 	@AdminLoginRequired
 	@RequestMapping(value="/admin/users", method=RequestMethod.GET)
 	public String manageUsers(Model model, HttpSession session, @RequestParam(value="filter", required = false) String filter, 
-			@RequestParam(value="offset", required = false) Integer offset, @RequestParam(value="notice", required=false) String notice) throws Exception {
+			@RequestParam(value="offset", required = false) Integer offset) throws Exception {
 		if (offset==null){offset=0;}
 		if (filter==null){filter="";}
-		if (notice!=null){
-			model.addAttribute("notice", notice);	
-		}
-		
+
 		model.addAttribute("filter", filter);
 		List<User> users = userMgtService.getUsers(filter);
 		model.addAttribute("userList", users);
