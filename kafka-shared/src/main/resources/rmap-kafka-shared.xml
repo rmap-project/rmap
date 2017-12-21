@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <beans profile="prod-kafka">
+
+
+        <context:property-placeholder ignore-unresolvable="true"/>
+
+        <util:properties id="producerProperties" location="classpath:/event-producer.properties" local-override="true">
+            <prop key="bootstrap.servers">${bootstrap.servers}</prop>
+        </util:properties>
+
+        <!--
+          Produces (i.e. emits) RMap events to the specified Kafka topic.  May be safely shared.
+        -->
+        <bean id="rmapEventProducerTemplate" class="org.springframework.kafka.core.KafkaTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.kafka.core.DefaultKafkaProducerFactory">
+                    <constructor-arg ref="producerProperties"/>
+                    <constructor-arg>
+                        <bean class="org.apache.kafka.common.serialization.StringSerializer"/>
+                    </constructor-arg>
+                    <constructor-arg>
+                        <bean class="info.rmapproject.kafka.shared.GenericJvmObjectSerializer"/>
+                    </constructor-arg>
+                </bean>
+            </constructor-arg>
+            <property name="defaultTopic" value="${rmapcore.producer.topic}"/>
+        </bean>
+
+        <util:properties id="consumerProperties" location="classpath:/event-consumer.properties" local-override="true">
+            <prop key="bootstrap.servers">${bootstrap.servers}</prop>
+        </util:properties>
+
+        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="staticMethod" value="info.rmapproject.kafka.shared.SpringKafkaConsumerFactory.setFactory"/>
+            <property name="arguments">
+                <list>
+                    <bean class="org.springframework.kafka.core.DefaultKafkaConsumerFactory">
+                        <constructor-arg ref="consumerProperties"/>
+                        <constructor-arg>
+                            <bean class="org.apache.kafka.common.serialization.StringDeserializer"/>
+                        </constructor-arg>
+                        <constructor-arg>
+                            <bean class="info.rmapproject.kafka.shared.GenericJvmObjectDeserializer"/>
+                        </constructor-arg>
+                    </bean>
+                </list>
+            </property>
+        </bean>
+
+        <!--
+          Consumes RMap events.  Spring creates a new consumer each time an instance is requested from the container
+          (i.e. prototype scope).  The topic (and partition) being consumed from is specified by collaborating objects.
+        -->
+        <bean id="eventConsumer" class="info.rmapproject.kafka.shared.SpringKafkaConsumerFactory"
+              factory-method="newConsumer" scope="prototype"/>
+
+    </beans>
+
+</beans>

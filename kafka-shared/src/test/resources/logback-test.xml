@@ -1,0 +1,19 @@
+<configuration>
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %-5level [%C{0}] - %msg%n
+            </pattern>
+        </encoder>
+        <target>System.err</target>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="STDERR" />
+    </root>
+    <logger name="info.rmapproject.kafka.shared" additivity="false" level="DEBUG">
+        <appender-ref ref="STDERR" />
+    </logger>
+    <logger name="org.springframework" additivity="false" level="WARN">
+        <appender-ref ref="STDERR"/>
+    </logger>
+</configuration>

@@ -1,0 +1,25 @@
+<rmap:rmd18m7mr7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#DiSCO> <rmap:rmd18m7mr7> .
+<rmap:rmd18m7mr7> <http://purl.org/dc/terms/creator> <http://portico.org> <rmap:rmd18m7mr7> .
+<rmap:rmd18m7mr7> <http://purl.org/dc/terms/description> "The group of digital objects relating to a single article that are preserved in the Portico digital archive." <rmap:rmd18m7mr7> .
+<rmap:rmd18m7mr7> <http://www.openarchives.org/ore/terms/aggregates> <ark:/27927/pgg3r5df1cp> <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5dwc3q> <http://purl.org/dc/terms/extent> "6384 Bytes" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5dwc3q> <http://purl.org/dc/terms/format> "application/xml" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5dwc3q> <http://purl.org/dc/terms/format> "Portico Journal Archiving DTD:3.0:2011-08-10" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5dwc3q> <http://www.loc.gov/premis/rdf/v1#hasOriginalName> "/ingest/workarea/0b0086f1a2d3ad44/output/ieee/pgg3r5cvnv2/pgg3r5cvnv2.xml" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5dwc3q> <http://www.loc.gov/mods/modsrdf/v1#locationOfResource> <http://portico.org> <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5df1cp> <http://purl.org/dc/terms/hasPart> <ark:/27927/pgg3r5dwc3q> <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5df1cp> <http://purl.org/dc/terms/hasPart> <ark:/27927/pgg3r5cvnzq>  <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5df1cp> <http://purl.org/dc/terms/hasPart> <ark:/27927/pgg3r5cvnv2>  <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5df1cp> <http://www.loc.gov/mods/modsrdf/v1#locationOfResource> <http://portico.org> <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5df1cp> <http://purl.org/dc/terms/isFormatOf> <http://dx.doi.org/10.1109/InPar.2012.6339604> <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnzq> <http://purl.org/dc/terms/extent> "1429876 Bytes" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnzq> <http://purl.org/dc/terms/format> "application/pdf" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnzq> <http://purl.org/dc/terms/format> "Portable Document Format:1.4:2001" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnzq> <http://www.loc.gov/mods/modsrdf/v1#locationOfResource> <http://portico.org> <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnzq> <http://www.loc.gov/premis/rdf/v1#hasOriginalName> "2012/SingleArt_IEEEcnf/week43a/6330715.zip/6330715/6339585/06339604.pdf" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnv2> <http://purl.org/dc/terms/format> "application/xml" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnv2> <http://purl.org/dc/terms/format> "IEEE IDAMS DTD:2.0:2012-11-28" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnv2> <http://www.loc.gov/mods/modsrdf/v1#locationOfResource> <http://portico.org> <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnv2> <http://purl.org/dc/terms/extent> "8784 Bytes" <rmap:rmd18m7mr7> .
+<ark:/27927/pgg3r5cvnv2> <http://www.loc.gov/premis/rdf/v1#hasOriginalName> "2012/SingleArt_IEEEcnf/week43a/6330715.zip/6330715/6339585/06339604.xml" <rmap:rmd18m7mr7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/dc/dcmitype/Text> <rmap:rmd18m7mr7> .

@@ -1,0 +1,9 @@
+<rmap:931zcrjgzb> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> <rmap:931zcrjgzb> .
+<rmap:931zcrjgzb> <http://www.w3.org/ns/prov#wasAssociatedWith> <rmap:rmp2543q5> <rmap:931zcrjgzb> .
+<rmap:931zcrjgzb> <http://purl.org/ontology/rmap#eventType> <http://purl.org/ontology/rmap#inactivation> <rmap:931zcrjgzb> .
+<rmap:931zcrjgzb> <http://purl.org/ontology/rmap#eventTargetType> <http://purl.org/ontology/rmap#DiSCO> <rmap:931zcrjgzb> .
+<rmap:931zcrjgzb> <http://www.w3.org/ns/prov#startedAtTime> "2017-08-18T19:07:01.858Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> <rmap:931zcrjgzb> .
+<rmap:931zcrjgzb> <http://www.w3.org/ns/prov#endedAtTime> "2017-08-18T19:07:01.860Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> <rmap:931zcrjgzb> .
+<rmap:931zcrjgzb> <http://purl.org/ontology/rmap#inactivatedObject> <rmap:rmp1835x5x> <rmap:931zcrjgzb> .
+<rmap:931zcrjgzb> <http://purl.org/ontology/rmap#lineageProgenitor> <rmap:idOfLineageProgenitor> <rmap:931zcrjgzb> .
+

@@ -1,0 +1,11 @@
+
+<rmap:rmd18mdd9v> a <http://purl.org/ontology/rmap#Event> ;
+	<http://www.w3.org/ns/prov#wasAssociatedWith> <rmap:rmd18m7mj4> ;
+	<http://purl.org/ontology/rmap#eventType> <http://purl.org/ontology/rmap#update> ;
+	<http://purl.org/ontology/rmap#eventTargetType> <http://purl.org/ontology/rmap#DiSCO> ;
+	<http://www.w3.org/ns/prov#startedAtTime> "2015-07-29T17:40:24Z" ;
+	<http://www.w3.org/ns/prov#endedAtTime> "2015-07-29T17:40:24Z" ;
+	<http://www.w3.org/ns/prov#generated> <rmap:rmd18mdd8b> ;
+	<http://purl.org/ontology/rmap#inactivatedObject> <rmap:rmd18m7mr7> ;
+	<http://purl.org/ontology/rmap#derivedObject> <rmap:rmd18mdd8b> ;
+    <http://purl.org/ontology/rmap#lineageProgenitor> <rmap:rmd18m7mr7> .

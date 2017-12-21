@@ -1,0 +1,5 @@
+
+<rmap:rmd18m7mj4> a <http://purl.org/ontology/rmap#Agent> ;
+	<http://xmlns.com/foaf/0.1/name> "Portico" ;
+	<http://purl.org/ontology/rmap#identityProvider> <http://twitter.org> ;
+	<http://purl.org/ontology/rmap#userAuthId> <http://rmap-project.org/identities/faketempporticoid> .

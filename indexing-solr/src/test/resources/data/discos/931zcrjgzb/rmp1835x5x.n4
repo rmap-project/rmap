@@ -1,0 +1,26 @@
+<rmap:rmp1835x5x> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#DiSCO> <rmap:rmp1835x5x> .
+<rmap:rmp1835x5x> <http://purl.org/dc/terms/creator> <http://rmap-project.org/rmap/agents/RMap-OSF-Harvester-0.1> <rmap:rmp1835x5x> .
+<rmap:rmp1835x5x> <http://purl.org/dc/terms/description> "Record harvested from SHARE API" <rmap:rmp1835x5x> .
+<rmap:rmp1835x5x> <http://www.openarchives.org/ore/terms/aggregates> <http://www.osti.gov/scitech/biblio/7297681> <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/creator> <rmap:rmp183gqpt> <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/creator> <rmap:rmp183gqqb> <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/description> "The s-wave part of the off-shell K matrix elements for the Woods--Saxon potential has been obtained in terms of elementary transcendental functions by using the differential equation approach to off-shell scattering." <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/language> "http://www.lexvo.org/page/iso639-3/eng" <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/identifier> "OSTI ID: 7297681, Legacy ID: OSTI ID: 7297681" <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/relation> "Journal Name: J. Math. Phys. (N.Y.); (United States); Journal Volume: 18:11" <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/format> "Medium: X; Size: Pages: 2097-2098" <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/type> "Journal Article" <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/fabio/Expression> <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/dc/terms/title> "K matrix for the Woods--Saxon potential" <rmap:rmp1835x5x> .
+<http://www.osti.gov/scitech/biblio/7297681> <http://purl.org/cerif/frapo/isOutputOf> <rmap:rmp183gqsc> <rmap:rmp1835x5x> .
+<rmap:rmp183gqpt> <http://xmlns.com/foaf/0.1/familyName> "Talukdar" <rmap:rmp1835x5x> .
+<rmap:rmp183gqpt> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Agent> <rmap:rmp1835x5x> .
+<rmap:rmp183gqpt> <http://xmlns.com/foaf/0.1/givenName> "B." <rmap:rmp1835x5x> .
+<rmap:rmp183gqpt> <http://xmlns.com/foaf/0.1/name> "Talukdar, B." <rmap:rmp1835x5x> .
+<rmap:rmp183gqrv> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/cerif/frapo/FundingAgency> <rmap:rmp1835x5x> .
+<rmap:rmp183gqrv> <http://purl.org/dc/terms/title> "Not Available" <rmap:rmp1835x5x> .
+<rmap:rmp183gqqb> <http://xmlns.com/foaf/0.1/name> "Ray, M.N.S." <rmap:rmp1835x5x> .
+<rmap:rmp183gqqb> <http://xmlns.com/foaf/0.1/familyName> "Ray" <rmap:rmp1835x5x> .
+<rmap:rmp183gqqb> <http://xmlns.com/foaf/0.1/givenName> "M.N.S." <rmap:rmp1835x5x> .
+<rmap:rmp183gqqb> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Agent> <rmap:rmp1835x5x> .
+<rmap:rmp183gqsc> <http://purl.org/cerif/frapo/isFundedBy> <rmap:rmp183gqrv> <rmap:rmp1835x5x> .

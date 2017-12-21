@@ -1,0 +1,55 @@
+<rmap:9cnp5hqdb7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#DiSCO> <rmap:9cnp5hqdb7> .
+<rmap:9cnp5hqdb7> <http://purl.org/dc/terms/creator> <http://isni.org/isni/0000000122976723> <rmap:9cnp5hqdb7> .
+<rmap:9cnp5hqdb7> <http://www.openarchives.org/ore/terms/aggregates> <http://dx.doi.org/10.1109/InPar.2012.6339604> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "parallel architectures" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "graphics processing units" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "Kernel" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "Instruction sets" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "data access time" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "memory request scattering" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "C5220P" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "C5130" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "NVIDIA CUDA toolkit" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "Graphics processing unit" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "GPU" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "storage management" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "Resource management" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "fragmentation" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "allocation speed" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "Dynamic scheduling" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "massively parallel" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "P" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "dynamic memory allocation" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "resource allocation" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "C6120" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "massively parallel dynamic memory allocation" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "hashing" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "B1265F" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "ScatterAlloc" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "Memory management" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/keyword> "C6150J" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/identifier> <ark:/35911/amsid/6339604> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/identifier> <ark:/35911/idams/0b00006481a018fa> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/isPartOf> <urn:isbn:9781467326315> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/isPartOf> <ark:/35911/amsid/6339585> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/isPartOf> <ark:/35911/amsid/6330715> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/isPartOf> <urn:isbn:9781467326322> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/elements/1.1/title> "ScatterAlloc: Massively parallel dynamic memory allocation for the GPU" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/spar/cito/isCitedBy> <http://dx.doi.org/10.1109/PACT.2013.6618823> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/spar/cito/isCitedBy> <https://doi.org/10.1109/INES.2016.7555142> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/creator> <rmap:rmd18mddmh> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/creator> <rmap:rmd18mddn1> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/creator> <rmap:rmd18mddjg> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/creator> <rmap:rmd18mddk0> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://data.ieee.org/ieee/terms/inspec-accession-number> "13113690" <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/fabio/ConferencePaper> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://prismstandard.org/namespaces/basic/2.0/doi> <doi:10.1109/InPar.2012.6339604> <rmap:9cnp5hqdb7> .
+<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://data.ieee.org/ieee/terms/content-type> "orig-research" <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddn1> <http://purl.org/dc/terms/identifier> "A13113690.1" <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddn1> <http://xmlns.com/foaf/0.1/name> "Schmalstieg, D." <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddjg> <http://xmlns.com/foaf/0.1/name> "Steinberger, M." <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddjg> <http://purl.org/dc/terms/identifier> "A13113690.1" <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddk0> <http://xmlns.com/foaf/0.1/name> "Kenzel, M." <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddk0> <http://purl.org/dc/terms/identifier> "A13113690.1" <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddmh> <http://purl.org/dc/terms/identifier> "A13113690.1" <rmap:9cnp5hqdb7> .
+<rmap:rmd18mddmh> <http://xmlns.com/foaf/0.1/name> "Kainz, B." <rmap:9cnp5hqdb7> .
