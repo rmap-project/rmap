@@ -65,7 +65,8 @@ import info.rmapproject.core.rdfhandler.RDFType;
 /**
  * Class to convert linked data objects in RMap (RMapDiSCO, RMapTriple etc) to raw RDF
  * Implementation of RDFHandler using openrdf's Rio RDF handler.
- * @author smorrissey, khanson
+ * @author smorrissey
+ * @author khanson
  */
 public class RioRDFHandler implements RDFHandler {
 
@@ -175,6 +176,29 @@ public class RioRDFHandler implements RDFHandler {
 		Set <Statement> stmts = this.convertRDFToStmtList(rdfIn, rdfFormat, baseUri);
 		RMapEvent event = OStatementsAdapter.asEvent(stmts);
 		return event;
+	}
+
+	/* (non-Javadoc)
+     * @see info.rmapproject.core.rdfhandler.RDFHandler#triple2Rdf(info.rmapproject.core.model.RMapTriple, info.rmapproject.core.rdfhandler.RDFType)
+     */
+	public OutputStream triple2Rdf(RMapTriple triple, RDFType rdfType) throws RMapException, RMapDefectiveArgumentException {
+		if (triple == null){
+			throw new RMapException("Null triple");
+		}
+		if (rdfType==null){
+			throw new RMapException("null rdf format name");
+		}
+		Statement stmt = ORAdapter.rmapTriple2OpenRdfStatement(triple);
+
+		RDFFormat rdfFormat = null;
+		OutputStream bOut = new ByteArrayOutputStream();
+		try {
+			rdfFormat = this.getRDFFormatConstant(rdfType);
+			Rio.write(stmt, bOut, rdfFormat);
+		} catch (Exception e) {
+			throw new RMapException("Exception thrown creating RDF from statement",e);
+		}
+		return bOut;
 	}
 
 	/* (non-Javadoc)

@@ -358,6 +358,26 @@ public class ORAdapter {
 		RMapTriple rtriple = new RMapTriple(subject, predicate, object);		
 		return rtriple;
 	}
+
+	/**
+	 * Converts an OpenRdf Statement to an RMapTriple. Null returns null
+	 *
+	 * @param RMapTriple to be converted
+	 * @return Statement corresponding to RMapTriple
+	 * @throws IllegalArgumentException if subject, predicate or object is null or not compatible for conversion to RMapTriple
+	 */
+	public static Statement rmapTriple2OpenRdfStatement(RMapTriple triple) {
+		if (triple==null){
+			return null;
+		}
+		Resource subject = ORAdapter.rMapResource2OpenRdfResource(triple.getSubject());
+		IRI predicate = ORAdapter.rMapIri2OpenRdfIri(triple.getPredicate());
+		Value object = ORAdapter.rMapValue2OpenRdfValue(triple.getObject());
+
+		Statement stmt = getValueFactory().createStatement(subject, predicate, object);
+
+		return stmt;
+	}
 	
 	/**
 	 * Converts a list of openRdf URIs to a list of java.net.URIs. Null returns null

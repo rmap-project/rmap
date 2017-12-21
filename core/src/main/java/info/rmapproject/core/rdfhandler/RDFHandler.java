@@ -75,6 +75,17 @@ public interface RDFHandler {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public RMapEvent rdf2RMapEvent(InputStream rdfIn, RDFType rdfFormat, String baseUri) throws RMapException, RMapDefectiveArgumentException;
+
+	/**
+	 * Serialize RMapTriple as RDF.
+	 *
+	 * @param triple single RMap Triple object to be converted to RDF
+	 * @param rdfFormat RDF Format to be used in serialization
+	 * @return OutputStream contains serialized RDF
+	 * @throws RMapException if RMapTriple list cannot be serialized as RDF
+	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
+	 */
+	public OutputStream triple2Rdf(RMapTriple triple, RDFType rdfFormat) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Serialize RMapTriple list as RDF.
