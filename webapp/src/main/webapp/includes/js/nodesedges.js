@@ -24,7 +24,8 @@ function drawgraph(){
 			autoResize:true,
 			nodes: {
 				shape: 'dot',
-				font: {strokeWidth: 2, strokeColor : '#ffffff', background:'#F7F7FF'}
+				font: {strokeWidth: 5, strokeColor : '#F7F7FF'},
+				title: this.title
 			},
 			edges: {
 				width: 0.15,
@@ -32,7 +33,8 @@ function drawgraph(){
 				smooth: {
 					type: 'dynamic'
 				},
-				font: {align: 'middle', strokeWidth: 2, strokeColor : '#ffffff', background:'#F7F7FF'}
+				font: {align: 'middle', strokeWidth: 2, strokeColor : '#ffffff'},
+				arrows: {to: {scaleFactor:1.2}}
 			},
 			physics: {
 				barnesHut: {
@@ -52,7 +54,9 @@ function drawgraph(){
 	        zoomExtentOnStabilize: true,
 	        navigation: true,
 			interaction: {
-				  keyboard: true
+				  keyboard:true,
+				  hover:true,
+				  zoomView:true
 				},
 	        groups: {
 				 <c:forEach var="nodeType" items="${nodeTypes}" varStatus="loop">
@@ -89,8 +93,20 @@ function drawgraph(){
 		}, 300); //prevents click event happening twice in addition to double click.
 	});
 	
-	network.on("dragStart", function () {document.getElementById('nodeInfoPopup').style.visibility = "hidden";});
-	network.on("zoom", function () {document.getElementById('nodeInfoPopup').style.visibility = "hidden";});
+	network.on("dragStart", function () {
+		closeNodeInfo();
+		closeTooltip();
+	});
+	
+	network.on("dragging", function () {
+		closeNodeInfo();
+		closeTooltip();
+	});
+		
+	network.on("zoom", function () {
+		closeNodeInfo();
+		closeTooltip();
+		});
 	  
 	network.on("stabilizationProgress", function(params) {
 		var maxWidth = 200;
@@ -109,17 +125,18 @@ function drawgraph(){
 		// really clean the dom element
 		setTimeout(function () {document.getElementById('loadbar').style.display = 'none';}, 320);
 	});
+		
 }
 
 function doNodeClick(params) {
+	closeTooltip();
+	var linkpopup = document.getElementById('nodeInfoPopup');
 	if (dblClickFired) { //prevents click event happening twice in addition to double click.
 		linkpopup.style.visibility = "hidden";
 		return;
 	}
-
-	var linkpopup = document.getElementById('nodeInfoPopup');
 	nodes.forEach(function (node) {
-	if (node.id==params.nodes && node.group!='Literal' && node.group!='Type'){
+	if (node.id==params.nodes){
 		var nodeinfopath = "<c:url value='/resources/'/>" + encodeURIComponent(node.uri) + "/nodeinfo";
 		var url = window.location.href;
 	
@@ -151,6 +168,20 @@ function doNodeClick(params) {
 	}
 }
 
+function closeTooltip() {
+	var tooltip = document.getElementsByClassName("vis-tooltip");
+	if(tooltip!=null 
+		&& typeof(tooltip) != 'undefined'
+		&& typeof(tooltip[0]) != 'undefined') {
+		tooltip[0].style.visibility='hidden';
+	}
+}
+function closeNodeInfo() {
+	var nodepopup = document.getElementById("nodeInfoPopup");
+	if(nodepopup!=null && typeof(nodepopup) != 'undefined') {
+		nodepopup.style.visibility = "hidden";
+	}
+}
 
 function toggle(tag)
 	{	
@@ -170,19 +201,12 @@ function toggle(tag)
 
 //store and edges and nodes that have been removed
 var removedNodes= new vis.DataSet([]);
-var removedEdges = new vis.DataSet([]);
 
 function removeNodeType(type){
 	nodes.forEach(function(node) {
 		if (node.group == type)	{
 			nodes.remove({id: node.id});
 			removedNodes.add(node);
-		};
-	});
-	edges.forEach(function(edge) {
-		if (edge.targetgroup == type)	{
-			edges.remove({id: edge.id}); 	
-			removedEdges.add(edge);	    	
 		};
 	});
 }
@@ -193,12 +217,6 @@ function addNodeType(type){
 			nodes.add({id: node.id, title: node.title, uri: node.uri, label: node.label, value:node.value, group:node.group}); 		
 			removedNodes.remove({id: node.id});
 			
-		};
-	});
-	removedEdges.forEach(function(edge) {
-		if (edge.targetgroup == type)	{
-			edges.add({from: edge.from, to: edge.to, label:edge.label, arrows:edge.arrows, targetgroup:edge.targetgroup}); 		   
-			removedEdges.remove({id: edge.id}); 	
 		};
 	});
 }
