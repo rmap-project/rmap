@@ -13,6 +13,15 @@
  ================================================== -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
+<!-- og meta for web previews
+ ================================================== -->
+<meta property="og:title" content="${pageTitle}">
+<meta property="og:image" content="<c:url value='/includes/images/websitepreview.png'/>">
+<meta property="og:image:width" content="709">
+<meta property="og:image:width" content="476">
+<meta property="og:type" content="website">
+<meta property="og:description" content="RMap captures and preserves maps of scholarly works.">
+
 <!-- CSS
 ================================================== -->
 <link rel="stylesheet" href="<c:url value='/includes/stylesheets/base.css'/>">
