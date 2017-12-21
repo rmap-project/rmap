@@ -261,19 +261,19 @@ public class ORMapService implements RMapService {
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRdfTypes(java.net.URI, java.net.URI)
+	 * @see info.rmapproject.core.rmapservice.RMapService#getResourceRdfTypesInContext(java.net.URI, java.net.URI)
 	 */
 	@Override
-	public List<URI> getResourceRdfTypesInDiSCO(URI resourceUri, URI discoUri)
+	public List<URI> getResourceRdfTypesInContext(URI resourceUri, URI contextUri)
 			throws RMapException, RMapDefectiveArgumentException {
 		if (resourceUri==null){
 			throw new RMapDefectiveArgumentException("Null resource URI");
 		}
-		if (discoUri==null){
-			throw new RMapDefectiveArgumentException("Null context URI");
+		if (contextUri==null){
+			throw new RMapDefectiveArgumentException("Null RMap Object URI");
 		}
 		org.openrdf.model.IRI resourceIri = uri2OpenRdfIri(resourceUri);
-		org.openrdf.model.IRI contextIri = uri2OpenRdfIri(discoUri);
+		org.openrdf.model.IRI contextIri = uri2OpenRdfIri(contextUri);
 
 		try {
 			List<org.openrdf.model.IRI> uris = resourcemgr.getResourceRdfTypes(resourceIri, contextIri, triplestore);
