@@ -58,6 +58,9 @@ public final class Constants  {
     
     /** Label for node type "Other". */
     public static final String NODETYPE_OTHER = "Other";
+
+    /** Label for node type "No type". */
+    public static final String NODETYPE_NOTYPE = "No_type";
     
     /** Default node color in case config fails*. */
     public static final String DEFAULT_NODE_COLOR = "#87CEFA";

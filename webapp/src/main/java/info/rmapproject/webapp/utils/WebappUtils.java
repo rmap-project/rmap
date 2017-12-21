@@ -19,6 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.webapp.utils;
 
+import static info.rmapproject.indexing.IndexUtils.HL_POSTFIX;
+import static info.rmapproject.indexing.IndexUtils.HL_PREFIX;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -138,7 +141,7 @@ public class WebappUtils {
 	 */
 	public static String getNodeType(URI type){
 		if (type == null) {
-			return Constants.NODETYPE_OTHER;
+			return Constants.NODETYPE_NOTYPE;
 		}
 
 		try {
@@ -158,13 +161,13 @@ public class WebappUtils {
 	 */
 	public static String getNodeType(List<URI> types){
 		if (types==null || types.size()==0){
-			return Constants.NODETYPE_OTHER;
+			return Constants.NODETYPE_NOTYPE;
 		}
 		String nodeType = null;
 		Map<String, Integer> typemap = new HashMap<String, Integer>();
 		for (URI type:types){
 			String thisNodeType = getNodeType(type);
-			if (!thisNodeType.equals(Constants.NODETYPE_OTHER)){
+			if (!thisNodeType.equals(Constants.NODETYPE_OTHER)&&!thisNodeType.equals(Constants.NODETYPE_NOTYPE)){
 				if (typemap.containsKey(thisNodeType)) {
 					//increment count
 					typemap.put(thisNodeType, typemap.get(thisNodeType)+1);
@@ -186,6 +189,7 @@ public class WebappUtils {
 		if (nodeType != null) {
 			return nodeType;
 		} else {
+			//there was one or more type, but none were recognizable.
 			return Constants.NODETYPE_OTHER;
 		}
 	}
