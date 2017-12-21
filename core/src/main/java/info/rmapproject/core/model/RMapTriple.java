@@ -97,4 +97,32 @@ public class RMapTriple {
 		return object;
 	}
 
+	@Override
+	public String toString() {
+		return "RMapTriple{" +
+				"subject=" + subject +
+				", predicate=" + predicate +
+				", object=" + object +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		RMapTriple that = (RMapTriple) o;
+
+		if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+		if (predicate != null ? !predicate.equals(that.predicate) : that.predicate != null) return false;
+		return object != null ? object.equals(that.object) : that.object == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = subject != null ? subject.hashCode() : 0;
+		result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
+		result = 31 * result + (object != null ? object.hashCode() : 0);
+		return result;
+	}
 }
