@@ -24,24 +24,24 @@ import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapAgentMgr;
+import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapDiSCOMgr;
+import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapEventMgr;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.spring.triplestore.support.TriplestoreManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -67,7 +67,7 @@ import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * The various RMap service interfaces hide various implementations, from the OpenRDF ValueFactory used to create
+ * The various RMap service interfaces hide various implementations, from the RDF4J ValueFactory used to create
  * statements, to the myriad constructors and objects used to construct RMap domain objects.  This integration test
  * does a first pass at insuring that the objects returned by the various {@code create*(...)} of these interfaces
  * return an object graph that can be (de)serialized by the JVM {@link java.io.ObjectOutputStream} and {@link
@@ -99,7 +99,7 @@ public class ManagerObjectSerializationIT {
     private ORMapAgentMgr agentMgr;
 
     @Autowired
-    private SesameTriplestore triplestore;
+    private Rdf4jTriplestore triplestore;
 
     @Autowired
     private TriplestoreManager tsMgr;

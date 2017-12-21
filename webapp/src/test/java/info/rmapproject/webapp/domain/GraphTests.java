@@ -25,11 +25,11 @@ import java.net.URI;
 import java.util.List;
 
 import org.junit.Test;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSparqlUtils;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSparqlUtils;
 import info.rmapproject.webapp.WebTestAbstract;
 import info.rmapproject.webapp.service.SpringGraphFactory;
 import info.rmapproject.webapp.utils.Constants;
@@ -85,7 +85,7 @@ public class GraphTests extends WebTestAbstract {
 
 		String query = "akjflsjdlkajsdkf ?rmapObjId skdjaflkajs lskeajdf lkasjdf lksjd flksjd ?rmapObjId alkdjfkj";
 		if (context != null) {
-			String graphid = SesameSparqlUtils.convertIriToSparqlParam(context);
+			String graphid = Rdf4jSparqlUtils.convertIriToSparqlParam(context);
 			query = query.replaceAll("\\?rmapObjId", graphid);
 		}
 		assertTrue(!query.contains("?rmapObjId"));

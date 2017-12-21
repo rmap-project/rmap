@@ -25,15 +25,15 @@ import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.Statement;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
+import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
+import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 

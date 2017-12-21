@@ -31,7 +31,7 @@ import javax.ws.rs.core.Response;
 import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.api.ApiDataCreationTestAbstract;

@@ -19,20 +19,21 @@
  *******************************************************************************/
 package info.rmapproject.core;
 
-import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.RMapLiteral;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jIri2RMapIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
+import static java.net.URI.create;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfIri2RMapIri;
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
-import static java.net.URI.create;
-import static org.junit.Assert.assertTrue;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 
 /**
  * Utility methods that support tests.
@@ -143,11 +144,11 @@ public class TestUtil {
     }
 
     public static IRI asIri(String uri) {
-        return uri2OpenRdfIri(create(uri));
+        return uri2Rdf4jIri(create(uri));
     }
 
     public static RMapIri asRmapIri(String uri) {
-        return openRdfIri2RMapIri(asIri(uri));
+        return rdf4jIri2RMapIri(asIri(uri));
     }
 
     public static RMapLiteral asRmapLiteral(String literalValue) {

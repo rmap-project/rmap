@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.CoreTestAbstract;
-import info.rmapproject.core.rmapservice.impl.openrdf.ORMapService;
+import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapService;
 
 public class RMapServiceInstanceTest extends CoreTestAbstract {
 

@@ -19,10 +19,10 @@
  *******************************************************************************/
 package info.rmapproject.api.utils;
 
-import org.openrdf.model.vocabulary.DC;
+import org.eclipse.rdf4j.model.vocabulary.DC;
 
 import info.rmapproject.core.utils.Terms;
-import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
+import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
 
 /**
  * 

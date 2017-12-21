@@ -24,16 +24,16 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.sail.memory.model.MemValueFactory;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.sail.memory.model.MemValueFactory;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ import static java.net.URI.create;
 import static java.util.Collections.singletonList;
 
 /**
- * The various RMap service interfaces hide various implementations, from the OpenRDF ValueFactory used to create
+ * The various RMap service interfaces hide various implementations, from the RDF4J ValueFactory used to create
  * statements, to the myriad constructors and objects used to construct RMap domain objects.  This unit test
  * does a first pass insuring that the domain object constructors produce objects that can be (de)serialized by the JVM
  * {@link java.io.ObjectOutputStream} and {@link java.io.ObjectInputStream}.
