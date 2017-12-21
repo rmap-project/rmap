@@ -32,7 +32,8 @@
         </bean>
 
         <bean id="integrationDatasourcePopulator"
-              class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
+              class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator"
+              depends-on="integrationSessionFactory">
             <constructor-arg>
                 <list value-type="org.springframework.core.io.Resource">
                     <value>${authdb.script.create-rmap-agent}</value>
@@ -43,6 +44,7 @@
 
         <bean id="integrationSessionFactory" parent="sessionFactory">
             <property name="dataSource" ref="integrationDatasource"/>
+
         </bean>
     </beans>
 

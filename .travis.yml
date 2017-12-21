@@ -3,5 +3,21 @@ cache:
   directories:
     - $HOME/.m2
 jdk:
-- oraclejdk8
-script: mvn verify
+  - oraclejdk8
+
+# - this is the default value assigned by Travis, but included for clarity
+install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+script:
+  - sudo service mysql stop
+  - sudo service postgresql stop
+  - sudo service acpid stop
+  - sudo service atd stop
+  - sudo service cron stop
+  - sudo service memcached stop
+  - sudo service ntp stop
+  - sudo service rabbitmq-server stop
+  - sudo service resolvconf stop
+  - sudo service sshguard stop
+  - sudo service ssh stop
+  - mvn verify -DtrimStackTrace=false

@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ActiveProfiles({"default", "integration-triplestore", "inmemory-idservice", "inmemory-db"})
+@ActiveProfiles({"default", "integration-triplestore", "inmemory-idservice", "inmemory-db", "prod-kafka"})
 @ContextConfiguration({"classpath*:/spring-rmapcore-context.xml"})
 public class TriplestoreIT {
 

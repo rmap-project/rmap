@@ -43,8 +43,11 @@ import org.junit.runner.RunWith;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -76,8 +79,8 @@ import static org.junit.Assert.assertNotNull;
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath*:/spring-rmapcore-context.xml")
-@ActiveProfiles({"integration-triplestore", "integration-db", "inmemory-idservice"})
+@ContextConfiguration(locations = { "classpath*:/spring-rmapcore-context.xml", "classpath:/rmap-kafka-shared-test.xml" })
+@ActiveProfiles({"integration-triplestore", "integration-db", "inmemory-idservice", "mock-kafka"})
 public class ManagerObjectSerializationIT {
 
     private static final IRI DISCO_IRI = asIri("http://example.org/disco/1");

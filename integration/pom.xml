@@ -20,6 +20,23 @@
         <sesame.workbench.context>/openrdf-workbench</sesame.workbench.context>
         <sesamehttp.repository.name>its</sesamehttp.repository.name>
         <derby.home>${project.build.testOutputDirectory}/derby</derby.home>
+
+        <!-- Kafka properties used to configure a broker for unit tests
+(see also src/test/resources/kafka-broker.properties, resource plugin and surefire plugin config) -->
+        <!-- Kafka doesn't like a mix of C:\ and / on Windows platform -->
+        <kafka.broker.logs-dir>target/classes/kafka-broker</kafka.broker.logs-dir>
+        <!-- separate multiple topics with a comma -->
+        <kafka.broker.topics>rmap-event-topic</kafka.broker.topics>
+
+        <RMAP_KAFKA_PORT>29092</RMAP_KAFKA_PORT>
+        <KAFKA_ADVERTISED_LISTENERS>PLAINTEXT://${docker.host.address}:29092</KAFKA_ADVERTISED_LISTENERS>
+        <ZOOKEEPER_CLIENT_PORT>32181</ZOOKEEPER_CLIENT_PORT>
+        <KAFKA_ZOOKEEPER_CONNECT>zookeeper:32181</KAFKA_ZOOKEEPER_CONNECT>
+        <KAFKA_BROKER_ID>1</KAFKA_BROKER_ID>
+        <KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR>1</KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR>
+        <ZOOKEEPER_TICK_TIME>2000</ZOOKEEPER_TICK_TIME>
+        <SOLR_PORT>8983</SOLR_PORT>
+        <SOLR_DEBUG_PORT>5005</SOLR_DEBUG_PORT>
     </properties>
 
     <dependencies>
@@ -141,24 +158,49 @@
             <version>1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-core</artifactId>
+            <version>${project.parent.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-kafka-shared</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-indexing-solr</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
     </dependencies>
     
     <build>
-
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
                 <executions>
                     <execution>
-                        <phase>validate</phase>
+                        <id>start-derby</id>
+                        <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
                                 <taskdef name="startDerby" classname="info.rmapproject.integration.util.StartDerbyTask"
                                          classpathref="maven.plugin.classpath"/>
-                                <startDerby derbyHome="${derby.home}"/>
+                                <startDerby derbyHome="${derby.home}" springContextLocation="classpath*:/spring-rmapauth-context.xml" springProfiles="default,inmemory-idservice,inmemory-triplestore,integration-db"/>
                             </target>
                         </configuration>
                         <goals>
@@ -171,11 +213,49 @@
                         <groupId>info.rmapproject</groupId>
                         <artifactId>rmap-integration-util</artifactId>
                         <version>${project.parent.version}</version>
-                        <scope>runtime</scope>
+                    </dependency>
+                    <dependency>
+                        <groupId>info.rmapproject</groupId>
+                        <artifactId>rmap-integration</artifactId>
+                        <version>${project.parent.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>info.rmapproject</groupId>
+                        <artifactId>rmap-auth</artifactId>
+                        <version>${project.parent.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                        <version>${org.springframework-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-jdbc</artifactId>
+                        <version>${org.springframework-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-orm</artifactId>
+                        <version>${org.springframework-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-core</artifactId>
+                        <version>${hibernate.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-validator</artifactId>
+                        <version>${hibernate-validator.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-entitymanager</artifactId>
+                        <version>${hibernate.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
-
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -196,6 +276,46 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <images>
+                        <image>
+                            <alias>solrintegration</alias>
+                            <run>
+                                <wait>
+                                    <http>
+                                        <url>http://${docker.host.address}:${SOLR_PORT}/solr/discos/admin/ping</url>
+                                    </http>
+                                    <time>60000</time>
+                                </wait>
+                            </run>
+                            <external>
+                                <type>compose</type>
+                                <basedir>target/test-classes/docker</basedir>
+                                <composeFile>docker-compose.yaml</composeFile>
+                            </external>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-docker-its</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-docker-its</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
@@ -212,14 +332,6 @@
                             <version>8.0.44</version>
                             <type>tar.gz</type>
                         </artifactInstaller>
-                        <!--<containerId>jetty9x</containerId>-->
-                        <!--<type>installed</type>-->
-                        <!--<artifactInstaller>-->
-                            <!--<groupId>org.eclipse.jetty</groupId>-->
-                            <!--<artifactId>jetty-distribution</artifactId>-->
-                            <!--<version>9.4.6.v20170531</version>-->
-                            <!--<type>tar.gz</type>-->
-                        <!--</artifactInstaller>-->
                         <systemProperties>
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
                             <derby.system.home>${derby.home}</derby.system.home>
@@ -227,8 +339,11 @@
                             <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
                             <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
                             <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
-                            <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
+                            <spring.profiles.active>default,persistent-db,inmemory-idservice,integration-triplestore,http-solr,prod-kafka,auto-start-indexing</spring.profiles.active>
                             <info.aduna.platform.appdata.basedir>${project.build.testOutputDirectory}/sesame</info.aduna.platform.appdata.basedir>
+                            <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
+                            <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
+                            <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
                         </systemProperties>
                         <dependencies>
                             <dependency>
@@ -289,13 +404,13 @@
                     <configuration>
                         <properties>
                             <!-- <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005 -Dlogback.debug=true </cargo.jvmargs> -->
-                            <cargo.jvmargs>-Dlogback.configurationFile=${project.basedir}/src/main/resources/logback.xml -Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.properties</cargo.jvmargs>
+                            <cargo.jvmargs>-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true -Djava.util.logging.config.file=${project.basedir}/src/test/resources/logging.properties -Dlogback.configurationFile=src/main/resources/logback.xml</cargo.jvmargs>
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
                         </properties>
                         <!-- Spring 'integration-db' beans -->
                         <files>
                             <copy>
-                                <file>${project.basedir}/src/main/resources/integration-db.properties</file>
+                                <file>${project.basedir}/src/main/resources/persistent-db.properties</file>
                                 <todir>shared/classes</todir>
                             </copy>
                             <copy>
@@ -308,6 +423,18 @@
                             </copy>
                             <copy>
                                 <file>${project.basedir}/src/main/resources/integration-triplestore.xml</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                            <copy>
+                                <file>${project.basedir}/src/main/resources/event-producer.properties</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                            <copy>
+                                <file>${project.basedir}/src/main/resources/event-consumer.properties</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                            <copy>
+                                <file>${project.basedir}/src/main/resources/logback.xml</file>
                                 <todir>shared/classes</todir>
                             </copy>
                         </files>
@@ -335,13 +462,15 @@
                             <container>
                                 <systemProperties>
                                     <derby.system.home>${derby.home}</derby.system.home>
-                                    <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
+                                    <spring.profiles.active>default,persistent-db,inmemory-idservice,integration-triplestore,http-solr,prod-kafka,auto-start-indexing</spring.profiles.active>
                                     <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
                                     <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
                                     <info.aduna.platform.appdata.basedir>${project.build.testOutputDirectory}/sesame</info.aduna.platform.appdata.basedir>
                                     <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
                                     <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
                                     <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
+                                    <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
+                                    <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
                                 </systemProperties>
                             </container>
                         </configuration>
@@ -362,10 +491,12 @@
                         <sesame.http.context>${sesame.http.context}</sesame.http.context>
                         <sesame.workbench.context>${sesame.workbench.context}</sesame.workbench.context>
                         <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
-                        <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore</spring.profiles.active>
+                        <spring.profiles.active>default,persistent-db,inmemory-idservice,integration-triplestore,http-solr,prod-kafka,auto-start-indexing</spring.profiles.active>
                         <sesamehttp.repository.name>${sesamehttp.repository.name}</sesamehttp.repository.name>
                         <sesamehttp.repository.url>http://localhost:${rmap.webapp.test.port}/openrdf-sesame</sesamehttp.repository.url>
                         <sesamehttp.workbench.url>http://localhost:${rmap.webapp.test.port}/openrdf-workbench</sesamehttp.workbench.url>
+                        <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
+                        <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
                     </systemProperties>
                 </configuration>
                 <executions>
@@ -377,7 +508,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>

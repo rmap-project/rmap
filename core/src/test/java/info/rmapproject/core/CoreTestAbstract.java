@@ -27,6 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
@@ -38,7 +39,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith( SpringJUnit4ClassRunner.class )
 @ComponentScan("info.rmapproject.core")
-@ContextConfiguration("classpath:/spring-rmapcore-context.xml")
+@ComponentScan("info.rmapproject.kafka")
+@ContextConfiguration({ "classpath:/spring-rmapcore-context.xml", "classpath*:/rmap-kafka-shared-test.xml" })
+@TestPropertySource(locations = { "classpath:/rmapcore.properties" })
 public abstract class CoreTestAbstract {
 
 	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
@@ -47,7 +50,7 @@ public abstract class CoreTestAbstract {
 	@BeforeClass
 	public static void setUpSpringProfiles() {
 		if (!activeProfilesPreSet) {
-			System.setProperty("spring.profiles.active", "default, inmemory-triplestore, inmemory-idservice");
+			System.setProperty("spring.profiles.active", "default, inmemory-triplestore, inmemory-idservice, mock-kafka");
 		}
 	}
 	
@@ -57,7 +60,7 @@ public abstract class CoreTestAbstract {
 			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
 		}
 	}
-	
+
     public static URI randomURI() {
         return URI.create("urn:uuid:" + UUID.randomUUID().toString());
     }

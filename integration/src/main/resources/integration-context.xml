@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:solr="http://www.springframework.org/schema/data/solr"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-2.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="classpath*:/http-solr.properties, classpath:/rmap.properties, classpath:/integration-db.properties" ignore-unresolvable="true"/>
+
+    <solr:repositories base-package="info.rmapproject.indexing.solr" multicore-support="true"/>
+    <solr:solr-client id="solrClient" url="${rmap.solr.url}"/>
+
+    <bean id="triplestoreManager" class="info.rmapproject.spring.triplestore.support.SesameTriplestoreManager">
+        <property name="defaultName" value="${sesamehttp.repository.name}"/>
+        <property name="httpClient" ref="httpClient"/>
+        <property name="repositoryBaseUrl" value="${sesamehttp.repository.url}"/>
+        <property name="workbenchBaseUrl" value="${sesamehttp.workbench.url}"/>
+    </bean>
+
+    <bean id="httpClient" class="okhttp3.OkHttpClient"/>
+
+    <bean id="ds" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${authdb.driverClassName}"/>
+        <property name="url" value="${authdb.url}"/>
+        <property name="username" value="${authdb.username}"/>
+        <property name="password" value="${authdb.password}"/>
+        <property name="validationQuery" value="${authdb.validationQuery}"/>
+        <property name="testOnBorrow" value="${authdb.testOnBorrow}"/>
+    </bean>
+
+</beans>

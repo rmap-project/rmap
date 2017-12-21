@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import info.rmapproject.testdata.service.TestConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.openrdf.model.IRI;
@@ -40,7 +41,6 @@ import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
-import info.rmapproject.testdata.service.TestConstants;
 
 /**
  * Tests for ResponseManager.

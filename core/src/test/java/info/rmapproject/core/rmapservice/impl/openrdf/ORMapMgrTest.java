@@ -35,6 +35,8 @@ import org.junit.Before;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.CoreTestAbstract;
@@ -53,21 +55,29 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.TestPropertySource;
 
 /**
  * @author khanson
  *
  */
-
+@TestPropertySource(locations = { "classpath:/rmapcore.properties" })
 public abstract class ORMapMgrTest extends CoreTestAbstract {
 
 	private static final AtomicInteger counter = new AtomicInteger();
+
+	static Logger LOG = LoggerFactory.getLogger(ORMapMgrTest.class);
+
+	@Value("${rmapcore.producer.topic}")
+	String topic;
+
 	@Autowired
 	protected RMapService rmapService;
 	
 	@Autowired
 	SesameTriplestore triplestore;
-	
+
 	/** General use sysagent for testing **/
 	protected ORMapAgent sysagent = null;
 	
@@ -105,7 +115,7 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 		}
 	}
 	
-	
+
 	
 	/**
 	 * Create generic sysagent and RequestAgent for general use using TestConstants. 

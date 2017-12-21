@@ -7,6 +7,7 @@
 
 	<context:property-placeholder location="classpath:/rmapcore.properties" ignore-unresolvable="true"/>
 	<context:component-scan base-package="info.rmapproject.core"/>
+	<context:component-scan base-package="info.rmapproject.kafka"/>
 
 	<bean id="idSupplier" class="info.rmapproject.core.idservice.IdServiceSupplier"/>
     <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/>
@@ -28,6 +29,11 @@
 			</set>
 		</property>
 	</bean>
+
+	<!-- production kafka config, from rmap-kafka-shared module -->
+	<beans profile="prod-kafka">
+		<import resource="classpath*:/rmap-kafka-shared.xml"/>
+	</beans>
 
 	<!-- production triplestore -->
 	<beans profile="http-triplestore">

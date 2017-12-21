@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/spring-rmapauth-context.xml")
+@ContextConfiguration({ "classpath*:/spring-rmapauth-context.xml", "classpath*:/rmap-kafka-shared-test.xml" })
 @Transactional
 public abstract class AuthDBTestAbstract {
 
@@ -45,7 +45,7 @@ public abstract class AuthDBTestAbstract {
 	@BeforeClass
 	public static void setUpSpringProfiles() {
 		if (!activeProfilesPreSet) {
-			System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore");
+			System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-kafka");
 		}
 	}
 	
