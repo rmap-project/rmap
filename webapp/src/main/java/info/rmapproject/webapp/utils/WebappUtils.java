@@ -19,9 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.utils;
 
-import static info.rmapproject.indexing.IndexUtils.HL_POSTFIX;
-import static info.rmapproject.indexing.IndexUtils.HL_PREFIX;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
