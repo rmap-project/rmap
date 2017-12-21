@@ -36,6 +36,8 @@ import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
 import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An abstract class for openrdf versions of RMap Objects, implemented using openrdf
@@ -44,6 +46,8 @@ import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
  * @author smorrissey
  */
 public abstract class ORMapObjectMgr {
+
+	final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	IdService idService;
