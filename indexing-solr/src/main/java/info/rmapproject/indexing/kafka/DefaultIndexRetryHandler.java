@@ -53,6 +53,8 @@ public class DefaultIndexRetryHandler implements IndexingRetryHandler, EventTupl
 
     private IndexDTOMapper dtoMapper;
 
+    // TODO: inject rather than Autowire, so the spring bean definition in rmap-indexing-solr isn't a mix
+    // of explicit wiring and autowiring.
     @Autowired
     private RMapService rmapService;
 

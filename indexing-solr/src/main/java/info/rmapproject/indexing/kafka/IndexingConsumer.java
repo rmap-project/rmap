@@ -39,6 +39,8 @@ public class IndexingConsumer {
     private static final ConsumerRecords<String, RMapEvent> EMPTY_RECORDS =
             new ConsumerRecords<>(Collections.emptyMap());
 
+    // TODO: inject rather than Autowire, so the spring bean definition in rmap-indexing-solr isn't a mix
+    // of explicit wiring and autowiring.
     @Autowired
     private RMapService rmapService;
 
