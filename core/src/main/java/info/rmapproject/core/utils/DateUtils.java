@@ -43,6 +43,20 @@ public class DateUtils {
 	private DateUtils() {}
 	
 	/**
+	 * Gets date from string according to format provided.
+	 * @param dateString
+	 * @param format e.g. "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "yyyy-MM-dd"
+	 * @return
+	 */
+	public static Date getDateFromString(String dateString, String format)
+	throws ParseException{
+		Date finalResult = null;
+		DateFormat dateformat = new SimpleDateFormat(format);
+		finalResult = dateformat.parse(dateString);		
+		return finalResult;
+	}
+	
+	/**
 	 * Parse ISO 8601 date string into Date object.
 	 *
 	 * @param dateString String containing ISO8601 formatted date
@@ -51,10 +65,7 @@ public class DateUtils {
 	 */
 	public static Date getDateFromIsoString(String dateString) 
 	throws ParseException{
-		Date finalResult = null;
-		DateFormat format = new SimpleDateFormat(ISO8601);
-		finalResult = format.parse(dateString);		
-		return finalResult;
+		return getDateFromString(dateString, ISO8601);
 	}
 	
 	/**
@@ -84,4 +95,26 @@ public class DateUtils {
         }
         return calendar.toGregorianCalendar().getTime();
     }
+    
+	/**
+	 * If date is valid according to format provided, returns true. Otherwise returns false.
+	 * @param sDate
+	 * @param format
+	 * @return
+	 */
+	public static boolean isValidDate(String sDate, String format) {
+		if(sDate == null){
+			return false;
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		sdf.setLenient(false);
+		try {
+			//if not valid, it will throw ParseException
+			sdf.parse(sDate);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}	
+    
 }
