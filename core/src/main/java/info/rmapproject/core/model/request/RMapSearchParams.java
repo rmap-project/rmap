@@ -205,13 +205,11 @@ public class RMapSearchParams  {
 	 * @throws RMapException the RMap exception
 	 */
 	public void setOffset(Integer offset) throws RMapException {
-		if (offset==null) {
-			this.offset=null;
-		} else if (offset >= 0) {
-			this.offset = offset;
+		if (offset==null || offset < 0) {
+			this.offset = 0;
 		} else {
-			throw new RMapException ("Offset number must be 0 or greater");
-		}
+			this.offset = offset;
+		} 
 	}
 	
 	/**
@@ -221,7 +219,7 @@ public class RMapSearchParams  {
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public void setOffset(String sOffset) throws RMapException, RMapDefectiveArgumentException {
-		Integer iOffset = null;
+		Integer iOffset = 0;
 		if (sOffset != null && sOffset.length()>0) {
 			try{
 				sOffset=sOffset.trim();
@@ -268,12 +266,7 @@ public class RMapSearchParams  {
 	 * @return the offset
 	 */
 	public Integer getOffset() {
-		if (this.offset!=null && this.offset>=0){
-			return this.offset;			
-		}
-		else {
-			return 0;
-		}
+		return this.offset==null ? 0 : this.offset;			
 	}
 
 
