@@ -6,7 +6,7 @@
 
 <c:if test="${resource_types.size()>0}">
 	<h3>
-		Resource type<c:if test="${resource_types.size()>1}">s</c:if>:&nbsp;
+		Type<c:if test="${resource_types.size()>1}">s</c:if>:&nbsp;
 		<em>
 			<c:forEach var="resource_type" items="${resource_types}">
 				<tl:linkOntology link="${resource_type.toString()}" display="${my:replaceNamespace(resource_type.toString())}"/>;&nbsp;

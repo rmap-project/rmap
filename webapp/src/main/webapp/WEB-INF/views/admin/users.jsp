@@ -62,12 +62,12 @@
 			</div>
 			<c:if test="${(offset+pageIncrement)<userList.size()}">
 				<c:set var="nextOffset" value="${offset+pageIncrement}"/>
-				<c:set var="nextUrl" value="${'/admin/users?filter='.concat(filter).concat('&offset=').concat(nextOffset)}"/>
+				<c:set var="nextUrl" value="/admin/users?filter=${filter}&offset=${nextOffset}"/>
 				<a class="next mainContentPager" href="<c:url value='${nextUrl}'/>">next &#8250;</a>
 			</c:if>
 			<c:if test="${offset>0}">
 				<c:set var="prevOffset" value="${(offset-pageIncrement) le 0 ? 0 :(offset-pageIncrement)}"/>
-				<c:set var="prevUrl" value="${'/admin/users?filter='.concat(filter).concat('&offset=').concat(prevOffset)}"/>
+				<c:set var="prevUrl" value="/admin/users?filter=${filter}&offset=${prevOffset}"/>
 				<a class="previous mainContentPager" href="<c:url value='${prevUrl}'/>">&#8249; previous</a>
 			</c:if>
 		</div>
