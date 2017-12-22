@@ -18,7 +18,7 @@
 			<td><tl:linkRMapValue uri="${AGENT.getIdProvider()}"/></td>
 		</tr>	
 		<tr>
-			<td>User Authentication ID</td>
+			<td>User Authorization ID</td>
 			<td><tl:linkRMapValue uri="${AGENT.getAuthId()}"/></td>
 		</tr>	
 	</table>
