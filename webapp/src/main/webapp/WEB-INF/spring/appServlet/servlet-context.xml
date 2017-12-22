@@ -14,6 +14,8 @@
 	<context:component-scan base-package="info.rmapproject" />
 
 	<beans:import resource="classpath:/spring-rmapauth-context.xml" />
+	<beans:import resource="classpath:/rmap-indexing-solr.xml"/>
+	<beans:import resource="classpath:/rmap-kafka-shared.xml"/>
 
 	<!-- Handles HTTP GET requests for /includes/** by efficiently serving up static resources in the ${webappRoot}/includes directory -->
 	<resources mapping="/includes/**" location="/includes/" />

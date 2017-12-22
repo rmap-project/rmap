@@ -1,0 +1,19 @@
+<rmap:rmp1892gbc> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#DiSCO> <rmap:rmp1892gbc> .
+<rmap:rmp1892gbc> <http://purl.org/dc/terms/creator> <http://rmap-project.org/rmap/agents/RMap-OSF-Harvester-0.1> <rmap:rmp1892gbc> .
+<rmap:rmp1892gbc> <http://www.openarchives.org/ore/terms/aggregates> <https://osf.io/pt2d7/> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7-6suwb/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person>  <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://osf.io/terms/Project> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://osf.io/terms/Registration> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/hasPart> <https://files.osf.io/v1/resources/pt2d7/providers/osfstorage/56cca202594d90017fe01365> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/description> "Data file for Muggleton &amp; Fincher (2016): The effect of disease vulnerability on preferences for self-similar scent."^^<http://www.w3.org/2001/XMLSchema#string> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/identifier> <doi:10.17605/OSF.IO/PT2D7> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/identifier> <http://dx.doi.org/10.17605/OSF.IO/PT2D7> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/identifier> <ark:/c7605/osf.io/pt2d7> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/isVersionOf> <https://osf.io/pu6sd/> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/title> "Disease vulnerability and preferences for self-similar scent"^^<http://www.w3.org/2001/XMLSchema#string> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/issued> "2016-02-23T18:16:18Z"^^<http://www.w3.org/2001/XMLSchema#string> <rmap:rmp1892gbc> .
+<https://osf.io/pt2d7/> <http://purl.org/dc/terms/contributor> <https://osf.io/pt2d7-6suwb/> <rmap:rmp1892gbc> .
+<https://osf.io/pu6sd/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://osf.io/terms/Project> <rmap:rmp1892gbc> .
+<https://files.osf.io/v1/resources/pt2d7/providers/osfstorage/56cca202594d90017fe01365> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/fabio/ComputerFile> <rmap:rmp1892gbc> .
+<https://files.osf.io/v1/resources/pt2d7/providers/osfstorage/56cca202594d90017fe01365> <http://purl.org/dc/terms/created> "2016-02-23T18:13:14Z"^^<http://www.w3.org/2001/XMLSchema#string> <rmap:rmp1892gbc> .
+<https://files.osf.io/v1/resources/pt2d7/providers/osfstorage/56cca202594d90017fe01365> <http://www.w3.org/2000/01/rdf-schema#label> "/Archive of OSF Storage/Muggleton Fincher_scent study_data file.xlsx"^^<http://www.w3.org/2001/XMLSchema#string> <rmap:rmp1892gbc> .

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:solr="http://www.springframework.org/schema/data/solr"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <beans profile="http-solr">
+        <solr:repositories base-package="info.rmapproject.indexing.solr"/>
+        <context:property-placeholder location="classpath*:/http-solr.properties" ignore-unresolvable="true"/>
+        <solr:solr-client id="solrClient" url="${rmap.solr.url}"/>
+    </beans>
+    
+    <beans profile="embedded-solr">
+        <solr:repositories base-package="info.rmapproject.indexing.solr"/>
+  		<solr:embedded-solr-server id="solrClient" solrHome="classpath:"/>
+    </beans>
+
+
+    <!-- production kafka config, from rmap-kafka-shared module -->
+    <beans profile="prod-kafka">
+        <import resource="classpath*:/rmap-kafka-shared.xml"/>
+
+        <!--
+          Provides access to Kafka metadata kept in the "discos" Solr core.  Sharable.  Each Solr core that stores
+          Kafka metadata (topic, partition, offset) will need its own instance of SolrOffsetLookup.
+        -->
+        <bean id="discosRepositoryOffsetLookup" class="info.rmapproject.indexing.kafka.SolrOffsetLookup"
+              depends-on="solrClient">
+            <constructor-arg ref="discoRepository"/>
+        </bean>
+
+        <bean id="rebalancer" class="info.rmapproject.indexing.kafka.SaveOffsetOnRebalance" scope="prototype">
+            <constructor-arg ref="discosRepositoryOffsetLookup"/>
+            <property name="consumer" ref="eventConsumer"/>
+        </bean>
+
+        <bean id="retryHandler" class="info.rmapproject.indexing.kafka.DefaultIndexRetryHandler">
+            <constructor-arg ref="discosIndexer"/>
+            <constructor-arg ref="indexDTOMapper"/>
+            <constructor-arg ref="discosSolrOperations"/>
+            <constructor-arg value="1000"/>
+            <constructor-arg value="60000"/>
+            <constructor-arg value="1.5"/>
+        </bean>
+
+        <!--
+          Consumes RMap Events from a specified Kafka topic, and indexes DiscoSolrDocuments to the 'discos' Solr core.
+        -->
+        <bean id="discosIndexingConsumer" class="info.rmapproject.indexing.kafka.IndexingConsumer" scope="prototype">
+            <property name="indexer" ref="discosIndexer"/>
+            <property name="consumer" ref="eventConsumer"/>
+            <property name="pollTimeoutMs" value="30000"/>
+            <!--<property name="shutdownHook" ref=""/>-->
+            <property name="rebalanceListener" ref="rebalancer"/>
+            <property name="retryHandler" ref="retryHandler"/>
+            <property name="dtoMapper" ref="indexDTOMapper"/>
+        </bean>
+
+    </beans>
+
+    <beans>
+
+        <bean id="standAloneStatusInferencer" class="info.rmapproject.indexing.solr.repository.StandAloneStatusInferencer"/>
+
+        <!--
+          Shared instance of the EventDiscoTupleMapper; accepts EventDiscoTuples and maps them to DiscoSolrDocuments.
+        -->
+        <bean id="eventTupleToDiscoSolrDocumentMapper"
+              class="info.rmapproject.indexing.solr.repository.SimpleEventDiscoTupleMapper"/>
+
+        <!--
+          Collaborators of eventTupleToDiscoSolrDocumentMapper
+        -->
+        <bean id="agentMapper" class="info.rmapproject.indexing.solr.repository.SimpleAgentMapper"/>
+        <bean id="eventMapper" class="info.rmapproject.indexing.solr.repository.SimpleEventMapper"/>
+        <bean id="discoMapper" class="info.rmapproject.indexing.solr.repository.SimpleDiscoMapper"/>
+
+        <!--
+          Maps IndexDTO objects to EventDiscoTuple objects.
+        -->
+        <bean id="indexDTOMapper" class="info.rmapproject.indexing.solr.repository.SimpleIndexDTOMapper"/>
+
+        <!--
+          Provides low-level Solr operations against the "discos" core
+        -->
+        <bean id="discosSolrOperations" class="info.rmapproject.indexing.solr.repository.DiscosSolrOperations">
+            <constructor-arg ref="solrTemplate"/>
+            <constructor-arg value="${rmap.solr.cores.discos.name}"/>
+        </bean>
+
+        <!--
+          Shared instance of the "discos" core Solr indexer; indexes the DiscoSolrDocument domain object.
+          - Each Solr core will require its own indexer, because each core indexes a different domain object
+        -->
+        <bean id="discosIndexer" class="info.rmapproject.indexing.solr.repository.DiscosIndexer"
+              depends-on="solrClient">
+            <constructor-arg ref="eventTupleToDiscoSolrDocumentMapper"/> <!-- eventTupleMapper may be shared -->
+            <constructor-arg ref="discoRepository"/>                     <!-- may _not_ be shared, each indexer will need its own repository -->
+            <constructor-arg ref="solrTemplate"/>                        <!-- solrTemplate may be shared -->
+        </bean>
+
+        <!--
+          Hypothetical instance of the "versions" core Solr indexer.
+        -->
+        <!--bean id="versionsIndexer" class="info.rmapproject.indexing.solr.repository.VersionsIndexer">
+            <constructor-arg ref="eventTupleToVersionSolrDocumentMapper"/>
+            <constructor-arg ref="versionRepository"/>
+            <constructor-arg ref="solrTemplate"/>
+        </bean-->
+
+        <!--
+          Hypothetical instance of the "resources" core Solr indexer.
+        -->
+        <!--bean id="versionsIndexer" class="info.rmapproject.indexing.solr.repository.ResourcessIndexer">
+            <constructor-arg ref="eventTupleToResourcesSolrDocumentMapper"/>
+            <constructor-arg ref="resourcesRepository"/>
+            <constructor-arg ref="solrTemplate"/>
+        </bean-->
+
+    </beans>
+
+    <beans profile="auto-start-indexing">
+        <bean id="consumerInitializer" class="info.rmapproject.indexing.kafka.SpringAwareConsumerInitializer"
+              init-method="start" depends-on="discosIndexingConsumer">
+            <constructor-arg value="${rmap.solr.url}"/>
+            <constructor-arg value="discos"/>
+            <property name="consumerBeanName" value="discosIndexingConsumer"/>
+            <property name="consumerCount" value="1"/>
+            <property name="kafkaTopic" value="${rmapcore.producer.topic}"/>
+            <property name="brokerBootstrapServers" value="${bootstrap.servers}"/>
+            <property name="consumerThreads">
+                <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                    <property name="targetClass" value="java.util.concurrent.Executors"/>
+                    <property name="staticMethod" value="java.util.concurrent.Executors.newFixedThreadPool"/>
+                    <property name="arguments" value="1"/>
+                </bean>
+            </property>
+        </bean>
+    </beans>
+
+</beans>

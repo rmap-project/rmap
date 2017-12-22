@@ -1,0 +1,38 @@
+
+<rmap:rmd18mddcw> a <http://purl.org/ontology/rmap#DiSCO> ;
+	<http://purl.org/dc/terms/creator> <http://portico.org> ;
+	<http://purl.org/dc/terms/description> "Details of the files preserved for an article in the Portico digital archive." ;
+	<http://www.openarchives.org/ore/terms/aggregates> <ark:/27927/pgg3r5df1cp> .
+
+<ark:/27927/pgg3r5cvnv2> <http://purl.org/dc/terms/format> "IEEE IDAMS DTD:2.0:2012-11-28" .
+
+<ark:/27927/pgg3r5cvnzq> <http://purl.org/dc/terms/format> "application/pdf" .
+
+<ark:/27927/pgg3r5df1cp> <http://purl.org/dc/terms/hasPart> <ark:/27927/pgg3r5cvnv2> .
+
+<ark:/27927/pgg3r5dwc3q> <http://purl.org/dc/terms/extent> "6384 Bytes" ;
+	<http://purl.org/dc/terms/format> "application/xml" .
+
+<ark:/27927/pgg3r5cvnv2> <http://www.loc.gov/premis/rdf/v1#hasOriginalName> "2012/SingleArt_IEEEcnf/week43a/6330715.zip/6330715/6339585/06339604.xml" .
+
+<ark:/27927/pgg3r5cvnzq> <http://purl.org/dc/terms/extent> "1429876 Bytes" .
+
+<ark:/27927/pgg3r5df1cp> <http://purl.org/spar/pso/holdsStatusInTime> <rmap:rmd18mddfx> ;
+	<http://purl.org/dc/terms/isFormatOf> <http://dx.doi.org/10.1109/InPar.2012.6339604> ;
+	<http://purl.org/dc/terms/hasPart> <ark:/27927/pgg3r5dwc3q> , <ark:/27927/pgg3r5cvnzq> .
+
+<ark:/27927/pgg3r5dwc3q> <http://www.loc.gov/premis/rdf/v1#hasOriginalName> "/ingest/workarea/0b0086f1a2d3ad44/output/ieee/pgg3r5cvnv2/pgg3r5cvnv2.xml" ;
+	<http://purl.org/dc/terms/format> "Portico Journal Archiving DTD:3.0:2011-08-10" .
+
+<ark:/27927/pgg3r5cvnzq> <http://purl.org/dc/terms/format> "Portable Document Format:1.4:2001" ;
+	<http://www.loc.gov/premis/rdf/v1#hasOriginalName> "2012/SingleArt_IEEEcnf/week43a/6330715.zip/6330715/6339585/06339604.pdf" .
+
+<ark:/27927/pgg3r5df1cp> <http://www.loc.gov/mods/modsrdf/v1#locationOfResource> <http://portico.org> .
+
+<ark:/27927/pgg3r5cvnv2> <http://purl.org/dc/terms/extent> "8784 Bytes" .
+
+<rmap:rmd18mddfx> <http://purl.org/spar/pso/withStatus> <http://purl.org/spar/pso/archived> .
+
+<http://dx.doi.org/10.1109/InPar.2012.6339604> a <http://purl.org/dc/dcmitype/Text> .
+
+<ark:/27927/pgg3r5cvnv2> <http://purl.org/dc/terms/format> "application/xml" .

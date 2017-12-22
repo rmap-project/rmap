@@ -5,6 +5,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -18,11 +19,19 @@ public class StartDerbyTask extends Task {
 
     private static final Logger LOG = LoggerFactory.getLogger(StartDerbyTask.class);
 
+    private static final String SPRING_ACTIVE_PROFILES = "spring.profiles.active";
+
+    private static final String SESSION_FACTORY_BEAN_NAME = "integrationSessionFactory";
+
     private int port = 1527;
 
     private String host = "localhost";
 
     private File derbyHome;
+
+    private String springProfiles;
+
+    private String springContextLocation;
 
     public void execute() throws BuildException {
         if (derbyHome == null) {
@@ -42,6 +51,18 @@ public class StartDerbyTask extends Task {
                             "Error starting the Derby Network Server (derby.system.home=%s) on %s:%s: %s",
                             derbyHome.getAbsolutePath(), host, port, e.getMessage()), e);
         }
+
+        if (springContextLocation == null) {
+            return;
+        }
+
+        if (springProfiles != null && springProfiles.trim().length() > 0) {
+            System.setProperty(SPRING_ACTIVE_PROFILES, springProfiles);
+        }
+
+        ClassPathXmlApplicationContext appCtx = new ClassPathXmlApplicationContext(springContextLocation);
+        LOG.info("Acquired SessionFactory: " + appCtx.getBean(SESSION_FACTORY_BEAN_NAME).getClass().getName());
+
     }
 
     /**
@@ -105,5 +126,21 @@ public class StartDerbyTask extends Task {
             throw new IllegalArgumentException("'derbyHome' must not be null!");
         }
         this.derbyHome = derbyHome;
+    }
+
+    public String getSpringProfiles() {
+        return springProfiles;
+    }
+
+    public void setSpringProfiles(String springProfiles) {
+        this.springProfiles = springProfiles;
+    }
+
+    public String getSpringContextLocation() {
+        return springContextLocation;
+    }
+
+    public void setSpringContextLocation(String springContextLocation) {
+        this.springContextLocation = springContextLocation;
     }
 }

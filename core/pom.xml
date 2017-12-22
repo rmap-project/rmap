@@ -76,9 +76,29 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
           <groupId>info.rmapproject</groupId>
           <artifactId>rmap-spring-util</artifactId>
           <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-kafka-shared</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-kafka-shared</artifactId>
+            <version>${project.parent.version}</version>
+            <classifier>tests</classifier>
         </dependency>
         <!-- testing -->
         <dependency>
@@ -101,6 +121,22 @@
         <artifactId>spring-web</artifactId>
         <scope>test</scope>
       </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-integration-util</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
@@ -124,7 +160,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <spring.profiles.active>default,inmemory-idservice,inmemory-triplestore</spring.profiles.active>
+                        <logback.configurationFile>src/test/resources/logback-test.xml</logback.configurationFile>
+                        <spring.profiles.active>default,inmemory-idservice,inmemory-triplestore,mock-kafka</spring.profiles.active>
                     </systemProperties>
                 </configuration>
             </plugin>

@@ -1,0 +1,37 @@
+<configuration>
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%30.30thread] %-5level [%30.-30C{0}] - %msg%n
+            </pattern>
+        </encoder>
+        <target>System.err</target>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="STDERR" />
+    </root>
+    <logger name="info.rmapproject" additivity="false" level="${info.rmapproject.level:-INFO}">
+        <appender-ref ref="STDERR" />
+    </logger>
+    <logger name="info.rmapproject.indexing" additivity="false" level="${info.rmapproject.indexing.level:-DEBUG}">
+        <appender-ref ref="STDERR" />
+    </logger>
+    <logger name="org.springframework" additivity="false" level="${org.springframework.level:-ERROR}">
+        <appender-ref ref="STDERR"/>
+    </logger>
+    <logger name="org.springframework.data.solr" additivity="false" level="${org.springframework.data.solr.level:-WARN}">
+        <appender-ref ref="STDERR"/>
+    </logger>
+    <logger name="org.apache.kafka" additivity="false" level="${org.apache.kafka.level:-WARN}">
+        <appender-ref ref="STDERR"/>
+    </logger>
+    <logger name="org.apache.kafka.clients.NetworkClient" additivity="false" level="ERROR">
+        <appender-ref ref="STDERR"/>
+    </logger>
+    <logger name="org.apache.kafka.common.utils.AppInfoParser" additivity="false" level="ERROR">
+        <appender-ref ref="STDERR"/>
+    </logger>
+    <logger name="org.hibernate" additivity="false" level="${org.hibernate.level:-WARN}">
+        <appender-ref ref="STDERR" />
+    </logger>
+</configuration>

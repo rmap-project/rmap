@@ -45,7 +45,7 @@ import info.rmapproject.core.CoreTestAbstract;
  * Test class for {@link info.rmapproject.core.idservice.HttpUrlIdService}.
  * @author khanson
  */
-@ActiveProfiles({"default","http-idservice","inmemory-triplestore"}) //override default
+@ActiveProfiles({"default","http-idservice","inmemory-triplestore","mock-kafka"}) //override default
 public class HttpUrlIdServiceTest extends CoreTestAbstract {
 
 	/** Contains two identifiers to simulate what you would get from the NOID service */

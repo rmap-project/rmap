@@ -1,0 +1,28 @@
+
+<rmap:rmp1892f7b> a <http://purl.org/ontology/rmap#DiSCO> ;
+	<http://purl.org/dc/terms/creator> <http://rmap-project.org/rmap/agents/RMap-OSF-Harvester-0.1> ;
+	<http://www.openarchives.org/ore/terms/aggregates> <https://osf.io/rxgmb/> .
+
+<https://osf.io/rxgmb/> <http://purl.org/dc/terms/isVersionOf> <https://osf.io/pu6sd/> .
+
+<https://osf.io/6suwb/> a <http://xmlns.com/foaf/0.1/Person> .
+
+<https://osf.io/rxgmb/> <http://purl.org/dc/terms/description> "Data file for Muggleton &amp; Fincher (2016): The effect of disease vulnerability on preferences for self-similar scent." ;
+	<http://purl.org/dc/terms/issued> "2016-02-25T13:55:15Z" ;
+	a <http://osf.io/terms/Project> .
+
+<https://osf.io/pu6sd/> a <http://osf.io/terms/Project> .
+
+<https://files.osf.io/v1/resources/rxgmb/providers/osfstorage/56cf07ccb83f69017c75cff9> a <http://purl.org/spar/fabio/ComputerFile> .
+
+<https://osf.io/rxgmb/> <http://purl.org/dc/terms/identifier> <ark:/c7605/osf.io/rxgmb> , <doi:10.17605/OSF.IO/RXGMB> ;
+	<http://purl.org/dc/terms/contributor> <https://osf.io/6suwb/> ;
+	<http://purl.org/dc/terms/title> "Disease vulnerability and preferences for self-similar scent" ;
+	a <http://osf.io/terms/Registration> ;
+	<http://purl.org/dc/terms/identifier> <http://dx.doi.org/10.17605/OSF.IO/RXGMB> .
+
+<https://files.osf.io/v1/resources/rxgmb/providers/osfstorage/56cf07ccb83f69017c75cff9> <http://purl.org/dc/terms/created> "2016-02-25T13:35:07Z" .
+
+<https://osf.io/rxgmb/> <http://purl.org/dc/terms/hasPart> <https://files.osf.io/v1/resources/rxgmb/providers/osfstorage/56cf07ccb83f69017c75cff9> .
+
+<https://files.osf.io/v1/resources/rxgmb/providers/osfstorage/56cf07ccb83f69017c75cff9> <http://www.w3.org/2000/01/rdf-schema#label> "/Archive of OSF Storage/Muggleton Fincher_scent study_data file.xlsx" .

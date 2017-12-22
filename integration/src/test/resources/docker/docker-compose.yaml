@@ -1,0 +1,51 @@
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    env_file: .env
+    environment:
+      ZOOKEEPER_CLIENT_PORT: "${ZOOKEEPER_CLIENT_PORT}"
+      ZOOKEEPER_TICK_TIME: "${ZOOKEEPER_TICK_TIME}"
+    ports: 
+      - "${ZOOKEEPER_CLIENT_PORT}:${ZOOKEEPER_CLIENT_PORT}"
+    extra_hosts:
+      - "moby:127.0.0.1"
+      - "default:127.0.0.1"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    env_file: .env
+    environment:
+      KAFKA_BROKER_ID: "${KAFKA_BROKER_ID}"
+      KAFKA_ZOOKEEPER_CONNECT: "${KAFKA_ZOOKEEPER_CONNECT}"
+      KAFKA_ADVERTISED_LISTENERS: "${KAFKA_ADVERTISED_LISTENERS}"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}"
+    ports:
+      - "${RMAP_KAFKA_PORT}:${RMAP_KAFKA_PORT}"
+    extra_hosts:
+      - "moby:127.0.0.1"
+      - "default:127.0.0.1"
+    links:
+      - "zookeeper"
+
+
+  solrintegration:
+     container_name: solrintegration
+     image: solr:6.6.2-alpine
+     user: root
+     env_file: .env
+     ports:
+       - "${SOLR_PORT}:${SOLR_PORT}"
+       - "${SOLR_DEBUG_PORT}:${SOLR_DEBUG_PORT}"
+     volumes:
+       - "./cores:/opt/solr/server/solr/mycores"
+     entrypoint:
+       - docker-entrypoint.sh
+       - solr
+       - start
+       - -f
+       - -force
+       - -a
+       - "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${SOLR_DEBUG_PORT}"

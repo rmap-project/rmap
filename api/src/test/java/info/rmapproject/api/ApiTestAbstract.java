@@ -22,6 +22,7 @@ package info.rmapproject.api;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -33,7 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({"classpath:/beans.xml"})
+@ActiveProfiles({"default", "inmemory-triplestore", "inmemory-idservice", "inmemory-db", "embedded-solr", "mock-kafka"})
+@ContextConfiguration("classpath:/beans.xml")
 @Transactional
 public abstract class ApiTestAbstract {
 	
@@ -43,7 +45,7 @@ public abstract class ApiTestAbstract {
 	@BeforeClass
 	public static void setUpSpringProfiles() {
 		if (!activeProfilesPreSet) {
-			System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default,inmemory-db,inmemory-idservice,inmemory-triplestore");
+			System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default,inmemory-db,inmemory-idservice,inmemory-triplestore,embedded-solr,mock-kafka");
 		}
 	}
 

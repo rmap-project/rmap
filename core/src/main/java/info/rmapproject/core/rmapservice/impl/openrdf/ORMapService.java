@@ -41,7 +41,11 @@ import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
@@ -75,7 +79,10 @@ import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplest
  * @author smorrissey
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ORMapService implements RMapService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(ORMapService.class);
 
 	/** Instance of the RMap Resource Manager */
 	private ORMapResourceMgr resourcemgr;
@@ -740,6 +747,7 @@ public class ORMapService implements RMapService {
 			event = agentmgr.createAgent(orAgent, reqEventDetails, triplestore);
 		} catch (RMapException ex) {
 			try {
+				LOG.warn("Encountered error creating agent {}: {}", agent, ex.getMessage(), ex);
 				//there has been an error during an update so try to rollback the transaction
 				triplestore.rollbackTransaction();
 			} catch(RepositoryException rollbackException) {

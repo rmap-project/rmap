@@ -22,6 +22,7 @@ package info.rmapproject.webapp;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -35,7 +36,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/servlet-context.xml")
+@ActiveProfiles({"default", "inmemory-triplestore", "inmemory-idservice", "inmemory-db", "embedded-solr", "mock-kafka"})
+@ContextConfiguration({"classpath*:/servlet-context.xml","classpath*:/rmap-indexing-solr.xml", "classpath*:/rmap-kafka-shared-test.xml"})
 public abstract class WebTestAbstract {
 
 	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
@@ -44,7 +46,7 @@ public abstract class WebTestAbstract {
 	@BeforeClass
 	public static void setUpSpringProfiles() {
 		if (!activeProfilesPreSet) {
-			System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore");
+			System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore,embedded-solr,mock-kafka");
 		}
 	}
 	

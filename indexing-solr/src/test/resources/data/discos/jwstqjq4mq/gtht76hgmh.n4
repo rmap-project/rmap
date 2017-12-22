@@ -1,0 +1,4 @@
+<rmap:gtht76hgmh> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Agent> <rmap:gtht76hgmh> .
+<rmap:gtht76hgmh> <http://xmlns.com/foaf/0.1/name> "Karen L. Hanson" <rmap:gtht76hgmh> .
+<rmap:gtht76hgmh> <http://purl.org/ontology/rmap#identityProvider> <https://www.google.com> <rmap:gtht76hgmh> .
+<rmap:gtht76hgmh> <http://purl.org/ontology/rmap#userAuthId> <https://demo.rmap-project.org/app/authids/7bdfd88d98937d4ded56eb522ac2923a292cfd499b8832efe66c2ac18d126987> <rmap:gtht76hgmh> .

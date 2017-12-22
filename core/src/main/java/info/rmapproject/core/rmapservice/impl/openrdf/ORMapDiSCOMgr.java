@@ -233,7 +233,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			try {
 				ts.commitTransaction();
 			} catch (Exception e) {
-				throw new RMapException("Exception thrown committing new triples to triplestore");
+				throw new RMapException("Exception thrown committing new triples to triplestore: " + e.getMessage(), e);
 			}
 		}
 		return event;

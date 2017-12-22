@@ -20,6 +20,8 @@
         <module>integration</module>
         <module>spring-util</module>
         <module>integration-util</module>
+        <module>indexing-solr</module>
+        <module>kafka-shared</module>
     </modules>
 
     <properties>
@@ -54,9 +56,15 @@
         <build-helper.plugin.version>1.10</build-helper.plugin.version>
         <okhttp.version>3.8.0</okhttp.version>
         <ant.version>1.10.1</ant.version>
+        <solr.version>6.6.2</solr.version>
+        <spring-data-solr.version>3.0.1.RELEASE</spring-data-solr.version>
+        <spring-kafka.version>2.0.2.RELEASE</spring-kafka.version>
+        <kafka.version>0.11.0.2</kafka.version>
+        <joda-time.version>2.9.9</joda-time.version>
         <javax-el.version>3.0.1-b08</javax-el.version>
         <h2-mvstore.version>1.4.196</h2-mvstore.version>
         <ezid.version>1.0.1</ezid.version>
+        <assertj.version>3.8.0</assertj.version>
     </properties>
 
     <build>
@@ -105,6 +113,21 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.23.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-remote-resources-plugin</artifactId>
+                    <version>1.5</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -251,6 +274,44 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${org.springframework-version}</version>
+            </dependency>
+
+            <!-- Spring Data -->
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-solr</artifactId>
+                <version>${spring-data-solr.version}</version>
+            </dependency>
+
+            <!-- Spring Kafka -->
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring-kafka.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka-test</artifactId>
+                <version>${spring-kafka.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
             </dependency>
 
             <!-- testing -->
@@ -422,24 +483,39 @@
                 <version>${ezid.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-core</artifactId>
+                <version>${solr.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>javax.servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${joda-time.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
     <repositories>
-        <repository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>spring-libs-snap</id>
-            <name>Spring Snapshots</name>
-            <url>https://repo.spring.io/libs-snapshot</url>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
+
         <repository>
             <id>dataconservancy.org</id>
             <url>http://maven.dataconservancy.org/public/releases/</url>
@@ -450,17 +526,18 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-    </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-            <snapshots>
+        <repository>
+            <id>boundless</id>
+            <url>http://repo.boundlessgeo.com/main/</url>
+            <releases>
                 <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
             </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+        </repository>
+
+    </repositories>
 
 </project>

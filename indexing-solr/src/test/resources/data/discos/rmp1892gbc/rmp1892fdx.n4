@@ -1,0 +1,8 @@
+<rmap:rmp1892fdx> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> <rmap:rmp1892fdx> .
+<rmap:rmp1892fdx> <http://www.w3.org/ns/prov#wasAssociatedWith> <rmap:rmd18m7mj4> <rmap:rmp1892fdx> .
+<rmap:rmp1892fdx> <http://purl.org/ontology/rmap#eventType> <http://purl.org/ontology/rmap#tombstone> <rmap:rmp1892fdx> .
+<rmap:rmp1892fdx> <http://purl.org/ontology/rmap#eventTargetType> <http://purl.org/ontology/rmap#DiSCO> <rmap:rmp1892fdx> .
+<rmap:rmp1892fdx> <http://www.w3.org/ns/prov#startedAtTime> "2016-07-08T16:33:21.763Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> <rmap:rmp1892fdx> .
+<rmap:rmp1892fdx> <http://www.w3.org/ns/prov#endedAtTime> "2016-07-08T16:33:21.763Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> <rmap:rmp1892fdx> .
+<rmap:rmp1892fdx> <http://purl.org/ontology/rmap#tombstoned> <rmap:rmp1892gbc> <rmap:rmp1892fdx> .
+<rmap:rmp1892fdx> <http://purl.org/ontology/rmap#lineageProgenitor> <rmap:rmp1892gbc> <rmap:rmp1892fdx> .

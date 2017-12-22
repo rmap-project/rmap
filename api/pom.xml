@@ -79,6 +79,13 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-indexing-solr</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 		
 		<!-- testing only -->
 
@@ -106,6 +113,29 @@
 			<artifactId>derby</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-core</artifactId>
+			<version>${project.parent.version}</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-kafka-shared</artifactId>
+			<version>${project.parent.version}</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>
@@ -118,8 +148,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore</spring.profiles.active>
+                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,http-solr</spring.profiles.active>
 						<derby.system.home>${project.build.directory}/derby</derby.system.home>
+						<logback.configurationFile>src/test/resources/logback-test.xml</logback.configurationFile>
                     </systemProperties>
                 </configuration>
             </plugin>

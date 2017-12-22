@@ -1,0 +1,10 @@
+<rmap:rmd18mdddd> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/ontology/rmap#Event> <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://www.w3.org/ns/prov#wasAssociatedWith> <rmap:rmd18m7mj4> <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://purl.org/ontology/rmap#eventType> <http://purl.org/ontology/rmap#update> <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://purl.org/ontology/rmap#eventTargetType> <http://purl.org/ontology/rmap#DiSCO> <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://www.w3.org/ns/prov#startedAtTime> "2015-07-29T17:47:18Z" <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://www.w3.org/ns/prov#endedAtTime> "2015-07-29T17:47:18Z" <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://www.w3.org/ns/prov#generated> <rmap:rmd18mddcw> <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://purl.org/ontology/rmap#inactivatedObject> <rmap:rmd18mdd8b> <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://purl.org/ontology/rmap#derivedObject> <rmap:rmd18mddcw> <rmap:rmd18mdddd> .
+<rmap:rmd18mdddd> <http://purl.org/ontology/rmap#lineageProgenitor> <rmap:rmd18m7mr7> <rmap:rmd18mdddd> .
