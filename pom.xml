@@ -527,6 +527,17 @@
             </snapshots>
         </repository>
 
+        <repository>
+            <id>boundless</id>
+            <url>http://repo.boundlessgeo.com/main/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
     </repositories>
 
 </project>
