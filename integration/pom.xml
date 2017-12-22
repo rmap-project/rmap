@@ -185,84 +185,103 @@
         </dependency>
 
     </dependencies>
+
+    <profiles>
+
+        <profile>
+            <!-- only activate this profile when the system property 'maven.antrun.skip' is NOT present -->
+            <id>antrun-travis</id>
+            <activation>
+                <property>
+                    <name>!maven.antrun.skip</name>
+                </property>
+            </activation>
+
+            <build>
+
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <configuration>
+                            <target>
+                                <taskdef name="startDerby" classname="info.rmapproject.integration.util.StartDerbyTask"
+                                         classpathref="maven.plugin.classpath"/>
+                                <startDerby derbyHome="${derby.home}" springContextLocation="classpath*:/spring-rmapauth-context.xml" springProfiles="default,inmemory-idservice,inmemory-triplestore,integration-db"/>
+                            </target>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>info.rmapproject</groupId>
+                                <artifactId>rmap-integration-util</artifactId>
+                                <version>${project.parent.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>info.rmapproject</groupId>
+                                <artifactId>rmap-integration</artifactId>
+                                <version>${project.parent.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>info.rmapproject</groupId>
+                                <artifactId>rmap-auth</artifactId>
+                                <version>${project.parent.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-context</artifactId>
+                                <version>${org.springframework-version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-jdbc</artifactId>
+                                <version>${org.springframework-version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-orm</artifactId>
+                                <version>${org.springframework-version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-core</artifactId>
+                                <version>${hibernate.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-validator</artifactId>
+                                <version>${hibernate-validator.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-entitymanager</artifactId>
+                                <version>${hibernate.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+
+                </plugins>
+
+            </build>
+
+        </profile>
+
+    </profiles>
     
     <build>
+
+
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <configuration>
-                    <target>
-                        <taskdef name="startDerby" classname="info.rmapproject.integration.util.StartDerbyTask"
-                                 classpathref="maven.plugin.classpath"/>
-                        <startDerby derbyHome="${derby.home}" springContextLocation="classpath*:/spring-rmapauth-context.xml" springProfiles="default,inmemory-idservice,inmemory-triplestore,integration-db"/>
-                    </target>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>start-derby</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-cli</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>info.rmapproject</groupId>
-                        <artifactId>rmap-integration-util</artifactId>
-                        <version>${project.parent.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>info.rmapproject</groupId>
-                        <artifactId>rmap-integration</artifactId>
-                        <version>${project.parent.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>info.rmapproject</groupId>
-                        <artifactId>rmap-auth</artifactId>
-                        <version>${project.parent.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                        <version>${org.springframework-version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-jdbc</artifactId>
-                        <version>${org.springframework-version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-orm</artifactId>
-                        <version>${org.springframework-version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>hibernate-core</artifactId>
-                        <version>${hibernate.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>hibernate-validator</artifactId>
-                        <version>${hibernate-validator.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>hibernate-entitymanager</artifactId>
-                        <version>${hibernate.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
