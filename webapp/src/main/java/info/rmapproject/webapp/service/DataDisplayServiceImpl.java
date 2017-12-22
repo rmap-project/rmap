@@ -698,7 +698,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		if (contextUri==null){
 			return getResourceRDFTypes(resourceUri);
 		}
-		List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(resourceUri, contextUri);
+		List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(resourceUri, contextUri);
 
 		return rdfTypes;
 	}	
