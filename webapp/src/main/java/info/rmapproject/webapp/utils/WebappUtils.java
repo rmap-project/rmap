@@ -19,6 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.webapp.utils;
 
+import static info.rmapproject.indexing.IndexUtils.HL_POSTFIX;
+import static info.rmapproject.indexing.IndexUtils.HL_PREFIX;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,10 +32,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
-
 import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 
 /**
@@ -192,7 +196,6 @@ public class WebappUtils {
 		}
 	}
 	
-
 	/**
 	 * HTTP encode a string.
 	 *
@@ -252,9 +255,7 @@ public class WebappUtils {
 	    } catch (Exception e) {
 	        return false;
 	    }
-	}
-	
-	
+	}	
 	
 	/* **************************/
 	/* STRING TRUNCATE FUNCTION */
@@ -271,7 +272,7 @@ public class WebappUtils {
 	 * @return
 	 */
 	private static int textWidth(String str) {
-	    return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
+	    return (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
 	}
 
 	/**
@@ -308,5 +309,60 @@ public class WebappUtils {
 
 	    return text.substring(0, end) + "...";
 	}	
+	
+	/**
+	 * Formats a snippet so that it is cut at a max number of characters, "<" and ">" are converted to html
+	 * and the "strong" tags aren't left open after this cut. 
+	 * NOTE: that there are several known imperfections here that might result in some variation 
+	 * in string length e.g. a very long match with lots of highlighting may end up longer than 
+	 * other strings... also it truncates from the string start rather than around the highlight which could 
+	 * result in no highlighted text being shown if highlighting is at end of string.
+	 * TODO: improve this based on note above, might be something that can be configured using solr?
+	 * @param text string to be formatted
+	 * @param max maximum length of display text (excludes html tags in length)
+	 * @return
+	 */
+	public static String formatSnippet(String text, int max) {
+		if (text==null){return null;}
+
+		String snippet = text;
+
+		int numHLs = StringUtils.countMatches(text,HL_PREFIX);
+		int hlSpace = (HL_PREFIX.length() + HL_POSTFIX.length()) * numHLs;
+		int actualMax = max+hlSpace;
+		if (text.length() > actualMax){ //shorten
+			int lastPostfixAfterMax = snippet.indexOf(HL_POSTFIX, (max + HL_PREFIX.length()));
+			if (lastPostfixAfterMax>0 && lastPostfixAfterMax < actualMax){ 
+				//close to cut point, we should end here instead
+				snippet = snippet.substring(0, (lastPostfixAfterMax + HL_POSTFIX.length()));
+			} else {
+				//simple cut.
+				snippet = snippet.substring(0,(max+hlSpace));
+			}
+			
+			//make sure tags are closed
+			if (StringUtils.countMatches(snippet,HL_PREFIX) > StringUtils.countMatches(snippet,HL_POSTFIX)){
+				snippet = snippet + HL_POSTFIX;
+			}			
+		}
+
+		snippet = snippet.replace("\\n","");
+		snippet = snippet.replace("<", "&lt;").replace(">", "&gt;");
+		snippet = snippet.replace(HL_PREFIX,"<strong>").replace(HL_POSTFIX,"</strong>");
+		
+		return snippet;
+	}
+	
+	/**
+	 * For wrapping text to particular length
+	 * @param text
+	 * @param length
+	 * @return
+	 */
+	public static String wordWrap(String text, int length, String wrapChar){
+		if (wrapChar==null) {wrapChar="\\n";}
+		return WordUtils.wrap(text, length, wrapChar, true);
+	}
+	
 	
 }

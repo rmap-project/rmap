@@ -24,8 +24,11 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
 /**
  * Class for other test classes to inherit from. There are several annotations and settings required 
@@ -55,6 +58,14 @@ public abstract class WebTestAbstract {
 		if (!activeProfilesPreSet) {
 			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
 		}
+	}
+
+	protected InternalResourceViewResolver getViewResolver() {  
+	    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+	    viewResolver.setViewClass(JstlView.class);
+	    viewResolver.setPrefix("/WEB-INF/jsp/");
+	    viewResolver.setSuffix(".jsp");
+	    return viewResolver;
 	}
 	
 }

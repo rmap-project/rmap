@@ -845,6 +845,17 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		return "";
 	}
 
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#isResourceInRMap(java.lang.String,info.rmapproject.core.model.request.RMapSearchParams)
+	 */
+	@Override
+	public boolean isResourceInRMap(String resource, RMapSearchParams params) throws Exception {
+		if (WebappUtils.isUri(resource)) {
+			return rmapService.getResourceRelatedTriples(new URI(resource), params).size()>0;
+		}
+		return false;
+	}	
+
 	/**
 	 * This set of properties determines how many rows are displayed in different parts of the page Maximum number of
 	 * relationships to be shown in an Agent or DiSCO graph. If the object contains more than this limit, the graph will

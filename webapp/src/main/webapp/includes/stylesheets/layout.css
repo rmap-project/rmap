@@ -79,8 +79,8 @@ h1 a { text-indent: -9999px; }
 /* #Site Styles
 ================================================== */
 
-a, a:visited { text-decoration: none; color: #0000C1; transition: color 0.3s linear; -moz-transition: color 0.3s linear; -webkit-transition: color 0.3s linear; -o-transition: color 0.3s linear; }
-a:hover { color: #aaccff; }
+a, a:visited, .clickableText { text-decoration: none; color: #0000C1; transition: color 0.3s linear; -moz-transition: color 0.3s linear; -webkit-transition: color 0.3s linear; -o-transition: color 0.3s linear; cursor:pointer;}
+a:hover, .clickableText:hover { color: #aaccff; }
 
 h1, h2, h3, h4, h5, h6 { font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif; color: #003c67; font-weight: bold; overflow-wrap: break-word; word-wrap: break-word; }
 h1 { font-size: 24px; line-height: 30px; color: #5e7071; margin: 10px 0px 5px 0;}
@@ -375,6 +375,25 @@ p.greybox{
     font-style: italic;
 }
 
+.greenbox{ 
+    display: block;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+    border: 2px;
+	color:black;
+    background: #d9eda6;
+	overflow-wrap: break-word; 
+	word-wrap: break-word;
+	font-size:larger;
+}
+.greenbox strong{ 
+	color:#000000;
+}
+
 legend {
     font-size:1.4em;
 }
@@ -383,8 +402,7 @@ legend {
 	text-align:right;
 }
 
-
-label{padding-top:15px;}
+label{padding-top:10px;}
 select {padding: 5px; border: 1px solid #ccc; margin: 5px 0; width:507px;}
 input[type=text] {padding: 5px; width:500px;border: 1px solid #ccc; margin: 5px 0;}
 input[type=checkbox] {padding-left:2px;}
@@ -606,6 +624,53 @@ input[readonly]{background-color:#f0f0f0;}
     border-width: 5px;
     border-style: solid;
     border-color: transparent transparent #6f6f6f transparent;
+}
+
+
+/**search styling**/
+.searchResults {
+	min-height:450px;
+}
+
+.searchResult {
+	padding-top:5px; 
+	margin-bottom:10px; 
+	border-top:1px solid #ddd;"
+}
+
+.searchLink {
+	font-size:larger;
+}
+
+.searchResult .aggregates{
+	font-style: italic;
+}
+
+.facets {
+	margin:110px 10px 10px ;
+	padding:10px 10px 5px 10px;
+	background-color:#edecff;
+	width:100%;
+}
+
+.facets .facet {
+	padding-top: 10px;
+	padding-bottom:10px;
+}
+
+.facets hr {
+	padding:0;
+	margin:0;
+}
+
+.facets .facet h3 {
+	font-size:15px;
+	font-weight: bold;
+}
+
+.showMore {
+	font-color:#555;
+	font-size:smaller;
 }
 
 .rightOfInput {

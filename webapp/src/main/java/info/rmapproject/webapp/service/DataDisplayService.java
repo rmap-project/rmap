@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.List;
 
 import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
@@ -216,4 +217,16 @@ public interface DataDisplayService {
 	 * @throws Exception the exception
 	 */
 	public String getRMapTypeDisplayName(URI resourceUri) throws Exception;
+	/**
+	 * Checks whether there is such a resource in RMap based on params provided. True if there is a match
+	 * @param resource
+	 * @param agentUri
+	 * @param status
+	 * @param dateFrom
+	 * @param dateTo
+	 * @return true if there is a resource matching string passed, false if not.
+	 * @throws Exception
+	 */
+	public boolean isResourceInRMap(String resource, RMapSearchParams params) throws Exception;
+	
 }

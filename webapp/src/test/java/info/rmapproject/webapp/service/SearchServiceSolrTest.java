@@ -17,7 +17,10 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.webapp.controllers;
+package info.rmapproject.webapp.service;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,38 +28,60 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 
+import info.rmapproject.core.model.event.RMapEvent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
+import info.rmapproject.indexing.solr.repository.DiscoRepository;
+import info.rmapproject.indexing.solr.repository.DiscosIndexer;
+import info.rmapproject.indexing.solr.repository.IndexDTO;
+import info.rmapproject.indexing.solr.repository.IndexDTOMapper;
+import info.rmapproject.testdata.service.TestFile;
 import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
-import info.rmapproject.webapp.service.SearchService;
 
-/**
- * Basic tests for HomeController, which returns views for home and contact page.
- * @author khanson
- *
- */
-public class SearchControllerTest extends WebDataRetrievalTestAbstract {
+public class SearchServiceSolrTest extends WebDataRetrievalTestAbstract {
+	
+    @Autowired
+    private DiscoRepository discoRepository;
 
+	@Autowired
+    private DiscosIndexer discosIndexer;
+
+    @Autowired
+    private IndexDTOMapper mapper;	
+    
+	/** The data display service. */
 	@Autowired
 	private SearchService searchService;
-
+	
 	@Autowired
 	private RMapSearchParamsFactory paramsFactory;
+	
+	@Test
+	public void testBasicSearchDiSCOs() throws Exception {
+		discoRepository.deleteAll();
+        assertEquals(0, discoRepository.count());
 
-    @Test
-    public void searchDiscosSmokeTest() throws Exception {
-		Integer INCREMENT = 20;
-		Pageable pageable = PageRequest.of(0, INCREMENT);
+		// agent already exists, so create some discos
+		ORMapDiSCO disco1 = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		String discoUri1 = disco1.getId().toString();
+        assertNotNull(discoUri1);
+		RMapEvent event = rmapService.createDiSCO(disco1, reqEventDetails);
+
+        IndexDTO indexDto = new IndexDTO(event, this.sysagent, null, disco1);
+        discosIndexer.index(mapper.apply(indexDto));
+        assertEquals(1, discoRepository.count());
+		
+		String search="brown";
+		Pageable pageable = PageRequest.of(0, 10);
 		
 		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		
-		FacetAndHighlightPage<DiscoSolrDocument> page = searchService.searchDiSCOs("", params, pageable);
-		
-    }
-    
-    
-    
+		FacetAndHighlightPage<DiscoSolrDocument> discos = searchService.searchDiSCOs(search, params, pageable);
+		assertEquals(1, discos.getTotalElements());			
+	}
+	
 }

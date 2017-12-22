@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import info.rmapproject.webapp.domain.SearchForm;
-
 /**
  * Handles display of the home and contact pages.
  *
@@ -47,11 +45,6 @@ public class HomeController {
 	 */
 	@RequestMapping(value={"/", "/home"}, method = RequestMethod.GET)
 	public String home(Locale locale, Model model) {	
-		if (!model.containsAttribute("search")){
-			//otherwise initiate search form.
-			SearchForm search = new SearchForm();
-			model.addAttribute("search", search);			
-		}
 		return "home";
 	}
 		
