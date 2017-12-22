@@ -37,8 +37,13 @@ The `war` files will be found in the `/target` folder of `webapp` and `api`. The
 The developer runtime is appropriate for testing modifications to the source code, API, or web user interface.  It is _not_ appropriate for production.  Developers can run a local instance of RMap by executing:
 
 - `mvn clean install` from the base RMap directory
-- then `cd` into the `integration` directory and run `mvn validate cargo:run`
-- the runtime can be stopped by typing `CTRL-C` at the console
+- then `cd` into the `integration` directory
+- run `mvn validate docker:start cargo:run`
+  - the `validate` phase starts the Derby database, and initializes the database schema
+  - `docker:start` boots Zookeeper, Kafka, and Solr in Docker
+  - `cargo:run` starts Tomcat, which runs the API and HTML web applications
+> Because the runtime configuration depends on the presence of the `docker.host.address` property, and because that property is only available when the [Docker Maven Plugin](https://dmp.fabric8.io/) is invoked, `docker:start` must be invoked with `cargo:run` on the same command line.
+- the runtime can be stopped by typing `CTRL-C` at the console, followed by `mvn docker:stop`
 - `mvn clean` will remove any data created by the runtime
 
 The RMap API and web interface will start on a random, high-numbered port (e.g. `55349`, actual port is output to the console), available at the `/api` and `/app` contexts, respectively.  For example:

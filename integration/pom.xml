@@ -192,17 +192,24 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
+                <configuration>
+                    <target>
+                        <taskdef name="startDerby" classname="info.rmapproject.integration.util.StartDerbyTask"
+                                 classpathref="maven.plugin.classpath"/>
+                        <startDerby derbyHome="${derby.home}" springContextLocation="classpath*:/spring-rmapauth-context.xml" springProfiles="default,inmemory-idservice,inmemory-triplestore,integration-db"/>
+                    </target>
+                </configuration>
                 <executions>
                     <execution>
                         <id>start-derby</id>
                         <phase>pre-integration-test</phase>
-                        <configuration>
-                            <target>
-                                <taskdef name="startDerby" classname="info.rmapproject.integration.util.StartDerbyTask"
-                                         classpathref="maven.plugin.classpath"/>
-                                <startDerby derbyHome="${derby.home}" springContextLocation="classpath*:/spring-rmapauth-context.xml" springProfiles="default,inmemory-idservice,inmemory-triplestore,integration-db"/>
-                            </target>
-                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>validate</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -313,6 +320,20 @@
                         <goals>
                             <goal>stop</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <external>
+                                        <type>compose</type>
+                                        <basedir>src/test/resources/docker</basedir>
+                                        <composeFile>docker-compose.yaml</composeFile>
+                                    </external>
+                                </image>
+                            </images>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
