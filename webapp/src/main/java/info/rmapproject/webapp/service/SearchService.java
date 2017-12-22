@@ -19,9 +19,10 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
-import org.springframework.data.solr.core.query.result.HighlightPage;
 
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
@@ -44,13 +45,13 @@ public interface SearchService {
 	public FacetAndHighlightPage<DiscoSolrDocument> searchDiSCOs(String searchString, RMapSearchParams params, Pageable pageable) throws Exception;
 
 	/**
-	 * Retrieves highlighted solr results of label statements for a given research
+	 * Retrieves labels in indexer found for a given resource
 	 * @param resourceUri
 	 * @param params for query
 	 * @param pageable
 	 * @return
 	 * @throws Exception
 	 */
-	public HighlightPage<DiscoSolrDocument> getLabelStatementsForResource(String resourceUri, RMapSearchParams params, Pageable pageable) throws Exception;
+	public List<String> getLabelListForResource(String resourceUri, RMapSearchParams params, Pageable pageable) throws Exception;
 	
 }

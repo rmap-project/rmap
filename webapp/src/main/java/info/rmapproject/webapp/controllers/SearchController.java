@@ -19,6 +19,8 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
+import java.net.URLDecoder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +108,7 @@ public class SearchController {
 		}
 		Integer INCREMENT = 20;
 		Pageable pageable = PageRequest.of(page, INCREMENT);
+		search = URLDecoder.decode(search,"UTF-8");
 		search = search.trim();
 		search = search.replace("\"", ""); //remove quotes
 		search = search.replaceAll("( )+", " "); //remove extra spaces

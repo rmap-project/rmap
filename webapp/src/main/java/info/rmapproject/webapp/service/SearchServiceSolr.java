@@ -20,6 +20,7 @@
 package info.rmapproject.webapp.service;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
+import org.springframework.data.solr.core.query.result.HighlightEntry;
+import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +41,7 @@ import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.utils.DateUtils;
 import info.rmapproject.core.utils.Terms;
+import info.rmapproject.indexing.IndexUtils;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import info.rmapproject.indexing.solr.repository.DiscoRepository;
 /**
@@ -52,13 +56,12 @@ public class SearchServiceSolr implements SearchService {
 	
 	private DiscoRepository discoRepository;	
 	
-	/** The label type list. */
-	@Value("${rmapweb.label-types}")
 	private String labelTypes;
 	
 	@Autowired
-	public SearchServiceSolr (DiscoRepository discoRepository) {
+	public SearchServiceSolr (DiscoRepository discoRepository, @Value("${rmapweb.label-types}") String labelTypes) {
 		this.discoRepository = discoRepository;
+		this.labelTypes = labelTypes;
 	}
 
 	/* (non-Javadoc)
@@ -67,8 +70,8 @@ public class SearchServiceSolr implements SearchService {
 	@Override
 	public FacetAndHighlightPage<DiscoSolrDocument> searchDiSCOs(String searchString, RMapSearchParams params, Pageable pageable) throws Exception {
 
-		searchString = searchString.replace(" and ", " ");
-		searchString = searchString.replace(" ", "* and *");
+		searchString = searchString.replace(" AND ", " ");
+		searchString = searchString.replace(" ", "* AND *");
 		searchString = "(*" + searchString + "*)";		
 		
 		FacetAndHighlightPage<DiscoSolrDocument> discoResults = 
@@ -83,7 +86,7 @@ public class SearchServiceSolr implements SearchService {
 	 * @see info.rmapproject.webapp.service.SearchService#getLabelStatementsForResource(java.lang.String,info.rmapproject.core.model.request.RMapSearchParams,org.springframework.data.domain.Pageable)
 	 */
 	@Override
-	public HighlightPage<DiscoSolrDocument> getLabelStatementsForResource(String resourceUri, RMapSearchParams params, Pageable pageable) throws Exception {
+	public List<String> getLabelListForResource(String resourceUri, RMapSearchParams params, Pageable pageable) throws Exception {
 		List<String> labelTypes = Arrays.asList(this.labelTypes.split(","));
 		StringBuilder search = new StringBuilder("");
 		search.append("(");
@@ -103,12 +106,32 @@ public class SearchServiceSolr implements SearchService {
 			search.append("\"<" + resourceUri + "> <http://purl.org/dc/terms/title> \"");
 		}
 		search.append(")");
-				
-		HighlightPage<DiscoSolrDocument> discoResults = discoRepository.findDiscoSolrDocumentsUsingRelatedStmtsAndHighlight(search.toString(), toSolrStatusFilter(params.getStatusCode()), pageable);
 
-		log.debug("{} matching records found for search {}",(discoResults!=null ? discoResults.getTotalElements() :  "null"),search);
+		HighlightPage<DiscoSolrDocument> highlightPage = 
+				discoRepository.findDiscoSolrDocumentsUsingRelatedStmtsAndHighlight(search.toString(), toSolrStatusFilter(params.getStatusCode()), pageable);
+
+		//initiate list of labels, should not return null.
+		List<String> labels = new ArrayList<String>();
 		
-		return discoResults;
+		if (highlightPage!=null) {
+			for (HighlightEntry<DiscoSolrDocument> hlEntry : highlightPage.getHighlighted()) {
+				for (Highlight highlight : hlEntry.getHighlights()) { 
+					//process snippets
+					for (String snippet : highlight.getSnipplets()) {
+						if (snippet.contains(IndexUtils.HL_POSTFIX)) {
+							String label = snippet.substring(snippet.lastIndexOf(IndexUtils.HL_POSTFIX)+IndexUtils.HL_POSTFIX.length()+1);
+							//remove highlighted part, trim and remove quotes
+							label = label.trim().substring(1, label.length()-4);
+							labels.add(label);	
+						}
+					}
+				}			
+			}
+		}
+				
+		log.debug("{} matching labels found for resource {}",labels.size(), resourceUri);
+		
+		return labels;
 	}
 	
 	/**
@@ -118,7 +141,7 @@ public class SearchServiceSolr implements SearchService {
 	 */
 	private String toSolrStatusFilter(RMapStatusFilter statusFilter) {
 		if (statusFilter.equals(RMapStatusFilter.INACTIVE)||statusFilter.equals(RMapStatusFilter.ACTIVE)) {
-			return statusFilter.toString();			
+			return statusFilter.getStatusTerm();			
 		} else {
 			return "(" + Terms.RMAP_INACTIVE + " OR " + Terms.RMAP_ACTIVE + ")";						
 		}

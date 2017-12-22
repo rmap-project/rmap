@@ -40,7 +40,7 @@ import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
  *
  */
 public class ResourceDisplayControllerTest extends WebDataRetrievalTestAbstract {
-	
+    	
     @Autowired
     private WebApplicationContext wac;
     
@@ -51,9 +51,8 @@ public class ResourceDisplayControllerTest extends WebDataRetrievalTestAbstract 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
-
     /**
-     * Check invalid resource page returns objectnotfound view.
+     * Check invalid resource page should still return resources page, page display should handle empty
      * @throws Exception
      */
     @Test
@@ -63,9 +62,8 @@ public class ResourceDisplayControllerTest extends WebDataRetrievalTestAbstract 
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
 		rmapService.createDiSCO(disco, reqEventDetails);
-	
-        mockMvc.perform(get("/resources/fakefake%3Auri"))
-        	.andExpect(view().name("objectnotfound")); 
+	    mockMvc.perform(get("/resources/fakefake%3Auri"))
+	        	.andExpect(view().name("resources")); 
       
     }
     

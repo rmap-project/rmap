@@ -19,15 +19,15 @@
  *******************************************************************************/
 package info.rmapproject.webapp.domain;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import info.rmapproject.webapp.service.GraphEdgeFactory;
 import info.rmapproject.webapp.service.GraphNodeFactory;
 import info.rmapproject.webapp.service.GraphNodeTypeFactory;
 import info.rmapproject.webapp.utils.Constants;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Holds a Graph description.
@@ -35,26 +35,18 @@ import java.util.Set;
  * @author khanson
  */
 public class Graph {
-
-	/**  Unique list of nodes stored to prevent duplicate nodes being added. 
-	 *   Note that nodes.size() might not be equal to uniqueNodes.size() since duplicate literals are allowed */
-    private Set<String> uniqueNodes;  
 	
 	/**  List of nodes. */
-    private List<GraphNode> nodes;
+    private Map<String,GraphNode> nodes;
 	
 	/**  List of edges. */
     private List<GraphEdge> edges;
-    
-    /** Unique list of node types to prevent duplicate types*. */
-    private Set<String> uniqueNodeTypes;
-    
-	/**  List of node types. */
-    private List<GraphNodeType> nodeTypes;
         
-    //Each node must be assigned a number that is unique within the context of the graph
-    /** The counter. */
-    //The counter keeps track of an incrementing number that is assigned to each node as it is added to the graph
+	/**  List of node types. */
+    private Map<String,GraphNodeType> nodeTypes;
+        
+    /**Each node must be assigned a number that is unique within the context of the graph
+    The counter keeps track of an incrementing number that is assigned to each node as it is added to the graph*/
     private Integer counter = 0;
 
     private GraphNodeTypeFactory nodeTypeFactory;
@@ -68,11 +60,9 @@ public class Graph {
 	 */
 	public Graph(GraphNodeFactory nodeFactory, GraphEdgeFactory edgeFactory, GraphNodeTypeFactory nodeTypeFactory){
 		//initiate lists.
-		this.uniqueNodes = new HashSet<String>();
-		this.uniqueNodeTypes = new HashSet<String>();
-		this.nodes = new ArrayList<GraphNode>();
+		this.nodes = new HashMap<String, GraphNode>();
 		this.edges = new ArrayList<GraphEdge>();
-		this.nodeTypes = new ArrayList<GraphNodeType>();
+		this.nodeTypes = new HashMap<String, GraphNodeType>();
 		this.nodeTypeFactory = nodeTypeFactory;
 		this.nodeFactory = nodeFactory;
 		this.edgeFactory = edgeFactory;
@@ -83,7 +73,7 @@ public class Graph {
 	 *
 	 * @return the nodes list
 	 */
-	public List<GraphNode> getNodes() {
+	public Map<String, GraphNode> getNodes() {
 		return nodes;
 	}
 	
@@ -92,7 +82,7 @@ public class Graph {
 	 *
 	 * @param nodes the new list of nodes
 	 */
-	public void setNodes(List<GraphNode> nodes) {
+	public void setNodes(Map<String, GraphNode> nodes) {
 		this.nodes = nodes;
 	}
 	
@@ -113,51 +103,54 @@ public class Graph {
 	public void setEdges(List<GraphEdge> edges) {
 		this.edges = edges;
 	}
-    
-	/**
-	 * Gets the unique nodes.
-	 *
-	 * @return the unique set of nodes in the graph
-	 */
-	public Set<String> getUniqueNodes() {
-		return uniqueNodes;
-	}
 	
 	/**
 	 * Gets a list of node types in the graph.
 	 *
 	 * @return the node types
 	 */
-	public List<GraphNodeType> getNodeTypes() {
+	public Map<String, GraphNodeType> getNodeTypes() {
 		return nodeTypes;
 	}
+	
+
 	
 	/**
 	 * Creates GraphNode object and adds it to the Graph. 
 	 *
-	 * @param sNode the node as a string
+	 * @param nodeName the node as a string
 	 * @param nodeType the node type
-	 * @return the node ID as an integer, unique within the graph
 	 * @throws Exception the exception
 	 */
-	public Integer addNode(String sNode, String nodeType) throws Exception{
-		Integer id = 0;
-		if (!uniqueNodes.contains(sNode) || nodeType.equals(Constants.NODETYPE_LITERAL)) {
-			id = getNextId();
-			uniqueNodes.add(sNode);	
-			nodes.add(nodeFactory.newGraphNode(id, sNode, Constants.NODE_WEIGHT_INCREMENT, nodeType));
+	public void addNode(String nodeName, String nodeType) throws Exception{
+		addNode(nodeName, nodeName, nodeType);
+	}
+	
+	/**
+	 * Creates GraphNode object and adds it to the Graph. if the node already exists, it will 
+	 * not update anything, just return the matching ID.
+	 *
+	 * @param nodeName the node as a string
+	 * @param nodeLabel the node label as a string
+	 * @param nodeType the node type
+	 * @throws Exception the exception
+	 */
+	public void addNode(String nodeName, String nodeLabel, String nodeType) throws Exception{
+		if (!nodes.containsKey(nodeName)) {
+			int id = getNextId();
+			nodes.put(nodeName, nodeFactory.newGraphNode(id, nodeName, nodeLabel, Constants.NODE_WEIGHT_INCREMENT, nodeType));
 			addNodeType(nodeType); //only if it's a new value
 		}
-		else {
-			//find matching node, add to weight
-			for (GraphNode node:this.nodes) {
-				if (node.getName().equals(sNode)){
-					node.setWeight(node.getWeight() + Constants.NODE_WEIGHT_INCREMENT);
-					id = node.getId();
-				}
-			}
-		}
-		return id;
+	}
+
+	/**
+	 * Adds a graph edge.
+	 *
+	 * @param edge the edge
+	 */
+	public void addEdge(String sourceNode, String targetNode, String edgeLabel)	{
+		GraphEdge edge = edgeFactory.newGraphEdge(nodes.get(sourceNode), nodes.get(targetNode), edgeLabel);
+		addEdge(edge);
 	}
 	
 	/**
@@ -167,32 +160,9 @@ public class Graph {
 	 */
 	public void addEdge(GraphEdge edge)	{
 		edges.add(edge);
+		//update node weights
+		edge.getSource().setWeight(edge.getSource().getWeight()+Constants.NODE_WEIGHT_INCREMENT);
 	}
-			
-	/**
-	 * Creates GraphEdge object and adds it to the Graph.
-	 *
-	 * @param sourceKey the source node key
-	 * @param targetKey the target node key
-	 * @param label the label for the edge
-	 * @param sourceNodeType the source node type
-	 * @param targetNodeType the target node type
-	 * @throws Exception the exception
-	 */
-	public void addEdge(String sourceKey, String targetKey, String label, 
-							String sourceNodeType, String targetNodeType) throws Exception {
-		GraphEdge edge = edgeFactory.newGraphEdge();
-		targetKey = targetKey.replaceAll("[\n\r]", "");
-		targetKey = targetKey.replaceAll("[ ]+", " ");
-		Integer source = addNode(sourceKey, sourceNodeType);
-		Integer target = addNode(targetKey, targetNodeType);		
-		
-		edge.setLabel(label);
-		edge.setSource(source);
-		edge.setTarget(target);
-		edge.setTargetNodeType(targetNodeType);
-		addEdge(edge);
-	}	
 		
 	/**
 	 * Gets the next node id.
@@ -211,10 +181,9 @@ public class Graph {
 	 */
 	private void addNodeType(String sType) {
 		if (sType!=null && sType.length()>0
-				&& !uniqueNodeTypes.contains(sType)){
+				&& !nodeTypes.containsKey(sType)){
 			GraphNodeType type = nodeTypeFactory.newGraphNodeType(sType);
-			this.nodeTypes.add(type);
-			this.uniqueNodeTypes.add(sType);//for detecting duplicates
+			this.nodeTypes.put(sType, type);
 		}
 	}
 

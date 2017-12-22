@@ -86,11 +86,12 @@ public interface DataDisplayService {
 	 * are included in the results batch
 	 * @param resourceUri URI of the resource to retrieve triples for
 	 * @param offset Starting point for record batch
+	 * @param statusFilter active, inactive or all
 	 * @param view PaginatorType either RESOURCE_GRAPH or RESOURCE_TABLE - determines batch size and whether literals are included
 	 * @return ResultBatch of triples referencing the resource URI
 	 * @throws Exception
 	 */
-	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, Integer offset, PaginatorType view) throws Exception;
+	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, RMapSearchParams params, PaginatorType view) throws Exception;
 
 	/**
 	 * Organizes the batch of triples provided into a Graph object for use in creating the graph visualization. 
@@ -99,17 +100,18 @@ public interface DataDisplayService {
 	 * @return the Resource graph
 	 * @throws Exception the exception
 	 */
-	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch) throws Exception;
+	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch, RMapSearchParams params) throws Exception;
 
 	/**
 	 * Organizes the batch of triples provided into a ResourceDescription, which is used to display the data in tabular format
 	 * for the Resource URI provided. Also retrieves a list of types specified for the resource.
 	 * @param resourceUri URI of the resource that is the focus of the triple batch
-	 * @param triplebatch batch of triples to be organized as a ResourceDescription
+	 * @param triplebatch batch of triples to be organized as a ResourceDescriptionbatch
+	 * @param statusFilter active, inactive or all
 	 * @return ResourceDescription
 	 * @throws Exception
 	 */
-	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch) throws Exception;
+	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch, RMapSearchParams params, boolean bothDirections) throws Exception;
 
 	/**
 	 * Organizes the batch of triples provided into a ResourceDescription, which is used to display the data in tabular format
@@ -118,20 +120,22 @@ public interface DataDisplayService {
 	 * types defined within that DiSCO will be included in the type list of the ResourceDescription
 	 * @param resourceUri URI of the resource that is the focus of the triple batch
 	 * @param triplebatch batch of triples to be organized as a ResourceDescription
-	 * @param contextUri the object ID for the RMap object, used to filter types to t
+	 * @param contextUri the object ID for the RMap object, used to filter types to batch
+	 * @param statusFilter active, inactive or all
 	 * @return ResourceDescription
 	 * @throws Exception
 	 */
-	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch, String contextUri) throws Exception;
+	public ResourceDescription getResourceTableDataInContext(String resourceUri, ResultBatch<RMapTriple> triplebatch, String contextUri, boolean bothDirections) throws Exception;
 	
 	/**is
 	 * Retrieves a batch of DiSCO URIs that mention the resource URI provided. ResultSet will start at offset provided. Default offset  0.
 	 * @param resourceUri URI of resource to get DiSCOs for
 	 * @param offset starting point for result batch
+	 * @param statusFilter active, inactive or all
 	 * @return ResultBatch of DiSCO URIs
 	 * @throws Exception
 	 */
-	public ResultBatch<URI> getResourceRelatedDiSCOs(String resourceUri, Integer offset) throws Exception;
+	public ResultBatch<URI> getResourceRelatedDiSCOs(String resourceUri, RMapSearchParams params) throws Exception;
 
 	/**
 	 * Generates an appropriate PageStatus for a result batch. PageStatus is used to pass the relevant pagination values to the webpage
@@ -167,7 +171,7 @@ public interface DataDisplayService {
 	 * @return result batch of URIs
 	 * @throws Exception the exception
 	 */
-	public ResultBatch<URI>  getAgentDiSCOs(String agentUri, Integer offset) throws Exception;
+	public ResultBatch<URI> getAgentDiSCOs(String agentUri, RMapSearchParams params) throws Exception;
 	
 	/**
 	 * Get Event data package for URI provided. Data package contains elements used on web page views
@@ -183,10 +187,11 @@ public interface DataDisplayService {
 	 * This is used in popup node data. 
 	 * @param resourceUri the resource URI
 	 * @param offset Number of rows to offset returned recordset
+	 * @param statusFilter active, inactive or all
 	 * @return batch of triples where subject is resourceUri and the object is a literal
 	 * @throws Exception the exception
 	 */
-	public ResultBatch<RMapTriple> getResourceLiterals(String resourceUri, Integer offset) throws Exception;
+	public ResultBatch<RMapTriple> getResourceLiterals(String resourceUri, RMapSearchParams params) throws Exception;
 
 	/**
 	 * Retrieve batch of triples where the subject is the resourceUri provided and the object (of the triple) is a literal. 
@@ -199,15 +204,16 @@ public interface DataDisplayService {
 	 * @return Batch of triples where subject is resourceUri, the object is a literal, filtered by graphUri 
 	 * @throws Exception the exception
 	 */
-	public ResultBatch<RMapTriple> getResourceLiteralsInContext(String resourceUri, String graphUri, Integer offset) throws Exception;
+	public ResultBatch<RMapTriple> getResourceLiteralsInContext(String resourceUri, String graphUri, RMapSearchParams params) throws Exception;
 	
 	/**
 	 * Retrieve list of RDF types as URIs corresponding to resource URI provided.
 	 * @param resourceUri the resource URI
+	 * @param status Status to filter label list by
 	 * @return list of URIs
 	 * @throws Exception
 	 */
-	public List<URI> getResourceRDFTypes(URI resourceUri) throws Exception;
+	public List<URI> getResourceRDFTypes(URI resourceUri, RMapSearchParams params) throws Exception;
 	
 	/**
 	 * Determine whether the URI provided is an RMap object, or just a regular resource.
@@ -217,6 +223,16 @@ public interface DataDisplayService {
 	 * @throws Exception the exception
 	 */
 	public String getRMapTypeDisplayName(URI resourceUri) throws Exception;
+	
+	/**
+	 * Calculates a node label for the Resource URI provided.
+	 * @param resourceUri the resource URI
+	 * @param status Status to filter label list by
+	 * @return
+	 * @throws Exception
+	 */
+	public String getResourceLabel(String resourceUri, RMapSearchParams params) throws Exception;
+	
 	/**
 	 * Checks whether there is such a resource in RMap based on params provided. True if there is a match
 	 * @param resource

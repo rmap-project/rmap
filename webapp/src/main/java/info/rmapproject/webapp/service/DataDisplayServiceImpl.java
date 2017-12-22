@@ -23,21 +23,27 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.map.MultiValueMap;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -52,8 +58,6 @@ import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdate;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import info.rmapproject.core.model.request.RMapSearchParams;
-import info.rmapproject.core.model.request.RMapSearchParamsFactory;
-import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.Terms;
@@ -82,6 +86,9 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	/** The RMap Service. */
 	private RMapService rmapService;
 	
+	/** Search service to retrieve data from index */
+	private SearchService searchService;
+		
 	/** The DiSCO Node Type. */
 	private String discoNodeType;
 	
@@ -106,8 +113,10 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	/** Max number of rows to show in node info popup **/
 	private int maxNodeInfoRows = 8;
 
-	private RMapSearchParamsFactory paramsFactory;
-
+	/** The label type list. */
+	@Value("${rmapweb.label-types}")
+	private String labelTypes;
+	
 	private GraphFactory graphFactory;
 
 	private TripleDisplayFormatFactory tripleDisplayFactory;
@@ -120,9 +129,10 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 * @param tripleDisplayFactory
 	 */
 	@Autowired 
-	public DataDisplayServiceImpl(RMapService rmapService, RMapSearchParamsFactory paramsFactory, GraphFactory graphFactory, TripleDisplayFormatFactory tripleDisplayFactory){
+	public DataDisplayServiceImpl(RMapService rmapService, SearchService searchService, 
+			GraphFactory graphFactory, TripleDisplayFormatFactory tripleDisplayFactory){
 		this.rmapService = rmapService;
-		this.paramsFactory = paramsFactory;
+		this.searchService = searchService;
 		this.graphFactory = graphFactory;
 		this.tripleDisplayFactory = tripleDisplayFactory;
 		//this is to support customization of node types - support those who would like to categorize DiSCO and Agent 
@@ -173,43 +183,87 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	public Graph getDiSCOGraph(DiSCODTO discoDTO) throws Exception {
 		Graph graph = graphFactory.newGraph();
 		String sDiscoUri = discoDTO.getUri().toString();
+		
+		graph.addNode(sDiscoUri, sDiscoUri, discoNodeType);
 						
 		if (WebappUtils.isUri(discoDTO.getCreator())) {
-			graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString(), discoNodeType, agentNodeType);
+			graph.addNode(discoDTO.getCreator(), agentNodeType);
+			graph.addEdge(sDiscoUri, discoDTO.getCreator(), DCTERMS.CREATOR.toString());
 		}
 		
 		if (WebappUtils.isUri(discoDTO.getProviderId())) {
 			List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(new URI(discoDTO.getProviderId()), discoDTO.getUri());
 			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
-			graph.addEdge(sDiscoUri, discoDTO.getProviderId(), RMAP.PROVIDERID.toString(), discoNodeType, targetNodeType);
+			graph.addNode(discoDTO.getProviderId(), targetNodeType);
+			graph.addEdge(sDiscoUri, discoDTO.getProviderId(), RMAP.PROVIDERID.toString());
 		}
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		
 		for (URI aggregate : discoDTO.getAggregatedResources()) {
 			List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(aggregate, discoDTO.getUri());
 			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
-			graph.addEdge(sDiscoUri, aggregate.toString(),Terms.ORE_AGGREGATES_PATH, discoNodeType, targetNodeType);
+			graph.addNode(aggregate.toString(), targetNodeType);
+			graph.addEdge(sDiscoUri, aggregate.toString(), Terms.ORE_AGGREGATES_PATH);
 		}
 
-		List<RMapTriple> filteredTriples = new ArrayList<RMapTriple>();
-		
 		List<RMapTriple> triples = discoDTO.getRelatedStatements();
-		//remove literals and types from disco graph
+
+		List<RMapTriple> filteredTriples = new ArrayList<RMapTriple>();
+		List<RMapTriple> labelTriples = new ArrayList<RMapTriple>();
+		List<String> labelFlds = Arrays.asList(this.labelTypes.split(","));
+		
+		MultiValueMap<String,URI> typeMap = new MultiValueMap<String,URI>();
+		
+		//sort in triples into lists that will be used for graph creation
 		for (RMapTriple triple:triples){
+			RMapResource subj = triple.getSubject();
 			RMapIri pred = triple.getPredicate();
 			RMapValue obj = triple.getObject();
 			
-			if (!pred.toString().equals(RDF.TYPE.toString())
-					&& !(obj instanceof RMapLiteral)){
+			boolean isType = pred.toString().equals(RDF.TYPE.toString());
+			
+			if (!isType	&& !(obj instanceof RMapLiteral)){
 				filteredTriples.add(triple);
 			}
+			
+			if (isType && obj instanceof RMapIri) {
+				typeMap.put(subj.toString(), new URI(obj.toString()));
+			}
+			
+			if (obj instanceof RMapLiteral && labelFlds.contains(pred.toString())) {				
+				labelTriples.add(triple);
+			}
+			
 		}
 		
 		triples = null;
 
-		if ((filteredTriples.size()+graph.getEdges().size())<=maxObjGraphRelationships){
-			graph = addTriplesToGraph(graph, filteredTriples, discoDTO.getUri());
+		if ((filteredTriples.size()+graph.getEdges().size())<=maxObjGraphRelationships){						
+			for (RMapTriple triple : filteredTriples) {
+				String subject = triple.getSubject().toString();
+				String predicate = triple.getPredicate().toString();
+				String object = triple.getObject().toString();
+				
+				List<URI> subjTypes = null;
+				List<URI> objTypes = null;
+				if (typeMap!=null && typeMap.getCollection(subject)!=null) {
+					new ArrayList<URI>(typeMap.getCollection(subject));
+				}
+				if (typeMap!=null && typeMap.getCollection(object)!=null) {
+					objTypes = new ArrayList<URI>(typeMap.getCollection(object));
+				}
+				
+				graph.addNode(subject, WebappUtils.getNodeType(subjTypes));
+				graph.addNode(object, WebappUtils.getNodeType(objTypes));
+				graph.addEdge(subject, object, predicate);
+			}
+			
+			//make node labels from label triples within the graph
+			for (RMapTriple triple:labelTriples) {			
+				if (graph.getNodes().containsKey(triple.getSubject().toString())) {
+					graph.getNodes().get(triple.getSubject().toString()).setLabel(triple.getObject().toString());
+				}
+			}
+			
 		} else {
 			//don't do graph because it's too large and will just be an unbearable mess!!
 			graph = null;
@@ -250,8 +304,8 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    int remainingRows = maxTableRows;
 	    
 	    //now get resource description for each resource, truncate according to offset and max rows
-	    for (String resource : resourcesDescribed) {	    	
-	    	ResourceDescription resDescrip = getObjectResourceDescription(resource, triples);  	
+	    for (String resource : resourcesDescribed) {    	
+	    	ResourceDescription resDescrip = getResourceTableDataInContext(resource, triples, discoDTO.getUri().toString(),false);  	
 	    	Map<String, TripleDisplayFormat> tripleMap = resDescrip.getPropertyValues(); 
 	    	//keep getting new resource descriptions til we hit the offset
 	    	if (position < offset) {
@@ -313,45 +367,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		pageStatus.setLimit(maxTableRows);
 		return pageStatus;
 	}
-	
-	/**
-	 * Generate resource description for resource based on triples provided. Assumes all triples have been returned, unlike for
-	 * plain resource description where it may be truncated. Will filter out triples that do not have a subject URI that matches 
-	 * the resource in question.
-	 * @param resource the resource URI
-	 * @param triples list of RMapTriples
-	 * @return resource description
-	 */
-	private ResourceDescription getObjectResourceDescription(String resource, List<RMapTriple> triples) throws RMapWebException{
-    	//start new resource description
-    	ResourceDescription rd = new ResourceDescription(resource);	  
-    	
-    	try {
-    		List<URI> resourceTypes = getResourceRDFTypes(new URI(resource));
-    		rd.addResourceTypes(resourceTypes);
-    		    		
-    		for (RMapTriple triple : triples) { 
-	    		boolean subjMatchesResource = triple.getSubject().toString().equals(resource.toString());
-	    		boolean predIsRdfType = triple.getPredicate().toString().equals(RDF.TYPE.toString());
-	    		
-	    		if (subjMatchesResource && !predIsRdfType) {
-		    		//only include this if subj matches resource and isn't a type, types are displayed separately
-					TripleDisplayFormat tripleDF = tripleDisplayFactory.newTripleDisplayFormat(triple);
-					rd.addPropertyValue(tripleDF);
-		    	}
-	    	}
-    	} catch (RMapWebException ex){
-    		throw ex;
-    	} catch (Exception ex){
-    		RMapWebException.wrap(ex);
-    	}
-    	
-    	return rd;
-	}
-	
-	
-	
-	
+		
 	
 	/*************************************************************
 	 * RESOURCE PATH METHODS
@@ -359,32 +375,25 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceBatch(java.lang.String, java.lang.Integer, info.rmapproject.webapp.domain.PaginatorType)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceBatch(java.lang.String, info.rmapproject.core.model.request.RMapSearchParams, info.rmapproject.webapp.domain.PaginatorType)
 	 */
 	@Override
-	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, Integer offset, PaginatorType view) throws Exception {
+	public ResultBatch<RMapTriple> getResourceBatch(String resourceUri, RMapSearchParams params, PaginatorType view) throws Exception {
+		
 		ResultBatch<RMapTriple> triplebatch = null;
 		URI uri = new URI(resourceUri);
 
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setExcludeTypes(true);	
-		params.setOffset(offset);
 		if (view.equals(PaginatorType.RESOURCE_GRAPH)){
 			params.setExcludeLiterals(true);	
 			params.setLimit(maxResGraphRelationships);
 		} else {
+			params.setExcludeLiterals(false);	
 			params.setLimit(maxTableRows);
 		}
 		
 		triplebatch = rmapService.getResourceRelatedTriples(uri, params);
-    	
-		//if there are no triples, don't load an empty screen, show a not found error.
-		//note that because only connected graphs are allowed, every URI should have at
-		//least one uri link.
-    	if (triplebatch.size()==0)	{
-    		throw new RMapObjectNotFoundException();
-    	}
+
     	return triplebatch;
 	}
 	
@@ -392,40 +401,95 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceGraph(info.rmapproject.core.model.request.ResultBatch<RMapTriple>)
 	 */
 	@Override
-	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch) throws Exception {
+	public Graph getResourceGraph(ResultBatch<RMapTriple> triplebatch, RMapSearchParams params) throws Exception {
 		Graph graph = graphFactory.newGraph();
-		graph = addTriplesToGraph(graph, triplebatch.getResultList());  	
+				
+		List<RMapTriple> triples = triplebatch.getResultList();
+		
+		Map<String,String> nodeTypeMap = generateTypeMapForTriples(triples, params);
+		for (RMapTriple triple : triples) {
+			String subject = triple.getSubject().toString();
+			String predicate = triple.getPredicate().toString();
+			String object = triple.getObject().toString();
+			
+			graph.addNode(subject, nodeTypeMap.get(subject));
+			graph.addNode(object, nodeTypeMap.get(object));
+			graph.addEdge(subject, object, predicate);
+		}
+		
+		//generate node labels
+		for (String node: graph.getNodes().keySet()) {
+			String label = getResourceLabel(node, params);
+			if (label!=null) {
+				graph.getNodes().get(node).setLabel(label);
+			}
+			log.debug("Label for node {} is {}" + label, node, label);
+		}		
 		return graph;	    
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceTableData(java.lang.String, info.rmapproject.core.model.request.ResultBatch<RMapTriple>)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceTableData(java.lang.String, info.rmapproject.core.model.request.ResultBatch<RMapTriple>,info.rmapproject.core.model.request.RMapStatusFilter)
 	 */
 	@Override
-	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch) throws Exception {
-		ResourceDescription rd = getResourceDescription(resourceUri, triplebatch, null, true);
-		return rd;
+	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch, RMapSearchParams params, boolean bothdirections) throws RMapWebException {
+    	ResourceDescription rd = new ResourceDescription(resourceUri);	  
+    	try {
+    		List<URI> resourceTypes = getResourceRDFTypes(new URI(resourceUri), params);
+    		rd.addResourceTypes(resourceTypes);
+    		
+    		Set<TripleDisplayFormat> dfTriples = tripleBatchToTripleDFSet(resourceUri, triplebatch, bothdirections);
+    		rd.addPropertyValues(dfTriples);
+    		
+    	} catch (RMapWebException ex){
+    		throw ex;
+    	} catch (Exception ex){
+    		RMapWebException.wrap(ex);
+    	}    	
+    	return rd;
 	}			
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceTableData(java.lang.String, info.rmapproject.core.model.request.ResultBatch<RMapTriple>, java.lang.String)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceTableData(java.lang.String, info.rmapproject.core.model.request.ResultBatch<RMapTriple>, java.lang.String,info.rmapproject.core.model.request.RMapStatusFilter)
 	 */
 	@Override
-	public ResourceDescription getResourceTableData(String resourceUri, ResultBatch<RMapTriple> triplebatch, String contextUri) throws Exception {
-		ResourceDescription rd = getResourceDescription(resourceUri, triplebatch, contextUri, true);
-		return rd;
+	public ResourceDescription getResourceTableDataInContext(String resourceUri, ResultBatch<RMapTriple> triplebatch, String contextUri, boolean bothDirections) throws Exception {
+		List<RMapTriple> triples = triplebatch.getResultList();    	
+		return getResourceTableDataInContext(resourceUri, triples, contextUri, bothDirections);
+	}
+
+	/**
+	 * Generate resource description for resource based on triples provided. Assumes all triples have been returned, unlike for
+	 * plain resource description where it may be truncated. Will filter out triples that do not have a subject URI that matches 
+	 * the resource in question.
+	 * @param resource the resource URI
+	 * @param triples list of RMapTriples
+	 * @return resource description
+	 */	
+	private ResourceDescription getResourceTableDataInContext(String resourceUri, List<RMapTriple> triples, String contextUri, boolean bothDirections) throws Exception {
+    	ResourceDescription rd = new ResourceDescription(resourceUri);	  
+    	try {
+    		List<URI> resourceTypes = rmapService.getResourceRdfTypesInContext(new URI(resourceUri), new URI(contextUri));
+    		rd.addResourceTypes(resourceTypes);
+    		
+    		Set<TripleDisplayFormat> dfTriples = triplesToTripleDFSet(resourceUri, triples, bothDirections);
+    		rd.addPropertyValues(dfTriples);
+    	} catch (RMapWebException ex){
+    		throw ex;
+    	} catch (Exception ex){
+    		RMapWebException.wrap(ex);
+    	}
+    	
+    	return rd;
 	}		
 	
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceRelatedDiSCOs(java.lang.String, java.lang.Integer)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceRelatedDiSCOs(java.lang.String, java.lang.Integer,info.rmapproject.core.model.request.RMapStatusFilter)
 	 */
 	@Override
-	public ResultBatch<URI> getResourceRelatedDiSCOs(String resourceUri, Integer offset) throws Exception {
-		RMapSearchParams params = paramsFactory.newInstance();
+	public ResultBatch<URI> getResourceRelatedDiSCOs(String resourceUri, RMapSearchParams params) throws Exception {
 		params.setLimit(maxResRelatedDiSCOs);
-		params.setOffset(offset);
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		ResultBatch<URI> relatedDiSCOs = rmapService.getResourceRelatedDiSCOs(new URI(resourceUri), params);
 		return relatedDiSCOs;
 	}
@@ -496,8 +560,12 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		Graph graph = graphFactory.newGraph();
 		String sAgentUri = agentDTO.getUri().toString();
 		
-		graph.addEdge(sAgentUri, agentDTO.getIdProvider(),Terms.RMAP_IDENTITYPROVIDER_PATH, agentNodeType, agentNodeType);
-		graph.addEdge(sAgentUri, agentDTO.getAuthId(),Terms.RMAP_USERAUTHID_PATH, agentNodeType, WebappUtils.getNodeType(new URI(Terms.RMAP_USERAUTHID_PATH)));
+		graph.addNode(sAgentUri, agentDTO.getName(), agentNodeType);
+		graph.addNode(agentDTO.getIdProvider(), agentNodeType);
+		graph.addNode(agentDTO.getAuthId(), WebappUtils.getNodeType(new URI(Terms.RMAP_USERAUTHID_PATH)));
+		
+		graph.addEdge(sAgentUri, agentDTO.getIdProvider(), Terms.RMAP_IDENTITYPROVIDER_PATH);
+		graph.addEdge(sAgentUri, agentDTO.getAuthId(), Terms.RMAP_USERAUTHID_PATH);
 
 		return graph;			
 	}	
@@ -506,10 +574,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 * @see info.rmapproject.webapp.service.DataDisplayService#getAgentDTO(java.lang.String, java.lang.Integer)
 	 */
 	@Override
-	public ResultBatch<URI> getAgentDiSCOs(String agentUri, Integer offset) throws Exception {
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);	   
-		params.setOffset(offset);
+	public ResultBatch<URI> getAgentDiSCOs(String agentUri, RMapSearchParams params) throws Exception {
 		params.setLimit(maxAgentDiSCOs);
 		ResultBatch<URI> agentDiSCOs = rmapService.getAgentDiSCOs(new URI(agentUri), params);
 		return agentDiSCOs;
@@ -546,18 +611,14 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	}
 	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLiterals(java.lang.String, java.lang.Integer)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLiterals(java.lang.String, java.lang.Integer,info.rmapproject.core.model.request.RMapStatusFilter)
 	 */
 	@Override
-	public ResultBatch<RMapTriple> getResourceLiterals(String resourceUri, Integer offset) throws Exception{
-
-		URI uri = new URI(resourceUri);
+	public ResultBatch<RMapTriple> getResourceLiterals(String resourceUri, RMapSearchParams params) throws Exception{
 		
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		URI uri = new URI(resourceUri);
 		params.setExcludeIRIs(true);
 		params.setExcludeTypes(true);
-		params.setOffset(offset);
 		params.setLimit(maxNodeInfoRows);
 		
 		ResultBatch<RMapTriple> triplebatch =rmapService.getResourceRelatedTriples(uri, params);
@@ -570,15 +631,12 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLiteralsInContext(java.lang.String, java.lang.String, java.lang.Integer)
 	 */
 	@Override
-	public ResultBatch<RMapTriple> getResourceLiteralsInContext(String sResourceUri, String sGraphUri, Integer offset) throws Exception{
+	public ResultBatch<RMapTriple> getResourceLiteralsInContext(String sResourceUri, String sGraphUri, RMapSearchParams params) throws Exception{
 
 		URI resourceUri = new URI(sResourceUri);
 		URI graphUri = new URI(sGraphUri);
 		
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setExcludeIRIs(true);
-		params.setOffset(offset);
 		params.setLimit(maxNodeInfoRows);
 		
 		ResultBatch<RMapTriple> resultbatch= rmapService.getResourceRelatedTriples(resourceUri, graphUri, params);
@@ -587,132 +645,104 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	}
 	
 	/**
-	 * Generate resource description for resource based on triples provided. Will filter out triples that
+	 * Extracts triples from triplebatch that are connected to resourceUri and formats them as TripleDisplayFormat
 	 * do not have a subject URI that matches the resource in question.
 	 * @param resourceUri The resource URI to retrieve a description for
 	 * @param triples ResultBatch of RMapTriples to generate resource description from
-	 * @param contextUri for when types should be limited to the context of a specific RMap Object. 
-	 * @param includeBothDirections true when matching resource based on subject or object. False for subject matching only.
-	 * @return the ResourceDescription
+	 * @param if true will return triples whether subject or object matches, false only where subject matches.
+	 * @return set of TripleDisplayFormats
 	 */
-	private ResourceDescription getResourceDescription(String resourceUri, ResultBatch<RMapTriple> triplebatch, String contextUri, boolean includeBothDirections) throws RMapWebException{
-
-    	//start new resource description
-    	ResourceDescription rd = new ResourceDescription(resourceUri);	  
-    	
-    	try {
-    		List<URI> resourceTypes;
-    		if (contextUri!=null){
-    			resourceTypes = getResourceRDFTypes(new URI(resourceUri), new URI(contextUri));
-    		} else {
-    			resourceTypes = getResourceRDFTypes(new URI(resourceUri));
-    		}
-    		rd.addResourceTypes(resourceTypes);
+	private Set<TripleDisplayFormat> tripleBatchToTripleDFSet(String resourceUri, ResultBatch<RMapTriple> triplebatch, boolean bothDirections) throws RMapWebException{
+		List<RMapTriple> triples = triplebatch.getResultList();    	
+		return triplesToTripleDFSet(resourceUri, triples, bothDirections);
+	}
+	
+	/**
+	 * Extracts triples from triple list that are connected to resourceUri and formats them as TripleDisplayFormat
+	 * do not have a subject URI that matches the resource in question.
+	 * @param resourceUri The resource URI to retrieve a description for
+	 * @param triples List of RMapTriples to generate resource description from
+	 * @param if true will return triples whether subject or object matches, false only where subject matches.
+	 * @return set of TripleDisplayFormats
+	 */
+	private Set<TripleDisplayFormat> triplesToTripleDFSet(String resourceUri, List<RMapTriple> triples, boolean bothDirections) throws RMapWebException{
+		Set<TripleDisplayFormat> tripleDfs = new HashSet<TripleDisplayFormat>();	
+		for (RMapTriple triple : triples) { 
+    		boolean objectIsLiteral = (triple.getObject() instanceof RMapLiteral);
+    		boolean subjMatchesResource = triple.getSubject().toString().equals(resourceUri.toString());
+    		boolean objMatchesResource = !objectIsLiteral && triple.getObject().toString().equals(resourceUri.toString());
+    		boolean predIsRdfType = triple.getPredicate().toString().equals(RDF.TYPE.toString());
     		
-    		List<RMapTriple> triples = triplebatch.getResultList();    		
-    		
-    		for (RMapTriple triple : triples) { 
-	    		boolean objectIsLiteral = (triple.getObject() instanceof RMapLiteral);
-	    		boolean subjMatchesResource = triple.getSubject().toString().equals(resourceUri.toString());
-	    		boolean objMatchesResource = !objectIsLiteral && triple.getObject().toString().equals(resourceUri.toString());
-	    		
-	    		if (subjMatchesResource || (objMatchesResource && includeBothDirections)) {
-		    		//only include this if subj or object matches resource
-			    	TripleDisplayFormat tripleDF = tripleDisplayFactory.newTripleDisplayFormat(triple);
-		    		rd.addPropertyValue(tripleDF);		
-		    	}
+    		if (!predIsRdfType && (subjMatchesResource || (objMatchesResource && bothDirections))) {
+	    		//only include this if subj or object matches resource
+		    	TripleDisplayFormat tripleDF = tripleDisplayFactory.newTripleDisplayFormat(triple);
+		    	tripleDfs.add(tripleDF);		
 	    	}
-    	} catch (RMapWebException ex){
-    		throw ex;
-    	} catch (Exception ex){
-    		RMapWebException.wrap(ex);
     	}
-    	
-    	return rd;
+		return tripleDfs;
 	}
 	
-	/**
-	 * Adds triples to the graph.
-	 *
-	 * @param graph the graph
-	 * @param triples the triples
-	 * @return the updated graph
-	 * @throws Exception the exception
-	 */
-	private Graph addTriplesToGraph(Graph graph, List<RMapTriple> triples) throws Exception{
-		return addTriplesToGraph(graph, triples, null);
-	}
-				
-	/**
-	 * Adds the triples to a graph. Pass in existing object, list of triples to be added and the RMap object URI
-	 *
-	 * @param graph the graph
-	 * @param triples the triples
-	 * @param contextUri the context URI
-	 * @return the graph
-	 * @throws Exception the exception
-	 */
-	private Graph addTriplesToGraph(Graph graph, List<RMapTriple> triples, URI contextUri) throws Exception{
-		URI lastSubject = null;
-		String lastSourceNodeType = null;
-		for (RMapTriple triple : triples) {
-			URI subject = new URI(triple.getSubject().toString());
-			URI predicate = new URI(triple.getPredicate().toString());
-			RMapValue object = triple.getObject();
-
-			String sourceNodeType = null;
-			String targetNodeType = null;	
-			
-			//don't call database again if the subject has not changed
-			if (lastSubject!=null && lastSubject.equals(subject)){
-				sourceNodeType = lastSourceNodeType;
-			}
-			
-			if (sourceNodeType==null){
-				List <URI> sourceRdfTypes = getResourceRDFTypes(subject, contextUri);
-				sourceNodeType = WebappUtils.getNodeType(sourceRdfTypes);
-			}
-			
-			if (object instanceof RMapIri && targetNodeType==null){
-				List <URI> targetRdfTypes = getResourceRDFTypes(new URI(object.toString()), contextUri);		
-				targetNodeType = WebappUtils.getNodeType(targetRdfTypes);
-			}						
-			
-			graph.addEdge(subject.toString(), object.toString(), predicate.toString(), sourceNodeType, targetNodeType);
-			
-			lastSubject = subject;
-			lastSourceNodeType = sourceNodeType;
-		}
-		return graph;
-	}	
-	
-	/**
-	 * Gets RDF types for a resource, optionally limited to a context.
-	 *
-	 * @param resourceUri the Resource URI
-	 * @param contextUri the context URI (null if no context restriction)
-	 * @return the resource RDF types
-	 * @throws Exception the exception
-	 */
-	private List<URI> getResourceRDFTypes(URI resourceUri, URI contextUri) throws Exception{
-		if (contextUri==null){
-			return getResourceRDFTypes(resourceUri);
-		}
-		List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(resourceUri, contextUri);
-
-		return rdfTypes;
-	}	
 		
+	private Map<String,String> generateTypeMapForTriples(List<RMapTriple> triples, RMapSearchParams params) throws Exception {
+		Map<String,String> nodeTypesMap = new HashMap<String,String>();
+		Set<String> uniqueUris = extractUniqueUris(triples);
+		for (String uniqueUri : uniqueUris) {
+			List <URI> sourceRdfTypes = this.getResourceRDFTypes(new URI(uniqueUri), params);
+			String type = WebappUtils.getNodeType(sourceRdfTypes);
+			nodeTypesMap.put(uniqueUri,type);
+		}
+		return nodeTypesMap;
+	}
+	
+	
+	private Set<String> extractUniqueUris(List<RMapTriple> triples) {
+		Set<String> uniqueUris = triples.stream()
+				.map(triple -> triple.getSubject().getStringValue()).collect(Collectors.toSet());
+		
+		uniqueUris.addAll(triples.stream()
+				.filter(t -> t.getObject() instanceof RMapIri)
+				.map(triple -> triple.getObject().getStringValue()).collect(Collectors.toSet()));
+		
+		return uniqueUris;
+	}
+	
+
+	
 	/* (non-Javadoc)
-	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLiterals(java.net.URI)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLabel(java.lang.String,info.rmapproject.core.model.request.RMapStatusFilter)
 	 */
 	@Override
-	public List<URI> getResourceRDFTypes(URI resourceUri) throws Exception{
+	public String getResourceLabel(String resourceUri, RMapSearchParams params) throws Exception{
+		String preferredLabel = null;
+		Integer highestCount = 0;
+		Map<String,Integer> countLabel = new HashMap<String,Integer>();
+		
+		int NUM_MATCHES = 1000;		
+		Pageable pageable = PageRequest.of(0, NUM_MATCHES);
+		List<String> labels = searchService.getLabelListForResource(resourceUri, params, pageable);
+		
+		for(String label:labels) {
+			int count = countLabel.containsKey(label) ? countLabel.get(label)+1 : 1;
+			countLabel.put(label, count);
+			if (highestCount<count) {
+				highestCount=count;
+				preferredLabel=label;
+			}
+			log.debug("Label count for {} is {}", label, count);
+		}
+
+		log.debug("Preferred label for resource uri {} is {}", resourceUri, preferredLabel);
+		
+		return preferredLabel;
+	}	
+	
+	/* (non-Javadoc)
+	 * @see info.rmapproject.webapp.service.DataDisplayService#getResourceLiterals(java.net.URI,info.rmapproject.core.model.request.RMapStatusFilter)
+	 */
+	@Override
+	public List<URI> getResourceRDFTypes(URI resourceUri, RMapSearchParams params) throws Exception{
 		List<URI> rdfTypes = new ArrayList<URI>();
 		
-		RMapSearchParams params = paramsFactory.newInstance();
-		params.setStatusCode(RMapStatusFilter.ACTIVE);
-
 		Map <URI, Set<URI>> types = rmapService.getResourceRdfTypesAllContexts(resourceUri, params);
 		
 		if (types!=null){

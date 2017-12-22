@@ -15,8 +15,13 @@
 		
 		<h1 class="lineContinues">Resource Summary</h1>
 		<tl:tooltip standardDescName="Resource"/>
+		<c:if test="${RESOURCELABEL!=null && RESOURCELABEL.length()>0}">
+		<h2 title="${RESOURCELABEL}">${my:ellipsize(RESOURCELABEL, 150)}</h2>
+		<h3>URI: <tl:linkExternal uri="${RESOURCEURI}"/></h3>
+		</c:if>
+		<c:if test="${RESOURCELABEL==null || RESOURCELABEL.length()==0}">
 		<h2>URI: <tl:linkExternal uri="${RESOURCEURI}"/></h2>
-	
+		</c:if>
 		<tl:resourceTypeList resource_types="${RESOURCE_TYPES}"/>
 			
 		<div id="graphview" class="tabcontent" data-offset="${resource_graph_triples_offset}">

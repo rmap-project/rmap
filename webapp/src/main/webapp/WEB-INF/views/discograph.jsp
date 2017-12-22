@@ -4,10 +4,10 @@
 <%@ taglib prefix="tl" tagdir="/WEB-INF/tags"%>
 
 <c:set var="graph" value="${GRAPH}"/>
-<c:set var="nodes" value="${GRAPH.getNodes()}"/>
+<c:set var="nodes" value="${GRAPH.getNodes().values()}"/>
 <c:set var="edges" value="${GRAPH.getEdges()}"/>
 <c:set var="resourceUri" value="${RESOURCEURI}"/>
-<c:set var="nodeTypes" value="${GRAPH.getNodeTypes()}"/>
+<c:set var="nodeTypes" value="${GRAPH.getNodeTypes().values()}"/>
 
 <c:if test="${graph==null}">
 	<p class="notice">This DiSCO is too large to display as a visualization. Click the "table view" link above to view the data in table. You can navigate the DiSCO's contents from there.</p>

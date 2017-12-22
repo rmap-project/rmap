@@ -1,7 +1,7 @@
 <%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %> 
 
 <%@ attribute name="rmapviewuri" rtexprvalue="true" required="true" type="java.lang.String" description="URI to link to RMap page for this resource" %> 
-<%@ attribute name="nodeTypes" rtexprvalue="true" required="true" type="java.util.List" description="List of nodetypes" %> 
+<%@ attribute name="nodeTypes" rtexprvalue="true" required="true" type="java.util.Collection" description="List of nodetypes" %> 
 		
 <!--widget view embedded graph for data pages-->
 

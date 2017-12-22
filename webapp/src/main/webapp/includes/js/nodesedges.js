@@ -6,12 +6,17 @@ var dblClickFired = false; //flag to set when double-click is underway!
 function drawgraph(){
 	nodes = new vis.DataSet([
 			 <c:forEach var="node" items="${nodes}" varStatus="loop">
-			 {id: ${node.getId()}, title: '${my:ellipsize(node.getName(),50)}<br/><em>Click to see info, double-click to recenter graph.</em>', uri: '${node.getName()}', label: '${node.getShortname()}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
+			 <c:set var="firstLabel" value="${my:ellipsize(node.getLabel(),50)}<br/>"/>
+			 <c:set var="secondLabel" value="${node.getName().equals(node.getLabel()) ?  \"\" : my:ellipsize(node.getName(),50)}"/>
+			 <c:set var="hoverNote" value="${firstLabel}${secondLabel}<div><em>Click to see info, double-click to recenter graph.</em></div>"/>
+			 <c:set var="wrapChar" value="\\n"/>
+			 <c:set var="nodeLabel" value="${node.getShortlabel().contains(' ') ? my:wordWrap(node.getShortlabel(),22,wrapChar) : my:ellipsize(node.getShortlabel(),22)}"/>
+			 {id: ${node.getId()}, title:'${hoverNote}', uri: '${node.getName()}', label: '${nodeLabel}', group:'${node.getType().toString()}'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
 	edges = new vis.DataSet([
 			 <c:forEach var="edge" items="${edges}" varStatus="loop">
-			 {from: ${edge.getSource()}, to: ${edge.getTarget()}, title:'${edge.getLabel()}', label:'${edge.getShortlabel()}', arrows:'to', targetgroup:'${edge.getTargetNodeType().toString()}'}<c:if test="${!loop.last}">,</c:if>
+			 {from: ${edge.getSource().getId()}, to: ${edge.getTarget().getId()}, title:'${edge.getLabel()}', label:'${edge.getShortlabel()}', arrows:'to'}<c:if test="${!loop.last}">,</c:if>
 			 </c:forEach>
 			 ]);
 	
@@ -135,6 +140,7 @@ function doNodeClick(params) {
 		linkpopup.style.visibility = "hidden";
 		return;
 	}
+
 	nodes.forEach(function (node) {
 	if (node.id==params.nodes){
 		var nodeinfopath = "<c:url value='/resources/'/>" + encodeURIComponent(node.uri) + "/nodeinfo";

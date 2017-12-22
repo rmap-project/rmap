@@ -4,10 +4,10 @@
 <%@ taglib prefix="tl" tagdir="/WEB-INF/tags"%>
 
 <c:set var="graph" value="${GRAPH}"/>
-<c:set var="nodes" value="${GRAPH.getNodes()}"/>
+<c:set var="nodes" value="${GRAPH.getNodes().values()}"/>
 <c:set var="edges" value="${GRAPH.getEdges()}"/>
 <c:set var="resourceUri" value="${RESOURCEURI}"/>
-<c:set var="nodeTypes" value="${GRAPH.getNodeTypes()}"/>
+<c:set var="nodeTypes" value="${GRAPH.getNodeTypes().values()}"/>
 <style>
 <c:forEach var="nodeType" items="${nodeTypes}" varStatus="loop">
 	<c:if test="${!nodeType.getShape().equals('image')}">

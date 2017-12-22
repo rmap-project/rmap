@@ -22,7 +22,6 @@ package info.rmapproject.webapp.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.net.URI;
 import java.util.List;
@@ -31,16 +30,24 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
-import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
+import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
+import info.rmapproject.indexing.solr.repository.DiscoRepository;
+import info.rmapproject.indexing.solr.repository.DiscosIndexer;
+import info.rmapproject.indexing.solr.repository.IndexDTO;
+import info.rmapproject.indexing.solr.repository.IndexDTOMapper;
+import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
+import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.domain.ResourceDescription;
 import info.rmapproject.webapp.service.dto.AgentDTO;
@@ -56,6 +63,19 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 	/** The data display service. */
 	@Autowired
 	private DataDisplayService dataDisplayService;
+
+	@Autowired
+	private RMapSearchParamsFactory paramsFactory;	
+	
+    @Autowired
+    private DiscoRepository discoRepository;
+
+	@Autowired
+	private DiscosIndexer discosIndexer;
+
+    @Autowired
+    private IndexDTOMapper mapper;	
+	
 	
 	/**
 	 * Basic check that AgentDTO retreival does not result in errors.
@@ -90,7 +110,10 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
         assertNotNull(discoUri1);
 		rmapService.createDiSCO(disco1, reqEventDetails);
 
-		ResultBatch<URI> results = dataDisplayService.getAgentDiSCOs(reqEventDetails.getSystemAgent().toString(), 0);
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		
+		ResultBatch<URI> results = dataDisplayService.getAgentDiSCOs(reqEventDetails.getSystemAgent().toString(), params);
 		assertEquals(results.getResultList().size(),1);
 		assertEquals(results.getResultList().get(0).toString(),discoUri1.toString());
 
@@ -100,7 +123,7 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
         assertNotNull(discoUri2);
 		rmapService.createDiSCO(disco2, reqEventDetails);
 
-		results = dataDisplayService.getAgentDiSCOs(reqEventDetails.getSystemAgent().toString(), 0);
+		results = dataDisplayService.getAgentDiSCOs(reqEventDetails.getSystemAgent().toString(), params);
 		assertEquals(results.getResultList().size(),2);
 		assertEquals(results.getResultList().get(0).toString(),discoUri1.toString());
 		assertEquals(results.getResultList().get(1).toString(),discoUri2.toString());
@@ -192,22 +215,26 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		
 		String uriInDisco = "ark:/27927/56565656";
 		
-		ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
-		assertEquals(resultbatch.size(),3); 
+		RMapSearchParams params=paramsFactory.newInstance();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		
-		resultbatch = dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_TABLE); //now includes literals
-		assertEquals(resultbatch.size(),7);
+		ResultBatch<RMapTriple> resultbatch = dataDisplayService.getResourceBatch(uriInDisco, params, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
+		assertEquals(3,resultbatch.size()); 
+		
+		resultbatch = dataDisplayService.getResourceBatch(uriInDisco, params, PaginatorType.RESOURCE_TABLE); //now includes literals
+		assertEquals(7,resultbatch.size());
 
-		resultbatch = dataDisplayService.getResourceBatch(uriInDisco, 3, PaginatorType.RESOURCE_TABLE); //offset by 3
-		assertEquals(resultbatch.size(),4);
+		params.setOffset(3);
+		resultbatch = dataDisplayService.getResourceBatch(uriInDisco, params, PaginatorType.RESOURCE_TABLE); //offset by 3
+		assertEquals(4,resultbatch.size());
 				
 	}
 	
 	/**
-	 * Basic check that getResourceBatch returns not found if id is not available.
+	 * Basic check that getResourceBatch returns empty list when no matches found
 	 * @throws Exception
 	 */
-	@Test(expected = RMapObjectNotFoundException.class)
+	@Test
 	public void testGetResourceBatchWhenNoMatches() throws Exception {
 		// agent already exists, so create a disco
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
@@ -215,7 +242,10 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
         assertNotNull(discoUri);
 		rmapService.createDiSCO(disco, reqEventDetails);
 		String uriInDisco = "fakefake:uri";
-		dataDisplayService.getResourceBatch(uriInDisco, 0, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
+		RMapSearchParams params=paramsFactory.newInstance();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		ResultBatch<RMapTriple> results = dataDisplayService.getResourceBatch(uriInDisco, params, PaginatorType.RESOURCE_GRAPH); //graph excludes literals
+		assertEquals(0,results.size());
 	}
 		
 	/**
@@ -225,49 +255,125 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 	@Test
 	public void testDiSCOTableData() throws Exception {
 
-		try {		
-			// now create DiSCO	
-			ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
-			rmapService.createDiSCO(disco, reqEventDetails);
-			String discoUri = disco.getId().toString();
-			
-			//ok now lets get a table of data
-			DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
-			
-			int offset = 0;
-			List<ResourceDescription> resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
-			assertTrue(resdes!=null);
-						
-			int size = 0;
-			for (ResourceDescription rd : resdes){
-				size = size + rd.getPropertyValues().size();
-			}
-			assertTrue(size==10); //rmapweb.max-table-rows property is set to retrieve 10 rows at at time
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		rmapService.createDiSCO(disco, reqEventDetails);
+		String discoUri = disco.getId().toString();
+		
+		//ok now lets get a table of data
+		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
+		
+		int offset = 0;
+		List<ResourceDescription> resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
+		assertTrue(resdes!=null);
+					
+		int size = 0;
+		for (ResourceDescription rd : resdes){
+			size = size + rd.getPropertyValues().size();
+		}
+		assertTrue(size==10); //rmapweb.max-table-rows property is set to retrieve 10 rows at at time
 
-			offset = 10;
-			resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
-			assertTrue(resdes!=null);
-			size = 0;
-			for (ResourceDescription rd : resdes){
-				size = size + rd.getPropertyValues().size();
-			}
-			assertTrue(size==10);
+		offset = 10;
+		resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
+		assertTrue(resdes!=null);
+		size = 0;
+		for (ResourceDescription rd : resdes){
+			size = size + rd.getPropertyValues().size();
+		}
+		assertTrue(size==10);
 
-			offset = 20;
-			resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
-			assertTrue(resdes!=null);
-			size = 0;
-			for (ResourceDescription rd : resdes){
-				size = size + rd.getPropertyValues().size();
-			}
-			assertTrue(size==9);
+		offset = 20;
+		resdes = dataDisplayService.getDiSCOTableData(discoDTO, offset);
+		assertTrue(resdes!=null);
+		size = 0;
+		for (ResourceDescription rd : resdes){
+			size = size + rd.getPropertyValues().size();
+		}
+		assertTrue(size==9);
 			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}	
 	}
 	
+	/**
+	 * Basic check on retrieval of DiSCO's graph data. Includes checks for retrieval of type and label.
+	 * @throws Exception
+	 */
+	@Test
+	public void testDiSCOGraphData() throws Exception {
+	
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		rmapService.createDiSCO(disco, reqEventDetails);
+		String discoUri = disco.getId().toString();
+		
+		//ok now lets get a table of data
+		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
+		
+		Graph graph = dataDisplayService.getDiSCOGraph(discoDTO);
+		assertTrue(graph!=null);
+		
+		assertTrue(graph.getNodes().containsKey(TestConstants.TEST_DISCO_DOI));
+		assertEquals("Text",graph.getNodes().get(TestConstants.TEST_DISCO_DOI).getType());
+		assertEquals("Made up article about GPUs", graph.getNodes().get(TestConstants.TEST_DISCO_DOI).getLabel());
+		assertEquals(14,graph.getEdges().size());
+				
+	}
+	
+
+	/**
+	 * Basic check on retrieval of Resource's table data
+	 * @throws Exception
+	 */
+	@Test
+	public void testResourceTableData() throws Exception {
+
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		rmapService.createDiSCO(disco, reqEventDetails);
+
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setOffset(0);
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		
+		ResultBatch<RMapTriple> batch = dataDisplayService.getResourceBatch(TestConstants.TEST_DISCO_DOI, params, PaginatorType.RESOURCE_TABLE);
+		ResourceDescription resdes = dataDisplayService.getResourceTableData(TestConstants.TEST_DISCO_DOI, batch, params, true);
+		assertTrue(resdes!=null);
+		assertEquals(10,resdes.getPropertyValues().size());
+		
+		params.setOffset(20);
+		batch = dataDisplayService.getResourceBatch(TestConstants.TEST_DISCO_DOI, params, PaginatorType.RESOURCE_TABLE);
+		resdes = dataDisplayService.getResourceTableData(TestConstants.TEST_DISCO_DOI, batch, params, true);
+		assertEquals(3,resdes.getPropertyValues().size());
+	}
+	
+	/**
+	 * Basic check on retrieval of Resource's graph data. Includes checks for retrieval of type and label.
+	 * @throws Exception
+	 */
+	@Test
+	public void testResourceGraphData() throws Exception {
+	
+		discoRepository.deleteAll();    	   
+		assertEquals(0, discoRepository.count());
+        
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		RMapEvent event = rmapService.createDiSCO(disco, reqEventDetails);
+		
+		//index the disco since labels depend on the index
+        IndexDTO indexDto = new IndexDTO(event, this.sysagent, null, disco);
+        discosIndexer.index(mapper.apply(indexDto));
+        assertEquals(1, discoRepository.count());
+		
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setOffset(0);
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		
+		ResultBatch<RMapTriple> batch = dataDisplayService.getResourceBatch(TestConstants.TEST_DISCO_DOI, params, PaginatorType.RESOURCE_GRAPH);
+		Graph graph = dataDisplayService.getResourceGraph(batch, params);
+				
+		assertTrue(graph!=null);
+		
+		assertTrue(graph.getNodes().containsKey(TestConstants.TEST_DISCO_DOI));
+		assertEquals("Text",graph.getNodes().get(TestConstants.TEST_DISCO_DOI).getType());
+		assertEquals("Made up article about GPUs", graph.getNodes().get(TestConstants.TEST_DISCO_DOI).getLabel());
+		assertEquals(10,graph.getEdges().size());
+	}
 	
 	
 	
