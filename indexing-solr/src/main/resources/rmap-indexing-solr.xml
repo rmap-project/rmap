@@ -36,10 +36,14 @@
             <property name="consumer" ref="eventConsumer"/>
         </bean>
 
-        <bean id="retryHandler" class="info.rmapproject.indexing.kafka.DefaultIndexRetryHandler">
+        <!--
+          Cannot be shared by multiple threads because it has an instance of ORMapService, which cannot be shared by multiple threads.
+        -->
+        <bean id="retryHandler" class="info.rmapproject.indexing.kafka.DefaultIndexRetryHandler" scope="prototype">
             <constructor-arg ref="discosIndexer"/>
             <constructor-arg ref="indexDTOMapper"/>
             <constructor-arg ref="discosSolrOperations"/>
+            <!--<property name="rmapService" ref="rmapService"/>-->
             <constructor-arg value="1000"/>
             <constructor-arg value="60000"/>
             <constructor-arg value="1.5"/>
@@ -47,6 +51,8 @@
 
         <!--
           Consumes RMap Events from a specified Kafka topic, and indexes DiscoSolrDocuments to the 'discos' Solr core.
+          Prototype scope (1) because each instance of IndexingConsumer is scoped to a thread; (2) each
+            instance has an instance of ORMapService, which cannot be shared by multiple threads.
         -->
         <bean id="discosIndexingConsumer" class="info.rmapproject.indexing.kafka.IndexingConsumer" scope="prototype">
             <property name="indexer" ref="discosIndexer"/>
@@ -56,6 +62,7 @@
             <property name="rebalanceListener" ref="rebalancer"/>
             <property name="retryHandler" ref="retryHandler"/>
             <property name="dtoMapper" ref="indexDTOMapper"/>
+            <!--<property name="rmapService" ref="rmapService"/>-->
         </bean>
 
     </beans>
