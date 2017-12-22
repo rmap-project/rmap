@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import info.rmapproject.core.rdfhandler.RDFHandler;
@@ -19,7 +18,6 @@ import info.rmapproject.core.rdfhandler.RDFHandler;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles({"default", "inmemory-triplestore", "inmemory-idservice", "inmemory-db", "embedded-solr", "mock-kafka"})
 @ContextConfiguration({"classpath*:/rmap-indexing-solr.xml", "classpath*:/spring-rmapcore-context.xml", "classpath*:/rmap-kafka-shared-test.xml"})
-@TestPropertySource(properties = {"integration.db.rmap-agent-sql = classpath:/create-rmap-agent.sql"})
 public abstract class AbstractSpringIndexingTest {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSpringIndexingTest.class);
@@ -32,7 +30,7 @@ public abstract class AbstractSpringIndexingTest {
     @Before
     public void setUp() throws Exception {
         if (System.getProperty("spring.profiles.active") == null) {
-            System.setProperty("spring.profiles.active", "default, integration-db, inmemory-triplestore, inmemory-idservice, embedded-solr, mock-kafka");
+            System.setProperty("spring.profiles.active", "default, inmemory-db, inmemory-triplestore, inmemory-idservice, embedded-solr, mock-kafka");
             thisClassSetProfilesProperty = true;
         }
     }
