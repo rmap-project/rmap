@@ -36,19 +36,17 @@
 			<form:label path="keyStatus">Status</form:label> 
 			<form:errors path="keyStatus" cssClass="validationErrors"/>
 			<form:select path="keyStatus" multiple="false">
-				<form:option value="" label="-----Select-----"/>
 				<form:options values="${keyStatuses}" items="${keyStatuses}"/>
 			</form:select>			
 			
 			<form:label path="startDate">Start date (leave blank for no fixed start date)</form:label> 
 			<form:errors path="startDate" cssClass="validationErrors"/>
-			<form:input path="startDate" cssClass="dateInput" readonly="true" style="float:left;"/>
-			&nbsp;<img src="<c:url value='/includes/images/delete.png'/>" onclick="clearfield('startDate')" style="padding-top:8px;">
-			<br/>
+			<form:input path="startDate" placeholder="yyyy-mm-dd" cssClass="dateInput formDate" readonly="true"/>
+			&nbsp;<div class="clearFormDate clickableText rightOfInput" data-field="startDate">clear</div>
 			<form:label path="endDate">End date (leave blank for no fixed end date)</form:label> 
 			<form:errors path="endDate" cssClass="validationErrors"/>
-			<form:input path="endDate" cssClass="dateInput" readonly="true" style="float:left;"/>
-			&nbsp;<img src="<c:url value='/includes/images/delete.png'/>" onclick="clearfield('endDate')" style="padding-top:8px;">
+			<form:input path="endDate" placeholder="yyyy-mm-dd" cssClass="dateInput formDate" readonly="true"/>
+			&nbsp;<div class="clearFormDate clickableText rightOfInput" data-field="endDate">clear</div>
 					
 			<form:label path="includeInEvent">Include Key URI in RMap Event?</form:label>
 			<form:radiobutton path="includeInEvent" value="yes"/> Yes <br/>
