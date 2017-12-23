@@ -57,26 +57,32 @@ public class LoginController {
 	private static final Logger LOG = LoggerFactory.getLogger(LoginController.class);
 	
 	/** Service for user management. */
-	@Autowired
 	private UserMgtService userMgtService;
 		
 	/** The OAuth provider google. */
-	@Autowired
-	@Qualifier("oAuthProviderGoogle")
 	private GoogleOAuthProvider oAuthProviderGoogle;
 
 	/** The OAuth provider twitter. */
-	@Autowired
-	@Qualifier("oAuthProviderTwitter")
 	private TwitterOAuthProvider oAuthProviderTwitter;
 
 	/** The OAuth provider orcid. */
-	@Autowired
-	@Qualifier("oAuthProviderOrcid")
 	private OrcidOAuthProvider oAuthProviderOrcid;
 	
-	@Autowired
+	/** Page properties used in each page*/
 	private SiteProperties siteProperties;
+
+	@Autowired
+	public LoginController(UserMgtService userMgtService, 
+				@Qualifier("oAuthProviderGoogle") GoogleOAuthProvider oAuthProviderGoogle,
+				@Qualifier("oAuthProviderTwitter") TwitterOAuthProvider oAuthProviderTwitter,
+				@Qualifier("oAuthProviderOrcid") OrcidOAuthProvider oAuthProviderOrcid,
+				SiteProperties siteProperties) {
+		this.userMgtService = userMgtService;
+		this.oAuthProviderGoogle = oAuthProviderGoogle;
+		this.oAuthProviderTwitter = oAuthProviderTwitter;
+		this.oAuthProviderOrcid = oAuthProviderOrcid;
+		this.siteProperties = siteProperties;
+	}
 			
 	/**
 	 * Login using Google.
