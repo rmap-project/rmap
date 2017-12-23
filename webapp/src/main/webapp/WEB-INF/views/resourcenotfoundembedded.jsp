@@ -2,12 +2,9 @@
 
 <br/>
 <p class="notice">
-	No assertions were found for this resource. 
+	No matching data found.
 	<c:if test="${status==null || status.equals('active')}">
-	Your search only included assertions found in "active" DiSCOs. You can broaden your search by including "inactive" DiSCOs.
-	</c:if>
-	<c:if test="${status.equals('inactive')}">
-	Your search only included assertions found in "inactive" DiSCOs. You can broaden your search by including "active" DiSCOs.
+	To broaden the search, try enabling <strong>"include inactive"</strong>.
 	</c:if>
 </p>
 <br/>

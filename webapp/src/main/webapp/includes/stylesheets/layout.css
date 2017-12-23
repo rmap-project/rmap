@@ -358,8 +358,12 @@ p.notice{
     padding-left: 1.5em;
     padding-right: 1.5em;
     border: 2px;
+	font-size: 15px;
     background-color:#ffe5e5;
-    font-style: italic;
+    color:#333;
+}
+.notice strong{ 
+	color:#333;
 }
 
 p.greybox{ 
@@ -384,14 +388,15 @@ p.greybox{
     padding-left: 1.5em;
     padding-right: 1.5em;
     border: 2px;
-	color:black;
+	color:#333;
     background: #d9eda6;
 	overflow-wrap: break-word; 
 	word-wrap: break-word;
 	font-size:larger;
+	line-height:28px;
 }
 .greenbox strong{ 
-	color:#000000;
+	color:#444;
 }
 
 legend {
@@ -647,7 +652,7 @@ input[readonly]{background-color:#f0f0f0;}
 }
 
 .facets {
-	margin:110px 10px 10px ;
+	margin:117px 10px 10px ;
 	padding:10px 10px 5px 10px;
 	background-color:#edecff;
 	width:100%;
@@ -677,3 +682,14 @@ input[readonly]{background-color:#f0f0f0;}
 	 display:inline-block;
 	 margin-top:3px;
 }
+
+.includeInactive {
+	display:inline-block;
+	float:right;
+	padding:5px;
+	margin-top:10px;
+	border:1px solid #aaa;
+	background-color:#eee;
+	font-color: #333;
+}
+
