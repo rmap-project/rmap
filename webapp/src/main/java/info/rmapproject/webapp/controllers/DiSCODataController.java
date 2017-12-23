@@ -52,7 +52,6 @@ import info.rmapproject.webapp.service.dto.DiSCODTO;
 public class DiSCODataController {
 
 	/** Service for managing RMap data display. */
-	@Autowired
 	private DataDisplayService dataDisplayService;
 
 	/** The log. */
@@ -60,6 +59,12 @@ public class DiSCODataController {
 
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
+	
+
+	@Autowired
+	public DiSCODataController(DataDisplayService dataDisplayService) {
+		this.dataDisplayService = dataDisplayService;
+	}
 	
 	/**
 	 * GET details of a DiSCO.

@@ -52,16 +52,20 @@ import info.rmapproject.webapp.service.dto.AgentDTO;
 @SessionAttributes({"user","account"})
 public class AgentDisplayController {
 
-	/** Service for managing RMap data display. */
-	@Autowired
-	private DataDisplayService dataDisplayService;
-
 	/** The log. */
 	private static final Logger LOG = LoggerFactory.getLogger(AgentDisplayController.class);
 
+	/** Service for managing RMap data display. */
+	private DataDisplayService dataDisplayService;
+		
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
 
+	@Autowired
+	public AgentDisplayController(DataDisplayService dataDisplayService) {
+		this.dataDisplayService = dataDisplayService;
+	}
+	
 	/**
 	 * GET details of an Agent.
 	 *

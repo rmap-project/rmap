@@ -46,12 +46,16 @@ import info.rmapproject.webapp.service.dto.EventDTO;
 public class EventDisplayController {
 
 	/** Service for managing RMap data display. */
-	@Autowired
 	private DataDisplayService dataDisplayService;
 
 	/** The log. */
 	private static final Logger LOG = LoggerFactory.getLogger(EventDisplayController.class);
 
+	@Autowired
+	public EventDisplayController(DataDisplayService dataDisplayService) {
+		this.dataDisplayService = dataDisplayService;
+	}
+	
 	/**
 	 * GET details of an Event.
 	 *
