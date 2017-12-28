@@ -34,7 +34,7 @@
 	<aside class="four columns right-sidebar">
 	    <div class="sidebar-widget">
 			<h1>&nbsp;</h1>
-			<h2 class="lineContinues">Related Active DiSCOs</h2>
+			<h2 class="lineContinues">Related DiSCOs</h2>
 			<tl:tooltip toolTipText="DiSCOs represent aggregations of one or more scholarly resources. DiSCOs listed here mention the Resource on this page." 
 					readMoreLink="/about/glossary#RMapDiSCO"/>
 			<div id="resourceRelatedDiscos" data-offset="${resource_discos_offset}"><tl:loadingIcon/></div>
