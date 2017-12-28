@@ -389,7 +389,7 @@ select {padding: 5px; border: 1px solid #ccc; margin: 5px 0; width:507px;}
 input[type=text] {padding: 5px; width:500px;border: 1px solid #ccc; margin: 5px 0;}
 input[type=checkbox] {padding-left:2px;}
 textarea {width:500px;padding: 5px; margin: 5px 0; resize: vertical;}
-input[type=text].dateInput {width:200px; }
+input[type=text].dateInput {width:100px; display:inline-block;}
 input[readonly]{background-color:#f0f0f0;}
 
 #truncate {
@@ -450,6 +450,8 @@ input[readonly]{background-color:#f0f0f0;}
 	font-style:italic;
 	float:left;
 	margin-top:5px;
+	overflow-wrap: break-word; 
+	word-wrap: break-word;
 }
 
 .sidebarPageCounter {
@@ -606,3 +608,7 @@ input[readonly]{background-color:#f0f0f0;}
     border-color: transparent transparent #6f6f6f transparent;
 }
 
+.rightOfInput {
+	 display:inline-block;
+	 margin-top:3px;
+}

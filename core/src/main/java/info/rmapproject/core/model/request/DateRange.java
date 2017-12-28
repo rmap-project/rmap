@@ -23,6 +23,10 @@ import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.utils.DateUtils;
 
+import static info.rmapproject.core.utils.DateUtils.isValidDate;
+import static info.rmapproject.core.utils.DateUtils.getDateFromString;
+import static info.rmapproject.core.utils.DateUtils.getDateFromIsoString;
+
 import java.text.ParseException;
 import java.util.Date;
 
@@ -70,8 +74,9 @@ public class DateRange {
 	}
 	
 	/**
-	 * Converts a date passed as yyyyMMddhhmmss as a string into a java Date. e.g. 20160115180000 -> 2016-01-15 6:00:00PM as date
-	 * Supports either date only or datetime
+	 * Converts a date passed as a string into a java Date. String formats supported are:
+	 * yyyyMMdd, yyyy-MM-dd, yyyyMMddhhmmss, or yyyy-MM-dd'T'HH:mm:ss.SSS'Z'. Where only dates are provided, 
+	 * the time will be set to 00:00:00.000 for from dates, and 23:59:59.999 for to dates
 	 *
 	 * @param sDate the date as a string
 	 * @param isFromDate true if the sDate is the from date
@@ -82,43 +87,40 @@ public class DateRange {
 	private Date convertStrDateToDate(String sDate, boolean isFromDate) throws RMapDefectiveArgumentException {
 		//if empty return null - null is acceptable value for this optional param
 		if(sDate == null || sDate.length()==0) {return null;}
+		String DAY_START_TIME = "T00:00:00.000Z";
+		String DAY_END_TIME = "T23:59:59.999Z";
+		String DAY_START_MS = ".000Z";
+		String DAY_END_MS = ".999Z";
+		String VALID_DATE_FORMAT_1 =  "yyyyMMdd";
+		String VALID_DATE_FORMAT_2 =  "yyyy-MM-dd";
+		String VALID_DATETIME_FORMAT = "yyyyMMddHHmmss";
 		
 		Date dDate = null;
-	
-		sDate = sDate.trim();
-				
-		// date can be yyyyMMdd or yyyyMMddhhmmss
-		if (sDate.length()== 8) { //it's a date! 
-			sDate = sDate.substring(0,4) + "-" + sDate.substring(4,6) + "-" + sDate.substring(6) ;
-			if (isFromDate){
-				sDate = sDate + "T00:00:00.000Z";
-			}
-			else {
-				sDate = sDate + "T23:59:59.999Z";
-			}
-		}
-		else if (sDate.length()== 14) { //it's a date and time! 
-			sDate = sDate.substring(0,4) 
-					+ "-" + sDate.substring(4,6) 
-					+ "-" + sDate.substring(6,8) 
-					+ "T" + sDate.substring(8,10) 
-					+ ":" + sDate.substring(10,12) 
-					+ ":" + sDate.substring(12,14);
-			if (isFromDate){
-				sDate = sDate + ".000Z";
-			}
-			else {
-				sDate = sDate + ".999Z";
-			}
-		}
-		else {
-			throw new RMapDefectiveArgumentException("Invalid date provided.  Date must be in the format yyyyMMdd or yyyyMMddhhmmss");
-		}
 
 		try {	
-			dDate = DateUtils.getDateFromIsoString(sDate);
+			sDate = sDate.trim();
+			// date can be yyyyMMdd, yyyy-MM-dd or yyyyMMddhhmmss
+			if (isValidDate(sDate, VALID_DATE_FORMAT_1)){
+				sDate = isFromDate ? (sDate + DAY_START_TIME) : (sDate +  DAY_END_TIME);
+				dDate = getDateFromString(sDate, VALID_DATE_FORMAT_1 + "'T'HH:mm:ss.SSS'Z'");
+				
+			} else if (isValidDate(sDate,VALID_DATETIME_FORMAT)) {
+				sDate = isFromDate ? (sDate + DAY_START_MS) : (sDate +  DAY_END_MS);
+				dDate = getDateFromString(sDate, VALID_DATETIME_FORMAT + ".SSS'Z'");			
+			
+			} else if (isValidDate(sDate, VALID_DATE_FORMAT_2)) {
+				sDate = isFromDate ? (sDate + DAY_START_TIME) : (sDate +  DAY_END_TIME);
+				dDate = getDateFromIsoString(sDate);			
+			
+			} else if (isValidDate(sDate, DateUtils.ISO8601)) {
+				dDate = getDateFromIsoString(sDate);			
+			
+			} else {
+				throw new RMapDefectiveArgumentException("Invalid date provided. Date must be in the format yyyyMMdd, yyyy-MM-dd, yyyyMMddhhmmss, or yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			}
+
 		} catch (ParseException ex) {
-			throw new RMapDefectiveArgumentException("Invalid date provided.  Date must be in the format yyyyMMdd or yyyyMMddhhmmss",ex);			
+			throw new RMapDefectiveArgumentException("Invalid date provided. Date must be in the format yyyyMMdd, yyyy-MM-dd, yyyyMMddhhmmss, or yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", ex);			
 		}
 		
 		return dDate;

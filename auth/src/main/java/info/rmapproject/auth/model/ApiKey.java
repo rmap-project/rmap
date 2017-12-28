@@ -75,11 +75,11 @@ public class ApiKey {
 	private KeyStatus keyStatus;
 	
 	/**The start date from which the key is valid. If the key is used before this date it will not work */
-	@DateTimeFormat(pattern = "MM/dd/yyyy")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date startDate;
 	
 	/**The end date for the key after which the key is no longer valid.  If the key is used after this date it will not work*/
-	@DateTimeFormat(pattern = "MM/dd/yyyy")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date endDate;
 	
 	/** The date the key was created*. */
