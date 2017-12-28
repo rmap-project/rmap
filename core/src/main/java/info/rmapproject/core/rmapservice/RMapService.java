@@ -116,12 +116,12 @@ public interface RMapService {
 	 * Determine what types are associated with a given resource within a specific DiSCO
 	 *
 	 * @param resourceUri URI for resource whose type is being checked
-	 * @param discoUri the URI of the DiSCO
+	 * @param contextUri the URI of the DiSCO, Event, or Agent to filter types by
 	 * @return Set of URIs indicating resource type(s)
 	 * @throws RMapException an RMapException
 	 * @throws RMapDefectiveArgumentException an RMap defective argument exception
 	 */
-	public List<URI> getResourceRdfTypesInDiSCO(URI resourceUri, URI discoUri) throws RMapException, RMapDefectiveArgumentException;
+	public List<URI> getResourceRdfTypesInContext(URI resourceUri, URI contextUri) throws RMapException, RMapDefectiveArgumentException;
 	
 	/**
 	 * Determine what types are associated with a given resource in any DiSCO.

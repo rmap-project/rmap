@@ -179,7 +179,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		}
 		
 		if (WebappUtils.isUri(discoDTO.getProviderId())) {
-			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(new URI(discoDTO.getProviderId()), discoDTO.getUri());
+			List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(new URI(discoDTO.getProviderId()), discoDTO.getUri());
 			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
 			graph.addEdge(sDiscoUri, discoDTO.getProviderId(), RMAP.PROVIDERID.toString(), discoNodeType, targetNodeType);
 		}
@@ -187,7 +187,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		
 		for (URI aggregate : discoDTO.getAggregatedResources()) {
-			List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(aggregate, discoDTO.getUri());
+			List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(aggregate, discoDTO.getUri());
 			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
 			graph.addEdge(sDiscoUri, aggregate.toString(),Terms.ORE_AGGREGATES_PATH, discoNodeType, targetNodeType);
 		}
@@ -698,7 +698,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		if (contextUri==null){
 			return getResourceRDFTypes(resourceUri);
 		}
-		List<URI> rdfTypes = rmapService.getResourceRdfTypesInDiSCO(resourceUri, contextUri);
+		List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(resourceUri, contextUri);
 
 		return rdfTypes;
 	}	
