@@ -68,6 +68,7 @@ public enum RMapStatusFilter {
 	 * @return the status
 	 */
 	public static RMapStatusFilter getStatusFromTerm(String term){
+		if (term==null) {return null;}
 		for (RMapStatusFilter stat: RMapStatusFilter.values()){
 			String statTerm = stat.getStatusTerm();
 			if (statTerm.equals(term.toLowerCase())){

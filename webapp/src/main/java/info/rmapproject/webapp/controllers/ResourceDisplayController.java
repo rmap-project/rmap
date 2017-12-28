@@ -162,7 +162,6 @@ public class ResourceDisplayController {
 	@RequestMapping(value="/resources/{uri}/visual", method = RequestMethod.GET)
 	public String resourceVisualView(@PathVariable(value="uri") String reqUri, 
 				@RequestParam(value="resview", required=false) Integer resview, 
-				@RequestParam(value="offset", required=false) String sOffset,
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
 		
