@@ -29,10 +29,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Component;
+
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 
 /**
  * WebApp helper utilities
@@ -245,7 +246,7 @@ public class WebappUtils {
 	public static Boolean isUri(String str){
 	    try {
 	        new java.net.URI(str);
-	        //TODO: build a better URI checker that doesnt depend on openrdf implementation?
+	        //TODO: build a better URI checker that doesnt depend on RDF4J implementation?
 	        ORAdapter.getValueFactory().createIRI(str);
 	        return true;
 	    } catch (Exception e) {

@@ -24,8 +24,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.rio.RDFFormat;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -38,7 +38,7 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.TestUtils;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
@@ -61,7 +61,7 @@ public class IndexingConsumerIT extends AbstractSpringIndexingTest {
     private RMapService rMapService;
 
     @Autowired
-    private SesameTriplestore triplestore;
+    private Rdf4jTriplestore triplestore;
 
     @Value("${rmapcore.producer.topic}")
     private String topic;
@@ -125,7 +125,7 @@ public class IndexingConsumerIT extends AbstractSpringIndexingTest {
     /*
      * TODO refactor into sharable util method
      */
-    private static Map<RMapObjectType, Set<TestUtils.RDFResource>> populateTriplestore(SesameTriplestore triplestore,
+    private static Map<RMapObjectType, Set<TestUtils.RDFResource>> populateTriplestore(Rdf4jTriplestore triplestore,
                                                                                        RDFHandler rdfHandler,
                                                                                        RMapService rMapService,
                                                                                        String resourcePath)

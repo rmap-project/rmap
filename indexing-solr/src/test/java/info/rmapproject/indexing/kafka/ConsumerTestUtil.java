@@ -3,16 +3,16 @@ package info.rmapproject.indexing.kafka;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.agent.RMapAgent;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.testdata.service.TestConstants;
 import org.junit.Assert;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -115,7 +115,7 @@ public class ConsumerTestUtil {
      * @param outputStream
      * @throws Exception
      */
-    static void dumpTriplestore(SesameTriplestore triplestore, OutputStream outputStream) throws Exception {
+    static void dumpTriplestore(Rdf4jTriplestore triplestore, OutputStream outputStream) throws Exception {
         List<Statement> statements = triplestore.getStatementListBySPARQL("select ?s ?p ?o ?c where {GRAPH ?c {?s ?p ?o}}");
         statements.forEach(
                 statement -> {

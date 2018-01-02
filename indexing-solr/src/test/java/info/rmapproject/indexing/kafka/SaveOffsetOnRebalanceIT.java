@@ -38,8 +38,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.rio.RDFFormat;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -50,7 +50,7 @@ import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.TestUtils;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
@@ -73,7 +73,7 @@ public class SaveOffsetOnRebalanceIT extends AbstractSpringIndexingTest {
     private RMapService rMapService;
 
     @Autowired
-    private SesameTriplestore triplestore;
+    private Rdf4jTriplestore triplestore;
 
     @Value("${rmapcore.producer.topic}")
     private String topic;
@@ -398,7 +398,7 @@ public class SaveOffsetOnRebalanceIT extends AbstractSpringIndexingTest {
      * @param triplestore
      * @param rmapObjects
      */
-    private static void addTriplesFromResource(String baseURI, SesameTriplestore triplestore, Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects) {
+    private static void addTriplesFromResource(String baseURI, Rdf4jTriplestore triplestore, Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects) {
         rmapObjects.values().stream().flatMap(Set::stream)
                 .forEach(source -> {
                     try (InputStream in = source.getInputStream();

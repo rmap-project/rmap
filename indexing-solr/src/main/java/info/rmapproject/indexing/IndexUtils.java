@@ -11,7 +11,7 @@ import info.rmapproject.core.model.event.RMapEventUpdate;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 import java.net.URI;
 import java.util.Collection;
@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfIri2RMapIri;
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.uri2OpenRdfIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jIri2RMapIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 
 /**
@@ -245,11 +245,11 @@ public class IndexUtils {
     }
 
     public static IRI asIri(String uri) {
-        return uri2OpenRdfIri(create(uri));
+        return uri2Rdf4jIri(create(uri));
     }
 
     public static RMapIri asRmapIri(String uri) {
-        return openRdfIri2RMapIri(asIri(uri));
+        return rdf4jIri2RMapIri(asIri(uri));
     }
 
     /**

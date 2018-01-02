@@ -2,16 +2,16 @@ package info.rmapproject.indexing.solr.repository;
 
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import org.junit.Test;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static info.rmapproject.core.model.impl.openrdf.ORAdapter.openRdfStatement2RMapTriple;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jStatement2RMapTriple;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -124,7 +124,7 @@ public class SimpleDiscoMapperTest extends AbstractSpringIndexingTest {
                 valueFactory.createIRI("foo:b"),
                 valueFactory.createLiteral("bar"));
 
-        return openRdfStatement2RMapTriple(s);
+        return rdf4jStatement2RMapTriple(s);
     }
 
     /**
@@ -137,7 +137,7 @@ public class SimpleDiscoMapperTest extends AbstractSpringIndexingTest {
                 valueFactory.createIRI("foo:b"),
                 valueFactory.createBNode("bar"));
 
-        return openRdfStatement2RMapTriple(s);
+        return rdf4jStatement2RMapTriple(s);
     }
 
     /**
@@ -150,7 +150,7 @@ public class SimpleDiscoMapperTest extends AbstractSpringIndexingTest {
                 valueFactory.createIRI("foo:b"),
                 valueFactory.createLiteral("foo:bar"));
 
-        return openRdfStatement2RMapTriple(s);
+        return rdf4jStatement2RMapTriple(s);
     }
 
     /**
@@ -167,7 +167,7 @@ public class SimpleDiscoMapperTest extends AbstractSpringIndexingTest {
         parser.parse(new ByteArrayInputStream(doc.getDiscoRelatedStatements().get(0).getBytes()), "");
         assertEquals(1, statements.size());
 
-        return openRdfStatement2RMapTriple(statements.iterator().next());
+        return rdf4jStatement2RMapTriple(statements.iterator().next());
     }
 
     /**

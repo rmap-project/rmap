@@ -8,12 +8,12 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
+import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
 import info.rmapproject.indexing.IndexUtils;
 import info.rmapproject.indexing.solr.repository.IndexDTO;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.RDFFormat;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
@@ -316,9 +316,9 @@ public class TestUtils {
     public interface RDFResource extends Resource {
 
         /**
-         * The format of the resource, using the OpenRDF model.  Equivalent to {@link #getRmapFormat()}.
+         * The format of the resource, using the RDF4J model.  Equivalent to {@link #getRmapFormat()}.
          *
-         * @return the format of the resource in the OpenRDF model
+         * @return the format of the resource in the RDF4J model
          */
         RDFFormat getRdfFormat();
 
@@ -367,7 +367,7 @@ public class TestUtils {
         private Resource delegate;
 
         /**
-         * The OpenRDF RDF format
+         * The RDF4J RDF format
          */
         private RDFFormat format;
 
