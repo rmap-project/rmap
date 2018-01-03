@@ -71,7 +71,7 @@ public class AgentApiService {
 	}
 
 	/**
-	 * HEAD /agent
+	 * HEAD /agents
 	 * Returns Agent API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -82,10 +82,23 @@ public class AgentApiService {
     	Response response = getAgentResponseManager().getAgentServiceHead();
 	    return response;
     }
-    
 
 	/**
-	 * OPTIONS /agent
+	* GET /agents
+	* Returns link to Agent API information, and lists HTTP options.
+	*
+	* @return HTTP Response
+	* @throws RMapApiException the RMap API exception
+	*/
+    @GET
+    public Response getServiceInfo() throws RMapApiException {
+    	//TODO: for now returns same as options, but might want html response to describe API?
+    	Response response = getAgentResponseManager().getAgentServiceOptions();
+	    return response;
+    }
+
+	/**
+	 * OPTIONS /agents
 	 * Returns Agent API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -93,7 +106,7 @@ public class AgentApiService {
 	 */
     @OPTIONS
     public Response apiGetApiDetailedOptions() throws RMapApiException {
-    	Response response = getAgentResponseManager().getAgentServiceHead();
+    	Response response = getAgentResponseManager().getAgentServiceOptions();
 	    return response;
     }
     
@@ -108,7 +121,7 @@ public class AgentApiService {
  */
     
 	/**
- * GET /agent/{agentUri}
+ * GET /agents/{agentUri}
  * Returns requested RMap:Agent as RDF/XML, JSON-LD, Turtle or NQUADS.
  *
  * @param headers the HTTP request headers
@@ -137,7 +150,7 @@ public class AgentApiService {
  *-------------------------------
  */
  /**
- * HEAD /agent/{agentUri}
+ * HEAD /agents/{agentUri}
  * Returns status information for specific Agent as a HTTP response header. 
  * Includes event list, versions, and URI
  *
@@ -162,7 +175,7 @@ public class AgentApiService {
  */
     
 	/**
- * GET /agent/{agentUri}/events
+ * GET /agents/{agentUri}/events
  * Returns list of RMap:Event URIs related to the Agent URI as JSON or PLAINTEXT.
  *
  * @param headers the HTTP request headers
@@ -185,7 +198,7 @@ public class AgentApiService {
     
    
 	/**
-	 * GET /agent/{agentUri}/discos
+	 * GET /agents/{agentUri}/discos
 	 * Returns list of URIs for RMap:DiSCOs that were created by the Agent URI as JSON or PLAINTEXT.
 	 *
 	 * @param headers the HTTP request headers

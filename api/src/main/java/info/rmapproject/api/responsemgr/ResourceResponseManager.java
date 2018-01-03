@@ -80,7 +80,7 @@ public class ResourceResponseManager extends ResponseManager {
 		Response response = null;
 		try {				
 			response = Response.status(Response.Status.OK)
-					.entity("{\"description\":\"Follow header link to read documentation.\"}")
+					.entity("{\"description\":\"" + pathUtils.getDocumentationPath() + "\"}")
 					.allow(HttpMethod.HEAD,HttpMethod.OPTIONS,HttpMethod.GET)
 					.link(pathUtils.getDocumentationPath(),LinkRels.DC_DESCRIPTION)	
 					.build();
