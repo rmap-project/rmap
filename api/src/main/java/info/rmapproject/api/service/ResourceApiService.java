@@ -82,7 +82,7 @@ public class ResourceApiService {
  *-------------------------------
  */	
 	/**
-	 * GET /resource
+	 * GET /resources
 	 * Returns link to Resource API information, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -97,7 +97,7 @@ public class ResourceApiService {
         
 
 	/**
-	 * HEAD /resource
+	 * HEAD /resources
 	 * Returns Resource API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -111,7 +111,7 @@ public class ResourceApiService {
     
 
 	/**
-	 * OPTIONS /resource
+	 * OPTIONS /resources
 	 * Returns Resource API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -125,7 +125,7 @@ public class ResourceApiService {
     }   
 
 	/**
-	 * GET /resource/{resourceUri}/events[?agents={agentsCsv}&from={dateFrom}&until={dateTo}]
+	 * GET /resources/{resourceUri}/events[?agents={agentsCsv}&from={dateFrom}&until={dateTo}]
 	 * Returns list of all RMap:Event URIs related to the rdfs:Resource URI as JSON or PLAIN TEXT.
 	 *
 	 * @param headers the HTTP request headers
@@ -147,7 +147,7 @@ public class ResourceApiService {
     }
 		
 	/**
-	 * GET /resource/{resourceUri}/agents[?agents={agentsCsv}&from={dateFrom}&until={dateTo}]
+	 * GET /resources/{resourceUri}/agents[?agents={agentsCsv}&from={dateFrom}&until={dateTo}]
 	 * Returns list of all RMap:Agent URIs related to the rdfs:Resource URI as JSON or PLAIN TEXT.
 	 *
 	 * @param headers the HTTP request headers
@@ -169,7 +169,7 @@ public class ResourceApiService {
     }
     
 	/**
-	 * GET /resource/{resourceUri}/discos[?status={status}&agents={agentsCsv}&from={dateFrom}&until={dateTo}]
+	 * GET /resources/{resourceUri}/discos[?status={status}&agents={agentsCsv}&from={dateFrom}&until={dateTo}]
 	 * Returns list of all RMap:DiSCO URIs related to the rdfs:Resource URI as JSON or PLAIN TEXT.
 	 *
 	 * @param headers the HTTP request headers

@@ -42,6 +42,7 @@
 	
     <jaxrs:server id="services" address="/">
         <jaxrs:serviceBeans>
+            <bean class="info.rmapproject.api.service.RootApiService"/>   
             <bean class="info.rmapproject.api.service.DiSCOApiService"/>   
             <bean class="info.rmapproject.api.service.EventApiService"/>   
             <bean class="info.rmapproject.api.service.AgentApiService"/>   

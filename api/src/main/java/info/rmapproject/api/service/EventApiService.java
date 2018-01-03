@@ -76,7 +76,7 @@ public class EventApiService {
  *-------------------------------
  */	
 	/**
- * GET /event
+ * GET /events
  * Returns link to Event API information, and lists HTTP options.
  *
  * @return HTTP Response
@@ -91,7 +91,7 @@ public class EventApiService {
     
 
 	/**
-	 * HEAD /event
+	 * HEAD /events
 	 * Returns Event API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -105,7 +105,7 @@ public class EventApiService {
     
 
 	/**
-	 * OPTIONS /event
+	 * OPTIONS /events
 	 * Returns Event API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -126,7 +126,7 @@ public class EventApiService {
  *-------------------------------
  */
 	/**
-	 * GET /event/{eventUri}
+	 * GET /events/{eventUri}
 	 * Returns requested RMap:Event as RDF/XML, JSON-LD, NQUADS, TURTLE.
 	 *
 	 * @param headers the HTTP request headers
@@ -159,7 +159,7 @@ public class EventApiService {
     
     
 	/**
-	 * GET /event/{eventUri}/discos
+	 * GET /events/{eventUri}/discos
 	 * Returns list of RMap:Statement URIs related to the RMap:Event URI as TEXT or JSON.
 	 *
 	 * @param headers the HTTP request headers
@@ -177,7 +177,7 @@ public class EventApiService {
     }
 
 	/**
-	 * GET /event/{eventUri}/agents
+	 * GET /events/{eventUri}/agents
 	 * Returns list of RMap:Statement URIs related to the RMap:Event URI as TEXT or JSON.
 	 *
 	 * @param headers the HTTP request headers
@@ -195,7 +195,7 @@ public class EventApiService {
     }
 
 	/**
-	 * GET /event/{eventUri}/resources
+	 * GET /events/{eventUri}/resources
 	 * Returns list of rdfs:Resource URIs related to the RMap:Event URI as TEXT or JSON.
 	 *
 	 * @param headers the HTTP request headers

@@ -84,7 +84,7 @@ public class DiSCOApiService {
 
     
 	/**
-	 * HEAD /disco
+	 * HEAD /discos
 	 * Returns DiSCO API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -97,7 +97,7 @@ public class DiSCOApiService {
     }
     
 	/**
-	* GET /disco
+	* GET /discos
 	* Returns link to DiSCO API information, and lists HTTP options.
 	*
 	* @return HTTP Response
@@ -112,7 +112,7 @@ public class DiSCOApiService {
     
 
 	/**
-	 * OPTIONS /disco
+	 * OPTIONS /discos
 	 * Returns DiSCO API information/link, and lists HTTP options.
 	 *
 	 * @return HTTP Response
@@ -136,7 +136,7 @@ public class DiSCOApiService {
     
 
 	/**
-	 * GET /disco/{discoUri}
+	 * GET /discos/{discoUri}
 	 * Returns requested RMap:DiSCO as RDF/XML, NQUADS, TURTLE or JSON-LD.
 	 *
 	 * @param header the HTTP request headers
@@ -167,7 +167,7 @@ public class DiSCOApiService {
  */
 
 	/**
- * GET /disco/{discoUri}/latest
+ * GET /discos/{discoUri}/latest
  * When successful, this returns the location of the latest version of the DiSCO as a 302 Found response
  *
  * @param header the HTTP request headers
@@ -198,7 +198,7 @@ public class DiSCOApiService {
 	 *-------------------------------
 	 */
      /**
-	 * HEAD /disco/{discoUri}
+	 * HEAD /discos/{discoUri}
 	 * Returns status information for specific DiSCO as a HTTP response header. 
 	 * Includes event list, versions, and URI
 	 *
@@ -223,7 +223,7 @@ public class DiSCOApiService {
  */ 
     
 	/**
- * POST /disco/
+ * POST /discos/
  * Creates new DiSCO from RDF/XML, JSON-LD or TURTLE.
  *
  * @param header the HTTP request headers
@@ -253,7 +253,7 @@ public class DiSCOApiService {
  */ 
 
 	/**
- * POST /disco/{discoid}
+ * POST /discos/{discoid}
  * Sets original DiSCO as inactive and creates a new DiSCO from RDF/XML, JSON-LD or TURTLE.
  *
  * @param header the HTTP request headers
@@ -285,7 +285,7 @@ public class DiSCOApiService {
  */
     
 	/**
- * GET /disco/{discoUri}/events
+ * GET /discos/{discoUri}/events
  * Returns list of RMap:Event URIs related to the DiSCO URI as JSON or PLAINTEXT.
  *
  * @param header the HTTP request headers
@@ -312,7 +312,7 @@ public class DiSCOApiService {
  */
     
   /**
-  * DELETE /disco/{discoUri}
+  * DELETE /discos/{discoUri}
   * Sets status of target RMap:DiSCO to "tombstoned".  It will still be stored in the triplestore
   * but won't be visible through the API.
   *
@@ -328,7 +328,7 @@ public class DiSCOApiService {
     }
 
 	/**
-	 * POST /disco/{discoUri}/inactivate
+	 * POST /discos/{discoUri}/inactivate
 	 * Sets status of target RMap:DiSCO to "inactive".  It will still be stored in the triplestore
 	 * and will still be visible through the API for certain requests.
 	 *
@@ -352,7 +352,7 @@ public class DiSCOApiService {
  */
     
 	/**
- * GET /disco/{discoUri}/allversions
+ * GET /discos/{discoUri}/allversions
  * Returns list of all RMap:DiSCO version URIs as JSON or PLAIN TEXT.
  *
  * @param header the HTTP request headers
@@ -371,7 +371,7 @@ public class DiSCOApiService {
     
     
 	/**
-	 * GET /disco/{discoUri}/agentversions
+	 * GET /discos/{discoUri}/agentversions
 	 * Returns list of discoUri agent's RMap:DiSCO version URIs as JSON.
 	 *
 	 * @param header the HTTP request headers
@@ -389,7 +389,7 @@ public class DiSCOApiService {
     }
     
 	/**
-	 * GET /disco/{discoUri}/timemap
+	 * GET /discos/{discoUri}/timemap
 	 * Based on Memento standard, returns the DiSCO timemap version list with dates
 	 * This is presented as a list of link rels in the body of the response and 
 	 * relevant Memento links in the header.
