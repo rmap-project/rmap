@@ -38,6 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import info.rmapproject.webapp.WebTestAbstract;
+import info.rmapproject.webapp.controllers.SitePropertiesToModelInterceptor;
 import info.rmapproject.webapp.utils.SiteProperties;
 
 /**

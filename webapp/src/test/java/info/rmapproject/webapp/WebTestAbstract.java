@@ -19,16 +19,13 @@
  *******************************************************************************/
 package info.rmapproject.webapp;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
 
 /**
  * Class for other test classes to inherit from. There are several annotations and settings required 
@@ -40,32 +37,25 @@ import org.springframework.web.servlet.view.JstlView;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles({"default", "inmemory-triplestore", "inmemory-idservice", "inmemory-db", "embedded-solr", "mock-kafka"})
-@ContextConfiguration({"classpath*:/servlet-context.xml","classpath*:/rmap-indexing-solr.xml", "classpath*:/rmap-kafka-shared-test.xml"})
+@ContextConfiguration({"classpath*:/servlet-context.xml", "classpath*:/rmap-kafka-shared-test.xml"})
 public abstract class WebTestAbstract {
 
 	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
-	private static boolean activeProfilesPreSet = System.getProperties().containsKey(SPRING_ACTIVE_PROFILE_PROP);
-	
-	@BeforeClass
-	public static void setUpSpringProfiles() {
-		if (!activeProfilesPreSet) {
-			System.setProperty("spring.profiles.active", "default,inmemory-db,inmemory-idservice,inmemory-triplestore,embedded-solr,mock-kafka");
-		}
-	}
-	
-	@AfterClass
-	public static void resetSpringProfiles() throws Exception {
-		if (!activeProfilesPreSet) {
-			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
-		}
-	}
+	protected static boolean thisClassSetProfilesProperty = false;
 
-	protected InternalResourceViewResolver getViewResolver() {  
-	    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-	    viewResolver.setViewClass(JstlView.class);
-	    viewResolver.setPrefix("/WEB-INF/jsp/");
-	    viewResolver.setSuffix(".jsp");
-	    return viewResolver;
-	}
+	@Before
+    public void setUp() throws Exception {
+        if (System.getProperty(SPRING_ACTIVE_PROFILE_PROP) == null) {
+            System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default, inmemory-db, inmemory-triplestore, inmemory-idservice, embedded-solr, mock-kafka");
+            thisClassSetProfilesProperty = true;
+        }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (thisClassSetProfilesProperty) {
+            System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
+        }
+    }
 	
 }

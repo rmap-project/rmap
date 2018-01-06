@@ -19,11 +19,17 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service;
 
+import static info.rmapproject.webapp.TestUtils.getRMapDiSCOObj;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -40,10 +46,6 @@ import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
-import info.rmapproject.indexing.solr.repository.DiscoRepository;
-import info.rmapproject.indexing.solr.repository.DiscosIndexer;
-import info.rmapproject.indexing.solr.repository.IndexDTO;
-import info.rmapproject.indexing.solr.repository.IndexDTOMapper;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
@@ -66,16 +68,12 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 
 	@Autowired
 	private RMapSearchParamsFactory paramsFactory;	
-	
-    @Autowired
-    private DiscoRepository discoRepository;
 
 	@Autowired
-	private DiscosIndexer discosIndexer;
+	private GraphFactory graphFactory;
 
-    @Autowired
-    private IndexDTOMapper mapper;	
-	
+	@Autowired
+	private TripleDisplayFormatFactory tripleDisplayFormatFactory;
 	
 	/**
 	 * Basic check that AgentDTO retreival does not result in errors.
@@ -298,7 +296,6 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 	 */
 	@Test
 	public void testDiSCOGraphData() throws Exception {
-	
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
 		rmapService.createDiSCO(disco, reqEventDetails);
 		String discoUri = disco.getId().toString();
@@ -342,23 +339,23 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		assertEquals(3,resdes.getPropertyValues().size());
 	}
 	
+
 	/**
-	 * Basic check on retrieval of Resource's graph data. Includes checks for retrieval of type and label.
+	 * Basic check on retrieval of Resource's graph data. Includes checks for retrieval of type.
+	 * Label search in solr is mocked.
 	 * @throws Exception
 	 */
 	@Test
 	public void testResourceGraphData() throws Exception {
-	
-		discoRepository.deleteAll();    	   
-		assertEquals(0, discoRepository.count());
-        
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
-		RMapEvent event = rmapService.createDiSCO(disco, reqEventDetails);
+		rmapService.createDiSCO(disco, reqEventDetails);
 		
-		//index the disco since labels depend on the index
-        IndexDTO indexDto = new IndexDTO(event, this.sysagent, null, disco);
-        discosIndexer.index(mapper.apply(indexDto));
-        assertEquals(1, discoRepository.count());
+		//we need to spy on searchService to avoid call to solr, so invent label list.
+		List<String> lstLabels = new ArrayList<String>();
+		lstLabels.add("pretend label");
+		SearchService searchService = mock(SearchService.class);
+		DataDisplayService dataDisplayService = new DataDisplayServiceImpl(this.rmapService, searchService, this.graphFactory, this.tripleDisplayFormatFactory);
+		when(searchService.getLabelListForResource(any(), any(), any())).thenReturn(lstLabels);
 		
 		RMapSearchParams params = paramsFactory.newInstance();
 		params.setOffset(0);
@@ -366,17 +363,107 @@ public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
 		
 		ResultBatch<RMapTriple> batch = dataDisplayService.getResourceBatch(TestConstants.TEST_DISCO_DOI, params, PaginatorType.RESOURCE_GRAPH);
 		Graph graph = dataDisplayService.getResourceGraph(batch, params);
-				
-		assertTrue(graph!=null);
 		
+		assertTrue(graph!=null);		
 		assertTrue(graph.getNodes().containsKey(TestConstants.TEST_DISCO_DOI));
 		assertEquals("Text",graph.getNodes().get(TestConstants.TEST_DISCO_DOI).getType());
-		assertEquals("Made up article about GPUs", graph.getNodes().get(TestConstants.TEST_DISCO_DOI).getLabel());
+		assertEquals("pretend label", graph.getNodes().get(TestConstants.TEST_DISCO_DOI).getLabel());
 		assertEquals(10,graph.getEdges().size());
-	}
-	
-	
+	}	
 	
 
+	/**
+	 * Basic check that the most frequent label is selected from list of strings.
+	 * Label search in solr is mocked.
+	 * @throws Exception
+	 */
+	@Test
+	public void testResourceLabelSelectsMostFrequent() throws Exception {
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		rmapService.createDiSCO(disco, reqEventDetails);
+		
+		//we need to spy on searchService to avoid call to solr, so invent label list.
+		List<String> lstLabels = new ArrayList<String>();
+		lstLabels.add("The right label");
+		lstLabels.add("The wrong label");
+		lstLabels.add("Another wrong label");
+		lstLabels.add("The right label");
+		lstLabels.add("The wrong label");
+		lstLabels.add("The right label");
+				
+		SearchService searchService = mock(SearchService.class);
+		DataDisplayService dataDisplayService = new DataDisplayServiceImpl(this.rmapService, searchService, this.graphFactory, this.tripleDisplayFormatFactory);
+		when(searchService.getLabelListForResource(any(), any(), any())).thenReturn(lstLabels);
+		
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setOffset(0);
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		
+		String label = dataDisplayService.getResourceLabel("http://doi.org/10.fakeout", params);
+		
+		assertEquals("The right label", label);
+	}	
 	
+
+	/**
+	 * Basic check that the first matching label is selected from list of strings where they all occur at same frequency
+	 * Label search in solr is mocked.
+	 * @throws Exception
+	 */
+	@Test
+	public void testResourceLabelSelectsFirstMatch() throws Exception {
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		rmapService.createDiSCO(disco, reqEventDetails);
+		
+		//we need to spy on searchService to avoid call to solr, so invent label list.
+		List<String> lstLabels = new ArrayList<String>();
+		lstLabels.add("The right label");
+		lstLabels.add("The wrong label");
+		lstLabels.add("Another wrong label");
+		lstLabels.add("Fourth wrong label");
+		lstLabels.add("Final wrong label");
+				
+		SearchService searchService = mock(SearchService.class);
+		DataDisplayService dataDisplayService = new DataDisplayServiceImpl(this.rmapService, searchService, this.graphFactory, this.tripleDisplayFormatFactory);
+		when(searchService.getLabelListForResource(any(), any(), any())).thenReturn(lstLabels);
+		
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setOffset(0);
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		
+		String label = dataDisplayService.getResourceLabel("http://doi.org/10.fakeout", params);
+		
+		assertEquals("The right label", label);
+	}	
+	
+
+	/**
+	 * Checks that isResourceInRMap will return false when a resource of that uri does not exist, or 
+	 * true if it does.
+	 * @throws Exception
+	 */
+	@Test
+	public void testIsResourceInRMap() throws Exception {
+		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOA_XML);
+		rmapService.createDiSCO(disco, reqEventDetails);
+
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setOffset(0);
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
+		
+		Boolean hasExactMatch = dataDisplayService.isResourceInRMap(TestConstants.TEST_DISCO_DOI, params);
+		assertTrue(hasExactMatch);
+
+		hasExactMatch = dataDisplayService.isResourceInRMap("not a resource", params);
+		assertFalse(hasExactMatch);
+
+		hasExactMatch = dataDisplayService.isResourceInRMap("http://notaresource.example", params);
+		assertFalse(hasExactMatch);
+		
+		
+	}	
+	
+	
+	
+		
 }
