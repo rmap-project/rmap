@@ -183,6 +183,14 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-indexing-solr</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <profiles>
