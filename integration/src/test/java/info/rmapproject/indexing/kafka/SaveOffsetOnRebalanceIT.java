@@ -51,14 +51,13 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.TestUtils;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import info.rmapproject.indexing.solr.repository.DiscoRepository;
 import info.rmapproject.kafka.shared.SpringKafkaConsumerFactory;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-public class SaveOffsetOnRebalanceIT extends AbstractSpringIndexingTest {
+public class SaveOffsetOnRebalanceIT extends BaseKafkaIT {
 
     @Autowired
     private IndexingConsumer indexer;
@@ -123,7 +122,6 @@ public class SaveOffsetOnRebalanceIT extends AbstractSpringIndexingTest {
      * Using the {@link #triplestoreInitialized} flag allows the expensive operations surrounding triplestore
      * initialization to happen only once for this test class.
      */
-    @Override
     @Before
     public void setUp() throws Exception {
         existingDocumentCount = discoRepository.count();
