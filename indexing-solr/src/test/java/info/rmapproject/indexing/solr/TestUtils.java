@@ -84,11 +84,11 @@ public class TestUtils {
         File baseDir = null;
         try {
             baseDir = new File(base.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Could not convert " + base.toString() + " to a URI: " + e.getMessage(), e);
+        } catch (URISyntaxException|IllegalArgumentException e) {
+            throw new RuntimeException("Could not convert '" + base.toString() + "' to a URI: " + e.getMessage(), e);
         }
-        assertTrue("Directory " + baseDir + " does not exist.", baseDir.exists());
-        assertTrue(baseDir + " must be a directory.", baseDir.isDirectory());
+        assertTrue("Directory '" + baseDir + "' does not exist.", baseDir.exists());
+        assertTrue("'" + baseDir + "' must be a directory.", baseDir.isDirectory());
 
         RDFType type;
 
