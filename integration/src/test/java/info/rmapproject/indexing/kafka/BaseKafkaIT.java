@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles({"default", "integration-db", "inmemory-idservice", "integration-triplestore", "http-solr", "prod-kafka"})
 @ContextConfiguration({"classpath*:/rmap-indexing-solr.xml", "classpath*:/spring-rmapcore-context.xml", "classpath*:/rmap-kafka-shared-test.xml", "classpath*:/spring-rmapauth-context.xml"})
-public class BaseKafkaIT {
+public abstract class BaseKafkaIT {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseKafkaIT.class);
 
