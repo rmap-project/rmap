@@ -1,9 +1,10 @@
 package info.rmapproject.indexing.kafka;
 
 import static info.rmapproject.indexing.IndexUtils.EventDirection.TARGET;
+import static info.rmapproject.indexing.TestUtils.createSystemAgent;
+import static info.rmapproject.indexing.TestUtils.getRmapObjects;
+import static info.rmapproject.indexing.TestUtils.getRmapResources;
 import static info.rmapproject.indexing.kafka.ConsumerTestUtil.assertExceptionHolderEmpty;
-import static info.rmapproject.indexing.solr.TestUtils.getRmapObjects;
-import static info.rmapproject.indexing.solr.TestUtils.getRmapResources;
 import static java.util.Comparator.comparing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,11 +36,11 @@ import java.util.stream.Collectors;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.rio.RDFFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -51,7 +52,8 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.indexing.solr.TestUtils;
+
+import info.rmapproject.indexing.TestUtils.RDFResource;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import info.rmapproject.indexing.solr.repository.DiscoRepository;
 import info.rmapproject.kafka.shared.SpringKafkaConsumerFactory;
@@ -127,11 +129,11 @@ public class SaveOffsetOnRebalanceIT extends BaseKafkaIT {
         existingDocumentCount = discoRepository.count();
 
         if (!triplestoreInitialized) {
-            RMapAgent systemAgent = ConsumerTestUtil.createSystemAgent(rMapService);
+            RMapAgent systemAgent = createSystemAgent(rMapService);
             systemAgentEventDetails = new RequestEventDetails(systemAgent.getId().getIri());
 
             // Get some Rmap objects from the filesystem, and put them in the triplestore
-            Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects = new HashMap<>();
+            Map<RMapObjectType, Set<RDFResource>> rmapObjects = new HashMap<>();
             getRmapResources("/data/discos/rmd18mddcw", rdfHandler, RDFFormat.NQUADS, rmapObjects);
             assertFalse(rmapObjects.isEmpty());
 
@@ -396,7 +398,7 @@ public class SaveOffsetOnRebalanceIT extends BaseKafkaIT {
      * @param triplestore
      * @param rmapObjects
      */
-    private static void addTriplesFromResource(String baseURI, Rdf4jTriplestore triplestore, Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects) {
+    private static void addTriplesFromResource(String baseURI, Rdf4jTriplestore triplestore, Map<RMapObjectType, Set<RDFResource>> rmapObjects) {
         rmapObjects.values().stream().flatMap(Set::stream)
                 .forEach(source -> {
                     try (InputStream in = source.getInputStream();
@@ -417,7 +419,7 @@ public class SaveOffsetOnRebalanceIT extends BaseKafkaIT {
      *
      * @param rmapObjects map of test objects that may contain agents
      */
-    private void createAgents(Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects) {
+    private void createAgents(Map<RMapObjectType, Set<RDFResource>> rmapObjects) {
         List<RMapAgent> agents = getRmapObjects(rmapObjects, RMapObjectType.AGENT, rdfHandler);
         assertNotNull(agents);
         assertTrue(agents.size() > 0);

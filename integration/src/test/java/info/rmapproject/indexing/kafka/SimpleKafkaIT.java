@@ -39,7 +39,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static info.rmapproject.indexing.solr.TestUtils.prepareIndexableDtos;
+import static info.rmapproject.indexing.TestUtils.prepareIndexableDtos;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

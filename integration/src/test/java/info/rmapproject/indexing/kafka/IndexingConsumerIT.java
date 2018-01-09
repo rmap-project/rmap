@@ -1,42 +1,32 @@
 package info.rmapproject.indexing.kafka;
 
 import static info.rmapproject.indexing.IndexUtils.EventDirection.TARGET;
+import static info.rmapproject.indexing.TestUtils.getRmapObjects;
+import static info.rmapproject.indexing.TestUtils.populateTriplestore;
 import static info.rmapproject.indexing.kafka.ConsumerTestUtil.assertExceptionHolderEmpty;
-import static info.rmapproject.indexing.kafka.ConsumerTestUtil.createSystemAgent;
 import static info.rmapproject.indexing.kafka.ConsumerTestUtil.newConsumerRunnable;
-import static info.rmapproject.indexing.solr.TestUtils.getRmapObjects;
-import static info.rmapproject.indexing.solr.TestUtils.getRmapResources;
 import static java.util.Comparator.comparing;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.rio.RDFFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 
+import info.rmapproject.indexing.TestUtils.RDFResource;
 import info.rmapproject.core.model.RMapObjectType;
-import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.indexing.solr.TestUtils;
+
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import info.rmapproject.indexing.solr.repository.DiscoRepository;
 
@@ -73,7 +63,7 @@ public class IndexingConsumerIT extends BaseKafkaIT {
         assertEquals(0, discoRepository.count());
 
         // Get some RMap objects from the filesystem, and put them in the triplestore
-        Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects =
+        Map<RMapObjectType, Set<RDFResource>> rmapObjects =
                 populateTriplestore(triplestore, rdfHandler, rMapService, "/data/discos/rmd18mddcw");
 
         // Produce some events, so they're waiting for the consumer when it starts.
@@ -119,56 +109,6 @@ public class IndexingConsumerIT extends BaseKafkaIT {
         assertTrue(activeDocument.getKafkaOffset() > -1);
         assertTrue(activeDocument.getKafkaPartition() > -1);
         assertNotNull(activeDocument.getKafkaTopic());
-    }
-
-    /*
-     * TODO refactor into sharable util method
-     */
-    private static Map<RMapObjectType, Set<TestUtils.RDFResource>> populateTriplestore(Rdf4jTriplestore triplestore,
-                                                                                       RDFHandler rdfHandler,
-                                                                                       RMapService rMapService,
-                                                                                       String resourcePath)
-            throws Exception {
-        Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects = new HashMap<>();
-        getRmapResources(resourcePath,rdfHandler, RDFFormat.NQUADS, rmapObjects);
-        assertFalse(rmapObjects.isEmpty());
-
-        RMapAgent systemAgent = createSystemAgent(rMapService);
-        RequestEventDetails requestEventDetails = new RequestEventDetails(systemAgent.getId().getIri());
-
-        List<RMapAgent> agents = getRmapObjects(rmapObjects, RMapObjectType.AGENT, rdfHandler);
-        assertNotNull(agents);
-        assertTrue(agents.size() > 0);
-        LOG.debug("Creating {} agents", agents.size());
-        agents.forEach(agent -> {
-            try {
-                rMapService.createAgent(agent, requestEventDetails);
-            } catch (Exception e) {
-                LOG.debug("Error creating agent {}: {}", agent.getId().getStringValue(), e.getMessage(), e);
-            }
-        });
-
-        // Print out the triplestore contents to stderr
-//        System.err.println("Dump one:");
-//        dumpTriplestore(triplestore, new PrintStream(System.err, true));
-
-        rmapObjects.values().stream().flatMap(Set::stream)
-                .forEach(source -> {
-                    try (InputStream in = source.getInputStream();
-                         RepositoryConnection c = triplestore.getConnection();
-                    ) {
-                        assertTrue(c.isOpen());
-                        c.add(in, "http://foo/bar", source.getRdfFormat());
-                    } catch (IOException e) {
-                        e.printStackTrace(System.err);
-                        fail("Unexpected IOException");
-                    }
-                });
-
-//        System.err.println("Dump two:");
-//        dumpTriplestore(triplestore, new PrintStream(System.err, true));
-
-        return rmapObjects;
     }
 
 }

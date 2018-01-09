@@ -3,7 +3,9 @@ package info.rmapproject.indexing.solr.repository;
 import static info.rmapproject.core.model.RMapStatus.ACTIVE;
 import static info.rmapproject.core.model.RMapStatus.INACTIVE;
 import static info.rmapproject.core.model.RMapStatus.TOMBSTONED;
-import static info.rmapproject.indexing.solr.TestUtils.prepareIndexableDtos;
+import static info.rmapproject.indexing.TestUtils.prepareIndexableDtos;
+import static info.rmapproject.indexing.TestUtils.getRmapObjects;
+import static info.rmapproject.indexing.TestUtils.getRmapResources;
 import static info.rmapproject.indexing.solr.repository.MappingUtils.tripleToRDF;
 import static java.lang.Long.parseLong;
 import static org.junit.Assert.assertEquals;
@@ -43,6 +45,7 @@ import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.lang.Nullable;
+import info.rmapproject.indexing.TestUtils.RDFResource;
 
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
@@ -56,7 +59,6 @@ import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.indexing.IndexUtils;
 import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
-import info.rmapproject.indexing.solr.TestUtils;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 
 /**
@@ -98,14 +100,14 @@ public class SimpleSolrIT extends BaseKafkaIT {
         discoRepository.deleteAll();
         assertEquals(0, discoRepository.count());
 
-        Consumer<Map<RMapObjectType, Set<TestUtils.RDFResource>>> assertions = (resources) -> {
-            List<RMapDiSCO> discos = TestUtils.getRmapObjects(resources, RMapObjectType.DISCO, rdfHandler);
+        Consumer<Map<RMapObjectType, Set<RDFResource>>> assertions = (resources) -> {
+            List<RMapDiSCO> discos = getRmapObjects(resources, RMapObjectType.DISCO, rdfHandler);
             assertEquals(3, discos.size());
 
-            List<RMapEvent> events = TestUtils.getRmapObjects(resources, RMapObjectType.EVENT, rdfHandler);
+            List<RMapEvent> events = getRmapObjects(resources, RMapObjectType.EVENT, rdfHandler);
             assertEquals(3, events.size());
 
-            List<RMapAgent> agents = TestUtils.getRmapObjects(resources, RMapObjectType.AGENT, rdfHandler);
+            List<RMapAgent> agents = getRmapObjects(resources, RMapObjectType.AGENT, rdfHandler);
             assertEquals(1, agents.size());
         };
 
@@ -191,14 +193,14 @@ public class SimpleSolrIT extends BaseKafkaIT {
         discoRepository.deleteAll();
         assertEquals(0, discoRepository.count());
 
-        Consumer<Map<RMapObjectType, Set<TestUtils.RDFResource>>> assertions = (resources) -> {
-            List<RMapDiSCO> discos = TestUtils.getRmapObjects(resources, RMapObjectType.DISCO, rdfHandler);
+        Consumer<Map<RMapObjectType, Set<RDFResource>>> assertions = (resources) -> {
+            List<RMapDiSCO> discos = getRmapObjects(resources, RMapObjectType.DISCO, rdfHandler);
             assertEquals(3, discos.size());
 
-            List<RMapEvent> events = TestUtils.getRmapObjects(resources, RMapObjectType.EVENT, rdfHandler);
+            List<RMapEvent> events = getRmapObjects(resources, RMapObjectType.EVENT, rdfHandler);
             assertEquals(4, events.size());
 
-            List<RMapAgent> agents = TestUtils.getRmapObjects(resources, RMapObjectType.AGENT, rdfHandler);
+            List<RMapAgent> agents = getRmapObjects(resources, RMapObjectType.AGENT, rdfHandler);
             assertEquals(1, agents.size());
         };
 
@@ -427,16 +429,16 @@ public class SimpleSolrIT extends BaseKafkaIT {
 
         AtomicInteger idCounter = new AtomicInteger(1);
 
-        Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects = new HashMap<>();
-        TestUtils.getRmapResources("/data/discos/rmd18mddcw", rdfHandler, RDFFormat.NQUADS, rmapObjects);
+        Map<RMapObjectType, Set<RDFResource>> rmapObjects = new HashMap<>();
+        getRmapResources("/data/discos/rmd18mddcw", rdfHandler, RDFFormat.NQUADS, rmapObjects);
 
-        List<RMapDiSCO> discos = TestUtils.getRmapObjects(rmapObjects, RMapObjectType.DISCO, rdfHandler);
+        List<RMapDiSCO> discos = getRmapObjects(rmapObjects, RMapObjectType.DISCO, rdfHandler);
         assertEquals(3, discos.size());
 
-        List<RMapEvent> events = TestUtils.getRmapObjects(rmapObjects, RMapObjectType.EVENT, rdfHandler);
+        List<RMapEvent> events = getRmapObjects(rmapObjects, RMapObjectType.EVENT, rdfHandler);
         assertEquals(3, events.size());
 
-        List<RMapAgent> agents = TestUtils.getRmapObjects(rmapObjects, RMapObjectType.AGENT, rdfHandler);
+        List<RMapAgent> agents = getRmapObjects(rmapObjects, RMapObjectType.AGENT, rdfHandler);
         assertEquals(1, agents.size());
 
         events.stream()
