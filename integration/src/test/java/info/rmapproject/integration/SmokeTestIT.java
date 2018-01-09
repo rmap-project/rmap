@@ -12,11 +12,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,6 +70,20 @@ public class SmokeTestIT {
     @Autowired
     private DiscoRepository discoRepository;
 
+    /**
+     * Re-usable logic which asks Solr how many documents are in the index
+     */
+    private Condition<Long> documentCount = new Condition<>(() -> discoRepository.count(), "Document count");
+
+    /**
+     * Re-usable logic which asks Solr how many ACTIVE documents are in the index.
+     */
+    private Condition<Long> activeCountCondition = new Condition<>(() -> {
+        long activeCount = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE").size();
+        LOG.trace("Current ACTIVE document count: {}", activeCount);
+        return activeCount;
+    }, "Count of ACTIVE documents");
+
     @BeforeClass
     public static void setUpBaseUrls() throws Exception {
         java.util.logging.Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
@@ -78,6 +94,41 @@ public class SmokeTestIT {
         assertNotNull("System property 'rmap.api.context' must be specified.", apiCtxPath);
         apiBaseUrl = new URL(scheme, host, Integer.parseInt(port), apiCtxPath);
         appBaseUrl = new URL(scheme, host, Integer.parseInt(port), webappCtxPath);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+
+        // Before each test, the number of documents in the Solr index must remain stable for 5 seconds
+        // This (helps) insure that any events from previous test methods are processed, and won't interfere with
+        // the current test
+        // TODO: test methods that care about the affect a test may have on the index should be selective of the
+        // documents they observe.  For example, a test should only observe documents that pertain to the lineage of
+        // the DiSCO or DiSCOs used by the test method.
+        documentCount.awaitAndVerify(initialCount -> {
+            long waitMs = 5000;
+            LOG.debug("Waiting {} ms to insure that the index is not being modified by events from previous test " +
+                    "methods.", waitMs);
+
+            if (initialCount != discoRepository.count()) {
+                LOG.trace("Documents have been added or removed from the index.  Re-setting the {} ms timer.", waitMs);
+                return false;
+            }
+
+            try {
+                LOG.trace("Sleeping for {} ms.", waitMs);
+                Thread.sleep(waitMs);
+            } catch (InterruptedException e) {
+                Thread.interrupted();
+            }
+
+            if (initialCount != discoRepository.count()) {
+                LOG.trace("Documents have been added or removed from the index.  Re-setting the {} ms timer.", waitMs);
+                return false;
+            }
+
+            return true;
+        });
     }
 
     /**
@@ -208,17 +259,11 @@ public class SmokeTestIT {
      */
     @Test
     public void testCreateDeleteDiSCOWithIndexer() throws IOException, InterruptedException {
-
+        LOG.trace("** Beginning testCreateDeleteDiSCOWithIndexer");
         // Bypass the RMap webapps, and directly ask Solr how many ACTIVE documents are in the index at the start of
         // this test.
         long initialActiveDocumentCount = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE").size();
-
-        // Re-usable logic which asks Solr how many ACTIVE documents are in the index.
-        Condition<Long> activeCountCondition = new Condition<>(() -> {
-            long activeCount = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE").size();
-            LOG.trace("Current ACTIVE document count: {}", activeCount);
-            return activeCount;
-        }, "Count of ACTIVE documents.");
+        LOG.trace("** Initial ACTIVE document count: {}", initialActiveDocumentCount);
 
         String accessKey = "uah2CKDaBsEw3cEQ";
         String secret = "NSbdzctrP46ZvhTi";
@@ -226,6 +271,7 @@ public class SmokeTestIT {
         String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.ttl"));
         String discoUri;
 
+        LOG.trace("** Depositing DiSCO ...");
         // Deposit a DiSCO; expect the DiSCO to be indexed.
         try (Response res =
                      http.newCall(new Request.Builder()
@@ -238,6 +284,10 @@ public class SmokeTestIT {
             discoUri = res.body().string();
         }
 
+        LOG.trace("** Deposited DiSCO with URI {}", discoUri);
+
+        LOG.trace("** Checking ACTIVE document count ...");
+
         // Verify that the DiSCO is indexed, inferred by the increase in the number of active Solr documents in the
         // index
         assertTrue(activeCountCondition.awaitAndVerify((currentActiveCount) -> {
@@ -245,6 +295,8 @@ public class SmokeTestIT {
                     "count of documents with ACTIVE status ({})", currentActiveCount, initialActiveDocumentCount);
             return currentActiveCount > initialActiveDocumentCount;
         }));
+
+        LOG.trace("** Deleting DiSCO {} ...", discoUri);
 
         // Delete the DiSCO that was just deposited.  Expect that the documents present in the index for this DiSCO be
         // removed.
@@ -258,6 +310,10 @@ public class SmokeTestIT {
             assertEquals(url.toString() + " failed with: '" + res.code() + "', '" + res.message() + "'",
                     200, res.code());
         }
+
+        LOG.trace("** HTTP DELETE {} returned with 200 (deleted DiSCO {})", delUrl, discoUri);
+
+        LOG.trace("** Checking ACTIVE document count ...");
 
         // Verify that the number of active Solr documents in the index is now equal to the number of documents present
         // when the test started; i.e. the documents that were added when the DiSCO was indexed have been deleted when
