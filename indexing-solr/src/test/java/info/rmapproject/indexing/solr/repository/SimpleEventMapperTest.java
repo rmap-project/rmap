@@ -1,8 +1,8 @@
 package info.rmapproject.indexing.solr.repository;
 
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.impl.openrdf.ORMapEvent;
-import info.rmapproject.core.model.impl.openrdf.ORMapEventCreation;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import org.junit.Test;
 

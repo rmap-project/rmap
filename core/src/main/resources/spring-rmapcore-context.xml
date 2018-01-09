@@ -10,15 +10,15 @@
 	<context:component-scan base-package="info.rmapproject.kafka"/>
 
 	<bean id="idSupplier" class="info.rmapproject.core.idservice.IdServiceSupplier"/>
-    <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler"/>
+    <bean id="rdfHandler" class="info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler"/>
 
-	<bean id="abstractManager" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapObjectMgr" abstract="true"/>
+	<bean id="abstractManager" class="info.rmapproject.core.rmapservice.impl.rdf4j.ORMapObjectMgr" abstract="true"/>
 
- 	<bean id="resourcemgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapResourceMgr" scope="prototype" parent="abstractManager"/>
- 	<bean id="discomgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapDiSCOMgr" scope="prototype" parent="abstractManager"/>
- 	<bean id="statementmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapStatementMgr" scope="prototype" parent="abstractManager"/>
- 	<bean id="eventmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapEventMgr" scope="prototype" parent="abstractManager"/>
- 	<bean id="agentmgr" class="info.rmapproject.core.rmapservice.impl.openrdf.ORMapAgentMgr" parent="abstractManager" scope="prototype"/>
+ 	<bean id="resourcemgr" class="info.rmapproject.core.rmapservice.impl.rdf4j.ORMapResourceMgr" scope="prototype" parent="abstractManager"/>
+ 	<bean id="discomgr" class="info.rmapproject.core.rmapservice.impl.rdf4j.ORMapDiSCOMgr" scope="prototype" parent="abstractManager"/>
+ 	<bean id="statementmgr" class="info.rmapproject.core.rmapservice.impl.rdf4j.ORMapStatementMgr" scope="prototype" parent="abstractManager"/>
+ 	<bean id="eventmgr" class="info.rmapproject.core.rmapservice.impl.rdf4j.ORMapEventMgr" scope="prototype" parent="abstractManager"/>
+ 	<bean id="agentmgr" class="info.rmapproject.core.rmapservice.impl.rdf4j.ORMapAgentMgr" parent="abstractManager" scope="prototype"/>
 	<bean id="rmapSearchParams" class="info.rmapproject.core.model.request.RMapSearchParams" scope="prototype" parent="abstractManager"/>
 
 	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
@@ -38,11 +38,11 @@
 	<!-- production triplestore -->
 	<beans profile="http-triplestore">
 		<context:property-placeholder location="classpath*:/http-triplestore.properties" ignore-unresolvable="true"/>
-		<bean primary="true" id="httpTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype">
-			<property name="sesameUrl" value="${sesamehttp.repository.url}"/>
-			<property name="sesameReposName" value="${sesamehttp.repository.name}"/>
-			<property name="sesameUserName" value="${sesamehttp.repository.user}"/>
-			<property name="sesamePassword" value="${sesamehttp.repository.password}"/>
+		<bean primary="true" id="httpTriplestore" class="info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jHttpTriplestore" scope="prototype">
+			<property name="rdf4jUrl" value="${rdf4jhttp.repository.url}"/>
+			<property name="rdf4jReposName" value="${rdf4jhttp.repository.name}"/>
+			<property name="rdf4jUserName" value="${rdf4jhttp.repository.user}"/>
+			<property name="rdf4jPassword" value="${rdf4jhttp.repository.password}"/>
 		</bean>
 	</beans>
 
@@ -95,8 +95,8 @@
 	<!-- unit tests -->
 	<beans profile="inmemory-triplestore">
 		<context:property-placeholder location="classpath*:/inmemory-triplestore.properties" ignore-unresolvable="true"/>
-		<bean primary="true" id="inMemoryTriplestore" class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore">
-			<property name="dataDirectory" value="${sesamesail.dataDirectory}"/>
+		<bean primary="true" id="inMemoryTriplestore" class="info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSailMemoryTriplestore">
+			<property name="dataDirectory" value="${rdf4jsail.dataDirectory}"/>
 		</bean>
 	</beans>
 

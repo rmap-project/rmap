@@ -11,18 +11,18 @@
     <context:property-placeholder location="classpath*:/integration-triplestore.properties" ignore-unresolvable="true"/>
 
     <bean primary="true" id="integrationTriplestore"
-          class="info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameHttpTriplestore" scope="prototype">
-      <property name="sesameUrl" value="${sesamehttp.repository.url}"/>
-      <property name="sesameReposName" value="${sesamehttp.repository.name}"/>
-      <property name="sesameUserName" value="${sesamehttp.repository.user}"/>
-      <property name="sesamePassword" value="${sesamehttp.repository.password}"/>
+          class="info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jHttpTriplestore" scope="prototype">
+      <property name="rdf4jUrl" value="${rdf4jhttp.repository.url}"/>
+      <property name="rdf4jReposName" value="${rdf4jhttp.repository.name}"/>
+      <property name="rdf4jUserName" value="${rdf4jhttp.repository.user}"/>
+      <property name="rdf4jPassword" value="${rdf4jhttp.repository.password}"/>
       <property name="triplestoreInitializer" ref="integrationTriplestoreInitializer"/>
     </bean>
 
-    <bean id="triplestoreManager" class="info.rmapproject.spring.triplestore.support.SesameTriplestoreManager">
-      <property name="workbenchBaseUrl" value="${sesamehttp.workbench.url}"/>
-      <property name="repositoryBaseUrl" value="${sesamehttp.repository.url}"/>
-      <property name="defaultName" value="${sesamehttp.repository.name}"/>
+    <bean id="triplestoreManager" class="info.rmapproject.spring.triplestore.support.Rdf4jTriplestoreManager">
+      <property name="workbenchBaseUrl" value="${rdf4jhttp.workbench.url}"/>
+      <property name="repositoryBaseUrl" value="${rdf4jhttp.repository.url}"/>
+      <property name="defaultName" value="${rdf4jhttp.repository.name}"/>
       <property name="httpClient">
         <bean class="okhttp3.OkHttpClient"/>
       </property>

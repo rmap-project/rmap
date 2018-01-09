@@ -25,7 +25,7 @@
   <logger name="info.rmapproject.indexing" additivity="false" level="${info.rmapproject.indexing.level:-WARN}">
     <appender-ref ref="STDERR" />
   </logger>
-  <logger name="org.openrdf" additivity="false" level="${org.openrdf.level:-WARN}">
+  <logger name="org.eclipse.rdf4j" additivity="false" level="${org.eclipse.rdf4j.level:-WARN}">
     <appender-ref ref="STDERR" />
   </logger>
   <logger name="kafka" additivity="false" level="${kafka.level:-WARN}">

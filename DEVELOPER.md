@@ -101,14 +101,14 @@ RMap integration tests use the same developer runtime documented above.  When in
 * `integration-db`
 * `inmemory-idservice`
 
-Hibernate is used to generate the database schema, and Spring is used to populate the database tables and to create a Sesame HTTP triplestore.  The purpose of the `integration-*` profiles is to manage the persistent state created by running the  [developer runtime](#developer-runtime) or executing integration tests.  The integration profiles provide a Spring configuration that is used to preserve existing data in the database and triplestore.  This insures that a developer can inspect the state of the database and triplestore after an integration test failure.  Without these mechanisms, it would be difficult to debug a failing integration test, or to support re-starts of the developer runtime.
+Hibernate is used to generate the database schema, and Spring is used to populate the database tables and to create a RDF4J HTTP triplestore.  The purpose of the `integration-*` profiles is to manage the persistent state created by running the  [developer runtime](#developer-runtime) or executing integration tests.  The integration profiles provide a Spring configuration that is used to preserve existing data in the database and triplestore.  This insures that a developer can inspect the state of the database and triplestore after an integration test failure.  Without these mechanisms, it would be difficult to debug a failing integration test, or to support re-starts of the developer runtime.
 
 ## Integration Environment
 The integration environment attempts to match the production environment as closely as possible.  The environment is configured inside the `integration` module's Maven POM.  The Maven [lifecycle](http://maven.apache.org/ref/3.3.9/maven-core/lifecycles.html#default_Lifecycle) is leveraged to start up the various services to support the IT environment.
 
 The `validate` lifecycle phase uses beanshell script to launch the Derby network server.  The network server is used so that both the RMap API and HTML UI webapps can connect to a shared database instance.  In addition, integration test fixtures may connect to the shared database in order to inspect or initialize content.  The Derby instance home is configured to be in `integration/target/test-classes/derby`.
 
-The next relevant lifecycle phase is the `pre-integration-test` phase.  The Cargo Maven plugin is used to configure and launch an instance of Tomcat.  The Tomcat instance contains  the RMap API and HTML UI web applications under test, and the OpenRDF Sesame HTTP server and Workbench web applications.  A lot happens inside of this phase, which will be discussed a bit later.
+The next relevant lifecycle phase is the `pre-integration-test` phase.  The Cargo Maven plugin is used to configure and launch an instance of Tomcat.  The Tomcat instance contains  the RMap API and HTML UI web applications under test, and the RDF4J HTTP server and Workbench web applications.  A lot happens inside of this phase, which will be discussed a bit later.
 
 Then the `integration-test` phase is started, and the Maven Failsafe plugin takes over.  The actual integration tests execute in this phase, exercising the HTTP endpoints of the RMap API and HTML UI.
 
@@ -120,13 +120,13 @@ Remember that the Derby network server is started in the `validate` phase, and h
 When the `pre-integration-test` phase is entered, Tomcat is started with four web applications:
  * RMap API (`api` module)
  * RMap HTML UI (`webapp` module)
- * OpenRDF Sesame HTTP server (provides an HTTP API to _existing_ Sesame triplestores)
- * OpenRDF Workbench HTML UI (provides an HTML UI to _create_ and manage Sesame triplestores)
+ * RDF4J HTTP server (provides an HTTP API to _existing_ RDF4J triplestores)
+ * RDF4J Workbench HTML UI (provides an HTML UI to _create_ and manage RDF4J triplestores)
 
  When the RMap applications start, a few things happen:
  1. Hibernate connects to the database and creates the table schema for RMap if it doesn't already exist.
  2. Spring JDBC initialization populates the database with an RMap Agent, used by the ITs to authenticate to the API and perform tests.  If any data exists in the database, initialization will _not_ occur; existing data is preserved.
- 3. Upon construction, the `SesameHttpTriplestore` will attempt to _create_ a Sesame triplestore using the OpenRDF Workbench web application.  Attempts to create a triplestore when one already exists are ignored.  The "home directory" for created triplestores is `integration/target/test-classes/sesame`.
+ 3. Upon construction, the `Rdf4jHttpTriplestore` will attempt to _create_ a RDF4J triplestore using the RDF4J Workbench web application.  Attempts to create a triplestore when one already exists are ignored.  The "home directory" for created triplestores is `integration/target/test-classes/rdf4j`.
    
 It is important to remember that these initialization steps only occur in the integration environment.  More specifically, they only occur when the `integration-db` and `integration-triplestore` Spring profiles are active.  When the integration profiles are active, collaborating beans are wired together such that they are compelled to perform initialization.  In a production environment, these profiles are not active, and no initialization of any kind takes place.
 

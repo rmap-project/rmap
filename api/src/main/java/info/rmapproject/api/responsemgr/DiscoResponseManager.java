@@ -70,8 +70,8 @@ import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.utils.Terms;
-import info.rmapproject.core.vocabulary.impl.openrdf.PROV;
-import info.rmapproject.core.vocabulary.impl.openrdf.RMAP;
+import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
+import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * Creates HTTP responses for RMap DiSCO REST API requests.

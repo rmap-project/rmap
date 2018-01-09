@@ -6,7 +6,7 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.indexing.IndexUtils;
-import org.openrdf.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFFormat;
 
 import java.util.HashMap;
 import java.util.List;

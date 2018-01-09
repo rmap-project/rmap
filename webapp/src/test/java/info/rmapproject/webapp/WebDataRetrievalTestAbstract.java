@@ -29,27 +29,27 @@ import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import info.rmapproject.core.model.impl.openrdf.OStatementsAdapter;
 import org.junit.After;
 import org.junit.Before;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.impl.openrdf.ORAdapter;
-import info.rmapproject.core.model.impl.openrdf.ORMapAgent;
-import info.rmapproject.core.model.impl.openrdf.ORMapDiSCO;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
+import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.rdfhandler.impl.openrdf.RioRDFHandler;
+import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameSailMemoryTriplestore;
-import info.rmapproject.core.rmapservice.impl.openrdf.triplestore.SesameTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSailMemoryTriplestore;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
@@ -73,7 +73,7 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 	
 	/** The triplestore. */
 	@Autowired
-	protected SesameTriplestore triplestore;
+	protected Rdf4jTriplestore triplestore;
 			
 	/** The context. */
 	protected ApplicationContext context;
@@ -105,7 +105,7 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 	@After
 	public void clearTriplestore() throws Exception {
 		//if triplestore is inmemory, clear it out.
-		if (triplestore instanceof SesameSailMemoryTriplestore) {
+		if (triplestore instanceof Rdf4jSailMemoryTriplestore) {
 			triplestore.getConnection().clear();
 		}
 	}

@@ -11,11 +11,11 @@
     <solr:repositories base-package="info.rmapproject.indexing.solr" multicore-support="true"/>
     <solr:solr-client id="solrClient" url="${rmap.solr.url}"/>
 
-    <bean id="triplestoreManager" class="info.rmapproject.spring.triplestore.support.SesameTriplestoreManager">
-        <property name="defaultName" value="${sesamehttp.repository.name}"/>
+    <bean id="triplestoreManager" class="info.rmapproject.spring.triplestore.support.Rdf4jTriplestoreManager">
+        <property name="defaultName" value="${rdf4jhttp.repository.name}"/>
         <property name="httpClient" ref="httpClient"/>
-        <property name="repositoryBaseUrl" value="${sesamehttp.repository.url}"/>
-        <property name="workbenchBaseUrl" value="${sesamehttp.workbench.url}"/>
+        <property name="repositoryBaseUrl" value="${rdf4jhttp.repository.url}"/>
+        <property name="workbenchBaseUrl" value="${rdf4jhttp.workbench.url}"/>
     </bean>
 
     <bean id="httpClient" class="okhttp3.OkHttpClient"/>
