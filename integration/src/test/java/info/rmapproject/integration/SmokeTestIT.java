@@ -75,15 +75,6 @@ public class SmokeTestIT {
      */
     private Condition<Long> documentCount = new Condition<>(() -> discoRepository.count(), "Document count");
 
-    /**
-     * Re-usable logic which asks Solr how many ACTIVE documents are in the index.
-     */
-    private Condition<Long> activeCountCondition = new Condition<>(() -> {
-        long activeCount = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE").size();
-        LOG.trace("Current ACTIVE document count: {}", activeCount);
-        return activeCount;
-    }, "Count of ACTIVE documents");
-
     @BeforeClass
     public static void setUpBaseUrls() throws Exception {
         java.util.logging.Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
@@ -94,41 +85,6 @@ public class SmokeTestIT {
         assertNotNull("System property 'rmap.api.context' must be specified.", apiCtxPath);
         apiBaseUrl = new URL(scheme, host, Integer.parseInt(port), apiCtxPath);
         appBaseUrl = new URL(scheme, host, Integer.parseInt(port), webappCtxPath);
-    }
-
-    @Before
-    public void setUp() throws Exception {
-
-        // Before each test, the number of documents in the Solr index must remain stable for 5 seconds
-        // This (helps) insure that any events from previous test methods are processed, and won't interfere with
-        // the current test
-        // TODO: test methods that care about the affect a test may have on the index should be selective of the
-        // documents they observe.  For example, a test should only observe documents that pertain to the lineage of
-        // the DiSCO or DiSCOs used by the test method.
-        documentCount.awaitAndVerify(initialCount -> {
-            long waitMs = 5000;
-            LOG.debug("Waiting {} ms to insure that the index is not being modified by events from previous test " +
-                    "methods.", waitMs);
-
-            if (initialCount != discoRepository.count()) {
-                LOG.trace("Documents have been added or removed from the index.  Re-setting the {} ms timer.", waitMs);
-                return false;
-            }
-
-            try {
-                LOG.trace("Sleeping for {} ms.", waitMs);
-                Thread.sleep(waitMs);
-            } catch (InterruptedException e) {
-                Thread.interrupted();
-            }
-
-            if (initialCount != discoRepository.count()) {
-                LOG.trace("Documents have been added or removed from the index.  Re-setting the {} ms timer.", waitMs);
-                return false;
-            }
-
-            return true;
-        });
     }
 
     /**
@@ -260,10 +216,6 @@ public class SmokeTestIT {
     @Test
     public void testCreateDeleteDiSCOWithIndexer() throws IOException, InterruptedException {
         LOG.trace("** Beginning testCreateDeleteDiSCOWithIndexer");
-        // Bypass the RMap webapps, and directly ask Solr how many ACTIVE documents are in the index at the start of
-        // this test.
-        long initialActiveDocumentCount = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE").size();
-        LOG.trace("** Initial ACTIVE document count: {}", initialActiveDocumentCount);
 
         String accessKey = "uah2CKDaBsEw3cEQ";
         String secret = "NSbdzctrP46ZvhTi";
@@ -286,14 +238,21 @@ public class SmokeTestIT {
 
         LOG.trace("** Deposited DiSCO with URI {}", discoUri);
 
-        LOG.trace("** Checking ACTIVE document count ...");
+        LOG.trace("** Checking ACTIVE document count for progenitor lineage {} ...", discoUri);
 
         // Verify that the DiSCO is indexed, inferred by the increase in the number of active Solr documents in the
-        // index
+        // index for the lineage
+        Condition<Long> activeCountCondition = new Condition<>(() -> {
+            long activeCount = discoRepository
+                    .findDiscoSolrDocumentsByEventLineageProgenitorUriAndDiscoStatus(discoUri, "ACTIVE")
+                    .size();
+            LOG.trace("Current ACTIVE document count for lineage {}: {}", discoUri, activeCount);
+            return activeCount;
+        }, "Count of ACTIVE documents for lineage " + discoUri);
+
         assertTrue(activeCountCondition.awaitAndVerify((currentActiveCount) -> {
-            LOG.trace("Verifying that the number of current docs ({}) with ACTIVE status is greater than the initial " +
-                    "count of documents with ACTIVE status ({})", currentActiveCount, initialActiveDocumentCount);
-            return currentActiveCount > initialActiveDocumentCount;
+            LOG.trace("Verifying that the number docs with ACTIVE status for lineage {} is greater than 0", discoUri);
+            return currentActiveCount > 0;
         }));
 
         LOG.trace("** Deleting DiSCO {} ...", discoUri);
@@ -313,15 +272,13 @@ public class SmokeTestIT {
 
         LOG.trace("** HTTP DELETE {} returned with 200 (deleted DiSCO {})", delUrl, discoUri);
 
-        LOG.trace("** Checking ACTIVE document count ...");
+        LOG.trace("** Checking ACTIVE document count progenitor lineage {} ...", discoUri);
 
-        // Verify that the number of active Solr documents in the index is now equal to the number of documents present
-        // when the test started; i.e. the documents that were added when the DiSCO was indexed have been deleted when
-        // the DELETE HTTP request was received.
+        // Verify that the number of active Solr documents in the index for the lineage is 0; i.e. the documents that
+        // were added when the DiSCO was indexed have been deleted when the DELETE HTTP request was received.
         assertTrue(activeCountCondition.awaitAndVerify((currentActiveCount) -> {
-            LOG.trace("Verifying that the count of current ACTIVE docs ({}) is the same as the number of ACTIVE " +
-                    "documents before this test started ({}).", currentActiveCount, initialActiveDocumentCount);
-            return (currentActiveCount == initialActiveDocumentCount);
+            LOG.trace("Verifying that the number docs with ACTIVE status for lineage {} is 0", discoUri);
+            return currentActiveCount == 0;
         }));
     }
 
