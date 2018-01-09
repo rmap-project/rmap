@@ -77,16 +77,27 @@ public class IndexingConsumer {
         rebalanceListener.setSeekBehavior(seek);
 
         consumer.subscribe(singleton(topic), rebalanceListener);
-        consumer.poll(0); // join consumer group, get partitions, seek to correct offset
 
-        Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>(1);
+        // join consumer group, get partitions, seek to correct offset, and obtain any records in the buffer
+        ConsumerRecords<String, RMapEvent> records = EMPTY_RECORDS;
+        try {
+            records = consumer.poll(0);
+        } catch (WakeupException e) {
+            LOG.info("WakeupException encountered on initial poll (with timeout of 0 ms), closing consumer.");
+            consumer.close();
+            return;
+        } catch (InterruptException e) {
+            LOG.info("InterruptException encountered, exiting initial consumer.poll(0) early.");
+            Thread.interrupted();
+            return;
+        }
 
         while (true) {
-
-            offsetsToCommit.clear();
-            ConsumerRecords<String, RMapEvent> records = null;
-
             try {
+                if (records != EMPTY_RECORDS) {
+                    processRecords(records);
+                }
+
                 LOG.trace("Entering poll for {} ms", pollTimeoutMs);
                 records = consumer.poll(pollTimeoutMs);
             } catch (WakeupException e) {
@@ -99,39 +110,41 @@ public class IndexingConsumer {
                 // guard against null records
                 records = EMPTY_RECORDS;
             }
+        }
+    }
 
-            LOG.trace("Processing {} records", records.count());
-            records.forEach(record -> {
-                RMapEvent event = record.value();
+    private void processRecords(ConsumerRecords<String, RMapEvent> records) {
+        Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>(1);
+        LOG.trace("Processing {} records", records.count());
+        records.forEach(record -> {
+            RMapEvent event = record.value();
 
-                if (event.getEventTargetType() != null &&
-                        !event.getEventTargetType().equals(RMapEventTargetType.DISCO)) {
-                    LOG.debug("Skipping event {} because it does not target a DISCO (was {} instead)",
-                            event, event.getEventTargetType());
-                    return;
-                }
-
-                String recordTopic = record.topic();
-                long recordOffset = record.offset();
-                int recordPartition = record.partition();
-
-                LOG.trace("Processing record {}/{}/{} for event: {}", recordTopic, recordPartition, recordOffset, event);
-
-                try {
-                    indexEvent(recordTopic, recordPartition, recordOffset, event);
-                    offsetsToCommit.put(new TopicPartition(recordTopic, recordPartition),
-                            new OffsetAndMetadata(recordOffset));
-                } catch (Exception e) {
-                    LOG.warn("Unable to index event {}: {}", event, e.getMessage(), e);
-                }
-            });
-
-            if (!offsetsToCommit.isEmpty()) {
-                LOG.trace("Committing offset(s) for {} TopicPartition(s): {}", offsetsToCommit.size(),
-                        KafkaUtils.offsetsAsString(offsetsToCommit));
-                commitOffsets(consumer, offsetsToCommit, true);
+            if (event.getEventTargetType() != null &&
+                    !event.getEventTargetType().equals(RMapEventTargetType.DISCO)) {
+                LOG.debug("Skipping event {} because it does not target a DISCO (was {} instead)",
+                        event, event.getEventTargetType());
+                return;
             }
 
+            String recordTopic = record.topic();
+            long recordOffset = record.offset();
+            int recordPartition = record.partition();
+
+            LOG.trace("Processing record {}/{}/{} for event: {}", recordTopic, recordPartition, recordOffset, event);
+
+            try {
+                indexEvent(recordTopic, recordPartition, recordOffset, event);
+                offsetsToCommit.put(new TopicPartition(recordTopic, recordPartition),
+                        new OffsetAndMetadata(recordOffset));
+            } catch (Exception e) {
+                LOG.warn("Unable to index event {}: {}", event, e.getMessage(), e);
+            }
+        });
+
+        if (!offsetsToCommit.isEmpty()) {
+            LOG.trace("Committing offset(s) for {} TopicPartition(s): {}", offsetsToCommit.size(),
+                    KafkaUtils.offsetsAsString(offsetsToCommit));
+            commitOffsets(consumer, offsetsToCommit, true);
         }
     }
 
