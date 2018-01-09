@@ -14,6 +14,39 @@
     <description>Solr indexing implementation</description>
     <packaging>jar</packaging>
 
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-remote-resources</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>info.rmapproject:rmap-testdata:${project.parent.version}</resourceBundle>
+                            </resourceBundles>
+                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>info.rmapproject</groupId>
+                        <artifactId>rmap-testdata</artifactId>
+                        <version>${project.parent.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
     <dependencies>
 
         <dependency>
@@ -25,14 +58,14 @@
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>            
         </dependency>
-        
-	<dependency>
-   		<groupId>org.apache.solr</groupId>
-		<artifactId>solr-test-framework</artifactId>
-		<version>${solr.version}</version>
-		<scope>test</scope>
-	</dependency>
-	        
+
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-test-framework</artifactId>
+            <version>${solr.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-solr</artifactId>

@@ -25,6 +25,9 @@
   <logger name="info.rmapproject.indexing" additivity="false" level="${info.rmapproject.indexing.level:-WARN}">
     <appender-ref ref="STDERR" />
   </logger>
+  <logger name="info.rmapproject.integration" additivity="false" level="${info.rmapproject.integration.level:-WARN}">
+    <appender-ref ref="STDERR" />
+  </logger>
   <logger name="org.eclipse.rdf4j" additivity="false" level="${org.eclipse.rdf4j.level:-WARN}">
     <appender-ref ref="STDERR" />
   </logger>

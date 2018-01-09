@@ -68,6 +68,11 @@ public class SmokeTestIT {
     @Autowired
     private DiscoRepository discoRepository;
 
+    /**
+     * Re-usable logic which asks Solr how many documents are in the index
+     */
+    private Condition<Long> documentCount = new Condition<>(() -> discoRepository.count(), "Document count");
+
     @BeforeClass
     public static void setUpBaseUrls() throws Exception {
         java.util.logging.Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
@@ -208,17 +213,7 @@ public class SmokeTestIT {
      */
     @Test
     public void testCreateDeleteDiSCOWithIndexer() throws IOException, InterruptedException {
-
-        // Bypass the RMap webapps, and directly ask Solr how many ACTIVE documents are in the index at the start of
-        // this test.
-        long initialActiveDocumentCount = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE").size();
-
-        // Re-usable logic which asks Solr how many ACTIVE documents are in the index.
-        Condition<Long> activeCountCondition = new Condition<>(() -> {
-            long activeCount = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE").size();
-            LOG.trace("Current ACTIVE document count: {}", activeCount);
-            return activeCount;
-        }, "Count of ACTIVE documents.");
+        LOG.trace("** Beginning testCreateDeleteDiSCOWithIndexer");
 
         String accessKey = "uah2CKDaBsEw3cEQ";
         String secret = "NSbdzctrP46ZvhTi";
@@ -226,6 +221,7 @@ public class SmokeTestIT {
         String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.ttl"));
         String discoUri;
 
+        LOG.trace("** Depositing DiSCO ...");
         // Deposit a DiSCO; expect the DiSCO to be indexed.
         try (Response res =
                      http.newCall(new Request.Builder()
@@ -238,13 +234,26 @@ public class SmokeTestIT {
             discoUri = res.body().string();
         }
 
+        LOG.trace("** Deposited DiSCO with URI {}", discoUri);
+
+        LOG.trace("** Checking ACTIVE document count for progenitor lineage {} ...", discoUri);
+
         // Verify that the DiSCO is indexed, inferred by the increase in the number of active Solr documents in the
-        // index
+        // index for the lineage
+        Condition<Long> activeCountCondition = new Condition<>(() -> {
+            long activeCount = discoRepository
+                    .findDiscoSolrDocumentsByEventLineageProgenitorUriAndDiscoStatus(discoUri, "ACTIVE")
+                    .size();
+            LOG.trace("Current ACTIVE document count for lineage {}: {}", discoUri, activeCount);
+            return activeCount;
+        }, "Count of ACTIVE documents for lineage " + discoUri);
+
         assertTrue(activeCountCondition.awaitAndVerify((currentActiveCount) -> {
-            LOG.trace("Verifying that the number of current docs ({}) with ACTIVE status is greater than the initial " +
-                    "count of documents with ACTIVE status ({})", currentActiveCount, initialActiveDocumentCount);
-            return currentActiveCount > initialActiveDocumentCount;
+            LOG.trace("Verifying that the number docs with ACTIVE status for lineage {} is greater than 0", discoUri);
+            return currentActiveCount > 0;
         }));
+
+        LOG.trace("** Deleting DiSCO {} ...", discoUri);
 
         // Delete the DiSCO that was just deposited.  Expect that the documents present in the index for this DiSCO be
         // removed.
@@ -259,13 +268,15 @@ public class SmokeTestIT {
                     200, res.code());
         }
 
-        // Verify that the number of active Solr documents in the index is now equal to the number of documents present
-        // when the test started; i.e. the documents that were added when the DiSCO was indexed have been deleted when
-        // the DELETE HTTP request was received.
+        LOG.trace("** HTTP DELETE {} returned with 200 (deleted DiSCO {})", delUrl, discoUri);
+
+        LOG.trace("** Checking ACTIVE document count progenitor lineage {} ...", discoUri);
+
+        // Verify that the number of active Solr documents in the index for the lineage is 0; i.e. the documents that
+        // were added when the DiSCO was indexed have been deleted when the DELETE HTTP request was received.
         assertTrue(activeCountCondition.awaitAndVerify((currentActiveCount) -> {
-            LOG.trace("Verifying that the count of current ACTIVE docs ({}) is the same as the number of ACTIVE " +
-                    "documents before this test started ({}).", currentActiveCount, initialActiveDocumentCount);
-            return (currentActiveCount == initialActiveDocumentCount);
+            LOG.trace("Verifying that the number docs with ACTIVE status for lineage {} is 0", discoUri);
+            return currentActiveCount == 0;
         }));
     }
 

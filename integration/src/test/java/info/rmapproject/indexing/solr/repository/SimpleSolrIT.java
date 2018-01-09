@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import info.rmapproject.indexing.kafka.BaseKafkaIT;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.JavaBinCodec;
@@ -61,7 +62,7 @@ import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 /**
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
-public class SimpleSolrIT extends AbstractSpringIndexingTest {
+public class SimpleSolrIT extends BaseKafkaIT {
 
     @Autowired
     private RDFHandler rdfHandler;

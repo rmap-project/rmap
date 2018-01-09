@@ -3,7 +3,6 @@ package info.rmapproject.indexing.kafka;
 import static info.rmapproject.indexing.IndexUtils.EventDirection.TARGET;
 import static info.rmapproject.indexing.kafka.ConsumerTestUtil.assertExceptionHolderEmpty;
 import static info.rmapproject.indexing.kafka.ConsumerTestUtil.createSystemAgent;
-import static info.rmapproject.indexing.kafka.ConsumerTestUtil.dumpTriplestore;
 import static info.rmapproject.indexing.kafka.ConsumerTestUtil.newConsumerRunnable;
 import static info.rmapproject.indexing.solr.TestUtils.getRmapObjects;
 import static info.rmapproject.indexing.solr.TestUtils.getRmapResources;
@@ -16,7 +15,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -39,14 +36,12 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.TestUtils;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import info.rmapproject.indexing.solr.repository.DiscoRepository;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration("classpath:/spring-rmapauth-context.xml")
-public class IndexingConsumerIT extends AbstractSpringIndexingTest {
+public class IndexingConsumerIT extends BaseKafkaIT {
 
     @Autowired
     private IndexingConsumer indexer;
@@ -82,23 +77,26 @@ public class IndexingConsumerIT extends AbstractSpringIndexingTest {
                 populateTriplestore(triplestore, rdfHandler, rMapService, "/data/discos/rmd18mddcw");
 
         // Produce some events, so they're waiting for the consumer when it starts.
-        LOG.debug("Producing events.");
         List<RMapEvent> events = getRmapObjects(
                 rmapObjects, RMapObjectType.EVENT, rdfHandler, comparing(RMapEvent::getStartTime));
+        LOG.debug("Sending {} RMap events to Kafka", events.size());
         events.forEach(event -> producer.send(topic, event));
         producer.flush();
 
         // Boot up the indexer, and consume the events
-        LOG.debug("Starting indexer.");
         AtomicReference<Exception> exceptionHolder = new AtomicReference<>();
-        // Boot up the first indexing consumer, and consume some events.
+        // Boot up the first indexing consumer, and consume some events.  Any exceptions thrown by the thread are
+        // caught in the `exceptionHolder`
         Thread initialIndexerThread = new Thread(
                 newConsumerRunnable(indexer, topic, exceptionHolder), "Initial Indexer");
+        LOG.debug("Consuming RMap events from Kafka, and indexing them from thread '{}'", initialIndexerThread.getName());
         initialIndexerThread.start();
 
-        Condition<Long> expectedDocCount = new Condition<>(() -> discoRepository.count(),
-                "DiscoRepository contains expected document count.");
-        assertTrue(expectedDocCount.verify((count) -> count == 5));
+        int expectedDocumentCount = 5;
+        Condition<Long> docCountCondition = new Condition<>(() -> discoRepository.count(),
+                "DiscoRepository contains " + expectedDocumentCount + " documents");
+        LOG.debug("Verifying index contains {} new documents", expectedDocumentCount);
+        assertTrue(docCountCondition.verify((count) -> count == expectedDocumentCount));
 
         // clean up
         indexer.getConsumer().wakeup();
@@ -108,6 +106,7 @@ public class IndexingConsumerIT extends AbstractSpringIndexingTest {
 
         final Set<DiscoSolrDocument> inactive = discoRepository.findDiscoSolrDocumentsByDiscoStatus("INACTIVE");
         final Set<DiscoSolrDocument> active = discoRepository.findDiscoSolrDocumentsByDiscoStatus("ACTIVE");
+        assertEquals(expectedDocumentCount, inactive.size() + active.size());
         assertEquals(4, inactive.size());
         assertEquals(1, active.size());
 
@@ -150,8 +149,8 @@ public class IndexingConsumerIT extends AbstractSpringIndexingTest {
         });
 
         // Print out the triplestore contents to stderr
-        System.err.println("Dump one:");
-        dumpTriplestore(triplestore, new PrintStream(System.err, true));
+//        System.err.println("Dump one:");
+//        dumpTriplestore(triplestore, new PrintStream(System.err, true));
 
         rmapObjects.values().stream().flatMap(Set::stream)
                 .forEach(source -> {
@@ -166,8 +165,8 @@ public class IndexingConsumerIT extends AbstractSpringIndexingTest {
                     }
                 });
 
-        System.err.println("Dump two:");
-        dumpTriplestore(triplestore, new PrintStream(System.err, true));
+//        System.err.println("Dump two:");
+//        dumpTriplestore(triplestore, new PrintStream(System.err, true));
 
         return rmapObjects;
     }

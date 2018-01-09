@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashSet;
 import java.util.Set;
 
+import info.rmapproject.indexing.kafka.BaseKafkaIT;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import info.rmapproject.indexing.kafka.Seek;
 import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 
-public class SolrOffsetLookupIT extends AbstractSpringIndexingTest {
+public class SolrOffsetLookupIT extends BaseKafkaIT {
 
     private static boolean initialized = false;
 

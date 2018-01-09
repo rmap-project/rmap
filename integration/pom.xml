@@ -62,7 +62,6 @@
             <scope>test</scope>
         </dependency>
 
-
         <dependency>
             <groupId>org.eclipse.rdf4j</groupId>
             <artifactId>rdf4j-http-server</artifactId>
@@ -184,6 +183,14 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-indexing-solr</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -280,8 +287,32 @@
     
     <build>
 
-
         <plugins>
+
+            <plugin>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-remote-resources</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>info.rmapproject:rmap-testdata:${project.parent.version}</resourceBundle>
+                            </resourceBundles>
+                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>info.rmapproject</groupId>
+                        <artifactId>rmap-testdata</artifactId>
+                        <version>${project.parent.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -548,6 +579,9 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
+
     </build>
+
 </project>
