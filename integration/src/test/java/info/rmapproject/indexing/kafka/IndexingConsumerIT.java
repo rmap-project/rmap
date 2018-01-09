@@ -85,7 +85,8 @@ public class IndexingConsumerIT extends BaseKafkaIT {
 
         // Boot up the indexer, and consume the events
         AtomicReference<Exception> exceptionHolder = new AtomicReference<>();
-        // Boot up the first indexing consumer, and consume some events.
+        // Boot up the first indexing consumer, and consume some events.  Any exceptions thrown by the thread are
+        // caught in the `exceptionHolder`
         Thread initialIndexerThread = new Thread(
                 newConsumerRunnable(indexer, topic, exceptionHolder), "Initial Indexer");
         LOG.debug("Consuming RMap events from Kafka, and indexing them from thread '{}'", initialIndexerThread.getName());

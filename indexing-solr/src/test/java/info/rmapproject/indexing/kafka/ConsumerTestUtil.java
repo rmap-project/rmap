@@ -59,22 +59,49 @@ public class ConsumerTestUtil {
         }
     }
 
-    static Runnable newConsumerRunnable(IndexingConsumer indexer, String topic, AtomicReference<Exception> caughtExeption) {
+    /**
+     * Returns a {@link Runnable} that starts an indexing process upon invoking {@link Runnable#run()}.
+     * <p>
+     * The {@code Runnable} starts the supplied {@code indexer} by {@link IndexingConsumer#consumeEarliest(String)
+     * consuming from the earliest offset} in the {@code topic}.  Any exceptions thrown by the {@code indexer} are
+     * caught and stored in the supplied {@code exceptionHolder}.
+     *
+     * @param indexer the indexer start consuming RMap events from Kafka
+     * @param topic the Kafka topic to consume from
+     * @param exceptionHolder catches any exceptions thrown by the indexer
+     * @return a {@code Runnable} that will start consuming RMap events when started
+     */
+    static Runnable newConsumerRunnable(IndexingConsumer indexer, String topic,
+                                        AtomicReference<Exception> exceptionHolder) {
         return () -> {
             try {
                 indexer.consumeEarliest(topic);
             } catch (Exception e) {
-                caughtExeption.set(e);
+                exceptionHolder.set(e);
             }
         };
     }
 
-    static Runnable newConsumerRunnable(IndexingConsumer indexer, String topic, Seek seekBehavior, AtomicReference<Exception> caughtExeption) {
+    /**
+     * Returns a {@link Runnable} that starts an indexing process upon invoking {@link Runnable#run()}.
+     * <p>
+     * The {@code Runnable} starts the supplied {@code indexer} by {@link IndexingConsumer#consume(String, Seek)
+     * consuming} from the {@code topic}, starting from the beginning or end as directed by {@code seekBehavior}.  Any
+     * exceptions thrown by the {@code indexer} are caught and stored in the supplied {@code exceptionHolder}.
+     *
+     * @param indexer the indexer start consuming RMap events from Kafka
+     * @param topic the Kafka topic to consume from
+     * @param seekBehavior whether to seek to the beginning or end of the Kafka topic
+     * @param exceptionHolder catches any exceptions thrown by the indexer
+     * @return a {@code Runnable} that will start consuming RMap events when started
+     */
+    static Runnable newConsumerRunnable(IndexingConsumer indexer, String topic, Seek seekBehavior,
+                                        AtomicReference<Exception> exceptionHolder) {
         return () -> {
             try {
                 indexer.consume(topic, seekBehavior);
             } catch (Exception e) {
-                caughtExeption.set(e);
+                exceptionHolder.set(e);
             }
         };
     }
