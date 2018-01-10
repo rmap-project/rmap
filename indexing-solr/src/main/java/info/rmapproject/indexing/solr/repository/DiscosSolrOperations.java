@@ -92,6 +92,30 @@ public class DiscosSolrOperations {
     }
 
     /**
+     * Delete all documents in the index that have a {@link DiscoSolrDocument#DISCO_URI} equal to {@code discoUri}.
+     *
+     * @param discoUri the disco URI that identifies documents to be deleted
+     */
+    public void deleteDocumentsForDiscoUri(String discoUri) {
+        Page<DiscoSolrDocument> results = template.query(coreName,
+                new SimpleQuery(prepareDiscoUriQuery(discoUri)), DiscoSolrDocument.class);
+
+        Set<String> idsToDelete;
+        try (Stream<DiscoSolrDocument> documentStream =
+                     results.stream()) {
+            idsToDelete = documentStream.map(DiscoSolrDocument::getDocId).collect(toSet());
+        }
+
+        LOG.debug("Deleting the following documents with disco uri {}: {}", discoUri,
+                idsToDelete.stream().collect(joining(",")));
+
+        if (idsToDelete.size() > 0) {
+            template.deleteByIds(coreName, idsToDelete);
+            template.commit(coreName);
+        }
+    }
+
+    /**
      * Removes {@link DiscoSolrDocument documents} from the index that participate in the specified lineage. All
      * documents with a {@link DiscoSolrDocument#EVENT_LINEAGE_PROGENITOR_URI lineage URI} equal to {@code lineageUri}
      * will be deleted from the index, regardless of the document {@link DiscoSolrDocument#DISCO_STATUS status}.
