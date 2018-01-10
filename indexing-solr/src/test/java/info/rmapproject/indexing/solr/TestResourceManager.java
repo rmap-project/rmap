@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static info.rmapproject.indexing.IndexUtils.iae;
+import info.rmapproject.indexing.TestUtils;
 
 /**
  * Provides access for loading RDF from classpath resources, deserializing the RDF to RMap objects, and accessing

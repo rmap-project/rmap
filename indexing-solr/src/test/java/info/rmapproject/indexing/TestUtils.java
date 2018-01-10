@@ -1,4 +1,4 @@
-package info.rmapproject.indexing.solr;
+package info.rmapproject.indexing;
 
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObject;
@@ -9,7 +9,6 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
-import info.rmapproject.indexing.IndexUtils;
 import info.rmapproject.indexing.solr.repository.IndexDTO;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Statement;
@@ -20,8 +19,11 @@ import org.springframework.lang.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -33,21 +35,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static info.rmapproject.indexing.IndexUtils.findEventIri;
 import static info.rmapproject.indexing.IndexUtils.irisEqual;
+import static java.net.URI.create;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import info.rmapproject.core.exception.RMapDefectiveArgumentException;
+import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
+import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
+import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
+import info.rmapproject.core.model.request.RequestEventDetails;
+import info.rmapproject.core.rmapservice.RMapService;
+import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
+import info.rmapproject.testdata.service.TestConstants;
+import info.rmapproject.testdata.service.TestDataHandler;
+import info.rmapproject.testdata.service.TestFile;
 
 /**
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
 public class TestUtils {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(TestUtils.class);
+
+	private static AtomicInteger COUNTER = new AtomicInteger(0);
+	
     /**
      * Returns {@code true} if the supplied statement's predicate is
      * {@code http://www.w3.org/1999/02/22-rdf-syntax-ns#type}.
@@ -308,6 +335,129 @@ public class TestUtils {
                 });
     }
 
+    /**
+     * Populates triplestore using test data on resource path provided.
+     * @param triplestore
+     * @param rdfHandler
+     * @param rMapService
+     * @param resourcePath
+     * @return
+     * @throws Exception
+     */
+    public static Map<RMapObjectType, Set<TestUtils.RDFResource>> populateTriplestore(Rdf4jTriplestore triplestore,
+                                                                                       RDFHandler rdfHandler,
+                                                                                       RMapService rMapService,
+                                                                                       String resourcePath)
+            throws Exception {
+        Map<RMapObjectType, Set<TestUtils.RDFResource>> rmapObjects = new HashMap<>();
+        getRmapResources(resourcePath,rdfHandler, RDFFormat.NQUADS, rmapObjects);
+        assertFalse(rmapObjects.isEmpty());
+
+        RMapAgent systemAgent = createSystemAgent(rMapService);
+        RequestEventDetails requestEventDetails = new RequestEventDetails(systemAgent.getId().getIri());
+
+        List<RMapAgent> agents = getRmapObjects(rmapObjects, RMapObjectType.AGENT, rdfHandler);
+        assertNotNull(agents);
+        assertTrue(agents.size() > 0);
+        LOG.debug("Creating {} agents", agents.size());
+        agents.forEach(agent -> {
+            try {
+                rMapService.createAgent(agent, requestEventDetails);
+            } catch (Exception e) {
+                LOG.debug("Error creating agent {}: {}", agent.getId().getStringValue(), e.getMessage(), e);
+            }
+        });
+
+        // Print out the triplestore contents to stderr
+        System.err.println("Dump one:");
+        dumpTriplestore(triplestore, new PrintStream(System.err, true));
+
+        rmapObjects.values().stream().flatMap(Set::stream)
+                .forEach(source -> {
+                    try (InputStream in = source.getInputStream();
+                         RepositoryConnection c = triplestore.getConnection();
+                    ) {
+                        assertTrue(c.isOpen());
+                        c.add(in, "http://foo/bar", source.getRdfFormat());
+                    } catch (IOException e) {
+                        e.printStackTrace(System.err);
+                        fail("Unexpected IOException");
+                    }
+                });
+
+        System.err.println("Dump two:");
+        dumpTriplestore(triplestore, new PrintStream(System.err, true));
+
+        return rmapObjects;
+    }
+    
+	/**
+     * Instantiate an {@link ORMapAgent} to represent a System agent, and use the {@link RMapService} to create the
+     * agent.  Verifies the agent was created using {@link RMapService#isAgentId(URI)}
+     *
+     * @param rmapService used to create the agent in the underlying triplestore
+     * @throws RMapException
+     * @throws RMapDefectiveArgumentException
+     * @throws URISyntaxException
+     */
+    public static RMapAgent createSystemAgent(RMapService rmapService) throws RMapException, RMapDefectiveArgumentException, URISyntaxException {
+        IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID);
+        IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
+        IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_AUTH_ID);
+        Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT_NAME);
+        RMapAgent sysagent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
+
+        RequestEventDetails requestEventDetails = new RequestEventDetails(new URI(TestConstants.SYSAGENT_ID), new URI(TestConstants.SYSAGENT_KEY));
+
+        //create new test agent
+        URI agentId = sysagent.getId().getIri();
+        if (!rmapService.isAgentId(agentId)) {
+            rmapService.createAgent(sysagent, requestEventDetails);
+        }
+
+        // Check the agent was created
+        assertTrue(rmapService.isAgentId(agentId));
+
+        return sysagent;
+    }
+    
+	/**
+	 * Retrieves a test DiSCO object
+	 * @param testobj
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws RMapException
+	 * @throws RMapDefectiveArgumentException
+	 */
+	public static ORMapDiSCO getRMapDiSCOObj(TestFile testobj) throws FileNotFoundException, RMapException, RMapDefectiveArgumentException {
+		InputStream stream = TestDataHandler.getTestData(testobj);
+		RioRDFHandler handler = new RioRDFHandler();	
+		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
+		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + COUNTER.getAndIncrement()));
+		return disco;		
+	}
+	
+    /**
+     * Dumps the contents of the triplestore to the provided output stream.
+     *
+     * @param outputStream
+     * @throws Exception
+     */
+    public static void dumpTriplestore(Rdf4jTriplestore triplestore, OutputStream outputStream) throws Exception {
+        List<Statement> statements = triplestore.getStatementListBySPARQL("select ?s ?p ?o ?c where {GRAPH ?c {?s ?p ?o}}");
+        statements.forEach(
+                statement -> {
+                    try {
+                        outputStream.write(statement.toString().getBytes("UTF-8"));
+                        outputStream.write("\n".getBytes());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e.getMessage(), e);
+                    }
+                }
+        );
+    }
+    
+    
     /**
      * A Spring Resource of RDF content. A {@code RDFResource} exposes the RDF serialization of the RDF, along with an
      * {@code InputStream} to the content.  This allows callers to determine which serialization to use when
