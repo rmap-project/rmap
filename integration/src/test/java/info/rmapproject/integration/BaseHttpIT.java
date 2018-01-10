@@ -20,6 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Base integration test with common HTTP test fixtures.
+ *
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -75,6 +77,5 @@ public abstract class BaseHttpIT {
     static String encodeAuthCreds(String accessKey, String secret) {
         return Base64.getEncoder().encodeToString(String.valueOf(accessKey + ":" + secret).getBytes());
     }
-
 
 }
