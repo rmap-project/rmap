@@ -6,6 +6,7 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rmapservice.RMapService;
+import info.rmapproject.indexing.IndexUtils;
 import info.rmapproject.indexing.IndexingInterruptedException;
 import info.rmapproject.indexing.IndexingTimeoutException;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
@@ -171,9 +172,17 @@ public class DefaultIndexRetryHandler implements IndexingRetryHandler, EventTupl
                     from the API.  So just short-circuit the process here.
                 */
                 if (event.getEventType() == RMapEventType.DELETION || event.getEventType() == RMapEventType.TOMBSTONE) {
-                    LOG.trace("Cannot index events of type {}, however, the lineage with progenitor URI {} will be " +
-                            "removed from the index.", event.getEventType(), event.getLineageProgenitor());
-                    discosSolrOperations.deleteDocumentsForLineage(event.getLineageProgenitor().getStringValue());
+                    final Optional<RMapIri> sourceDiscoUri = findEventIri(event, SOURCE);
+                    if (!sourceDiscoUri.isPresent()) {
+                        LOG.warn("Unable to index event of type {}: no source DiSCO URI was found: {}",
+                                event.getEventType(), event);
+                        success = true;
+                        continue;
+                    }
+
+                    LOG.trace("Cannot index events of type {}, however, any documents for DiSCO URI {} will be " +
+                            "removed from the index.", event.getEventType(), sourceDiscoUri.get().getStringValue());
+                    discosSolrOperations.deleteDocumentsForDiscoUri(sourceDiscoUri.get().getStringValue());
                     success = true;
                     continue;
                 }
