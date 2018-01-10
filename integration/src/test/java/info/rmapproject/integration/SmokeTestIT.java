@@ -150,10 +150,6 @@ public class SmokeTestIT extends BaseHttpIT {
         }));
     }
 
-    private static String encodeAuthCreds(String accessKey, String secret) {
-        return Base64.getEncoder().encodeToString(String.valueOf(accessKey + ":" + secret).getBytes());
-    }
-
     /**
      * The user creates a new DiSCO, once indexed they then delete it. The index should remove the DiSCO content and
      * display as deleted.
