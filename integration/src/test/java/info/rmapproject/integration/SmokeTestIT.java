@@ -12,24 +12,15 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
-import java.util.logging.Level;
-
-import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import info.rmapproject.indexing.kafka.Condition;
-import info.rmapproject.indexing.solr.repository.DiscoRepository;
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -41,49 +32,7 @@ import okhttp3.Response;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:/integration-context.xml")
-public class SmokeTestIT {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SmokeTestIT.class);
-
-    private static String scheme = "http";
-
-    private static String host = "localhost";
-
-    private static String port = System.getProperty("rmap.webapp.test.port");
-
-    private static String webappCtxPath = System.getProperty("rmap.webapp.context");
-
-    private static String apiCtxPath = System.getProperty("rmap.api.context");
-
-    private static URL apiBaseUrl;
-
-    private static URL appBaseUrl;
-
-    @Autowired
-    private OkHttpClient http;
-
-    @Autowired
-    private DataSource ds;
-
-    @Autowired
-    private DiscoRepository discoRepository;
-
-    /**
-     * Re-usable logic which asks Solr how many documents are in the index
-     */
-    private Condition<Long> documentCount = new Condition<>(() -> discoRepository.count(), "Document count");
-
-    @BeforeClass
-    public static void setUpBaseUrls() throws Exception {
-        java.util.logging.Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
-        assertNotNull("System property 'rmap.webapp.test.port' must be specified.", port);
-        assertTrue("System property 'rmap.webapp.test.port' must be an integer greater than 0",
-                Integer.parseInt(port) > 0);
-        assertNotNull("System property 'rmap.webapp.context' must be specified.", webappCtxPath);
-        assertNotNull("System property 'rmap.api.context' must be specified.", apiCtxPath);
-        apiBaseUrl = new URL(scheme, host, Integer.parseInt(port), apiCtxPath);
-        appBaseUrl = new URL(scheme, host, Integer.parseInt(port), webappCtxPath);
-    }
+public class SmokeTestIT extends BaseHttpIT {
 
     /**
      * The RMap API webapp should return a 200, indicating successful startup.
