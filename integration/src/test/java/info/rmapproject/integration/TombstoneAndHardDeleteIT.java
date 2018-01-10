@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -29,10 +30,28 @@ import static org.junit.Assert.assertTrue;
  */
 public class TombstoneAndHardDeleteIT extends BaseHttpIT {
 
+    private final String V1_VERIFY_MSG = "Verifying that the number of docs with ACTIVE status for lineage {} is " +
+            "greater than 0, and that the document is ACTIVE and pertains to the correct disco uri";
+    private final String V2_VERIFY_MSG = "Verifying that the number of docs for lineage {} is equal to 3, and that " +
+            "one is ACTIVE, and the rest INACTIVE";
+    private final String V3_VERIFY_MSG = "Verifying that the number of docs for lineage {} is equal to 5, and that " +
+            "one is ACTIVE, and others INACTIVE";
+    private final String TB_VERIFY_MSG = "Verifying that the number of docs for lineage {} is equal to 3, and that " +
+            "one is ACTIVE, and others INACTIVE";
+
+    /**
+     * Version 1 of a DiSCO
+     */
     private String discoV1;
 
+    /**
+     * Version 2 of a DiSCO
+     */
     private String discoV2;
 
+    /**
+     * Version 3 of a DiSCO
+     */
     private String discoV3;
 
     @Before
@@ -46,6 +65,9 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
     }
 
     /*
+
+    From: https://github.com/rmap-project/rmap/issues/176
+
         //create discoV1
         discoV1 (active)
         //update discoV1
@@ -68,8 +90,8 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
      */
 
     /**
-     * Creates three versions of a DiSCO, and tombstones the second version.  Insures that the correct documents are
-     * in the index each step of the way.
+     * Creates three versions of a DiSCO using the RMap HTTP API, and tombstones the second version.  Insures that the
+     * correct documents are in the index each step of the way.
      *
      * @throws IOException
      * @throws InterruptedException
@@ -89,8 +111,8 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
         LOG.trace("** Checking ACTIVE document count for progenitor lineage {} ...", v1DiscoUri);
 
         // Verify that the DiSCO is indexed, inferred by the increase in the number of active Solr documents in the
-        // index for the lineage
-        Condition<List<DiscoSolrDocument>> activeDocuments = new Condition<>(() -> {
+        // index for the new lineage
+        Condition<List<DiscoSolrDocument>> activeDocsForLineage = new Condition<>(() -> {
             List<DiscoSolrDocument> activeCount = discoRepository
                     .findDiscoSolrDocumentsByEventLineageProgenitorUriAndDiscoStatus(v1DiscoUri, "ACTIVE")
                     .stream()
@@ -101,8 +123,8 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
             return activeCount;
         }, "Count of ACTIVE documents for lineage " + v1DiscoUri);
 
-        assertTrue(activeDocuments.awaitAndVerify((docs) -> {
-            LOG.trace("Verifying that the number of docs with ACTIVE status for lineage {} is greater than 0, and that the document is ACTIVE and pertains to the correct disco uri", v1DiscoUri);
+        assertTrue(activeDocsForLineage.awaitAndVerify((docs) -> {
+            LOG.trace(V1_VERIFY_MSG, v1DiscoUri);
             return docs.size() == 1
                     && docs.get(0).getDiscoStatus().equals("ACTIVE")
                     && docs.get(0).getDiscoUri().equals(v1DiscoUri)
@@ -118,16 +140,16 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
 
         // Verify that the DiSCO is indexed, inferred by the increase in the number of Solr documents in the
         // index for the lineage.  One should be active, one should be inactive
-        Condition<List<DiscoSolrDocument>> docsForLineage = new Condition<>(() -> {
+        Condition<List<DiscoSolrDocument>> allDocsForLineage = new Condition<>(() -> {
             Set<DiscoSolrDocument> docs = discoRepository
                     .findDiscoSolrDocumentsByEventLineageProgenitorUri(v1DiscoUri);
             LOG.trace("Current document count for lineage {}: {}", v1DiscoUri, docs.size());
             return docs.stream().sorted(comparing(DiscoSolrDocument::getDocLastUpdated).reversed()).collect(toList());
         }, "Documents for lineage " + v1DiscoUri);
 
-        assertTrue(docsForLineage.awaitAndVerify((docs) -> {
-            LOG.trace("Verifying that the number of docs for lineage {} is equal to 3, and that one is ACTIVE, and the rest INACTIVE", v1DiscoUri);
-            docs.forEach(doc -> LOG.trace("Doc (last updated: {}, status: {}, disco: {}): {}", doc.getDocLastUpdated(), doc.getDiscoStatus(), doc.getDiscoUri(), doc.getDocId()));
+        assertTrue(allDocsForLineage.awaitAndVerify((docs) -> {
+            LOG.trace(V2_VERIFY_MSG, v1DiscoUri);
+            logDocuments(docs);
             return docs.size() == 3
                     && docs.get(0).getDiscoStatus().equals("INACTIVE")
                     && docs.get(1).getDiscoStatus().equals("INACTIVE")
@@ -145,9 +167,9 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
 
         // Verify that the DiSCO is indexed, inferred by the increase in the number of Solr documents in the
         // index for the lineage.  One should be active, others should be inactive
-        assertTrue(docsForLineage.awaitAndVerify((docs) -> {
-            LOG.trace("Verifying that the number of docs for lineage {} is equal to 5, and that one is ACTIVE, and others INACTIVE", v1DiscoUri);
-            docs.forEach(doc -> LOG.trace("Doc (last updated: {}, status: {}, disco: {}): {}", doc.getDocLastUpdated(), doc.getDiscoStatus(), doc.getDiscoUri(), doc.getDocId()));
+        assertTrue(allDocsForLineage.awaitAndVerify((docs) -> {
+            LOG.trace(V3_VERIFY_MSG, v1DiscoUri);
+            logDocuments(docs);
             return docs.size() == 5
                     && docs.get(0).getDiscoStatus().equals("INACTIVE")
                     && docs.get(1).getDiscoStatus().equals("INACTIVE")
@@ -164,9 +186,9 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
 
         // Verify that the DiSCO is deleted, inferred by the decrease in the number of Solr documents in the
         // index for the lineage.  One should be active, others should be inactive.
-        assertTrue(docsForLineage.awaitAndVerify((docs) -> {
-            LOG.trace("Verifying that the number of docs for lineage {} is equal to 3, and that one is ACTIVE, and others INACTIVE", v1DiscoUri);
-            docs.forEach(doc -> LOG.trace("Doc (last updated: {}, status: {}, disco: {}): {}", doc.getDocLastUpdated(), doc.getDiscoStatus(), doc.getDiscoUri(), doc.getDocId()));
+        assertTrue(allDocsForLineage.awaitAndVerify((docs) -> {
+            LOG.trace(TB_VERIFY_MSG, v1DiscoUri);
+            logDocuments(docs);
             return docs.size() == 3
                     && docs.get(0).getDiscoStatus().equals("INACTIVE")
                     && docs.get(0).getDiscoUri().equals(v1DiscoUri)
@@ -179,37 +201,70 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
 
     }
 
+    /**
+     * Deposit the DiSCO by performing a {@code POST} to the {@code endpoint}.  The {@code discoBody} must be encoded as
+     * rdf/xml. If the request is successful, the return should be a URI to the newly created DiSCO.
+     *
+     * @param endpoint the /discos API endpoint; /discos/{uri} may be used to create a new version of the disco at
+     *                 /discos/{uri}
+     * @param discoBody the DiSCO to deposit, encoded as rdf/xml
+     * @return a URI to the newly created DiSCO
+     * @throws IOException
+     */
     private String depositDisco(URL endpoint, String discoBody) throws IOException {
-        String discoUri;
-
-        try (Response res =
-                     http.newCall(new Request.Builder()
-                             .post(RequestBody.create(MediaType.parse(APPLICATION_RDFXML), discoBody))
-                             .url(endpoint).addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
-                             .build())
-                             .execute()) {
-            assertEquals(endpoint + " failed with: '" + res.code() + "', '" + res.message() + "'",
-                    201, res.code());
-            discoUri = res.body().string();
-        }
-
-        return discoUri;
+        return decorateAndExecuteRequest(endpoint,
+                new Request.Builder()
+                        .post(RequestBody.create(MediaType.parse(APPLICATION_RDFXML), discoBody))
+                        .url(endpoint),
+                201);
     }
 
-    private String deleteDisco(URL endpoint) throws IOException {
-        String discoUri;
+    /**
+     * Delete (a.k.a. "tombstone", "soft delete") the DiSCO by sending a {@code DELETE} request to the {@code endpoint}.
+     *
+     * @param endpoint a URL that identifies the DiSCO to delete; /discos/{uri}
+     * @throws IOException
+     */
+    private void deleteDisco(URL endpoint) throws IOException {
+        decorateAndExecuteRequest(endpoint,
+                new Request.Builder()
+                        .delete()
+                        .url(endpoint),
+                200);
+    }
+
+    /**
+     * Executes the supplied request and verifies the response code.  The request is decorated with authentication
+     * credentials before being sent.
+     *
+     * @param endpoint the HTTP endpoint
+     * @param req the request builder, which is complete except for authentication credentials
+     * @param expectedStatus the status that is expected upon successful execution
+     * @return the body of the response as a String
+     * @throws IOException
+     */
+    private String decorateAndExecuteRequest(URL endpoint, Request.Builder req, int expectedStatus) throws IOException {
+        String body;
 
         try (Response res =
-                     http.newCall(new Request.Builder()
-                             .delete()
-                             .url(endpoint).addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
+                     http.newCall(req.addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
                              .build())
                              .execute()) {
             assertEquals(endpoint + " failed with: '" + res.code() + "', '" + res.message() + "'",
-                    200, res.code());
-            discoUri = res.body().string();
+                    expectedStatus, res.code());
+            body = res.body().string();
         }
 
-        return discoUri;
+        return body;
+    }
+
+    /**
+     * Logs some information about each document at TRACE level.
+     *
+     * @param docs a Collection of documents
+     */
+    private static void logDocuments(Collection<DiscoSolrDocument> docs) {
+        docs.forEach(doc -> LOG.trace("Doc (last updated: {}, status: {}, disco: {}): {}",
+                doc.getDocLastUpdated(), doc.getDiscoStatus(), doc.getDiscoUri(), doc.getDocId()));
     }
 }
