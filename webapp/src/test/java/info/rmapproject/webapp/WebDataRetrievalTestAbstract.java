@@ -19,40 +19,18 @@
  *******************************************************************************/
 package info.rmapproject.webapp;
 
-import static java.net.URI.create;
-import static org.junit.Assert.assertTrue;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
-import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
-import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
-import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
-import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
+import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.rdfhandler.RDFHandler;
-import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSailMemoryTriplestore;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.testdata.service.TestConstants;
-import info.rmapproject.testdata.service.TestDataHandler;
-import info.rmapproject.testdata.service.TestFile;
 
 /**
  * Abstract class for Webapp tests that require some RMap data retrieval.
@@ -61,23 +39,14 @@ import info.rmapproject.testdata.service.TestFile;
  */
 public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 
-	private static AtomicInteger COUNTER = new AtomicInteger(0);
-
 	/** The rmap service. */
 	@Autowired
 	protected RMapService rmapService;
 
-	/** The rdf handler. */
-	@Autowired
-	protected RDFHandler rdfHandler;
-	
 	/** The triplestore. */
 	@Autowired
 	protected Rdf4jTriplestore triplestore;
-			
-	/** The context. */
-	protected ApplicationContext context;
-		
+	
 	/**
 	 * Instantiates a new Web Data Retrieval test.
 	 */
@@ -86,7 +55,7 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 	}
 	
 	/** General use sysagent for testing **/
-	protected ORMapAgent sysagent = null;
+	protected RMapAgent sysagent = null;
 	
 	/** Request agent based on sysagent. Include key */
 	protected RequestEventDetails reqEventDetails = null;
@@ -94,7 +63,11 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 	@Before
 	public void setUp() throws Exception {
 		//create test agent and corresponding requestAgent
-		createSystemAgent();
+		this.sysagent = TestUtils.createSystemAgent(rmapService);
+
+		if (reqEventDetails==null){
+			reqEventDetails = new RequestEventDetails(new URI(TestConstants.SYSAGENT_ID),new URI(TestConstants.SYSAGENT_KEY));
+		}
 	}
 
 	
@@ -110,71 +83,4 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 		}
 	}
 		
-	
-	/**
-	 * Create generic sysagent and RequestAgent for general use using TestConstants. 
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 * @throws URISyntaxException
-	 */
-	protected void createSystemAgent() throws RMapException, RMapDefectiveArgumentException, URISyntaxException{
-		if (sysagent == null) {
-			IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID);
-			IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
-			IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_AUTH_ID);
-			Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT_NAME);	
-			sysagent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
-			
-			if (reqEventDetails==null){
-				reqEventDetails = new RequestEventDetails(new URI(TestConstants.SYSAGENT_ID),new URI(TestConstants.SYSAGENT_KEY));
-			}
-			
-			//create new test agent
-			URI agentId=sysagent.getId().getIri();
-			if (!rmapService.isAgentId(agentId)) {
-				rmapService.createAgent(sysagent,reqEventDetails);
-			}
-
-			// Check the agent was created
-			assertTrue(rmapService.isAgentId(agentId));		
-		}
-	}	
-
-	/**
-	 * Retrieves a test DiSCO object
-	 * @param testobj
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	protected static ORMapDiSCO getRMapDiSCOObj(TestFile testobj) throws FileNotFoundException, RMapException, RMapDefectiveArgumentException {
-		InputStream stream = TestDataHandler.getTestData(testobj);
-		RioRDFHandler handler = new RioRDFHandler();	
-		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + COUNTER.getAndIncrement()));
-		return disco;		
-	}
-
-	/**
-	 * Retrieves a test Agent object
-	 * @param testobj
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws RMapException
-	 * @throws RMapDefectiveArgumentException
-	 */
-	protected static ORMapAgent getAgentObj(TestFile testobj) throws FileNotFoundException, RMapException, RMapDefectiveArgumentException {
-		InputStream stream = TestDataHandler.getTestData(testobj);
-		RioRDFHandler handler = new RioRDFHandler();	
-		Set<Statement>stmts = handler.convertRDFToStmtList(stream, RDFType.get(testobj.getType()), "");
-		ORMapAgent agent = OStatementsAdapter.asAgent(stmts, () -> create("http://example.org/agent/" + COUNTER.getAndIncrement()));
-		return agent;		
-	}
-	
-	
-	
-
-	
-
 }

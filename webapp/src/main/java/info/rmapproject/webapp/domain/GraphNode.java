@@ -43,11 +43,14 @@ public class GraphNode implements Serializable{
     /** ID of node - must be unique in the context of a graph. */
     private Integer id;
     
-    /** Name of node to be used as a label. */
+    /** Name of node in RMap, this is typically a URI. */
 	private String name;
+    
+    /** Label to be displayed next to the node. */
+	private String label;
 	
-	/** Shortened version of the node name for tidy label display. */
-	private String shortname; 
+	/** Shortened version of the node label for tidy display. */
+	private String shortlabel; 
 	
 	/** Node weight. */
 	private Integer weight;
@@ -63,10 +66,11 @@ public class GraphNode implements Serializable{
 	 * @param weight the node weight
 	 * @param type the node type
 	 */
-	public GraphNode(Integer id, String name, Integer weight, String type){
+	public GraphNode(Integer id, String name, String label, Integer weight, String type){
 		setId(id);
 		setType(type);
 		setName(name);
+		setLabel(label);
 		setWeight(weight);
 	}
 
@@ -105,19 +109,7 @@ public class GraphNode implements Serializable{
 	public void setName(String name) {
 		name=name.replace("\\", "\\\\");
 		name=name.replace("'", "\\'");
-		this.name = name;
-		String shortname = name;
-		if (this.type!=null && this.type.equals(Constants.NODETYPE_TYPE)){
-			//for types see if we can do a short name
-			shortname=WebappUtils.replaceNamespace(shortname);
-		}
-		if (shortname.length() > Constants.MAX_NODETEXT_LENGTH) {
-			setShortname(shortname.substring(0, Constants.MAX_NODETEXT_LENGTH-3) + "...");
-		}
-		else {
-			setShortname(shortname);			
-		}
-		
+		this.name = name;		
 	}
 
 	/**
@@ -157,21 +149,50 @@ public class GraphNode implements Serializable{
 	}
 
 	/**
-	 * Gets the node shortname.
+	 * Gets the node label.
 	 *
-	 * @return the node shortname
+	 * @return the node label
 	 */
-	public String getShortname() {
-		return shortname;
+	public String getLabel() {
+		return label;
 	}
 
 	/**
-	 * Sets the node shortname.
+	 * Sets the node label.
 	 *
-	 * @param shortname the new node shortname
+	 * @param label the new node label
 	 */
-	public void setShortname(String shortname) {
-		this.shortname = shortname;
+	public void setLabel(String label) {
+
+		label=label.replaceAll("[\n\r]", "");
+		label=label.replaceAll("[ ]+", " ");		
+		label=label.replace("\\", "\\\\");
+		label=label.replace("'", "\\'");
+		
+		this.label = label;
+		String shortlabel = label;
+		if (shortlabel != null){
+			shortlabel = WebappUtils.ellipsize(shortlabel, Constants.MAX_NODETEXT_LENGTH);
+		}
+		setShortlabel(shortlabel);		
+	}	
+	
+	/**
+	 * Gets the node shortlabel.
+	 *
+	 * @return the node shortlabel
+	 */
+	public String getShortlabel() {
+		return shortlabel;
+	}
+
+	/**
+	 * Sets the node shortlabel.
+	 *
+	 * @param shortname the new node shortlabel
+	 */
+	public void setShortlabel(String shortlabel) {
+		this.shortlabel = shortlabel;
 	}	
 	
 }

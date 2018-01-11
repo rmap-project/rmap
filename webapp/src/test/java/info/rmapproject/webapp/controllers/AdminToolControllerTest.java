@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
+import static info.rmapproject.webapp.TestUtils.getRMapDiSCOObj;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

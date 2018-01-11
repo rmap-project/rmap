@@ -24,6 +24,7 @@ import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
+import info.rmapproject.webapp.service.UserMgtService;
 
 /**
  * Tests for UserServiceImpl.

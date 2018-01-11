@@ -34,11 +34,11 @@ public class GraphEdge implements Serializable {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 	
-	/** The source node ID. */
-	private Integer source;
+	/** The source node. */
+	private GraphNode source;
 	
-	/** The target node ID. */
-	private Integer target;
+	/** The target node. */
+	private GraphNode target;
 	
 	/** The edge label. */
 	private String label;
@@ -46,9 +46,6 @@ public class GraphEdge implements Serializable {
 	/** The edge shortlabel. */
 	private String shortlabel;
 	
-	/** The target node type. */
-	private String targetNodeType;
-
 	/**
 	 * Instantiates a new graph edge.
 	 */
@@ -59,11 +56,11 @@ public class GraphEdge implements Serializable {
 	/**
 	 * Instantiates a new graph edge.
 	 *
-	 * @param source the source node ID
-	 * @param target the target node ID
+	 * @param source the source node
+	 * @param target the target node
 	 * @param label the edge label
 	 */
-	public GraphEdge(Integer source, Integer target, String label) {
+	public GraphEdge(GraphNode source, GraphNode target, String label) {
 		setSource(source);
 		setTarget(target);
 		setLabel(label);
@@ -74,7 +71,7 @@ public class GraphEdge implements Serializable {
 	 *
 	 * @return the source node ID
 	 */
-	public Integer getSource() {
+	public GraphNode getSource() {
 		return source;
 	}
 	
@@ -83,7 +80,7 @@ public class GraphEdge implements Serializable {
 	 *
 	 * @param source the new source node ID
 	 */
-	public void setSource(Integer source) {
+	public void setSource(GraphNode source) {
 		this.source = source;
 	}
 	
@@ -92,7 +89,7 @@ public class GraphEdge implements Serializable {
 	 *
 	 * @return the target node ID
 	 */
-	public Integer getTarget() {
+	public GraphNode getTarget() {
 		return target;
 	}
 	
@@ -101,7 +98,7 @@ public class GraphEdge implements Serializable {
 	 *
 	 * @param target the new target node ID
 	 */
-	public void setTarget(Integer target) {
+	public void setTarget(GraphNode target) {
 		this.target = target;
 	}
 	
@@ -115,33 +112,18 @@ public class GraphEdge implements Serializable {
 	}
 	
 	/**
-	 * Sets the edge label.
+	 * Sets the edge label and uses this to populate the short label.
 	 *
 	 * @param label the new edge label
 	 */
 	public void setLabel(String label) {
 		this.label = label;
-		if (label != null){
-			setShortlabel(shortenLabel(label)); //update short label based on new label assignment	
+		String shortlabel = label;
+		if (shortlabel != null){
+			shortlabel = WebappUtils.removeNamespace(shortlabel);
+			shortlabel = WebappUtils.ellipsize(shortlabel, Constants.MAX_EDGETEXT_LENGTH);
 		}
-	}
-
-	/**
-	 * Gets the target node type.
-	 *
-	 * @return the target node type
-	 */
-	public String getTargetNodeType() {
-		return targetNodeType;
-	}
-
-	/**
-	 * Sets the target node type.
-	 *
-	 * @param targetNodeType the new target node type
-	 */
-	public void setTargetNodeType(String targetNodeType) {
-		this.targetNodeType = targetNodeType;
+		setShortlabel(shortlabel);	
 	}
 
 	/**
@@ -150,9 +132,6 @@ public class GraphEdge implements Serializable {
 	 * @return the edge shortlabel
 	 */
 	public String getShortlabel() {
-		if (shortlabel==null && label != null){
-			setShortlabel(shortenLabel(label)); //update short label based on new label assignment			
-		}
 		return shortlabel;
 	}
 	
@@ -164,24 +143,6 @@ public class GraphEdge implements Serializable {
 	 */
 	public void setShortlabel(String shortlabel) {
 		this.shortlabel = shortlabel;
-	}
-	
-	/**
-	 * Creates a short version of the label so it can be used for tidy graph display.
-	 * By default the shortLabel method will be used to create the shortLabel each time setLabel is called
-	 * To customize the short label, do a setShortLabel after setLabel
-	 *
-	 * @param label the full edge label
-	 * @return the short edge label
-	 */
-	public String shortenLabel(String label) {
-		if (label != null){
-			label = WebappUtils.removeNamespace(label);
-			if (label.length() > Constants.MAX_EDGETEXT_LENGTH) {
-				setShortlabel(label.substring(label.length() - Constants.MAX_EDGETEXT_LENGTH) + "...");
-			}
-		}
-		return label;
 	}
 
 	

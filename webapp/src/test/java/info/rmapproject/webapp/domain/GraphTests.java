@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.eclipse.rdf4j.model.IRI;
@@ -32,7 +33,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSparqlUtils;
 import info.rmapproject.webapp.WebTestAbstract;
 import info.rmapproject.webapp.service.SpringGraphFactory;
-import info.rmapproject.webapp.utils.Constants;
 import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
@@ -60,22 +60,24 @@ public class GraphTests extends WebTestAbstract {
 	 * @throws Exception
 	 */
 	@Test
-	public void testGraphTwoIdenticalLiteralsSeparateNodes() throws Exception {
+	public void testTwoNodesWithEdgeBetween() throws Exception {
 		final String agentNodeType = WebappUtils.getNodeType(new URI("http://purl.org/dc/terms/Agent"));
 
 		Graph graph = graphFactory.newGraph();
 
-		graph.addEdge("http://example.org/agentA", "John Smith", "http://example.org/name", agentNodeType, Constants.NODETYPE_LITERAL);
-		graph.addEdge("http://example.org/agentB", "John Smith", "http://example.org/name", agentNodeType, Constants.NODETYPE_LITERAL);
-		graph.addEdge("http://example.org/agentA", "http://example.org/agentB", "http://example.org#knows", agentNodeType, agentNodeType);
-
+		String personA = "http://example.org/agentA";
+		String personB = "http://example.org/agentB";
+		
+		graph.addNode(personA, agentNodeType);
+		graph.addNode(personB, agentNodeType);
+		graph.addEdge(personA, personB, "http://example.org/knows");
+		
 		List<GraphEdge> edges = graph.getEdges();
-		assertTrue(edges.size() == 3);
+		assertTrue(edges.size() == 1);
 
-		List<GraphNode> nodes = graph.getNodes();
-		assertTrue(nodes.size() == 4);
-		assertTrue(nodes.get(1).getShortname().equals("John Smith"));
-		assertTrue(nodes.get(3).getShortname().equals("John Smith"));
+		Map<String,GraphNode> nodes = graph.getNodes();
+		assertTrue(nodes.size() == 2);
+		assertTrue(nodes.get("http://example.org/agentA").getId()>0);
 	}
 
 	@Test

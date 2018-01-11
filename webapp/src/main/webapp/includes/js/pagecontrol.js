@@ -1,4 +1,5 @@
 <c:set var="activeTab" value="${empty param.tab ? 'graph' : param.tab}"/>
+<c:set var="status" value="${empty param.status ? 'active' : param.status}"/>
 
 <script>
 /** base url of current object to support loading of data pages **/
@@ -6,6 +7,9 @@ var objectUrl = "<c:url value='/${pageType}s/${my:httpEncodeStr(resourceUri.toSt
 
 /** store active tab - graph or table, initially populated from either 'tab' param or default to graph**/
 var activeTab = "${activeTab}";
+
+/** store status filter - active, inactive, or all. Defaults to active.*/
+var status = "${status}";
 
 /**
  * supports toggling between graph view and table view
@@ -29,8 +33,9 @@ function openView(viewname) {
 	// Show the current tab, and add an "active" class to the button that opened the tab
 	document.getElementById(viewname + "view").style.display = "block";
 	document.getElementById(viewname + "viewlink").className += " active";
-	
+
 	updateUrlParameter('tab', viewname);
+	
 }	
 
 
@@ -41,17 +46,8 @@ function openView(viewname) {
  * elementId = ID of element to replace innerHtml of
  * urlParamName = name of parameter that will hold the offset value for page bookmark/reload
  */
-function loadRecordBatch(offset, pathextension, elementId, urlParamName){
-	if (offset==null) {offset==0;}
-	if (offset<0) {offset=0;}
-	var getUrl = objectUrl+"/" + pathextension + "?offset=" + offset;
-	var currUrl = window.location.href;
-	if (currUrl.indexOf("/widget")>0){
-		getUrl = getUrl + "&view=widget";
-	} else if (currUrl.indexOf("/visual")>0) {
-		getUrl = getUrl + "&view=visual";
-	}
-
+function loadRecordBatch(offset, status, pathextension, elementId, urlParamName){
+	var getUrl = buildGetUrl(offset, status, pathextension)
 	$.get(getUrl)
 		.success(function( data ) {
 			document.getElementById(elementId).innerHTML = data;
@@ -60,12 +56,7 @@ function loadRecordBatch(offset, pathextension, elementId, urlParamName){
 			document.getElementById(elementId).innerHTML = "<br/>Failed to load records. This could be caused by a connection problem or a system error.<br/><br/><br/>"
 	     });
 
-	if (offset>0){
-		updateUrlParameter(urlParamName, offset);
-	} else {
-		updateUrlParameter(urlParamName, null);
-	}
-
+	updateParams(urlParamName, offset, status);
 }
 	
 
@@ -76,16 +67,9 @@ function loadRecordBatch(offset, pathextension, elementId, urlParamName){
  * elementId = ID of element to replace innerHtml of
  * urlParamName = name of parameter that will hold the offset value for page bookmark/reload
  */
-function loadGraphBatch(offset, pathextension, elementId, urlParamName){
-	if (offset==null) {offset==0;}
-	if (offset<0) {offset=0;}
-	var getUrl = objectUrl+"/" + pathextension + "?offset=" + offset;
-	var currUrl = window.location.href;
-	if (currUrl.indexOf("/widget")>0){
-		getUrl = getUrl + "&view=widget";
-	} else if (currUrl.indexOf("/visual")>0) {
-		getUrl = getUrl + "&view=visual";
-	}
+function loadGraphBatch(offset, status, pathextension, elementId, urlParamName){
+	var getUrl = buildGetUrl(offset, status, pathextension);
+		
 	$.get(getUrl)
 		.success(function( data ) {
 			$("#"+elementId).html(data);
@@ -96,17 +80,34 @@ function loadGraphBatch(offset, pathextension, elementId, urlParamName){
 	    .error(function() {
 			$("#"+elementId).html("<br/>Failed to load records. This could be caused by a connection problem or a system error.<br/><br/><br/>");
 	     });
-	
-	if (offset>0){
-		updateUrlParameter(urlParamName, offset);
-	} else {
-		updateUrlParameter(urlParamName, null);
-	}
+
+	updateParams(urlParamName, offset, status);
 }
 
 
+/**
+ * Builds GET URL for graph or table data
+ */
+function buildGetUrl(offset, status, pathextension) {
+	if (offset==null) {offset==0;}
+	if (offset<0) {offset=0;}
+	var getUrl = objectUrl+"/" + pathextension + "?offset=" + offset;
+	if (status!="active")	{
+		getUrl = getUrl + "&status=" + status;
+	}
+	var currUrl = window.location.href;
+	if (currUrl.indexOf("/widget")>0){
+		getUrl = getUrl + "&view=widget";
+	} else if (currUrl.indexOf("/visual")>0) {
+		getUrl = getUrl + "&view=visual";
+	}
+	return getUrl;
+}
+
+
+
 /** special variation of loadRecordBatch to deal with the popup info box on the graphs.*/
-function loadNodeInfoBatch(offset) {
+function loadNodeInfoBatch(offset,status) {
 	if (offset==null) {offset==0;}
 	if (offset<0) {offset=0;}
 	
@@ -118,9 +119,10 @@ function loadNodeInfoBatch(offset) {
 		//if we are not on a resources page need to also pass in the context URI
 		getUrl = getUrl + "/" + encodeURIComponent("${resourceUri}");
 	}
-	  
 	//pass in offset
 	getUrl = getUrl + "?offset=" + offset;
+	//pass in status
+	getUrl = getUrl + "&status=" + status;
 	
 	//pass in curr view
 	if (curUrl.indexOf("/widget")>0){
@@ -141,6 +143,20 @@ function loadNodeInfoBatch(offset) {
 
 }
 	
+
+function updateParams(offsetParamName, offset, status) {
+	if (offset>0){
+		updateUrlParameter(offsetParamName, offset);
+	} else {
+		updateUrlParameter(offsetParamName, null);
+	}
+	if (status!="active"){
+		updateUrlParameter("status", status);
+	} else {
+		updateUrlParameter("status", null);
+	}
+}
+
 	
 /**
  * Allows you to update the URL in the address bar of the browser without reloading 
@@ -189,7 +205,7 @@ $(window).load(function() {
 	// if the graphview block is present, load the graph data
 	if ($('#graphview').length>0) {
 		var offset = $("#graphview").data("offset");
-		loadGraphBatch(offset, "graphdata", "graphview", "gt_offset");
+		loadGraphBatch(offset, status, "graphdata", "graphview", "gt_offset");
 	}
 	
 	// if the tableview block is present, that means is a graph|table tab page, 
@@ -202,7 +218,7 @@ $(window).load(function() {
 		}
 		
 		var offset = $("#tableview").data("offset");
-		loadRecordBatch(offset, "tabledata", "tableview", "tt_offset");
+		loadRecordBatch(offset, status, "tabledata", "tableview", "tt_offset");
 	}
 	
 	// click actions that cause view change or data load 
@@ -217,78 +233,80 @@ $(window).load(function() {
 	// data table pagination
 	$(document).on("click","#tableNext", function() {
 		var offset = $("#tableNext").data("offset");
-		loadRecordBatch(offset, "tabledata", "tableview", "tt_offset");
+		loadRecordBatch(offset, status, "tabledata", "tableview", "tt_offset");
 	});
 	$(document).on("click","#tablePrev", function() {
 		var offset = $("#tablePrev").data("offset");
-		loadRecordBatch(offset, "tabledata", "tableview", "tt_offset");
+		loadRecordBatch(offset, status, "tabledata", "tableview", "tt_offset");
 	});
 		
 	// graph data pagination
 	$(document).on("click", "#graphNext", function() {
 		var offset = $("#graphNext").data("offset");		
-		loadGraphBatch(offset, "graphdata", "graphview", "gt_offset");
+		loadGraphBatch(offset, status, "graphdata", "graphview", "gt_offset");
 	});
 	$(document).on("click", "#graphPrev", function() {
 		var offset = $("#graphPrev").data("offset");
-		loadGraphBatch(offset, "graphdata", "graphview", "gt_offset");
+		loadGraphBatch(offset, status, "graphdata", "graphview", "gt_offset");
 	});	
 	
 	// if the related discos block is present, load data
 	if ($('#resourceRelatedDiscos').length>0) {
 		var offset = $("#resourceRelatedDiscos").data("offset");
-		loadRecordBatch(offset, "discos", "resourceRelatedDiscos", "rd_offset");
+		loadRecordBatch(offset, status, "discos", "resourceRelatedDiscos", "rd_offset");
 	}
 	
 	// resource related discos pagination
 	$(document).on("click","#resourceDiscoPrev", function() {
 		var offset = $("#resourceDiscoPrev").data("offset");
-		loadRecordBatch(offset, "discos", "resourceRelatedDiscos", "rd_offset");
+		loadRecordBatch(offset, status, "discos", "resourceRelatedDiscos", "rd_offset");
 	});
 	
 	$(document).on("click","#resourceDiscoNext", function() {
 		var offset = $("#resourceDiscoNext").data("offset");
-		loadRecordBatch(offset, "discos", "resourceRelatedDiscos", "rd_offset");
+		loadRecordBatch(offset, status, "discos", "resourceRelatedDiscos", "rd_offset");
 	});
 
 	
 	// if discos created by agent block present, load data
 	if ($('#agentdiscos').length>0) {
 		var offset = $("#agentdiscos").data("offset");
-		loadRecordBatch(offset, "discos", "agentdiscos", "ad_offset");
+		loadRecordBatch(offset, status, "discos", "agentdiscos", "ad_offset");
 	}
 	
 	// agent related discos pagination
 	$(document).on("click","#agentDiscoPrev", function() {
 		var offset = $("#agentDiscoPrev").data("offset");
-		loadRecordBatch(offset, "discos", "agentdiscos", "ad_offset");
+		loadRecordBatch(offset, status, "discos", "agentdiscos", "ad_offset");
 	});
 	
 	$(document).on("click","#agentDiscoNext", function() {
 		var offset = $("#agentDiscoNext").data("offset");
-		loadRecordBatch(offset, "discos", "agentdiscos", "ad_offset");
+		loadRecordBatch(offset, status, "discos", "agentdiscos", "ad_offset");
 	});
 		
 
 	// load node info data
 	$(document).on("click","#nodeInfoPrev", function() {
 		var offset = $("#nodeInfoPrev").data("offset");
-		loadNodeInfoBatch(offset);
+		loadNodeInfoBatch(offset, status);
 	});
 
 	// load node info data
 	$(document).on("click","#nodeInfoNext", function() {
 		var offset = $("#nodeInfoNext").data("offset");
-		loadNodeInfoBatch(offset);
+		loadNodeInfoBatch(offset, status);
 	});		
 		
-	//close node window
-	$(document).on("click","#closeNodeInfo", function() {
-        var linkpopup = document.getElementById('nodeInfoPopup');
-		linkpopup.style.visibility = "hidden";
-	});
-		
-		
+	$(document).on("click", "[name='chkIncludeInactive']", function() {
+		if($(this).is(":checked")) {
+	    	updateUrlParameter("status", "all");	
+		} else {
+	    	updateUrlParameter("status", null);		    	
+	    }
+		var url = document.location; //get current url
+		window.location.href = url;
+	});			
 });
 
 

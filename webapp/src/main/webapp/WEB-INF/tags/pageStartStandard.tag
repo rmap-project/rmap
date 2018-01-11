@@ -4,8 +4,10 @@
 <%@ attribute name="user" rtexprvalue="true" required="true" type="info.rmapproject.auth.model.User" description="Authenticated user session object" %> 
 <%@ attribute name="pageTitle" rtexprvalue="true" required="true" type="java.lang.String" description="Title of page" %> 
 <%@ attribute name="includeCalendarScripts" rtexprvalue="true" required="false" type="java.lang.Boolean" description="True to include calendar script" %>
+<%@ attribute name="includeSearchScripts" rtexprvalue="true" required="false" type="java.lang.Boolean" description="True to include search control js" %>
 
 <c:set var="incCal" value="${(empty includeCalendarScripts) ? false : includeCalendarScripts}" />
+<c:set var="incSearchJs" value="${(empty includeSearchScripts) ? false : includeSearchScripts}" />
 
 <tl:headerDocType/>
 <head>        
@@ -25,6 +27,9 @@
 				});
 			});
 		</script>
+	</c:if>
+	<c:if test="${incSearchJs}">
+		<script src="<c:url value='/includes/js/searchcontrol.js'/>"></script>  
 	</c:if>
 </head>
 <body>

@@ -29,8 +29,8 @@ public class SpringGraphFactory implements
     }
 
     @Override
-    public GraphNode newGraphNode(Integer id, String name, Integer weight, String type) {
-        return new GraphNode(id, name, weight, type);
+    public GraphNode newGraphNode(Integer id, String name, String label, Integer weight, String type) {
+        return new GraphNode(id, name, label, weight, type);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SpringGraphFactory implements
     }
 
     @Override
-    public GraphEdge newGraphEdge(Integer source, Integer target, String label) {
+    public GraphEdge newGraphEdge(GraphNode source, GraphNode target, String label) {
         return new GraphEdge(source, target, label);
     }
 

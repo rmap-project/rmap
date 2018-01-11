@@ -30,7 +30,7 @@ public final class Constants  {
 	public static final String DEFAULT_ERROR_MESSAGE = "An error occurred.";
 	
 	/**  maximum length for the short graph node text. */
-	public static final Integer MAX_NODETEXT_LENGTH = 21;
+	public static final Integer MAX_NODETEXT_LENGTH = 35;
 
 	/**  maximum length for the short graph edge text. */
     public static final Integer MAX_EDGETEXT_LENGTH = 30;
