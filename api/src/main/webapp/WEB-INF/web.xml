@@ -9,7 +9,7 @@
   </context-param>
   <context-param>
       <param-name>spring.profiles.default</param-name>
-      <param-value>default,persistent-db,http-idservice,http-triplestore,http-solr,prod-kafka,auto-start-indexing</param-value>
+      <param-value>default,persistent-db,ark-idservice,http-triplestore,http-solr,prod-kafka,auto-start-indexing</param-value>
   </context-param>
   <listener>
     <listener-class>
