@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <java-version>1.8</java-version>
-        <org.springframework-version>5.0.1.RELEASE</org.springframework-version>
+        <org.springframework-version>5.0.2.RELEASE</org.springframework-version>
         <org.aspectj-version>1.6.10</org.aspectj-version>
         <org.powermock-version>1.6.6</org.powermock-version>
         <org.slf4j-version>1.7.25</org.slf4j-version>
@@ -58,8 +58,8 @@
         <ant.version>1.10.1</ant.version>
         <solr.version>6.6.2</solr.version>
         <spring-data-solr.version>3.0.1.RELEASE</spring-data-solr.version>
-        <spring-kafka.version>2.0.2.RELEASE</spring-kafka.version>
-        <kafka.version>0.11.0.2</kafka.version>
+        <spring-kafka.version>2.1.0.RELEASE</spring-kafka.version>
+        <kafka.version>1.0.0</kafka.version>
         <joda-time.version>2.9.9</joda-time.version>
         <javax-el.version>3.0.1-b08</javax-el.version>
         <h2-mvstore.version>1.4.196</h2-mvstore.version>
