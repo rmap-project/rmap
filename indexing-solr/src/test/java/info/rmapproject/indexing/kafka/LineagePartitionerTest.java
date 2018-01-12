@@ -32,7 +32,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static info.rmapproject.indexing.kafka.LineagePartitioner.TOPIC;
 import static info.rmapproject.indexing.kafka.LineagePartitioner.calculatePartitionIdUsingLineage;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -44,6 +43,8 @@ import static org.mockito.Mockito.when;
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
 public class LineagePartitionerTest {
+
+    private static final String TOPIC = "topic";
 
     private final byte[] EMPTY_BYTE_ARRAY = {};
 
