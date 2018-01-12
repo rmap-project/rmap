@@ -25,12 +25,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.rdf4j.model.vocabulary.DC;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
 
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
@@ -154,8 +156,8 @@ public class ResourceDescription implements Serializable {
 			
 			//these predicates should be first in the list. Property Values list is ordered alphabetically.
 			String[] bubbleToTop = {DC.TITLE.toString(),DCTERMS.TITLE.toString(),FOAF.NAME.toString(),
-									RDFS.LABEL.toString(),RDFS.SEEALSO.toString(), DC.IDENTIFIER.toString(),
-									DCTERMS.IDENTIFIER.toString()};
+									RDFS.LABEL.toString(), RDFS.SEEALSO.toString(), DC.IDENTIFIER.toString(),
+									DCTERMS.IDENTIFIER.toString(), SKOS.PREF_LABEL.toString()};
 			
 			String listKey;
 			String predicate= tripleDF.getPredicate().toString();
@@ -167,9 +169,25 @@ public class ResourceDescription implements Serializable {
 			}
 			
 			this.propertyValues.put(listKey, tripleDF);
-		}
-		else {
+		} else {
 			throw new RMapWebException(ErrorCode.ER_RESOURCE_PROPERTY_VALUE_NULL);
+		}
+	}
+
+	
+	/**
+	 * Adds property values
+	 *
+	 * @param tripleDFs set of triple display format objects
+	 * @throws RMapWebException the RMap web exception
+	 */
+	public void addPropertyValues(Set<TripleDisplayFormat> tripleDFs) throws RMapWebException {
+		if (tripleDFs!=null) {
+			for (TripleDisplayFormat tripleDf:tripleDFs){
+				if (tripleDf!=null){
+					addPropertyValue(tripleDf);
+				}
+			}
 		}
 	}
 	

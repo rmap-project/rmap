@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.webapp.service;
 
+import static info.rmapproject.webapp.TestUtils.getRMapDiSCOObj;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
@@ -32,6 +33,7 @@ import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.testdata.service.TestFile;
 import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
+import info.rmapproject.webapp.service.RMapUpdateService;
 
 /**
  * Tests for RMapUpdateServiceImpl.

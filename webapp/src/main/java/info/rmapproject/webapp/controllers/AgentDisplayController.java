@@ -34,6 +34,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
+import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
@@ -58,12 +61,16 @@ public class AgentDisplayController {
 	/** Service for managing RMap data display. */
 	private DataDisplayService dataDisplayService;
 		
+	/**used to get instances of RMapSearchParams which passes search properties to rmap**/
+	private RMapSearchParamsFactory paramsFactory;
+	
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
 
 	@Autowired
-	public AgentDisplayController(DataDisplayService dataDisplayService) {
+	public AgentDisplayController(DataDisplayService dataDisplayService, RMapSearchParamsFactory paramsFactory) {
 		this.dataDisplayService = dataDisplayService;
+		this.paramsFactory = paramsFactory;
 	}
 	
 	/**
@@ -213,7 +220,8 @@ public class AgentDisplayController {
 	 */
 	@RequestMapping(value="/agents/{uri}/discos", method = RequestMethod.GET)
 	public String agentRelatedDiSCOs(@PathVariable(value="uri") String agentUri, Model model,
-			@RequestParam(value="offset", required=false) Integer offset) throws Exception {
+			@RequestParam(value="offset", required=false) Integer offset,
+			@RequestParam(value="status", required=false) String status) throws Exception {
 		LOG.info("Agent requested: {}", agentUri);	
 		if (offset==null){
 			offset=0;
@@ -221,7 +229,13 @@ public class AgentDisplayController {
 		try {
 			agentUri = URLDecoder.decode(agentUri, "UTF-8");
 			
-			ResultBatch<URI> agentDiSCOs = dataDisplayService.getAgentDiSCOs(agentUri, offset);
+			RMapStatusFilter statusFilter = RMapStatusFilter.getStatusFromTerm(status);
+			statusFilter = (statusFilter==null) ? RMapStatusFilter.ACTIVE : statusFilter;	
+			RMapSearchParams params = paramsFactory.newInstance();
+			params.setStatusCode(statusFilter);
+			params.setOffset(offset);
+			
+			ResultBatch<URI> agentDiSCOs = dataDisplayService.getAgentDiSCOs(agentUri, params);
 			PageStatus pageStatus = dataDisplayService.getPageStatus(agentDiSCOs, PaginatorType.AGENT_DISCOS);
 		    model.addAttribute("PAGINATOR", pageStatus);
 		    model.addAttribute("AGENT_DISCOS", agentDiSCOs.getResultList());

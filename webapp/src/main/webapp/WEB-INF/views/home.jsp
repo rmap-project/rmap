@@ -10,20 +10,12 @@
 			${notice}
 		</p>
 	</c:if>
-	<p>RMap captures and preserves maps of scholarly works. Enter a URI* for a person, institution, or work in the search below.</p>
-	<c:url var="post_url"  value="/search" />
-	<form:form modelAttribute="search" action="${post_url}">
-		<form:input path="search" placeholder="Search for a URI in RMap" id="searchbox" value="${searchVal}"/>
+	<p>RMap captures and preserves maps of scholarly works. Search for a person, institution, scholarly work, or RMap DiSCO in the search below.</p>
+	<form method="get" action="<c:url value='/searchresults'/>">
+		<input type="text" placeholder="Search RMap" name="search" style="float:left; margin-right:5px;" value="${search}"/>
+		<input type="hidden" name="status" value="active"/>
 		<input type="submit" value="Search" style="margin-top:3px;">
-		<!-- optional examples follow, uncomment and customize as needed:
-		<p style="font-size: 85%;">Examples: 
-		<a href="<c:url value='/resources/rmap%3Armd18n8xfs'/>">rmap:rmd18n8xfs</a>, 
-		<a href="<c:url value='/resources/https%3A%2F%2Fdoi.org%2F10.1109%2FInPar.2012.6339604'/>">https://doi.org/10.1109/InPar.2012.6339604</a>, 
-		<a href="<c:url value='/resources/https%3A%2F%2Fosf.io%2Frxgmb%2F'/>">https://osf.io/rxgmb/</a></p><br/>
-		-->
-	</form:form>
-	<p id="textnote">* A URI is a Uniform Resource Identifier. URIs typically contain a colon to separate the prefix from an identifier. 
-	Examples of valid URIs include URLs, ARK IDs, DOIs (all formats), and ORCID IDs.</p>
+	</form>
 	<br/>
 	<br/>
 	<br/>

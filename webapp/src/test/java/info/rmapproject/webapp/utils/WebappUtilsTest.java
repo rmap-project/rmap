@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.webapp.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
@@ -72,5 +73,42 @@ public class WebappUtilsTest extends WebTestAbstract {
 		assertTrue(nodeType.equals("Text"));
 	}
 
+
+	/**
+	 * Test formatting of snippet
+	 *
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testFormatSnippet() throws Exception {
+		String snippet1="##$<http://doi.org/10.1109/disco.test>$## <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/spar/fabio/ConferencePaper> .";
+		String expected="<strong>&lt;http://doi.org/10.1109/disco.test&gt;</strong> &lt;http://www.w3.org/";
+		String formattedSnippet = WebappUtils.formatSnippet(snippet1, 55);
+		assertEquals(expected,formattedSnippet);
+		
+		//these cut through middle of close highlight... should end on the close.
+		expected="<strong>&lt;http://doi.org/10.1109/disco.test&gt;</strong>";
+		formattedSnippet = WebappUtils.formatSnippet(snippet1, 32);
+		assertEquals(expected,formattedSnippet);
+		formattedSnippet = WebappUtils.formatSnippet(snippet1, 33);
+		assertEquals(expected,formattedSnippet);		
+		formattedSnippet = WebappUtils.formatSnippet(snippet1, 34);
+		assertEquals(expected,formattedSnippet);				
+		formattedSnippet = WebappUtils.formatSnippet(snippet1, 35);
+		assertEquals(expected,formattedSnippet);	
+		formattedSnippet = WebappUtils.formatSnippet(snippet1, 36);
+		assertEquals(expected + " ",formattedSnippet);
+				
+		/*demonstrates the problem with a string where highlight is out of range of string size... ideally the highlights would be visible part of string
+		 * and the string would not be longer due to highlight tags being out of range*/
+		String snippet2="<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/isPartOf> ##$<ark:/35911/amsid/6330715>$## .";
+		expected="&lt;http://dx.doi.org/10.1109/InPar.2012.6339604&gt; &lt;http://purl.org/dc/terms/isPartOf&gt;";
+		formattedSnippet = WebappUtils.formatSnippet(snippet2, 76);
+		assertEquals(expected,formattedSnippet);
+	}
+
+
+	
+	
 
 }

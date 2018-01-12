@@ -20,7 +20,6 @@
 package info.rmapproject.webapp.controllers;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
@@ -38,13 +37,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.request.RMapSearchParams;
+import info.rmapproject.core.model.request.RMapSearchParamsFactory;
+import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
 import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.domain.ResourceDescription;
-import info.rmapproject.webapp.domain.SearchForm;
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
 import info.rmapproject.webapp.service.DataDisplayService;
@@ -58,15 +60,24 @@ import info.rmapproject.webapp.service.DataDisplayService;
 @SessionAttributes({"user","account"})
 public class ResourceDisplayController {
 
-	/** Service for managing RMap data display. */
-	@Autowired
-	private DataDisplayService dataDisplayService;
-
 	/** The log. */
 	private static final Logger LOG = LoggerFactory.getLogger(ResourceDisplayController.class);
 	
 	/**  term for standard view, used in VIEWMODE. */
 	private static final String STANDARD_VIEW = "standard";
+	
+	/** Service for managing RMap data display. */
+	private DataDisplayService dataDisplayService;
+	
+	/**used to get instances of RMapSearchParams which passes search properties to rmap**/
+	private RMapSearchParamsFactory paramsFactory;
+	
+	@Autowired
+	public ResourceDisplayController(DataDisplayService dataDisplayService, RMapSearchParamsFactory paramsFactory) {
+		this.dataDisplayService = dataDisplayService;
+		this.paramsFactory = paramsFactory;
+	}
+	
 	
 	/**
 	 * GET details of a resource.
@@ -84,42 +95,32 @@ public class ResourceDisplayController {
 	@RequestMapping(value="/resources/{uri}", method = RequestMethod.GET)
 	public String resource(@PathVariable(value="uri") String sResourceUri, 
 				@RequestParam(value="resview", required=false) Integer resview, 
+				@RequestParam(value="status", required=false) String status,
 				Model model, RedirectAttributes redirectAttributes) throws Exception {
 		
 		LOG.info("Resource requested {}", sResourceUri);
 		
 		if (resview == null) {resview = 0;}
 		sResourceUri = URLDecoder.decode(sResourceUri, "UTF-8");
-		
-		try {
-			if (resview==0) {
-				String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(sResourceUri));
-				LOG.debug("rmapType identified as {}", rmapType);
-				if (rmapType.length()>0){
-					String redirectPath = "redirect:/" + rmapType.toLowerCase() + "s/" + URLEncoder.encode(sResourceUri, "UTF-8");
-					LOG.debug("Redirecting resource path to {}", redirectPath);
-					return redirectPath;
-				}				
-			}
-			
-			//do this to trigger not found error
-			dataDisplayService.getResourceBatch(sResourceUri, 0, PaginatorType.RESOURCE_GRAPH);
-			
-			List<URI> resourceTypes = dataDisplayService.getResourceRDFTypes(new URI(sResourceUri));
-		    
-		    model.addAttribute("RESOURCEURI", sResourceUri); 
-		    model.addAttribute("RESOURCE_TYPES", resourceTypes);
-		    model.addAttribute("PAGEPATH", "resources");
-		    
-		} catch (URISyntaxException|IllegalArgumentException ex){
-			LOG.warn("{}. Submitted value: {}.", ex.getMessage(), sResourceUri);
-			SearchForm search = new SearchForm();
-			search.setSearch(sResourceUri);
-			redirectAttributes.addFlashAttribute("search", search);
-			redirectAttributes.addFlashAttribute("notice", "<strong>" + sResourceUri + "</strong> is not a valid URI. Currently only URI searches are supported.");	
-			return "redirect:/search";
+	
+		if (resview==0) {
+			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(sResourceUri));
+			LOG.debug("rmapType identified as {}", rmapType);
+			if (rmapType.length()>0){
+				String redirectPath = "redirect:/" + rmapType.toLowerCase() + "s/" + URLEncoder.encode(sResourceUri, "UTF-8");
+				LOG.debug("Redirecting resource path to {}", redirectPath);
+				return redirectPath;
+			}				
 		}
+		RMapSearchParams params = generateSearchParams(status, 0);
+		
+		List<URI> resourceTypes = dataDisplayService.getResourceRDFTypes(new URI(sResourceUri),params);
 	    
+	    model.addAttribute("RESOURCEURI", sResourceUri); 
+	    model.addAttribute("RESOURCELABEL", dataDisplayService.getResourceLabel(sResourceUri,params)); 
+	    model.addAttribute("RESOURCE_TYPES", resourceTypes);
+	    model.addAttribute("PAGEPATH", "resources");
+	 	    
 		return "resources";
 	}
 	
@@ -176,8 +177,6 @@ public class ResourceDisplayController {
 				return "redirect:/" + rmapType.toLowerCase() + "s/" + reqUri + "/visual";
 			}
 		}  
-		//do this to trigger not found error
-		dataDisplayService.getResourceBatch(reqUri, 0, PaginatorType.RESOURCE_GRAPH);
 				
 	    model.addAttribute("RESOURCEURI", reqUri);
 
@@ -199,6 +198,8 @@ public class ResourceDisplayController {
 	@RequestMapping(value="/resources/{uri}/widget", method = RequestMethod.GET)
 	public String resourceWidgetView(@PathVariable(value="uri") String reqUri, 
 				@RequestParam(value="resview", required=false) Integer resview, 
+				@RequestParam(value="offset", required=false) Integer offset,
+				@RequestParam(value="status", required=false) String status,
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
 
@@ -214,10 +215,15 @@ public class ResourceDisplayController {
 			}
 		}    	
 
-		ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, 0, PaginatorType.RESOURCE_GRAPH);
-		Graph resourceGraph = dataDisplayService.getResourceGraph(triplebatch);
-		
 		model.addAttribute("RESOURCEURI", decodedUri);
+		model.addAttribute("status", status);
+				
+		RMapSearchParams params = generateSearchParams(status, offset);
+		ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, params, PaginatorType.RESOURCE_GRAPH);
+		if (triplebatch==null || triplebatch.size()==0) {
+			return "resourcenotfoundembedded";
+		}
+		Graph resourceGraph = dataDisplayService.getResourceGraph(triplebatch,params);
 		model.addAttribute("GRAPH", resourceGraph);
 	    
 	    return "resourcewidget";
@@ -235,22 +241,25 @@ public class ResourceDisplayController {
 	 */
 	@RequestMapping(value="/resources/{uri}/tabledata", method = RequestMethod.GET)
 	public String resourceTableView(@PathVariable(value="uri") String reqUri, 
-				@RequestParam(value="offset", required=false) String sOffset,
+				@RequestParam(value="offset", required=false) Integer offset,
+				@RequestParam(value="status", required=false) String status,
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
 		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
-		Integer offset;
 		try {
-			offset = Integer.parseInt(sOffset);
-		} catch (NumberFormatException e){
-			offset = 0;
-		}
-		try {
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, offset, PaginatorType.RESOURCE_TABLE);
-			ResourceDescription rd = dataDisplayService.getResourceTableData(decodedUri, triplebatch);
+
+			model.addAttribute("RESOURCEURI", decodedUri);
+			model.addAttribute("status", status);
+			
+			RMapSearchParams params = generateSearchParams(status, offset);
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, params, PaginatorType.RESOURCE_TABLE);
+			if (triplebatch==null || triplebatch.size()==0) {
+				return "resourcenotfoundembedded";
+			}
+			params.setOffset(0); //
+			ResourceDescription rd = dataDisplayService.getResourceTableData(decodedUri, triplebatch, params, true);
 			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.RESOURCE_TABLE);
 	
-			model.addAttribute("RESOURCEURI", decodedUri);
 			model.addAttribute("TABLEDATA", rd);
 		    model.addAttribute("PAGINATOR", pageStatus);
 		} catch (Exception e){
@@ -272,7 +281,8 @@ public class ResourceDisplayController {
 	 */
 	@RequestMapping(value="/resources/{uri}/graphdata", method = RequestMethod.GET)
 	public String resourceGraphData(@PathVariable(value="uri") String reqUri, 
-				@RequestParam(value="offset", required=false) String sOffset,
+				@RequestParam(value="offset", required=false) Integer offset,
+				@RequestParam(value="status", required=false) String status,
 				@RequestParam(value="view", required=false) String view,
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
@@ -280,20 +290,21 @@ public class ResourceDisplayController {
 			view = STANDARD_VIEW;
 		}
 		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
-		Integer offset;
 		try {
-			offset = Integer.parseInt(sOffset);
-		} catch (NumberFormatException e){
-			offset = 0;
-		}
-		try {
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, offset, PaginatorType.RESOURCE_GRAPH);
-			Graph resourceGraph = dataDisplayService.getResourceGraph(triplebatch);
-		    PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.RESOURCE_GRAPH);
 			model.addAttribute("RESOURCEURI", decodedUri);
+			model.addAttribute("status", status);
+			RMapSearchParams params = generateSearchParams(status,offset);
+			
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, params, PaginatorType.RESOURCE_GRAPH);
+			if (triplebatch==null || triplebatch.size()==0) {
+				return "resourcenotfoundembedded";
+			}
+			
+			Graph resourceGraph = dataDisplayService.getResourceGraph(triplebatch, params);
+		    PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.RESOURCE_GRAPH);
 		    model.addAttribute("GRAPH", resourceGraph);
 		    model.addAttribute("PAGINATOR", pageStatus);
-		    model.addAttribute("VIEWMODE", view);		    
+		    model.addAttribute("VIEWMODE", view);		
 		} catch (Exception e){
 			throw new RMapWebException(e,ErrorCode.ER_PROBLEM_LOADING_RESOURCEGRAPH);
 		}
@@ -311,18 +322,16 @@ public class ResourceDisplayController {
 	 */
 	@RequestMapping(value="/resources/{uri}/discos", method = RequestMethod.GET)
 	public String resourceRelatedDiscos(@PathVariable(value="uri") String reqUri, 
-				@RequestParam(value="offset", required=false) String sOffset,
+				@RequestParam(value="offset", required=false) Integer offset,
+				@RequestParam(value="status", required=false) String status,
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
 		try {
 			String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
-			Integer offset;
-			try {
-				offset = Integer.parseInt(sOffset);
-			} catch (NumberFormatException e){
-				offset = 0;
-			}
-			ResultBatch<URI> resourceDiscos = dataDisplayService.getResourceRelatedDiSCOs(decodedUri, offset);
+			
+			RMapSearchParams params = generateSearchParams(status, offset);
+
+			ResultBatch<URI> resourceDiscos = dataDisplayService.getResourceRelatedDiSCOs(decodedUri, params);
 		    PageStatus resDiscoPageStatus = dataDisplayService.getPageStatus(resourceDiscos, PaginatorType.RESOURCE_DISCOS);
 	
 		    model.addAttribute("RESOURCEURI", decodedUri);
@@ -336,8 +345,7 @@ public class ResourceDisplayController {
 	    
 	    return "resourcediscos";
 	}
-	
-	
+		
 	/**
 	 * Retrieves information about the node to be formatted in a popup
 	 *
@@ -352,6 +360,7 @@ public class ResourceDisplayController {
 	@RequestMapping(value="/resources/{resource}/nodeinfo", method = RequestMethod.GET)
 	public String resourceLiterals(@PathVariable(value="resource") String resourceUri, 
 				@RequestParam(value="offset", required=false) Integer offset,
+				@RequestParam(value="status", required=false) String status,
 				@RequestParam(value="view", required=false) String view, Model model,
 				@RequestParam(value="referer", required=false) String referer) throws Exception {
 		if (offset==null){offset=0;}
@@ -360,9 +369,10 @@ public class ResourceDisplayController {
 		}
 		try {
 			resourceUri = URLDecoder.decode(resourceUri, "UTF-8");
-						
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiterals(resourceUri, offset);
-			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch);
+			
+			RMapSearchParams params = generateSearchParams(status,offset);
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiterals(resourceUri, params);
+			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch, params, true);
 			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.NODE_INFO);
 			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(resourceUri));
 			
@@ -405,9 +415,11 @@ public class ResourceDisplayController {
 		try {
 			resourceUri = URLDecoder.decode(resourceUri, "UTF-8");
 			contextUri = URLDecoder.decode(contextUri, "UTF-8");
+
+			RMapSearchParams params = generateSearchParams(RMapStatusFilter.ALL, offset);
 			
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri, offset);
-			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch, contextUri);
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri, params);
+			ResourceDescription resourceDescription = dataDisplayService.getResourceTableDataInContext(resourceUri, triplebatch, contextUri, false);
 			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.NODE_INFO);
 			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(resourceUri));
 			
@@ -423,7 +435,21 @@ public class ResourceDisplayController {
 		}  
 	    
 		return "nodeinfo";
-	}	
+	}		
+	
+	private RMapSearchParams generateSearchParams(String status, Integer offset) {
+		RMapStatusFilter statusFilter = RMapStatusFilter.getStatusFromTerm(status);
+		return generateSearchParams(statusFilter,offset);
+	}
+	
+	private RMapSearchParams generateSearchParams(RMapStatusFilter statusFilter, Integer offset) {
+		RMapSearchParams params = paramsFactory.newInstance();
+		statusFilter = (statusFilter==null) ? RMapStatusFilter.ACTIVE : statusFilter;	
+		offset = (offset==null) ?  0 : offset;
+		params.setStatusCode(statusFilter);
+		params.setOffset(offset);
+		return params;
+	}
 	
 	
 }

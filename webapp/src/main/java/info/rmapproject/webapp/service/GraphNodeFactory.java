@@ -15,6 +15,6 @@ public interface GraphNodeFactory {
      * @param weight the node weight
      * @param type   the node type
      */
-    GraphNode newGraphNode(Integer id, String name, Integer weight, String type);
+    GraphNode newGraphNode(Integer id, String name, String label, Integer weight, String type);
 
 }

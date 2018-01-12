@@ -14,12 +14,21 @@
 		<tl:tabsGraphTable/>
 		
 		<h1 class="lineContinues">Resource Summary</h1>
-		<tl:tooltip toolTipText="A Resource represents anything that can be described. For example, a person, institution, grant, article, or data file could be a Resource" 
-					readMoreLink="/about/glossary#Resource"/>
+		<tl:tooltip standardDescName="Resource"/>
+		
+		<div class="includeInactive linecontinues"><input type="checkbox" name="chkIncludeInactive" ${param.status=='all' ? 'checked': '' }/> include inactive 		
+		<tl:tooltip toolTipText="When checked, the information displayed will include data from inactive DiSCOs - these have been assigned the status of \"inactive\" by their creator or superseded by a new version." readMoreLink="/about/glossary#Status"/></div>	
+
+		
+		<c:if test="${RESOURCELABEL!=null && RESOURCELABEL.length()>0}">
+		<h2 title="${RESOURCELABEL}">${my:ellipsize(RESOURCELABEL, 150)}</h2>
+		<h3>URI: <tl:linkExternal uri="${RESOURCEURI}"/></h3>
+		</c:if>
+		<c:if test="${RESOURCELABEL==null || RESOURCELABEL.length()==0}">
 		<h2>URI: <tl:linkExternal uri="${RESOURCEURI}"/></h2>
-	
+		</c:if>
 		<tl:resourceTypeList resource_types="${RESOURCE_TYPES}"/>
-			
+		
 		<div id="graphview" class="tabcontent" data-offset="${resource_graph_triples_offset}">
 			<tl:loadingIcon/>
 		</div>
