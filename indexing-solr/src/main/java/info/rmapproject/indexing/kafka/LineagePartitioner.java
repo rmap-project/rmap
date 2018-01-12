@@ -60,9 +60,6 @@ public class LineagePartitioner implements Partitioner {
 
     private static final Logger LOG = LoggerFactory.getLogger(LineagePartitioner.class);
 
-    // FIXME: inject the value of the rmapcore.producer.topic property from rmapcore.properties,
-    static final String TOPIC = "rmap-event-topic";
-
     private static final String ERR_INCORRECT_TYPE = "Unable to assign a partition to object of type '%s' received " +
             "on topic '%s': only instances of RMapEvent can be assigned by this partitioner.";
 
@@ -95,7 +92,7 @@ public class LineagePartitioner implements Partitioner {
         }
 
         // Total number of partitions for the topic
-        int partCount = cluster.partitionCountForTopic(TOPIC);
+        int partCount = cluster.partitionCountForTopic(topic);
 
         try {
             // The partition offset is a number between 0 and 'partCount - 1'.
@@ -108,13 +105,13 @@ public class LineagePartitioner implements Partitioner {
                 partitionId = new AtomicInteger(calculatePartitionIdUsingHash(((RMapEvent) value), partCount));
             }
 
-            return cluster.availablePartitionsForTopic(TOPIC)
+            return cluster.availablePartitionsForTopic(topic)
                     .stream()
                     .map(PartitionInfo::partition)
                     .filter(candidateId -> candidateId == partitionId.get())
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException(format(ERR_UNAVAILABLE_PARTITIONS,
-                            value, TOPIC, partitionId.get(), TOPIC, partitionId.get())));
+                            value, topic, partitionId.get(), topic, partitionId.get())));
         } catch (Exception e) {
             String msg = format(ERR_PARTITION_CALCULATION, value.getClass().getName(), e.getMessage());
             LOG.error(msg, e);
