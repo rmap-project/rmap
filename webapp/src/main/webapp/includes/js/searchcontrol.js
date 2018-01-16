@@ -39,6 +39,7 @@ $( function() {
 	});
 	
 	$('[name="searchForm"]').submit(function(){
+		document.searchForm["page"].value=0;	
 		$(':input[value=""]').attr('disabled', true);
 	});
 		

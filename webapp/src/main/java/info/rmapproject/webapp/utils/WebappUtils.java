@@ -313,10 +313,9 @@ public class WebappUtils {
 	/**
 	 * Formats a snippet so that it is cut at a max number of characters, "<" and ">" are converted to html
 	 * and the "strong" tags aren't left open after this cut. 
-	 * NOTE: that there are several known imperfections here that might result in some variation 
+	 * NOTE: there is a known imperfections here that might result in some variation 
 	 * in string length e.g. a very long match with lots of highlighting may end up longer than 
-	 * other strings... also it truncates from the string start rather than around the highlight which could 
-	 * result in no highlighted text being shown if highlighting is at end of string.
+	 * other strings.
 	 * TODO: improve this based on note above, might be something that can be configured using solr?
 	 * @param text string to be formatted
 	 * @param max maximum length of display text (excludes html tags in length)
@@ -330,7 +329,17 @@ public class WebappUtils {
 		int numHLs = StringUtils.countMatches(text,HL_PREFIX);
 		int hlSpace = (HL_PREFIX.length() + HL_POSTFIX.length()) * numHLs;
 		int actualMax = max+hlSpace;
-		if (text.length() > actualMax){ //shorten
+		
+		int firstPrefix = snippet.indexOf(HL_PREFIX);
+		if (firstPrefix>actualMax) { //first match won't appear in snippet
+			//so let's put the first match around the halfway point of the snippet
+			snippet = snippet.substring(firstPrefix-Math.abs(actualMax/2));
+			//clean up partial word if there is one
+			int firstSpace = snippet.indexOf(" ");
+			firstPrefix = snippet.indexOf(HL_PREFIX);
+			snippet = snippet.substring((firstSpace>0 && firstSpace < firstPrefix) ? firstSpace+1 : 0);
+		}
+		if (snippet.length() > actualMax){ //shorten
 			int lastPostfixAfterMax = snippet.indexOf(HL_POSTFIX, (max + HL_PREFIX.length()));
 			if (lastPostfixAfterMax>0 && lastPostfixAfterMax < actualMax){ 
 				//close to cut point, we should end here instead

@@ -297,7 +297,12 @@ $(window).load(function() {
 		var offset = $("#nodeInfoNext").data("offset");
 		loadNodeInfoBatch(offset, status);
 	});		
-		
+	
+	// x-out node info popup
+	$(document).on("click","#closeNodeInfo", function() {
+		closeNodeInfo();
+	});
+			
 	$(document).on("click", "[name='chkIncludeInactive']", function() {
 		if($(this).is(":checked")) {
 	    	updateUrlParameter("status", "all");	
