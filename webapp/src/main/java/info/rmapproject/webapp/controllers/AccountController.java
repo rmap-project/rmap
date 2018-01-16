@@ -166,6 +166,7 @@ public class AccountController {
 		//refresh session record and attribute
 		user = this.userMgtService.getUserById(user.getUserId()); 
 		session.setAttribute("user",user);
+		model.addAttribute("user", user);
 		model.addAttribute("userSettings",user);
 		model.addAttribute("notice", "User settings have been saved.");
 		return "user/settings"; 		

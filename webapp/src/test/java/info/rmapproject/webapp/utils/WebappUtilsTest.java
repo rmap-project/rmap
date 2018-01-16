@@ -73,7 +73,6 @@ public class WebappUtilsTest extends WebTestAbstract {
 		assertTrue(nodeType.equals("Text"));
 	}
 
-
 	/**
 	 * Test formatting of snippet
 	 *
@@ -98,15 +97,21 @@ public class WebappUtilsTest extends WebTestAbstract {
 		assertEquals(expected,formattedSnippet);	
 		formattedSnippet = WebappUtils.formatSnippet(snippet1, 36);
 		assertEquals(expected + " ",formattedSnippet);
-				
-		/*demonstrates the problem with a string where highlight is out of range of string size... ideally the highlights would be visible part of string
-		 * and the string would not be longer due to highlight tags being out of range*/
-		String snippet2="<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/isPartOf> ##$<ark:/35911/amsid/6330715>$## .";
-		expected="&lt;http://dx.doi.org/10.1109/InPar.2012.6339604&gt; &lt;http://purl.org/dc/terms/isPartOf&gt;";
-		formattedSnippet = WebappUtils.formatSnippet(snippet2, 76);
-		assertEquals(expected,formattedSnippet);
 	}
 
+
+	/**
+	 * Test formatting of snippet where highlight is beyond the snippet limit 
+	 *
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testFormatSnippetLongStart() throws Exception {
+		String snippet2="<http://dx.doi.org/10.1109/InPar.2012.6339604> <http://purl.org/dc/terms/isPartOf> ##$<ark:/35911/amsid/6330715>$## .";
+		String expected="&lt;http://purl.org/dc/terms/isPartOf&gt; <strong>&lt;ark:/35911/amsid/6330715&gt;</strong> .";
+		String formattedSnippet = WebappUtils.formatSnippet(snippet2, 76);
+		assertEquals(expected,formattedSnippet);		
+	}
 
 	
 	

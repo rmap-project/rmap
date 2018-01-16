@@ -562,7 +562,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		
 		graph.addNode(sAgentUri, agentDTO.getName(), agentNodeType);
 		graph.addNode(agentDTO.getIdProvider(), agentNodeType);
-		graph.addNode(agentDTO.getAuthId(), WebappUtils.getNodeType(new URI(Terms.RMAP_USERAUTHID_PATH)));
+		graph.addNode(agentDTO.getAuthId(), Constants.NODETYPE_NOTYPE);
 		
 		graph.addEdge(sAgentUri, agentDTO.getIdProvider(), Terms.RMAP_IDENTITYPROVIDER_PATH);
 		graph.addEdge(sAgentUri, agentDTO.getAuthId(), Terms.RMAP_USERAUTHID_PATH);
