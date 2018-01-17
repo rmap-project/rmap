@@ -36,8 +36,9 @@
 				<a href="<c:url value='/home'/>">Home</a>
 			</li>
 			<li id="menu-item-2">
-				<a href="<c:url value='/about'/>">About</a>
+				<a href="<c:url value='/about'/>">About<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li><a href="<c:url value='/about'/>">About RMap</a></li>	
 					<li><a href="<c:url value='/about/glossary'/>">Glossary</a></li>	
 				</ul>
 			</li>
