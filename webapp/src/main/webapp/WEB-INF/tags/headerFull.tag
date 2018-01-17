@@ -57,13 +57,25 @@
 				
 				<c:if test="${uid>0}">
 				<li id="menu-item-3">
-					<a href="<c:url value='/user/welcome'/>" title="${uname}"><span id="truncate">${uname}<b class="caret"></b></span></a>
-					<ul class="dropdown-menu">
-						<li><a href="<c:url value='/user/keys'/>">Manage API keys</a></li>
-						<!--<li><a href="<c:url value='/user/reports'/>">View API activity</a></li>-->
-						<li><a href="<c:url value='/user/settings'/>">Settings</a></li>
-						<li><a href="<c:url value='/user/logout'/>">Sign out</a></li>
-					</ul>
+			        <a href="<c:url value='/user/welcome'/>" title="${uname}">
+		                <c:set var="provider" value="${account.providerName.getIdProviderUrl()}"/>
+		                <c:if test="${provider.contains('orcid.org')}">
+		                        <img src="<c:url value='/includes/images/orcid-icon.png/'/>" class="logged-in-icon"/>
+		                </c:if>
+		                <c:if test="${provider.contains('google.com')}">
+		                        <img src="<c:url value='/includes/images/google-icon.png/'/>" class="logged-in-icon"/>
+		                </c:if>
+		                <c:if test="${provider.contains('twitter.com')}">
+		                        <img src="<c:url value='/includes/images/twitter-icon.png/'/>" class="logged-in-icon"/>
+		                </c:if>
+		                <span id="truncate">${uname}<b class="caret"></b></span>
+			        </a>
+			        <ul class="dropdown-menu">
+			        	<li><a href="<c:url value='/user/keys'/>">Manage API keys</a></li>
+			            <!--<li><a href="<c:url value='/user/reports'/>">View API activity</a></li>-->
+			            <li><a href="<c:url value='/user/settings'/>">Settings</a></li>
+			            <li><a href="<c:url value='/user/logout'/>">Sign out</a></li>
+			        </ul>
 				</li>
 				</c:if>
 				
@@ -78,16 +90,16 @@
 				
 				<c:if test="${uid==0&&uname.length()==0}">
 				<li id="menu-item-3">
-					<a href="<c:url value='/user/login'/>" title="Sign in to manage API access keys for write access.">Sign in</a>
+					<a href="<c:url value='/user/login'/>" title="Sign in to manage API access keys for write access.">Sign in<b class="caret"></b></a>
 					<div class="signin-menu">
 						<c:if test="${SITEPROPS.isGoogleEnabled()}">
-						<a href="<c:url value='/user/login/google'/>"><img src="<c:url value='/includes/images/google-signin-button.png'/>" alt="Sign in with Google"/></a><br/>
+						<a href="<c:url value='/user/login/google'/>"><img src="<c:url value='/includes/images/google-signin-button.png'/>" alt="Sign in with Google" width="172px"/></a><br/>
 						</c:if>
 						<c:if test="${SITEPROPS.isTwitterEnabled()}">
-						<a href="<c:url value='/user/login/twitter'/>"><img src="<c:url value='/includes/images/twitter-signin-button.png'/>" alt="Sign in with Twitter" width="190px"/></a><br/>
+						<a href="<c:url value='/user/login/twitter'/>"><img src="<c:url value='/includes/images/twitter-signin-button.png'/>" alt="Sign in with Twitter" width="168px"/></a><br/>
 						</c:if>
 						<c:if test="${SITEPROPS.isOrcidEnabled()}">
-						<a href="<c:url value='/user/login/orcid'/>"><img src="<c:url value='/includes/images/orcid-signin-button.png'/>" alt="Sign in with ORCiD" width="190px"/></a><br/>
+						<a href="<c:url value='/user/login/orcid'/>"><img src="<c:url value='/includes/images/orcid-signin-button.png'/>" alt="Sign in with ORCiD" width="172px"/></a><br/>
 						</c:if>
 					</div>
 				</li>			

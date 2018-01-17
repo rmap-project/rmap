@@ -39,7 +39,7 @@ h1 a { text-indent: -9999px; }
 #main-nav ul li ul.dropdown-menu{
        min-width: 155px; /* Set width of the dropdown */
        max-width: 180px; /* Set width of the dropdown */
-       background: #f2f2f2;
+       background: #d6d6d6;
        display: none;
        position: absolute;
        z-index: 999;
@@ -50,30 +50,35 @@ h1 a { text-indent: -9999px; }
 #main-nav ul li:hover ul.dropdown-menu{
        display: block;	/* Display the dropdown */
    }
-#main-nav ul li ul.dropdown-menu li{
-       display: block;
-	   margin-left:3px;
-	   width:98%;
-   }
+#main-nav ul li ul.dropdown-menu li {
+    display: block;
+    margin: 0px;
+    padding: 0px 1px;
+    width: 100%;
+}
 #main-nav ul li ul.dropdown-menu a { display: inline-block; padding: 5px 10px 5px 10px; margin: 0 0px; text-decoration: none; font-size: 14px; }
 #main-nav ul li ul.dropdown-menu li:hover { border-bottom: 0px !important; background-color:#A8A8A8; width:98%;}
 
+#main-nav ul li .signin-menu {
+    width: 192px;
+    background: #FFFFFF;
+    display: none;
+    border: 2px solid #f2f2f2;
+    position: absolute;
+    z-index: 999;
+    left: 0;
+    padding: 0px 4px 0px 0px;
+    top: 92px;
+    text-align: center;
+}
 
-#main-nav ul li .signin-menu{
-       width: 203px; /* Set width of the dropdown */
-       background: #FFFFFF;
-       display: none;
-	   border:2px solid #f2f2f2;
-       position: absolute;
-       z-index: 999;
-       left: 0;
-       top: 91px;
-   }
 #main-nav ul li:hover .signin-menu{
        display: block;	/* Display the dropdown */
    }
    
 #main-nav ul li .signin-menu a { display: inline-block; padding: 3px 0px 0px 6px; margin: 0px;}
+
+#main-nav ul li .logged-in-icon {padding: 0px 5px 0px 0px; float:left;}
 
 
 /* #Site Styles
