@@ -39,10 +39,8 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
-import info.rmapproject.core.exception.RMapDeletedObjectException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
-import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -94,13 +92,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @return the ORMap agent
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapException the RMap exception
-	 * @throws RMapTombstonedObjectException the RMap tombstoned object exception
-	 * @throws RMapDeletedObjectException the RMap deleted object exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
 	public ORMapAgent readAgent(IRI agentId, Rdf4jTriplestore ts)
-			throws RMapAgentNotFoundException, RMapException,  RMapTombstonedObjectException, 
-	       RMapDeletedObjectException, RMapDefectiveArgumentException {		
+			throws RMapAgentNotFoundException, RMapException,  RMapDefectiveArgumentException {		
 		if (agentId == null){
 			throw new RMapException("null agentId");
 		}
@@ -110,15 +105,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		if (!(this.isAgentId(agentId, ts))){
 			throw new RMapAgentNotFoundException("Not an agentID: " + agentId.stringValue());
 		}
-		RMapStatus status = this.getAgentStatus(agentId, ts);
-		switch (status){
-		case TOMBSTONED :
-			throw new RMapTombstonedObjectException("Agent "+ agentId.stringValue() + " has been (soft) deleted");
-		case DELETED :
-			throw new RMapDeletedObjectException ("Agent "+ agentId.stringValue() + " has been deleted");
-		default:
-			break;		
-		}		
 		Set<Statement> agentStmts = null;
 		try {
 			agentStmts = this.getNamedGraph(agentId, ts);	
@@ -140,7 +126,6 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
 	public RMapStatus getAgentStatus(IRI agentId, Rdf4jTriplestore ts) throws RMapException, RMapAgentNotFoundException {
-		RMapStatus status = null;
 		if (agentId==null){
 			throw new RMapException ("Null disco");
 		}
@@ -148,38 +133,10 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 		if (! this.isAgentId(agentId, ts)){
 			throw new RMapAgentNotFoundException ("No Agent found with id " + agentId.stringValue());
 		}
-		do {
-			Set<Statement> eventStmts = null;
-			try {
-				//   ? RMap:Deletes discoId  done return deleted
-				eventStmts = ts.getStatements(null, RMAP.DELETEDOBJECT, agentId);
-				if (eventStmts!=null && ! eventStmts.isEmpty()){
-					status = RMapStatus.DELETED;
-					break;
-				}
-				//   ? RMap:TombStones discoID	done return tombstoned
-				eventStmts = ts.getStatements(null, RMAP.TOMBSTONEDOBJECT, agentId);
-				if (eventStmts!=null && ! eventStmts.isEmpty()){
-					status = RMapStatus.TOMBSTONED;
-					break;
-				}
-			   //   else return active if create event found
-				eventStmts = ts.getStatements(null, PROV.GENERATED, agentId);
-				if (eventStmts!=null && ! eventStmts.isEmpty()){
-					status = RMapStatus.ACTIVE;
-					break;
-				}
-				// else throw exception
-				throw new RMapException ("No Events found for determing status of  " +
-						agentId.stringValue());
-			} catch (Exception e) {
-				throw new RMapException("Exception thrown querying triplestore for events", e);
-			}
-		}while (false);
-		
-		return status;
+		// If the agent exists, it is active. We don't alter Agent status.
+		return RMapStatus.ACTIVE;
 	}
-
+	
 	/**
 	 * Creates the agent.
 	 *
