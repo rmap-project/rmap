@@ -11,7 +11,7 @@
 
         <context:property-placeholder ignore-unresolvable="true"/>
 
-        <util:properties id="producerProperties" location="classpath:/event-producer.properties" local-override="true">
+        <util:properties id="producerProperties" location="classpath*:/event-producer.properties" local-override="true">
             <prop key="bootstrap.servers">${bootstrap.servers}</prop>
         </util:properties>
 
