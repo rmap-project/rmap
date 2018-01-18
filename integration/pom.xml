@@ -497,14 +497,6 @@
                                 <todir>shared/classes</todir>
                             </copy>
                             <copy>
-                                <file>${project.basedir}/src/main/resources/event-producer.properties</file>
-                                <todir>shared/classes</todir>
-                            </copy>
-                            <copy>
-                                <file>${project.basedir}/src/main/resources/event-consumer.properties</file>
-                                <todir>shared/classes</todir>
-                            </copy>
-                            <copy>
                                 <file>${project.basedir}/src/main/resources/logback.xml</file>
                                 <todir>shared/classes</todir>
                             </copy>
