@@ -30,7 +30,6 @@ services:
     links:
       - "zookeeper"
 
-
   solrintegration:
      container_name: solrintegration
      image: solr:6.6.2-alpine
@@ -49,3 +48,16 @@ services:
        - -force
        - -a
        - "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${SOLR_DEBUG_PORT}"
+
+  rdf4j:
+    container_name: rdf4j
+    image: jetty:9.4.7-alpine
+    user: root
+    env_file: .env
+    environment:
+      JAVA_OPTIONS: "-Dorg.eclipse.rdf4j.appdata.basedir=/tmp/rdf4j/data -Djetty.http.port=${RDF4J_PORT}"
+    ports:
+      - "${RDF4J_PORT}:${RDF4J_PORT}"
+    volumes:
+      - "./rdf4j/data:/tmp/rdf4j/data"
+      - "./rdf4j/webapps:/var/lib/jetty/webapps"
