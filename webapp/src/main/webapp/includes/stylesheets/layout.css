@@ -397,12 +397,16 @@ p.greybox{
     background: #d9eda6;
 	overflow-wrap: break-word; 
 	word-wrap: break-word;
-	font-size:larger;
-	line-height:28px;
+	font-size:14px;
+	line-height:26px;
 }
 .greenbox strong{ 
 	color:#444;
 }
+.greenbox a:link,.greenbox a:active {
+	color:#0000C1;
+}
+
 
 legend {
     font-size:1.4em;
