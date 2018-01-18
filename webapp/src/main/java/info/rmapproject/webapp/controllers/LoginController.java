@@ -184,8 +184,9 @@ public class LoginController {
 			return "redirect:/home";
 		}
 		if (error!=null && error.equals("access_denied")){
-			redirectAttributes.addFlashAttribute("notice", "The ORCID Login failed with the following error:" + errorDescription);
-			return "redirect:/user/login";
+			//this only happens with ORCID
+			redirectAttributes.addFlashAttribute("notice", "The ORCID Login failed with the following error: " + errorDescription);
+			return "redirect:/user/orcidlogininfo";
 		}
 		
 		Token accessToken = oAuthProviderOrcid.createAccessToken(null, oauthVerifier);
@@ -207,7 +208,23 @@ public class LoginController {
 		}
 	}
 	
-
+	/**
+	 * Return information page about orcid login - this primarily seen if user
+	 * denies oauth access, it will redirect here to provide more information.
+	 *
+	 * @param model the Spring model
+	 * @param session the HTTP session
+	 * @return Login options page
+	 */
+	@RequestMapping(value="/user/orcidlogininfo", method=RequestMethod.GET)
+	public String orcidDeniedPage(Model model, HttpSession session) {
+		if (!siteProperties.isOauthEnabled()) {
+			LOG.debug("No OAuth option available, redirecting to home page");
+			return "redirect:/home";
+		}		
+		return "user/orcidlogininfo";
+	}
+	
 	/**
 	 * Login using Twitter.
 	 *
