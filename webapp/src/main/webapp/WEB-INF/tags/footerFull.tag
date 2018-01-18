@@ -14,7 +14,7 @@
 	
 		<div class="footer-columns one-third column">
 			<h2><i class="fa fa-user fa-3"></i> Contact</h2>
-			<p>Contact the RMap team at rmap.project@gmail.com</p>
+			<p>Contact the RMap team at <a href="mailto:${SITEPROPS.getContactEmail()}">${SITEPROPS.getContactEmail()}</a></p>
 		</div>
 	
 		<div class="footer-columns one-third column">

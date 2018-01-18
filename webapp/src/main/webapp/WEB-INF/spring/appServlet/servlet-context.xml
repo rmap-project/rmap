@@ -127,6 +127,7 @@
 		<beans:constructor-arg type="java.lang.Boolean" value="${rmapweb.google-oauth-enabled}"/>
 		<beans:constructor-arg type="java.lang.Boolean" value="${rmapweb.orcid-oauth-enabled}"/>
 		<beans:constructor-arg type="java.lang.Boolean" value="${rmapweb.twitter-oauth-enabled}"/>
+		<beans:constructor-arg type="java.lang.String" value="${rmapweb.contact-email}"/>
 	</beans:bean>
 
 
