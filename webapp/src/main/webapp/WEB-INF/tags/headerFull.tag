@@ -36,7 +36,7 @@
 				<a href="<c:url value='/home'/>">Home</a>
 			</li>
 			<li id="menu-item-2">
-				<a href="<c:url value='/about'/>">About<b class="caret"></b></a>
+				<a class="clickableText noselect">About<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a href="<c:url value='/about'/>">About RMap</a></li>	
 					<li><a href="<c:url value='/about/glossary'/>">Glossary</a></li>	
@@ -45,8 +45,9 @@
 			
 			<c:if test="${sessionScope.adminLoggedIn}">
 				<li id="menu-item-3">
-					<a href="<c:url value='/admin/welcome'/>" title="RMap Admin">RMap Admin<b class="caret"></b></a>
+					<a class="clickableText noselect" title="RMap Admin">RMap Admin<b class="caret"></b></a>
 					<ul class="dropdown-menu">
+						<li><a href="<c:url value='/admin/welcome'/>">Admin Tool Home</a></li>	
 						<li><a href="<c:url value='/admin/users'/>">Manage Users</a></li>	
 						<li><a href="<c:url value='/admin/disco/delete'/>">Delete DiSCO</a></li>				
 						<li><a href="<c:url value='/admin/logout'/>">Sign out</a></li>
@@ -58,7 +59,7 @@
 				
 				<c:if test="${uid>0}">
 				<li id="menu-item-3">
-			        <a href="<c:url value='/user/welcome'/>" title="${uname}">
+			        <a class="clickableText noselect" title="${uname}">
 		                <c:set var="provider" value="${account.providerName.getIdProviderUrl()}"/>
 		                <c:if test="${provider.contains('orcid.org')}">
 		                        <img src="<c:url value='/includes/images/orcid-icon.png/'/>" class="logged-in-icon"/>
@@ -72,6 +73,7 @@
 		                <span id="truncate">${uname}<b class="caret"></b></span>
 			        </a>
 			        <ul class="dropdown-menu">
+						<li><a href="<c:url value='/user/welcome'/>">User Tool Home</a></li>	
 			        	<li><a href="<c:url value='/user/keys'/>">Manage API keys</a></li>
 			            <!--<li><a href="<c:url value='/user/reports'/>">View API activity</a></li>-->
 			            <li><a href="<c:url value='/user/settings'/>">Settings</a></li>
@@ -91,7 +93,7 @@
 				
 				<c:if test="${uid==0&&uname.length()==0}">
 				<li id="menu-item-3">
-					<a href="<c:url value='/user/login'/>" title="Sign in to manage API access keys for write access.">Sign in<b class="caret"></b></a>
+					<a class="clickableText noselect" title="Sign in to manage API access keys for write access.">Sign in<b class="caret"></b></a>
 					<div class="signin-menu">
 						<c:if test="${SITEPROPS.isGoogleEnabled()}">
 						<a href="<c:url value='/user/login/google'/>"><img src="<c:url value='/includes/images/google-signin-button.png'/>" alt="Sign in with Google" width="172px"/></a><br/>
