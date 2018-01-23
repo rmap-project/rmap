@@ -27,11 +27,7 @@
 		<input type="hidden" name="agentDisplay" value="${agentDisplay}"/>
 		<input type="hidden" name="page" value="${page}"/>
 		<input type="submit" value="Search" class="rightOfInput"/>		
-	</form>		
-
-	<c:if test="${numRecords==0}">
-		<p>No matches found</p>
-	</c:if>
+	</form>
 	
 	<c:if test="${hasExactMatch}">
 	<div class="greenbox">
@@ -40,6 +36,10 @@
 		<a href="<c:url value='/resources/${my:httpEncodeStr(search)}'/>">View visualization</a>
 	</div>
 	<br/>
+	</c:if>
+
+	<c:if test="${numRecords==0}">
+		<p>No matching DiSCOs found</p>
 	</c:if>
 	
 	<c:if test="${numRecords gt 0}">
