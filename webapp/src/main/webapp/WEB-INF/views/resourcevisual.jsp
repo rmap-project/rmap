@@ -9,7 +9,7 @@
 					resourceUri="${RESOURCEURI}"/>
 
 	<div>
-		<div class="includeInactive linecontinues"><input type="checkbox" name="chkIncludeInactive" ${param.status=='all' ? 'checked': '' }/> include inactive 		
+		<div class="includeInactive linecontinues"><input type="checkbox" name="chkIncludeInactive" ${param.status=='all' ? 'checked': '' }/><p>include inactive</p>
 		<tl:tooltip toolTipText="When checked, the information displayed will include data from inactive DiSCOs - these have been assigned the status of \"inactive\" by their creator or superseded by a new version." readMoreLink="/about/glossary#Status"/></div>	
 		<h1>RMap Resource</h1>
 		<h2>${RESOURCEURI}</h2>

@@ -701,12 +701,19 @@ input[readonly]{background-color:#f0f0f0;}
 }
 
 .includeInactive {
-	display:inline-block;
-	float:right;
-	padding:5px;
-	margin-top:10px;
-	border:1px solid #aaa;
-	background-color:#eee;
-	font-color: #333;
+    display: inline-block;
+    float: right;
+    padding: 4px 4px 0px 4px;
+    margin-top: 10px;
+    border: 1px solid #aaa;
+    background-color: #eee;
+    color: #333;
+}
+
+.includeInactive p {
+    display: inline-block;
+    line-height: 11px;
+    margin: 0;
+    vertical-align: text-top;
 }
 
