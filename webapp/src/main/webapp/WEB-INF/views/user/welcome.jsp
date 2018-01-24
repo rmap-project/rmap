@@ -4,11 +4,20 @@
 
 <tl:pageStartStandard user="${user}" pageTitle="Welcome"/>
 			         
-	<h1>Welcome to the RMap</h1>
+	<h1>Welcome to RMap User Tool</h1>
 	<c:if test="${notice!=null}">
 		<p class="notice">
 			${notice}
 		</p>
+	</c:if>
+	<c:set var="provider" value="${account.providerName.getIdProviderUrl()}"/>
+	<c:if test="${provider.contains('orcid.org')}">
+	<div class="greenbox">
+		Thank you for logging in using <a href="${account.accountPublicId}" target="_blank">your ORCID account</a>.
+		<br/>
+		As a persistent identifier, use of ORCID IDs in RMap DiSCOs is strongly encouraged. You can see if any DiSCOs contain your ORCID ID by 
+		<a href="<c:url value='/searchresults?search=${account.accountPublicId}&status=active'/>">searching RMap</a>.
+	</div>
 	</c:if>
 	<h2>What can I do here?</h2>
 	<p>Logging in to RMap allows you to manage your write access to the RMap API. 

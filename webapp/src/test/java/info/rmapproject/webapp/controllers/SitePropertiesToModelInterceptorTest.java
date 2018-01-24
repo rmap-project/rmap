@@ -20,6 +20,7 @@
 package info.rmapproject.webapp.controllers;
 
 import static info.rmapproject.webapp.utils.Constants.SITE_PROPERTIES_ATTRIBNAME;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,7 +39,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import info.rmapproject.webapp.WebTestAbstract;
-import info.rmapproject.webapp.controllers.SitePropertiesToModelInterceptor;
 import info.rmapproject.webapp.utils.SiteProperties;
 
 /**
@@ -67,33 +67,36 @@ public class SitePropertiesToModelInterceptorTest extends WebTestAbstract {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET","/home");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ModelAndView modelview = new ModelAndView();
-		SiteProperties siteProperties = new SiteProperties(true, false, false);
+		SiteProperties siteProperties = new SiteProperties(true, false, false, "rmap.project@gmail.com");
 		SitePropertiesToModelInterceptor interceptor = new SitePropertiesToModelInterceptor(siteProperties);
 		interceptor.postHandle(request, response, null, modelview);
 		SiteProperties siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
 		assertTrue(siteProps.isGoogleEnabled());
 		assertFalse(siteProps.isTwitterEnabled());
 		assertFalse(siteProps.isOrcidEnabled());
-					
+		assertEquals("rmap.project@gmail.com",siteProps.getContactEmail());
+		
 		request = new MockHttpServletRequest("GET","/home");
 		response = new MockHttpServletResponse();
-		siteProperties = new SiteProperties(false, true, false);
+		siteProperties = new SiteProperties(false, true, false, "something.different@gmail.com");
 		interceptor = new SitePropertiesToModelInterceptor(siteProperties);
 		interceptor.postHandle(request, response, null, modelview);
 		siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
 		assertFalse(siteProps.isGoogleEnabled());
 		assertTrue(siteProps.isOrcidEnabled());
 		assertFalse(siteProps.isTwitterEnabled());
+		assertEquals("something.different@gmail.com",siteProps.getContactEmail());
 
 		request = new MockHttpServletRequest("GET","/home");
 		response = new MockHttpServletResponse();
-		siteProperties = new SiteProperties(false, false, true);
+		siteProperties = new SiteProperties(false, false, true, "rmap.project@gmail.com");
 		interceptor = new SitePropertiesToModelInterceptor(siteProperties);
 		interceptor.postHandle(request, response, null, modelview);
 		siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
 		assertFalse(siteProps.isGoogleEnabled());
 		assertFalse(siteProps.isOrcidEnabled());
 		assertTrue(siteProps.isTwitterEnabled());
+		assertEquals("rmap.project@gmail.com",siteProps.getContactEmail());
 	}
     
     /**

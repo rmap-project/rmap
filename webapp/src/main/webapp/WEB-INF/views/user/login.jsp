@@ -16,13 +16,13 @@
 	<fieldset>
 	<ul>
 		<c:if test="${SITEPROPS.isGoogleEnabled()}">
-			<li><a href="<c:url value='/user/login/google'/>"><img src="<c:url value='/includes/images/google-signin-button.png'/>" alt="Sign in with Google"/></a></li>
+			<li><a href="<c:url value='/user/login/google'/>"><img src="<c:url value='/includes/images/google-signin-button.png'/>" alt="Sign in with Google" width="172px"/></a></li>
 		</c:if>
 		<c:if test="${SITEPROPS.isTwitterEnabled()}">
-			<li><a href="<c:url value='/user/login/twitter'/>"><img src="<c:url value='/includes/images/twitter-signin-button.png'/>" alt="Sign in with Twitter" width="190px"/></a></li>
+			<li><a href="<c:url value='/user/login/twitter'/>"><img src="<c:url value='/includes/images/twitter-signin-button.png'/>" alt="Sign in with Twitter" width="168px"/></a></li>
 		</c:if>	
 		<c:if test="${SITEPROPS.isOrcidEnabled()}">
-			<li><a href="<c:url value='/user/login/orcid'/>"><img src="<c:url value='/includes/images/orcid-signin-button.png'/>" alt="Sign in with ORCiD" width="190px"/></a></li>
+			<li><a href="<c:url value='/user/login/orcid'/>"><img src="<c:url value='/includes/images/orcid-signin-button.png'/>" alt="Sign in with ORCiD" width="172px"/></a></li>
 		</c:if>
 	</ul>
 	</fieldset>

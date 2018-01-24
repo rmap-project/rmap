@@ -15,8 +15,7 @@
 	
 	<c:if test="${not user.hasRMapAgent() && not user.doRMapAgentSync}">
 	<p class="notice">
-		WARNING: A public RMap System Agent is required for creating RMap DiSCOs.  
-		API Keys are used to generate RMap DiSCOs.  In order to add data to RMap, a public RMap System Agent must 
+		WARNING: API Keys are used to generate RMap DiSCOs.  In order to add data to RMap, a public RMap System Agent must 
 		also be created so that it can be associated with any changes. 
 		To initiate the creation of an Agent, visit the <a href="<c:url value='${isAdmin ? \"/admin\" : \"\"}/user/settings'/>">settings</a> page
 		and set the option to generate an RMap:Agent to "yes".

@@ -42,6 +42,9 @@ public class SiteProperties {
 	/** True if google oauth is enabled*/
 	private Boolean twitterEnabled = false;
 	
+	/** contact email address used throughout site */
+	private String contactEmail = "rmap.project@gmail.com";
+	
 	/**
 	 * Sets the default model attributes. These are properties that will be added to the model for every page.
 	 * @param googleEnabled
@@ -49,7 +52,7 @@ public class SiteProperties {
 	 * @param twitterEnabled
 	 */
 	@Autowired
-	public SiteProperties(Boolean googleEnabled, Boolean orcidEnabled, Boolean twitterEnabled) {
+	public SiteProperties(Boolean googleEnabled, Boolean orcidEnabled, Boolean twitterEnabled, String contactEmail) {
 		if (googleEnabled!=null) {
 			this.googleEnabled = googleEnabled;		
 			LOG.debug("Google OAuth enabled status set to {}", googleEnabled);	
@@ -61,6 +64,10 @@ public class SiteProperties {
 		if (twitterEnabled!=null) {
 			this.twitterEnabled = twitterEnabled;		
 			LOG.debug("Twitter OAuth enabled status set to {}", twitterEnabled);		
+		}
+		if (contactEmail!=null) {
+			this.contactEmail = contactEmail;
+			LOG.debug("Contact email set to {}", contactEmail);			
 		}
 	}
 	
@@ -98,6 +105,13 @@ public class SiteProperties {
 			return false;
 		}
 	}
-	
+
+	/**
+	 * Return contact email
+	 * @return the contactEmail
+	 */
+	public String getContactEmail() {
+		return contactEmail;
+	}
 	
 }
