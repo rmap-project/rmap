@@ -498,9 +498,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		return event;
 	}
-	
-
-	
+		
 	/**
 	 * Get the status of a DiSCO
 	 * See RMapStatus enum for possible statuses
@@ -526,38 +524,58 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			try {
 				//   ? RMap:Deletes discoId  done return deleted
 				eventStmts = ts.getStatements(null, RMAP.DELETEDOBJECT, discoId);
-				if (eventStmts!=null && ! eventStmts.isEmpty()){
+				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.DELETED;
 					break;
 				}
-				//   ? RMap:TombStones discoID	done return tombstoned
+				//   ? RMap:Tombstones discoID	done return tombstoned
 				eventStmts = ts.getStatements(null, RMAP.TOMBSTONEDOBJECT, discoId);
-				if (eventStmts!=null && ! eventStmts.isEmpty()){
+				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.TOMBSTONED;
 					break;
 				}
 				//   ? RMap:Updates discoID	done return Inactive
 				eventStmts = ts.getStatements(null, RMAP.INACTIVATEDOBJECT, discoId);
-				if (eventStmts!=null && ! eventStmts.isEmpty()){
+				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.INACTIVE;
 					break;
 				}
 			   //   else return active if create event found
 				eventStmts = ts.getStatements(null, PROV.GENERATED, discoId);
-				if (eventStmts!=null && ! eventStmts.isEmpty()){
+				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.ACTIVE;
 					break;
 				}
 				// else throw exception
-				throw new RMapException ("No Events found for determing status of  " +
-						discoId.stringValue());
+				throw new RMapException("No Events found for determing status of  " + discoId.stringValue());
 			} catch (Exception e) {
 				throw new RMapException("Exception thrown querying triplestore for events", e);
 			}
 		}while (false);
 		
 		return status;
+	}	
+
+	/**
+	 * Verifies the list of stmts contains an Event stmt by checking subject matches context
+	 * and context's type is Event.
+	 * @param stmts
+	 * @param ts
+	 * @return
+	 */
+	protected boolean containsValidEventStmt(Set<Statement> stmts, Rdf4jTriplestore ts) {
+		boolean containsValidEventStmt = false;
+		for (Statement stmt : stmts) {
+			String context = stmt.getContext().toString();
+			if (stmt.getSubject().toString().equals(context) 
+					&& this.isEventId(ORAdapter.getValueFactory().createIRI(context), ts)){
+				containsValidEventStmt=true;
+				break;
+			}
+		}
+		return containsValidEventStmt;
 	}
+	
 
 	/**
 	 * Get IRI of Agent that asserted a DiSCO i.e isAssociatedWith the create or derive event
