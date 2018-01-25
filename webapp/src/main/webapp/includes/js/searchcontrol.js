@@ -39,7 +39,13 @@ $( function() {
 	});
 	
 	$('[name="searchForm"]').submit(function(){
+		//new search, clear filters
 		document.searchForm["page"].value=0;	
+		document.searchForm["dateFrom"].value="";	
+		document.searchForm["dateTo"].value="";	
+		document.searchForm["agent"].value="";	
+		document.searchForm["agentDisplay"].value="";	
+		document.searchForm["status"].value="active";	
 		$(':input[value=""]').attr('disabled', true);
 	});
 		
