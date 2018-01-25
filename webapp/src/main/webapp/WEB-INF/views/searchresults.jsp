@@ -20,7 +20,7 @@
 	
 	<form method="get" name="searchForm" action="<c:url value='/searchresults'/>">
 		<input type="text" placeholder="Search RMap" name="search" style="float:left; margin-right:5px;" value="${search}"/>
-		<input type="hidden" name="status" value="active"/>
+		<input type="hidden" name="status" value="${status}"/>
 		<input type="hidden" name="dateFrom" value="${dateFrom}"/>
 		<input type="hidden" name="dateTo" value="${dateTo}"/>
 		<input type="hidden" name="agent" value="${agent}"/>
