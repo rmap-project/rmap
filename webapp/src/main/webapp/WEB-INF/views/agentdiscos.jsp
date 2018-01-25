@@ -6,7 +6,7 @@
 <c:set var="discos" value="${AGENT_DISCOS}"/>
 <c:set var="numdiscos" value="${PAGINATOR.getSize()}"/>
 <h2 class="lineContinues">DiSCOs Created by Agent</h2>
-<div class="includeInactive linecontinues"><input type="checkbox" name="chkIncludeInactive" ${param.status=='all' ? 'checked': '' }/> include inactive 		
+<div class="includeInactive linecontinues"><input type="checkbox" name="chkIncludeInactive" ${param.status=='all' ? 'checked': '' }/><p>include inactive</p>		
 <tl:tooltip toolTipText="When checked, the list of will include inactive DiSCOs - these have been assigned the status of \"inactive\" by their creator or superseded by a new version." readMoreLink="/about/glossary#Status"/></div>	
 <tl:paginatorMainContent prevButtonId="agentDiscoPrev" nextButtonId="agentDiscoNext" paginator="${PAGINATOR}"/>
 <div class="CSSTableGenerator">

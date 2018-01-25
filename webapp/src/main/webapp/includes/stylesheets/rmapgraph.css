@@ -136,10 +136,15 @@ div.loadbarOuterBorder {
   margin-bottom:3px;
   display:inline-block;
   color:#0000C1;
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
 }
 
 .legendlabel:hover {
 	color:lightblue;
+	cursor:pointer;
 }
 
 

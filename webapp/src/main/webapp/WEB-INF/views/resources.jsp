@@ -16,7 +16,8 @@
 		<h1 class="lineContinues">Resource Summary</h1>
 		<tl:tooltip standardDescName="Resource"/>
 		
-		<div class="includeInactive linecontinues"><input type="checkbox" name="chkIncludeInactive" ${param.status=='all' ? 'checked': '' }/> include inactive 		
+		<div class="includeInactive linecontinues"><input type="checkbox" name="chkIncludeInactive" ${param.status=='all' ? 'checked': '' }/>
+		<p>include inactive</p>		
 		<tl:tooltip toolTipText="When checked, the information displayed will include data from inactive DiSCOs - these have been assigned the status of \"inactive\" by their creator or superseded by a new version." readMoreLink="/about/glossary#Status"/></div>	
 
 		
@@ -42,7 +43,7 @@
 		    
 	<aside class="four columns right-sidebar">
 	    <div class="sidebar-widget">
-			<h1>&nbsp;</h1>
+			<h2>&nbsp;</h2>
 			<h2 class="lineContinues">Related DiSCOs</h2>
 			<tl:tooltip toolTipText="DiSCOs represent aggregations of one or more scholarly resources. DiSCOs listed here mention the Resource on this page." 
 					readMoreLink="/about/glossary#RMapDiSCO"/>

@@ -16,7 +16,7 @@
  		style="margin-top:5px;" checked title="Toggle off/on"/>
  	<c:choose> 
  		<c:when test="${nodeType.getShape().equals('image')}">	 		
-			<div style="content:url(<c:url value='${nodeType.getImage()}'/>);" class="square lineContinues"></div>
+			<img src="<c:url value='${nodeType.getImage()}'/>" class="square lineContinues"/>
  		</c:when>	 
 		<c:otherwise>
 			<div class="${nodeType.getShape()}"></div>			
