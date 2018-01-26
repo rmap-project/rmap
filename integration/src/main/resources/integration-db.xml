@@ -44,7 +44,12 @@
 
         <bean id="integrationSessionFactory" parent="sessionFactory">
             <property name="dataSource" ref="integrationDatasource"/>
-
+            <property name="hibernateProperties">
+                <props merge="true">
+                    <prop key="hibernate.hbm2ddl.auto">${authdb.hibernate.hbm2ddl.auto}</prop>
+                    <prop key="hibernate.dialect">${authdb.hibernate.dialect}</prop>
+                </props>
+            </property>
         </bean>
     </beans>
 
