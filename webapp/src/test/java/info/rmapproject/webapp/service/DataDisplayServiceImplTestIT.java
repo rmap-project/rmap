@@ -48,7 +48,7 @@ import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
-import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
+import info.rmapproject.webapp.WebDataRetrievalTestAbstractIT;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PaginatorType;
 import info.rmapproject.webapp.domain.ResourceDescription;
@@ -60,7 +60,7 @@ import info.rmapproject.webapp.service.dto.EventDTO;
  * Tests DataDisplayServiceImpl class
  */
 @TestPropertySource(properties = {"rmapweb.max-table-rows=10"})
-public class DataDisplayServiceImplTest extends WebDataRetrievalTestAbstract {
+public class DataDisplayServiceImplTestIT extends WebDataRetrievalTestAbstractIT {
 
 	/** The data display service. */
 	@Autowired

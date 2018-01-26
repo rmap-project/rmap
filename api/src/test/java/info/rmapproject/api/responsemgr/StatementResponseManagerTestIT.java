@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.api.ApiDataCreationTestAbstract;
+import info.rmapproject.api.ApiDataCreationTestAbstractIT;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.core.model.disco.RMapDiSCO;
@@ -49,7 +49,7 @@ import info.rmapproject.testdata.service.TestFile;
  * @author khanson
  */
 
-public class StatementResponseManagerTest extends ApiDataCreationTestAbstract {
+public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 	
 	/** The statement response manager. */
 	@Autowired

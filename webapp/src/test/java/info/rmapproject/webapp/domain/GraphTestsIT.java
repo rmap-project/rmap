@@ -31,14 +31,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSparqlUtils;
-import info.rmapproject.webapp.WebTestAbstract;
+import info.rmapproject.webapp.WebTestAbstractIT;
 import info.rmapproject.webapp.service.SpringGraphFactory;
 import info.rmapproject.webapp.utils.WebappUtils;
 
 /**
  * Tests for Graph class
  */
-public class GraphTests extends WebTestAbstract {
+public class GraphTestsIT extends WebTestAbstractIT {
 
 	@Autowired
 	private SpringGraphFactory graphFactory;

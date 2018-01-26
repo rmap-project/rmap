@@ -46,7 +46,7 @@ import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore
  * Tests for ResponseManager.
  * @author khanson
  */
-public abstract class ApiDataCreationTestAbstract extends ApiTestAbstract {
+public abstract class ApiDataCreationTestAbstractIT extends ApiTestAbstractIT {
 	
 	/** The rmap service. */
 	@Autowired
@@ -66,7 +66,7 @@ public abstract class ApiDataCreationTestAbstract extends ApiTestAbstract {
 	/**
 	 * Instantiates a new response manager test.
 	 */
-	public ApiDataCreationTestAbstract() {
+	public ApiDataCreationTestAbstractIT() {
 		super();
 	}
 	

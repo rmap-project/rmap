@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.api.ApiTestAbstract;
+import info.rmapproject.api.ApiTestAbstractIT;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
@@ -44,7 +44,7 @@ import info.rmapproject.core.rmapservice.RMapService;
  * ApiUserService tests
  */
 
-public class ApiUserServiceTest extends ApiTestAbstract{
+public class ApiUserServiceTestIT extends ApiTestAbstractIT {
 
 	private String testAccessKey = "uah2CKDaBsEw3cEQ";
 	private String testSecret = "NSbdzctrP46ZvhTi";

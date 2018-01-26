@@ -32,8 +32,7 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.testdata.service.TestFile;
-import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
-import info.rmapproject.webapp.service.RMapUpdateService;
+import info.rmapproject.webapp.WebDataRetrievalTestAbstractIT;
 
 /**
  * Tests for RMapUpdateServiceImpl.
@@ -42,7 +41,7 @@ import info.rmapproject.webapp.service.RMapUpdateService;
 						"rmapauth.baseUrl=https://fake-rmap-server.org",
 						"rmapcore.adminAgentUri=https://fake-rmap-server.org#Administrator"
 						})
-public class RMapUpdateServiceImplTest extends WebDataRetrievalTestAbstract {
+public class RMapUpdateServiceImplTestIT extends WebDataRetrievalTestAbstractIT {
 
 	/** The data display service. */
 	@Autowired

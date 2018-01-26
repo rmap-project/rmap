@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.api.ApiDataCreationTestAbstract;
+import info.rmapproject.api.ApiDataCreationTestAbstractIT;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.test.TestUtils;
@@ -48,7 +48,7 @@ import info.rmapproject.testdata.service.TestFile;
  * Tests for AgentResponseManager
  * @author khanson
  */
-public class AgentResponseManagerTest extends ApiDataCreationTestAbstract {
+public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 
 	/** The Agent Response Manager. */
 	@Autowired

@@ -17,43 +17,45 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.api;
+package info.rmapproject.webapp;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Tests for ResponseManager.
+ * Class for other test classes to inherit from. There are several annotations and settings required 
+ * for most of the test classes, this sets them.  Note that the default class annotations can be 
+ * overridden by defining them in the concrete class
  * @author khanson
+ *
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles({"default", "inmemory-triplestore", "inmemory-idservice", "inmemory-db", "embedded-solr", "mock-kafka"})
-@ContextConfiguration("classpath:/beans.xml")
-@Transactional
-public abstract class ApiTestAbstract {
-	
+@ContextConfiguration({"classpath*:/servlet-context.xml", "classpath*:/rmap-kafka-shared-test.xml"})
+public abstract class WebTestAbstractIT {
+
 	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
-	private static boolean activeProfilesPreSet = System.getProperties().containsKey(SPRING_ACTIVE_PROFILE_PROP);
+	protected static boolean thisClassSetProfilesProperty = false;
+
+	@Before
+    public void setUp() throws Exception {
+        if (System.getProperty(SPRING_ACTIVE_PROFILE_PROP) == null) {
+            System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default, inmemory-db, inmemory-triplestore, inmemory-idservice, embedded-solr, mock-kafka");
+            thisClassSetProfilesProperty = true;
+        }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (thisClassSetProfilesProperty) {
+            System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
+        }
+    }
 	
-	@BeforeClass
-	public static void setUpSpringProfiles() {
-		if (!activeProfilesPreSet) {
-			System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default,inmemory-db,inmemory-idservice,inmemory-triplestore,embedded-solr,mock-kafka");
-		}
-	}
-
-	@AfterClass
-	public static void resetSpringProfiles() throws Exception {
-		if (!activeProfilesPreSet) {
-			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
-		}
-	}
-
 }

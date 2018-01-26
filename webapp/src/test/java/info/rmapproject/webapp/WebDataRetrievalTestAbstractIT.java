@@ -37,7 +37,7 @@ import info.rmapproject.testdata.service.TestConstants;
  * Initiates relevant triplestore objects and creates an RMap Agent for use in tests
  * @author khanson
  */
-public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
+public abstract class WebDataRetrievalTestAbstractIT extends WebTestAbstractIT {
 
 	/** The rmap service. */
 	@Autowired
@@ -50,7 +50,7 @@ public abstract class WebDataRetrievalTestAbstract extends WebTestAbstract {
 	/**
 	 * Instantiates a new Web Data Retrieval test.
 	 */
-	public WebDataRetrievalTestAbstract() {
+	public WebDataRetrievalTestAbstractIT() {
 		super();
 	}
 	

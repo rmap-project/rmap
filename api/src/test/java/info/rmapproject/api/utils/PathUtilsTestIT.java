@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.api.ApiTestAbstract;
+import info.rmapproject.api.ApiTestAbstractIT;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapValue;
@@ -34,7 +34,7 @@ import info.rmapproject.core.model.RMapValue;
 /**
  * Tests for RestApiUtils class
  */
-public class PathUtilsTest extends ApiTestAbstract {
+public class PathUtilsTestIT extends ApiTestAbstractIT {
 
 	@Autowired
 	private PathUtils underTest;

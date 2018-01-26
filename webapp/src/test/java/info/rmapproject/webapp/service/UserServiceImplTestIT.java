@@ -23,14 +23,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.webapp.WebDataRetrievalTestAbstract;
-import info.rmapproject.webapp.service.UserMgtService;
+import info.rmapproject.webapp.WebDataRetrievalTestAbstractIT;
 
 /**
  * Tests for UserServiceImpl.
  */
 @Ignore
-public class UserServiceImplTest extends WebDataRetrievalTestAbstract {
+public class UserServiceImplTestIT extends WebDataRetrievalTestAbstractIT {
 
 	/** The user management service. */
 	@Autowired

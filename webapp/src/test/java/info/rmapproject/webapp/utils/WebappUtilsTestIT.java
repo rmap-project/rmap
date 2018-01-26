@@ -28,12 +28,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import info.rmapproject.webapp.WebTestAbstract;
+import info.rmapproject.webapp.WebTestAbstractIT;
 
 /**
  * Tests for WebappUtils class.
  */
-public class WebappUtilsTest extends WebTestAbstract {
+public class WebappUtilsTestIT extends WebTestAbstractIT {
 	
 	/**
 	 * Test ontology prefixes.

@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.api.ApiDataCreationTestAbstract;
+import info.rmapproject.api.ApiDataCreationTestAbstractIT;
 import info.rmapproject.api.lists.NonRdfType;
 import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.test.TestUtils;
@@ -45,7 +45,7 @@ import info.rmapproject.testdata.service.TestFile;
 /**
  * Tests for EventResponseManager class.
  */
-public class EventResponseManagerTest extends ApiDataCreationTestAbstract {
+public class EventResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 
 	/** The Event Response Manager. */
 	@Autowired

@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import info.rmapproject.api.ApiDataCreationTestAbstract;
+import info.rmapproject.api.ApiDataCreationTestAbstractIT;
 import info.rmapproject.api.exception.ErrorCode;
 import info.rmapproject.api.exception.RMapApiException;
 import info.rmapproject.api.lists.NonRdfType;
@@ -54,7 +54,7 @@ import info.rmapproject.testdata.service.TestFile;
 /**
  * Tests for the ResourceResponseManager class
  */
-public class ResourceResponseManagerTest extends ApiDataCreationTestAbstract {
+public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 	
 	/** The Resource Response Manager. */
 	@Autowired
