@@ -9,6 +9,7 @@
 		<a href="#who-can-use">Who can use RMap?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#how-create-disco">How do I create a DiSCO?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#using-ids">Using ORCID IDs, DOIs and Other PIDs</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+		<a href="#funding">Funding</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#additional-info">Additional Information</a>
 	</p>
 	
@@ -23,10 +24,10 @@
 	version of a DiSCO is assigned an identifier so that it can be cited or shared with others as a representation of the scope of the work 
 	at a point in time. While RMap is primarily a linked data API, for improved navigation and discovery, there is also a search function and 
 	visual user interface that allows you to interactively navigate DiSCOs and the resources within them. </p>
-	<p>The video below offers a short introduction to some of the concepts behind the RMap:</p>
-	<br/>
-	<p align="center">
-	<iframe width="560" height="315" style="border-width:1px;" src="https://www.youtube.com/embed/R0xCjScWbJs" allowfullscreen></iframe>
+	<p>The video below offers a short introduction to some of the concepts behind the RMap:
+	<div class="containframe">
+		<div class="videoframe"><iframe allowfullscreen="" src="https://www.youtube.com/embed/R0xCjScWbJs"></iframe></div>
+	</div>
 	</p>
 	
 	<div id="who-can-use"></div>
@@ -62,6 +63,15 @@
 	your ORCID ID. API users have full control over the content of their DiSCOs, so data creators can, for example, use their ORCID ID in the optional “creator” 
 	field of the DiSCO, or as contributor IDs that are connected to scholarly works referenced in your DiSCOs.</p>
 	</c:if>
+	
+	<div id="funding"></div>
+	<h2>Funding</h2>
+	<p>The original RMap project was funded by the <a href="https://sloan.org/" target="_blank">Alfred P. Sloan Foundation</a> and undertaken by the 
+	<a href="http://dataconservancy.org/" target="_blank">Data Conservancy</a>, <a href="https://www.portico.org/" target="_blank">Portico</a>, 
+	and <a href="https://www.ieee.org" target="_blank">IEEE</a>. 
+	This instance of RMap is managed by 
+	<a href="${SITEPROPS.getInstitutionUrl()}" target="_blank">${SITEPROPS.getInstitutionName()}</a>.
+	</p>
 	
 	<div id="additional-info"></div>
 	<h2>Additional Information</h2>

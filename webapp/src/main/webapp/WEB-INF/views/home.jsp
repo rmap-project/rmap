@@ -10,16 +10,24 @@
 			${notice}
 		</p>
 	</c:if>
-	<p>RMap captures and preserves maps of scholarly works. Search for a person, institution, scholarly work, or RMap DiSCO in the search below.</p>
-	<form method="get" action="<c:url value='/searchresults'/>">
-		<input type="text" placeholder="Search RMap" name="search" style="float:left; margin-right:5px;" value="${search}"/>
-		<input type="hidden" name="status" value="active"/>
-		<input type="submit" value="Search" style="margin-top:3px;">
-	</form>
-	<br/>
-	<br/>
-	<br/>
-	<br/>
+	<p>RMap captures and preserves maps of scholarly works. Search for a person, institution, scholarly work, or RMap DiSCO using 
+	a full or partial identifier or name in the search below.</p>
+	<aside class="three columns left-sidebar"><h6>&nbsp;</h6></aside>
+	<article class="ten columns main-content">
+		<form method="get" action="<c:url value='/searchresults'/>">
+			<input type="text" placeholder="Search RMap" name="search" style="float:left; margin-right:5px;" value="${search}"/>
+			<input type="hidden" name="status" value="active"/>
+			<input type="submit" value="Search" style="margin-top:3px;">
+			<p style="font-size: 85%;">Example search terms: 
+			<a href="<c:url value='/searchresults?search=NASA&status=active'/>">"NASA"</a>, 
+			<a href="<c:url value='/searchresults?search=https://doi.org/10.7265/n59p2ztg&status=active'/>">"https://doi.org/10.7265/n59p2ztg"</a>
+			</p>
+			<br>
+			<div class="containframe">
+				<div class="videoframe"><iframe allowfullscreen="" src="https://www.youtube.com/embed/R0xCjScWbJs"></iframe></div>
+			</div>
+		</form>
+	</article>
 	<br/>
 	<br/>
 <tl:pageEndStandard/>

@@ -2,7 +2,6 @@
 
 <%@ attribute name="user" rtexprvalue="true" required="true" type="info.rmapproject.auth.model.User" description="Authenticated user session object" %> 
 
-
 <!-- Full page header
 ================================================== -->
 
@@ -22,12 +21,12 @@
 
 <header id="header" class="site-header" role="banner">
 	<div id="header-inner" class="container sixteen columns over">
-	<hgroup class="one-third column alpha">
+	<hgroup class="eight columns alpha">
 		<h1 id="site-title" class="site-title">
 			<a href="<c:url value='/home'/>"><img src="<c:url value='/includes/images/rmap_logo_small.png'/>" alt="RMap logo"  id="rmaplogo"/></a>
 		    <!-- uncomment to include e.g. "demo" next to logo
-		    <div style="position:relative; float:right;  color:#aaa;font-style:italic; margin-top:30px; margin-right:110px; font-size:90%;">
-			demo</div>-->
+		    <div style="position:relative; float:left;  color:#aaa;font-style:italic; margin-top:35px; font-size:90%;">
+		demo</div>-->
 		</h1>
 	</hgroup>
 	<nav id="main-nav" class="two thirds column omega">

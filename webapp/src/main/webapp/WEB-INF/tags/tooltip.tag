@@ -29,7 +29,7 @@
 		</c:choose>	
 		
 		<c:if test="${standardDescName!=null && standardDescName.length()>0}">		
-			<c:set var="link" value="/about/glossary?term=${standardDescName}"/>		
+			<c:set var="link" value="/about/glossary#${standardDescName}"/>		
 		</c:if>
 
 		<c:if test="${readMoreLink!=null && readMoreLink.length()>0}">
