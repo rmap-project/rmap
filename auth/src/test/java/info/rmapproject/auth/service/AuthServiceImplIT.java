@@ -19,24 +19,36 @@
  *******************************************************************************/
 package info.rmapproject.auth.service;
 
+import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.auth.AuthDBTestAbstract;
+import info.rmapproject.auth.AuthDBAbstractIT;
 import info.rmapproject.auth.dao.UserDao;
 import info.rmapproject.auth.exception.RMapAuthException;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.User;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
-public class AuthServiceImplTest extends AuthDBTestAbstract {
-	
+import javax.sql.DataSource;
+
+public class AuthServiceImplIT extends AuthDBAbstractIT {
+
+	private static final String USER_COUNT_QUERY = "SELECT count(*) FROM Users";
+
 	@Autowired
 	private RMapAuthService rmapAuthService;
 	
@@ -57,7 +69,10 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 
 	@Autowired
 	private UserDao userDao;
-	
+
+	@Autowired
+	private DataSource ds;
+
 	@Test
 	public void testAuthObj() {
 		assertNotNull(rmapAuthService);
@@ -144,7 +159,7 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 	 * all tests, must first determine how many records are in the database using something other than getUsers
 	 */
 	@Test
-	public void testGetUsersNoFilter() {
+	public void testGetUsersNoFilter() throws SQLException {
 		//test user might be in database from previous test, look for the record and create if not there
 		User testUser2 = rmapAuthService.getUserByAuthKeyUri(testAuthKeyUri2);	
 		if (testUser2==null) {
@@ -154,21 +169,15 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 			newuser.setRmapAgentUri(testAgentUri2);
 			userDao.addUser(newuser);
 		}
-		
-		//use auto-incrementing id to figure out how many user records exist in the database
-		User user = null;
-		int count = 0;
-		do {
-			count = count+1;
-			user = rmapAuthService.getUserById(count);
-		} while (user!=null);
-		
-		int numUsers = count-1;
-		
-        List<User> users = rmapAuthService.getUsers(null);
-        assertEquals(numUsers, users.size());
+
+		List<User> users = rmapAuthService.getUsers(null);
+		int expectedUserCount = countUsers();
+		assertEquals("Found users: " + users.stream()
+				.map(User::toString)
+				.collect(joining("\n", "[", "]")),
+				expectedUserCount, users.size());
 	}
-	
+
 	/**
 	 * Tests that the getUsers method returns the correct count when filtered.  
 	 */
@@ -219,5 +228,18 @@ public class AuthServiceImplTest extends AuthDBTestAbstract {
 		users = rmapAuthService.getUsers("nomatchesatall");
 		assertEquals(0, users.size()); 
 	}
-		
+
+	private int countUsers() throws SQLException {
+		// This Connection is managed by the HibernateTransactionManager because this test is annotated as @Transactional
+		// So we obtain it using Spring DataSourceUtils; that way we get a Connection that is participating in the
+		// transaction.  We also do not close the Connection- we let the transaction manager do that.
+		Connection c = DataSourceUtils.getConnection(ds);
+
+		try (PreparedStatement ps = c.prepareStatement(USER_COUNT_QUERY);
+			 ResultSet rs = ps.executeQuery()) {
+			assertTrue("Query '" + USER_COUNT_QUERY + "' returned no rows.", rs.next());
+			return rs.getInt(1);
+		}
+	}
+
 }

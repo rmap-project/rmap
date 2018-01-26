@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
-public class DataSourceConnectionTest extends AuthDBTestAbstract {
+public class DataSourceConnectionIT extends AuthDBAbstractIT {
 
     @Autowired
     private DataSource underTest;
@@ -47,7 +47,7 @@ public class DataSourceConnectionTest extends AuthDBTestAbstract {
     @Test
     public void testSimpleSelectQuery() throws Exception {
         Connection c = underTest.getConnection();
-        ResultSet rs = c.prepareCall("VALUES 1").executeQuery();
+        ResultSet rs = c.prepareCall("SELECT 1").executeQuery();
         assertTrue(rs.next());
         assertEquals(1, rs.getInt(1));
         rs.close();
@@ -56,9 +56,8 @@ public class DataSourceConnectionTest extends AuthDBTestAbstract {
     @Test
     public void testTableExists() throws Exception {
         Connection c = underTest.getConnection();
-        ResultSet rs = c.prepareCall("SELECT * from Users where userid=1").executeQuery();
+        ResultSet rs = c.prepareCall("SELECT * from Users").executeQuery();
         assertTrue(rs.next());
-        assertFalse(rs.next());
         rs.close();
     }
 }

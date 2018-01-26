@@ -14,6 +14,11 @@
 
     <dependencies>
         <dependency>
+            <artifactId>postgresql</artifactId>
+            <groupId>org.postgresql</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>info.rmapproject</groupId>
             <artifactId>rmap-core</artifactId>
             <version>${project.parent.version}</version>
@@ -97,11 +102,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>info.rmapproject</groupId>
@@ -129,11 +129,87 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <derby.system.home>${project.build.directory}/derby</derby.system.home>
                         <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-kafka</spring.profiles.active>
                         <logback.configurationFile>src/test/resources/logback-test.xml</logback.configurationFile>
-\                    </systemProperties>
+                        <docker.host.address>${docker.host.address}</docker.host.address>
+                        <db.port>${db.port}</db.port>
+                    </systemProperties>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <spring.profiles.active>default,inmemory-db,inmemory-idservice,inmemory-triplestore,mock-kafka</spring.profiles.active>
+                        <logback.configurationFile>src/test/resources/logback-test.xml</logback.configurationFile>
+                        <docker.host.address>${docker.host.address}</docker.host.address>
+                        <db.port>${db.port}</db.port>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>reserve-port</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <configuration>
+                            <portNames>
+                                <portName>db.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <images>
+                        <image>
+                            <alias>postgres</alias>
+                            <name>postgres:latest</name>
+                            <run>
+                                <cmd>postgres</cmd>
+                                <ports>
+                                    <port>db.port:5432</port>
+                                </ports>
+                                <wait>
+                                    <log>ready to accept connections|database system is shut down</log>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-docker-for-tests</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-docker-after-tests</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

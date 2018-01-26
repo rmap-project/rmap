@@ -4,10 +4,11 @@ package info.rmapproject.auth.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import info.rmapproject.auth.model.User;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import info.rmapproject.auth.AuthDBTestAbstract;
+import info.rmapproject.auth.AuthDBAbstractIT;
 import info.rmapproject.auth.model.ApiKey;
 import info.rmapproject.auth.model.KeyStatus;
 
@@ -15,18 +16,25 @@ import info.rmapproject.auth.model.KeyStatus;
  * @author Elliot Metsger (emetsger@jhu.edu)
  * @author Karen Hanson
  */
-public class ApiKeyDaoImplTest extends AuthDBTestAbstract {
+public class ApiKeyDaoImplIT extends AuthDBAbstractIT {
 
-    @Autowired
+	private final String USER_AUTH_KEY = "http://rmap-hub.org/authids/testauthid";
+
+	@Autowired
     private ApiKeyDaoImpl apiKeyDao;
 
-    @Test
+    @Autowired
+	private UserDao userDao;
+
+	@Test
     public void testAutowireApiKeyDao() throws Exception {
         assertNotNull(apiKeyDao);
     }
     
     @Test 
     public void testCreateApiKey() {
+		User user = userDao.getUserByAuthKeyUri(USER_AUTH_KEY);
+
     	String accessKey = "abcd1234";
     	String secret = "efgh5678";
     	String keyUri = "rmap:testkey2";
@@ -39,14 +47,14 @@ public class ApiKeyDaoImplTest extends AuthDBTestAbstract {
     	apiKey.setKeyStatus(KeyStatus.ACTIVE);
     	apiKey.setKeyUri(keyUri);
     	apiKey.setLabel(label);
-    	apiKey.setUserId(1);
+		apiKey.setUserId(user.getUserId());
     	
     	//create and retain key
     	int keyId = apiKeyDao.addApiKey(apiKey);
     	
     	//get new key record
     	ApiKey newApiKey = apiKeyDao.getApiKeyById(keyId);    	
-    	assertEquals(newApiKey.getUserId(),1);
+    	assertEquals(newApiKey.getUserId(), user.getUserId());
     	assertEquals(newApiKey.getApiKeyId(),keyId);
     	assertEquals(newApiKey.getKeyUri(), keyUri);
     	assertEquals(newApiKey.getLabel(), label);
