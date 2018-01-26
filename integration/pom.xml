@@ -19,7 +19,6 @@
         <rdf4j.http.context>/rdf4j-server</rdf4j.http.context>
         <rdf4j.workbench.context>/rdf4j-workbench</rdf4j.workbench.context>
         <rdf4jhttp.repository.name>its</rdf4jhttp.repository.name>
-        <derby.home>${project.build.testOutputDirectory}/derby</derby.home>
 
         <!-- Kafka properties used to configure a broker for unit tests
 (see also src/test/resources/kafka-broker.properties, resource plugin and surefire plugin config) -->
@@ -75,19 +74,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbyclient</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbynet</artifactId>
+            <artifactId>postgresql</artifactId>
+            <groupId>org.postgresql</groupId>
             <scope>test</scope>
         </dependency>
 
@@ -193,98 +181,6 @@
 
     </dependencies>
 
-    <profiles>
-
-        <profile>
-            <!-- only activate this profile when the system property 'maven.antrun.skip' is NOT present -->
-            <id>antrun-travis</id>
-            <activation>
-                <property>
-                    <name>!maven.antrun.skip</name>
-                </property>
-            </activation>
-
-            <build>
-
-                <plugins>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.8</version>
-                        <configuration>
-                            <target>
-                                <taskdef name="startDerby" classname="info.rmapproject.integration.util.StartDerbyTask"
-                                         classpathref="maven.plugin.classpath"/>
-                                <startDerby derbyHome="${derby.home}" springContextLocation="classpath*:/spring-rmapauth-context.xml" springProfiles="default,inmemory-idservice,inmemory-triplestore,integration-db"/>
-                            </target>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>default-cli</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <dependencies>
-                            <dependency>
-                                <groupId>info.rmapproject</groupId>
-                                <artifactId>rmap-integration-util</artifactId>
-                                <version>${project.parent.version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>info.rmapproject</groupId>
-                                <artifactId>rmap-integration</artifactId>
-                                <version>${project.parent.version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>info.rmapproject</groupId>
-                                <artifactId>rmap-auth</artifactId>
-                                <version>${project.parent.version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.springframework</groupId>
-                                <artifactId>spring-context</artifactId>
-                                <version>${org.springframework-version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.springframework</groupId>
-                                <artifactId>spring-jdbc</artifactId>
-                                <version>${org.springframework-version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.springframework</groupId>
-                                <artifactId>spring-orm</artifactId>
-                                <version>${org.springframework-version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.hibernate</groupId>
-                                <artifactId>hibernate-core</artifactId>
-                                <version>${hibernate.version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.hibernate</groupId>
-                                <artifactId>hibernate-validator</artifactId>
-                                <version>${hibernate-validator.version}</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.hibernate</groupId>
-                                <artifactId>hibernate-entitymanager</artifactId>
-                                <version>${hibernate.version}</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-
-                </plugins>
-
-            </build>
-
-        </profile>
-
-    </profiles>
-    
     <build>
 
         <plugins>
@@ -327,6 +223,7 @@
                         <configuration>
                             <portNames>
                                 <portName>rmap.webapp.test.port</portName>
+                                <portName>db.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -353,6 +250,19 @@
                                 <basedir>target/test-classes/docker</basedir>
                                 <composeFile>docker-compose.yaml</composeFile>
                             </external>
+                        </image>
+                        <image>
+                            <alias>postgres</alias>
+                            <name>postgres:latest</name>
+                            <run>
+                                <cmd>postgres</cmd>
+                                <ports>
+                                    <port>db.port:5432</port>
+                                </ports>
+                                <wait>
+                                    <log>ready to accept connections|database system is shut down</log>
+                                </wait>
+                            </run>
                         </image>
                     </images>
                 </configuration>
@@ -405,7 +315,6 @@
                         </artifactInstaller>
                         <systemProperties>
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
-                            <derby.system.home>${derby.home}</derby.system.home>
                             <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
                             <rdf4jhttp.repository.name>${rdf4jhttp.repository.name}</rdf4jhttp.repository.name>
                             <rdf4jhttp.repository.url>http://localhost:${rmap.webapp.test.port}/rdf4j-server</rdf4jhttp.repository.url>
@@ -415,19 +324,13 @@
                             <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
                             <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
                             <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
+                            <docker.host.address>${docker.host.address}</docker.host.address>
+                            <db.port>${db.port}</db.port>
                         </systemProperties>
                         <dependencies>
                             <dependency>
-                                <groupId>org.apache.derby</groupId>
-                                <artifactId>derby</artifactId>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.apache.derby</groupId>
-                                <artifactId>derbynet</artifactId>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.apache.derby</groupId>
-                                <artifactId>derbyclient</artifactId>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
                             </dependency>
                         </dependencies>
                     </container>
@@ -481,7 +384,7 @@
                         <!-- Spring 'integration-db' beans -->
                         <files>
                             <copy>
-                                <file>${project.basedir}/src/main/resources/persistent-db.properties</file>
+                                <file>${project.basedir}/src/main/resources/integration-db.properties</file>
                                 <todir>shared/classes</todir>
                             </copy>
                             <copy>
@@ -524,7 +427,6 @@
                         <configuration>
                             <container>
                                 <systemProperties>
-                                    <derby.system.home>${derby.home}</derby.system.home>
                                     <spring.profiles.active>default,persistent-db,inmemory-idservice,integration-triplestore,http-solr,prod-kafka,auto-start-indexing</spring.profiles.active>
                                     <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
                                     <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
@@ -534,6 +436,8 @@
                                     <rdf4jhttp.workbench.url>http://localhost:${rmap.webapp.test.port}/rdf4j-workbench</rdf4jhttp.workbench.url>
                                     <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
                                     <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
+                                    <docker.host.address>${docker.host.address}</docker.host.address>
+                                    <db.port>${db.port}</db.port>
                                 </systemProperties>
                             </container>
                         </configuration>
@@ -546,7 +450,6 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <systemProperties>
-                        <derby.system.home>${derby.home}</derby.system.home>
                         <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
                         <rmap.webapp.test.port>${rmap.webapp.test.port}</rmap.webapp.test.port>
                         <rmap.webapp.context>${rmap.webapp.context}</rmap.webapp.context>
@@ -560,6 +463,8 @@
                         <rdf4jhttp.workbench.url>http://localhost:${rmap.webapp.test.port}/rdf4j-workbench</rdf4jhttp.workbench.url>
                         <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
                         <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
+                        <docker.host.address>${docker.host.address}</docker.host.address>
+                        <db.port>${db.port}</db.port>
                     </systemProperties>
                 </configuration>
                 <executions>
