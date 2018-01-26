@@ -64,21 +64,29 @@ public class SitePropertiesToModelInterceptorTestIT extends WebTestAbstractIT {
 	 */
 	@Test
 	public void testDefaultsAppliedThroughConstructor() throws Exception {
+		String email="rmap.project@gmail.com";
+		String institution="JHU";
+		String logo="/logo.png";
+		String url="https://example.org";		
+		
 		MockHttpServletRequest request = new MockHttpServletRequest("GET","/home");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ModelAndView modelview = new ModelAndView();
-		SiteProperties siteProperties = new SiteProperties(true, false, false, "rmap.project@gmail.com");
+		SiteProperties siteProperties = new SiteProperties(true, false, false, email, institution, logo, url);
 		SitePropertiesToModelInterceptor interceptor = new SitePropertiesToModelInterceptor(siteProperties);
 		interceptor.postHandle(request, response, null, modelview);
 		SiteProperties siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
 		assertTrue(siteProps.isGoogleEnabled());
 		assertFalse(siteProps.isTwitterEnabled());
 		assertFalse(siteProps.isOrcidEnabled());
-		assertEquals("rmap.project@gmail.com",siteProps.getContactEmail());
+		assertEquals(email,siteProps.getContactEmail());
+		assertEquals(institution,siteProps.getInstitutionName());
+		assertEquals(logo,siteProps.getInstitutionLogo());
+		assertEquals(url,siteProps.getInstitutionUrl());
 		
 		request = new MockHttpServletRequest("GET","/home");
 		response = new MockHttpServletResponse();
-		siteProperties = new SiteProperties(false, true, false, "something.different@gmail.com");
+		siteProperties = new SiteProperties(false, true, false, "something.different@gmail.com", institution, logo, url);
 		interceptor = new SitePropertiesToModelInterceptor(siteProperties);
 		interceptor.postHandle(request, response, null, modelview);
 		siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
@@ -89,14 +97,13 @@ public class SitePropertiesToModelInterceptorTestIT extends WebTestAbstractIT {
 
 		request = new MockHttpServletRequest("GET","/home");
 		response = new MockHttpServletResponse();
-		siteProperties = new SiteProperties(false, false, true, "rmap.project@gmail.com");
+		siteProperties = new SiteProperties(false, false, true, email, institution, logo, url);
 		interceptor = new SitePropertiesToModelInterceptor(siteProperties);
 		interceptor.postHandle(request, response, null, modelview);
 		siteProps = (SiteProperties) modelview.getModel().get(SITE_PROPERTIES_ATTRIBNAME);
 		assertFalse(siteProps.isGoogleEnabled());
 		assertFalse(siteProps.isOrcidEnabled());
 		assertTrue(siteProps.isTwitterEnabled());
-		assertEquals("rmap.project@gmail.com",siteProps.getContactEmail());
 	}
     
     /**

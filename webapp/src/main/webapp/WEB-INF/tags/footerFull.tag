@@ -1,3 +1,4 @@
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %> 
 <footer>
 	
 	<div class="footer-inner container">
@@ -11,27 +12,34 @@
 				<li><a href="https://www.youtube.com/channel/UCZ7SDybbfgM_XH7zfIWc89Q"><i class="fa fa-youtube-play fa-2"></i> YouTube</a></li>
 			</ul>
 		</div>
-	
+		
 		<div class="footer-columns one-third column">
 			<h2><i class="fa fa-user fa-3"></i> Contact</h2>
-			<p>Contact the RMap team at <a href="mailto:${SITEPROPS.getContactEmail()}">${SITEPROPS.getContactEmail()}</a></p>
+    		<p>
+    		Please feel free to contact the RMap team with any questions at 
+    		<a href="mailto:${SITEPROPS.getContactEmail()}">${SITEPROPS.getContactEmail()}</a>
+    		</p>
+		
 		</div>
-	
+		
 		<div class="footer-columns one-third column">
-			<h2><i class="fa fa-money fa-3"></i> Funding</h2>
-			<p>The RMap project was funded by the Alfred P. Sloan Foundation and undertaken by the Data Conservancy, Portico, and IEEE.</p>
+			<h2><i class="fa fa-university"></i> Institution</h2>
+			<p>
+			    This instance of RMap is managed by <a href="${SITEPROPS.getInstitutionUrl()}" target="_blank">${SITEPROPS.getInstitutionName()}</a>.
+			    <a href="${SITEPROPS.getInstitutionUrl()}" target="_blank"><img src="<c:url value='${SITEPROPS.getInstitutionLogo()}'/>" width="270px"></a>
+			</p>
 		</div>
-	
+		
 	</div>
 	
 	<div id="footer-base">
 		<div class="container">
 			<div class="eight columns">
-				<a href="http://www.opendesigns.org/design/icebrrrg/">Icebrrg Website Template</a> &copy; 2017
+				&nbsp;
 			</div>
-	
 			<div class="eight columns far-edge">
-				Design by <a href="http://www.opendesigns.org">OD</a>
+				<!-- This site uses the Icebrrrg template by OD - https://www.freewebtemplates.com/download/free-website-template/icebrrrg-419939599/demo/-->
+				Design by <a href="http://www.opendesigns.org" target="_blank">OD</a>
 			</div>
 		</div>
 	</div>
