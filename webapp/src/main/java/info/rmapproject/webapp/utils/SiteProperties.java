@@ -45,14 +45,28 @@ public class SiteProperties {
 	/** contact email address used throughout site */
 	private String contactEmail = "rmap.project@gmail.com";
 	
+	/** institution name implementing the instance */
+	private String institutionName = "The Sheridan Libraries at Johns Hopkins University";
+	
+	/** institution name implementing the instance */
+	private String institutionLogo = "/includes/images/instance_logo.png";
+
+	/** institution name implementing the instance */
+	private String institutionUrl = "https://library.jhu.edu/";
+	
 	/**
 	 * Sets the default model attributes. These are properties that will be added to the model for every page.
 	 * @param googleEnabled
 	 * @param orcidEnabled
 	 * @param twitterEnabled
+	 * @param contactEmail
+	 * @param institutionName
+	 * @param institutionLogo
+	 * @param institutionUrl
 	 */
 	@Autowired
-	public SiteProperties(Boolean googleEnabled, Boolean orcidEnabled, Boolean twitterEnabled, String contactEmail) {
+	public SiteProperties(Boolean googleEnabled, Boolean orcidEnabled, Boolean twitterEnabled, String contactEmail, 
+			String institutionName, String institutionLogo, String institutionUrl) {
 		if (googleEnabled!=null) {
 			this.googleEnabled = googleEnabled;		
 			LOG.debug("Google OAuth enabled status set to {}", googleEnabled);	
@@ -68,6 +82,18 @@ public class SiteProperties {
 		if (contactEmail!=null) {
 			this.contactEmail = contactEmail;
 			LOG.debug("Contact email set to {}", contactEmail);			
+		}
+		if (institutionName!=null) {
+			this.institutionName = institutionName;
+			LOG.debug("Institution name set to {}", institutionName);			
+		}
+		if (institutionLogo!=null) {
+			this.institutionLogo = institutionLogo;
+			LOG.debug("Institution logo set to {}", institutionLogo);			
+		}
+		if (institutionUrl!=null) {
+			this.institutionUrl = institutionUrl;
+			LOG.debug("Institution URL set to {}", institutionUrl);			
 		}
 	}
 	
@@ -112,6 +138,30 @@ public class SiteProperties {
 	 */
 	public String getContactEmail() {
 		return contactEmail;
+	}
+
+	/**
+	 * Return the institution name
+	 * @return the institutionName
+	 */
+	public String getInstitutionName() {
+		return institutionName;
+	}
+
+	/**
+	 * Return the path to institution logo
+	 * @return the logoPath
+	 */
+	public String getInstitutionLogo() {
+		return institutionLogo;
+	}
+
+	/**
+	 * Return the institution URL
+	 * @return the institutionUrl
+	 */
+	public String getInstitutionUrl() {
+		return institutionUrl;
 	}
 	
 }
