@@ -10,10 +10,25 @@
   <root level="WARN">
     <appender-ref ref="STDERR" />
   </root>
-  <logger name="org.springframework" additivity="false" level="WARN">
+  <logger name="org.springframework" additivity="false" level="${org.springframework.level:-WARN}">
     <appender-ref ref="STDERR"/>
   </logger>
-  <logger name="org.hibernate" additivity="false" level="ERROR">
+  <logger name="org.springframework.jdbc" additivity="false" level="${org.springframework.jdbc.level:-WARN}">
+    <appender-ref ref="STDERR"/>
+  </logger>
+  <logger name="org.springframework.test.context.transaction" additivity="false" level="${org.springframework.test.context.transaction.level:-WARN}">
+    <appender-ref ref="STDERR"/>
+  </logger>
+  <logger name="org.hibernate" additivity="false" level="${org.hibernate.level:-ERROR}">
+    <appender-ref ref="STDERR"/>
+  </logger>
+  <logger name="org.hibernate.SQL" additivity="false" level="${org.hibernate.SQL.level:-WARN}">
+    <appender-ref ref="STDERR"/>
+  </logger>
+  <logger name="org.hibernate.type" additivity="false" level="${org.hibernate.type.level:-WARN}">
+    <appender-ref ref="STDERR"/>
+  </logger>
+  <logger name="org.hibernate.tool.hbm2ddl" additivity="false" level="${org.hibernate.tool.hbm2ddl.level:-WARN}">
     <appender-ref ref="STDERR"/>
   </logger>
 </configuration>
