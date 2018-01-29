@@ -246,7 +246,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 				List<URI> subjTypes = null;
 				List<URI> objTypes = null;
 				if (typeMap!=null && typeMap.getCollection(subject)!=null) {
-					new ArrayList<URI>(typeMap.getCollection(subject));
+					subjTypes = new ArrayList<URI>(typeMap.getCollection(subject));
 				}
 				if (typeMap!=null && typeMap.getCollection(object)!=null) {
 					objTypes = new ArrayList<URI>(typeMap.getCollection(object));
