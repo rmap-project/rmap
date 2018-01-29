@@ -9,13 +9,11 @@
 
     <context:property-placeholder location="classpath:/rmapauth.properties" ignore-unresolvable="true"/>
     <context:component-scan base-package="info.rmapproject" />
-    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <tx:annotation-driven/>
+    <bean id="transactionManager" autowire="byType"
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager"/>
 
     <import resource="classpath:/spring-rmapcore-context.xml" />
-
-    <bean id="transactionManager" autowire="byType"
-          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-    </bean>
 
     <!-- Hibernate 4 SessionFactory Bean definition -->
     <bean abstract="true" id="sessionFactory" autowire="byType"
@@ -30,28 +28,38 @@
         </property>
         <property name="hibernateProperties">
             <props>
-                <prop key="hibernate.dialect">${authdb.hibernate.dialect}</prop>
                 <prop key="hibernate.show_sql">${authdb.hibernate.show_sql}</prop>
-                <prop key="hibernate.hbm2ddl.auto">${authdb.hibernate.hbm2ddl.auto}</prop>
+                <prop key="hibernate.format_sql">${authdb.hibernate.format_sql}</prop>
+                <prop key="hibernate.use_sql_comments">${authdb.hibernate.use_sql_comments}</prop>
             </props>
         </property>
+    </bean>
 
+    <bean id="basicDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${authdb.driverClassName}" />
+        <property name="url" value="${authdb.url}" />
+        <property name="username" value="${authdb.username}" />
+        <property name="password" value="${authdb.password}" />
+        <property name="validationQuery" value="${authdb.validationQuery}"/>
+        <property name="testOnBorrow" value="${authdb.testOnBorrow}"/>
     </bean>
 
     <!-- unit tests -->
     <beans profile="inmemory-db">
         <context:property-placeholder location="classpath*:/inmemory-db.properties" ignore-unresolvable="true"/>
 
-        <jdbc:embedded-database id="inmemoryDatasource" type="DERBY"/>
-
-        <jdbc:initialize-database enabled="true" data-source="inmemoryDatasource" ignore-failures="ALL">
-            <jdbc:script location="${authdb.script.database-schema}" execution="INIT"/>
+        <jdbc:initialize-database enabled="true" data-source="basicDataSource" ignore-failures="ALL">
             <jdbc:script location="${authdb.script.create-rmap-agent}" execution="INIT"/>
-            <jdbc:script location="${authdb.script.drop-tables}" execution="DESTROY"/>
         </jdbc:initialize-database>
 
         <bean id="inmemorySessionFactory" parent="sessionFactory">
-            <property name="dataSource" ref="inmemoryDatasource"/>
+            <property name="dataSource" ref="basicDataSource"/>
+            <property name="hibernateProperties">
+                <props merge="true">
+                    <prop key="hibernate.hbm2ddl.auto">${authdb.hibernate.hbm2ddl.auto}</prop>
+                    <prop key="hibernate.dialect">${authdb.hibernate.dialect}</prop>
+                </props>
+            </property>
         </bean>
     </beans>
 
@@ -65,17 +73,14 @@
     <beans profile="persistent-db">
         <context:property-placeholder location="classpath*:/persistent-db.properties" ignore-unresolvable="true"/>
 
-        <bean id="persistentDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-            <property name="driverClassName" value="${authdb.driverClassName}" />
-            <property name="url" value="${authdb.url}" />
-            <property name="username" value="${authdb.username}" />
-            <property name="password" value="${authdb.password}" />
-            <property name="validationQuery" value="${authdb.validationQuery}"/>
-            <property name="testOnBorrow" value="${authdb.testOnBorrow}"/>
-        </bean>
-
         <bean id="persistentSessionFactory" parent="sessionFactory">
-            <property name="dataSource" ref="persistentDatasource"/>
+            <property name="dataSource" ref="basicDataSource"/>
+            <property name="hibernateProperties">
+                <props merge="true">
+                    <prop key="hibernate.hbm2ddl.auto">${authdb.hibernate.hbm2ddl.auto}</prop>
+                    <prop key="hibernate.dialect">${authdb.hibernate.dialect}</prop>
+                </props>
+            </property>
         </bean>
     </beans>
         

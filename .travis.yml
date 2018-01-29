@@ -1,13 +1,21 @@
 language: java
+
 cache:
   directories:
     - $HOME/.m2
+
 jdk:
   - oraclejdk8
 
-install: mvn install -Dmaven.antrun.skip -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+addons:
+  apt:
+    packages:
+      - docker-ce
 
-script:
+services:
+  - docker
+
+before_install:
   - sudo service mysql stop
   - sudo service postgresql stop
   - sudo service acpid stop
@@ -19,4 +27,8 @@ script:
   - sudo service resolvconf stop
   - sudo service sshguard stop
   - sudo service ssh stop
-  - mvn verify -DtrimStackTrace=false
+  - sudo service rsyslog stop
+
+install: mvn install -Dcargo.maven.skip -Ddocker.skip -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+
+script: mvn verify -DtrimStackTrace=false
