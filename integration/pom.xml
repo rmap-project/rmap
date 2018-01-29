@@ -260,7 +260,7 @@
                                     <port>db.port:5432</port>
                                 </ports>
                                 <wait>
-                                    <log>ready to accept connections|database system is shut down</log>
+                                    <time>5000</time>
                                 </wait>
                             </run>
                         </image>
