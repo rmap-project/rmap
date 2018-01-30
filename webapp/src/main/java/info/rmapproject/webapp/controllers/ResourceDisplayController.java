@@ -24,6 +24,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,9 +115,12 @@ public class ResourceDisplayController {
 		RMapSearchParams params = generateSearchParams(status, 0);
 		
 		List<URI> resourceTypes = dataDisplayService.getResourceRDFTypes(new URI(sResourceUri),params);
-	    
+		String resourceLabel = dataDisplayService.getResourceLabel(sResourceUri,params);
+		if (resourceLabel!=null){
+			resourceLabel = Jsoup.parse(resourceLabel).text();
+		}
+	    model.addAttribute("RESOURCELABEL", resourceLabel); 
 	    model.addAttribute("RESOURCEURI", sResourceUri); 
-	    model.addAttribute("RESOURCELABEL", dataDisplayService.getResourceLabel(sResourceUri,params)); 
 	    model.addAttribute("RESOURCE_TYPES", resourceTypes);
 	    model.addAttribute("PAGEPATH", "resources");
 	 	    

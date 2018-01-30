@@ -425,10 +425,10 @@ legend {
 
 label{padding-top:10px;}
 select {padding: 5px; border: 1px solid #ccc; margin: 5px 0; width:507px;}
-input[type=text] {padding: 5px; width:500px;border: 1px solid #ccc; margin: 5px 0;}
+input[type=text] {padding: 5px; min-width:300px; max-width:500px;width:100%;border: 1px solid #ccc; margin: 5px 0;}
 input[type=checkbox] {padding-left:2px;}
 textarea {width:500px;padding: 5px; margin: 5px 0; resize: vertical;}
-input[type=text].dateInput {width:100px; display:inline-block;}
+input[type=text].dateInput {width:100px; display:inline-block;min-width:100px;}
 input[readonly]{background-color:#f0f0f0;}
 
 #truncate {
