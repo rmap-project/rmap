@@ -24,9 +24,8 @@
 	<hgroup class="eight columns alpha">
 		<h1 id="site-title" class="site-title">
 			<a href="<c:url value='/home'/>"><img src="<c:url value='/includes/images/rmap_logo_small.png'/>" alt="RMap logo"  id="rmaplogo"/></a>
-		    <!-- uncomment to include e.g. "demo" next to logo
-		    <div style="position:relative; float:left;  color:#aaa;font-style:italic; margin-top:35px; font-size:90%;">
-		demo</div>-->
+		    <!-- comment or uncomment to include e.g. "beta" next to logo-->
+		    <div style="position:relative; float:left;  color:#aaa;font-style:italic; margin-top:35px; font-size:90%;">beta</div>
 		</h1>
 	</hgroup>
 	<nav id="main-nav" class="two thirds column omega">
