@@ -10,9 +10,18 @@
     <beans profile="integration-db">
         <context:property-placeholder location="classpath*:/integration-db.properties" ignore-unresolvable="true"/>
 
-        <jdbc:initialize-database enabled="true" data-source="basicDataSource" ignore-failures="ALL">
-            <jdbc:script location="${authdb.script.create-rmap-agent}" execution="INIT"/>
-        </jdbc:initialize-database>
+        <bean id="dataSourceInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
+            <property name="dataSource" ref="basicDataSource"/>
+            <property name="databasePopulator">
+                <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
+                    <property name="scripts">
+                        <list>
+                            <value>${authdb.script.create-rmap-agent}</value>
+                        </list>
+                    </property>
+                </bean>
+            </property>
+        </bean>
 
         <bean id="integrationSessionFactory" parent="sessionFactory">
             <property name="dataSource" ref="basicDataSource"/>
