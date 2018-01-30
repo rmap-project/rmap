@@ -4,4 +4,4 @@
 <%@ attribute name="type" required="true" type="java.lang.String" description="type of link" %> 
 <%@ attribute name="uri" required="true" type="java.lang.String" description="URI to form link from" %> 
 
-<a href="<c:url value='/${type.toLowerCase()}s/${my:httpEncodeStr(uri)}'/>" title="Load this ${type} in RMap">${uri}</a>
+<a href="<c:url value='/${type.toLowerCase()}s/${my:httpEncodeStr(uri)}'/>" title="View this ${type} in RMap">${uri}</a>
