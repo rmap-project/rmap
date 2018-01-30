@@ -64,20 +64,7 @@ public class SearchController {
 		this.dataDisplayService = dataDisplayService;
 		this.paramsFactory = paramsFactory;
 	}
-	
-	/**
-	 * GETs the search form.
-	 *
-	 * @param model the Spring model
-	 * @param redirectAttributes holds flash attributes passed from a redirect
-	 * @return the search page
-	 */
-	@RequestMapping(value={"/search"}, method = RequestMethod.GET)
-	public String searchForm(Model model) {
-		LOG.debug("Search page requested");
-		return "search";
-	}
-	
+		
 	/**
 	 * Retrieves and displays search results from indexer
 	 * 
