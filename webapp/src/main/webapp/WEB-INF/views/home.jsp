@@ -10,8 +10,8 @@
 			${notice}
 		</p>
 	</c:if>
-	<p>RMap captures and preserves maps of scholarly works. Search for a person, institution, scholarly work, or RMap DiSCO using 
-	a full or partial identifier or name in the search below.</p>
+	<p>RMap captures and preserves maps of scholarly works. Search for a person, institution, scholarly work, or RMap DiSCO in the search below using any word or identifier (whole or partial). 
+	By interacting with the visualizations you find, you can navigate through RMap and discover new connections.</p>
 	<aside class="three columns left-sidebar"><h6>&nbsp;</h6></aside>
 	<article class="ten columns main-content">
 		<form method="get" action="<c:url value='/searchresults'/>">

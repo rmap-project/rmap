@@ -71,7 +71,7 @@
 	
 		<div class="searchResult">
 			<div class="searchLink">
-				<a href="<c:url value='/discos/${my:httpEncodeStr(match.getEntity().discoUri)}'/>">RMap DiSCO: ${match.getEntity().discoUri}</a>
+				<a href="<c:url value='/discos/${my:httpEncodeStr(match.getEntity().discoUri)}'/>" title="View a visualization of this DiSCO">RMap DiSCO: ${match.getEntity().discoUri}</a>
 				<em>by ${match.getEntity().getAgentName()}</em>
 			</div>
 			<c:if test="${discoDesc!=null && discoDesc.length()>0}">

@@ -8,9 +8,10 @@
 		<a href="#what-is-rmap">What is RMap?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#who-can-use">Who can use RMap?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#how-create-disco">How do I create a DiSCO?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-		<a href="#using-ids">Using ORCID IDs, DOIs and Other PIDs</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+		<a href="#using-ids">Using ORCID IDs, DOIs and other PIDs</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+		<a href="#why-duplicates">Why are there duplicates in the visualization?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#funding">Funding</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-		<a href="#additional-info">Additional Information</a>
+		<a href="#additional-info">Additional information</a>
 	</p>
 	
 	<div id="what-is-rmap"></div>
@@ -47,15 +48,17 @@
 	Data submitted through the API must be formatted as valid RMap DiSCOs - a simple RDF model that can wrap around most RDF graphs with a few constraints: 
 	(1) the DiSCO has two required fields "rdf:type=DiSCO" and a list of "aggregated resources", and (2) the RDF graph must be fully connected to the 
 	aggregated resources listed.</p>
-	<p>For full documentation on the RMap data model and how to use the API to create DiSCOs please visit the <a href="https://rmap-project.atlassian.net/wiki">RMap Technical Wiki</a>. 
+	<p>For full documentation on the RMap data model and how to use the API to create DiSCOs please visit the <a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/overview">RMap Technical Wiki</a>. 
 	Feel free to <a href="mailto:${SITEPROPS.getContactEmail()}">contact us</a> with any questions about obtaining API keys, or creating DiSCOs.
 	</p>
 	
 	<div id="using-ids"></div>
-	<h2>Using ORCID IDs, DOIs, and Other PIDs</h2>
+	<h2>Using ORCID IDs, DOIs, and other PIDs</h2>
 	<p>Where possible, it is recommended that the resources expressed in your DiSCOs are represented using unique persistent identifiers (PIDs) such as DOIs, ORCID IDs, 
 	ARK IDs, Handles, ISNIs etc. This is not a requirement, all identifier types are accepted provided they are expressed as RDF, but using PIDs in a consistent way 
-	allows us to unambiguously connect related works and contributors, improving data quality and discovery.
+	allows us to unambiguously connect related works and contributors, improving data quality and discovery.  The RMap technical wiki includes some 
+	<a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/pages/198475777/RMap+DiSCO+Best+Practices" target="_blank">best practices</a> for 
+	linking and using these various related identifiers in a way that will encourage consistency around identifier use.
 	</p>
 	<c:if test="${SITEPROPS.isOrcidEnabled()}">
 	<p>As an <a href="https://orcid.org/about/what-is-orcid/mission">ORCID</a> member, we are supporting the use of your ORCID account credentials for logging into 
@@ -63,6 +66,17 @@
 	your ORCID ID. API users have full control over the content of their DiSCOs, so data creators can, for example, use their ORCID ID in the optional “creator” 
 	field of the DiSCO, or as contributor IDs that are connected to scholarly works referenced in your DiSCOs.</p>
 	</c:if>
+	
+	<div id="why-duplicates"></div>
+	<h2>Why are there duplicates in the visualizations?</h2>
+	<p>The visualizations on this website are a reflection of the raw data in RMap's database. Each item seen in a visualization represents an identifier within 
+	the RMap database. Many items can be represented by more than one identifier and each of these will appear visually as a separate entity. Even though these 
+	identifiers are referring to the same thing (person, article etc), they might also have different information or relationships associated with them. The 
+	user interface does not currently provide a way to condense these into a single view. As an example, a person might have an ORCID ID as well as an identity 
+	on a number of other platforms such as Scopus, Facebook, LinkedIn, and others. In the visualization these identities will appear as separate when in fact they 
+	all represent the same person. The RMap technical wiki includes some <a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/pages/198475777/RMap+DiSCO+Best+Practices" target="_blank">best practices</a> 
+	for linking and using these various related identifiers in a way that will support better discovery and encourage consistency around identifier use.
+	</p>
 	
 	<div id="funding"></div>
 	<h2>Funding</h2>
@@ -74,9 +88,10 @@
 	</p>
 	
 	<div id="additional-info"></div>
-	<h2>Additional Information</h2>
-	<p>For additional information about RMap, visit the <a href="http://rmap-project.info/rmap/?page_id=98">RMap Project website</a>. 
-	To view the RMap code, report bugs, or request changes, visit the <a href="https://github.com/rmap-project/rmap">RMap GitHub project</a>. For 
-	all other questions, please contact us at <a href="mailto:${SITEPROPS.getContactEmail()}">${SITEPROPS.getContactEmail()}</a></p>
+	<h2>Additional information</h2>
+	<p>For additional information about RMap, visit the <a href="http://rmap-project.info/rmap/?page_id=98" target="_blank">RMap Project website</a>. 
+	To view the RMap code, report bugs, or request changes, visit the <a href="https://github.com/rmap-project/rmap" target="_blank">RMap GitHub project</a>. 
+	To read about technical detail of RMap including API instructions, visit the <a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/overview" target="_blank">RMap Techncial Wiki</a>. 
+	For all other questions, please contact us at <a href="mailto:${SITEPROPS.getContactEmail()}">${SITEPROPS.getContactEmail()}</a></p>
 	<br/>
 <tl:pageEndStandard/>
