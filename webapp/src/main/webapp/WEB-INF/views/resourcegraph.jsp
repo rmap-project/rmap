@@ -23,6 +23,7 @@
 </c:if>
 <c:if test="${VIEWMODE.equals('standard')}">
 	<tl:graphStandard nodeTypes="${nodeTypes}" visualuri="/resources/${my:httpEncodeStr(resourceUri)}/visual"/>
+	<p id="textnote">This visualization is interactive. You can move things around, click/tap on an item to see more information, or double-click/tap on an item to recenter the view.</p>
 </c:if>
 <c:if test="${VIEWMODE.equals('visual')}">
 	<tl:graphLarge nodeTypes="${nodeTypes}" summaryview="/resources/${my:httpEncodeStr(resourceUri)}?resview=1"/>
