@@ -2,7 +2,10 @@ package info.rmapproject.integration;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.RDFWriter;
@@ -12,6 +15,7 @@ import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Utility methods for working with the RDF4J platform.
@@ -66,6 +70,30 @@ class Rdf4jUtil {
         }
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+
+    /**
+     * Dumps the contents of the triplestore to the provided output stream.
+     *
+     * @param connection the connection to the triplestore
+     * @param outputStream the output stream which contains the dumped triples
+     */
+    public static void dumpTriplestore(RepositoryConnection connection, OutputStream outputStream) {
+        RepositoryResult<Statement> result = connection.getStatements(null, null, null, true);
+        while (result.hasNext()) {
+            try {
+                outputStream.write(result.next().toString().getBytes("UTF-8"));
+            } catch (IOException e) {
+                throw new RuntimeException("Error encoding bytes from the triplestore to UTF-8: " + e.getMessage(), e);
+            }
+
+            try {
+                outputStream.write("\n".getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException("Error writing the triples to the output stream: " + e.getMessage(), e);
+            }
+        }
     }
 
 }
