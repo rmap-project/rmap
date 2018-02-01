@@ -6,6 +6,17 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.NullInputStream;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -15,7 +26,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -24,6 +37,8 @@ import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.logging.Level;
 
+import static info.rmapproject.integration.OkHttpUtil.getBody;
+import static info.rmapproject.integration.OkHttpUtil.hasBody;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -49,6 +64,10 @@ public abstract class BaseHttpIT {
 
     static String apiCtxPath = System.getProperty("rmap.api.context");
 
+    static String rdf4jCtxPath = System.getProperty("rdf4j.http.context");
+
+    static String rdf4jRepoName = System.getProperty("rdf4jhttp.repository.name");
+
     static URL apiBaseUrl;
 
     static URL appBaseUrl;
@@ -60,6 +79,8 @@ public abstract class BaseHttpIT {
     static String secret = "NSbdzctrP46ZvhTi";
 
     static String APPLICATION_RDFXML = "application/rdf+xml";
+
+    static String APPLICATION_NQUADS = "application/n-quads";
 
     @Autowired
     OkHttpClient http;
@@ -78,6 +99,8 @@ public abstract class BaseHttpIT {
                 Integer.parseInt(port) > 0);
         assertNotNull("System property 'rmap.webapp.context' must be specified.", webappCtxPath);
         assertNotNull("System property 'rmap.api.context' must be specified.", apiCtxPath);
+        assertNotNull("System property 'rdf4j.http.context' must be specified.", rdf4jCtxPath);
+        assertNotNull("System property 'rdf4jhttp.repository.name' must be specified.", rdf4jRepoName);
         apiBaseUrl = new URL(scheme, host, Integer.parseInt(port), apiCtxPath);
         appBaseUrl = new URL(scheme, host, Integer.parseInt(port), webappCtxPath);
         discosEndpoint = URI.create(apiBaseUrl.toString() + "/discos");
@@ -124,19 +147,18 @@ public abstract class BaseHttpIT {
      * credentials before being sent.
      *
      * @param endpoint the HTTP endpoint
-     * @param req the request builder, which is complete except for authentication credentials
+     * @param reqBuilder the request builder, which is complete except for authentication credentials
      * @param expectedStatus the status that is expected upon successful execution
      * @return the body of the response as a String
      * @throws IOException
      */
-    String decorateAndExecuteRequest(URL endpoint, Request.Builder req, int expectedStatus) throws IOException {
+    String decorateAndExecuteRequest(URL endpoint, Request.Builder reqBuilder, int expectedStatus) throws IOException {
         String body;
 
-        try (Response res =
-                     http.newCall(req.addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
-                             .build())
-                             .execute()) {
-            assertEquals(endpoint + " failed with: '" + res.code() + "', '" + res.message() + "'",
+        Request req = reqBuilder.addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
+                .build();
+        try (Response res = http.newCall(req).execute()) {
+            assertEquals("'" + reqBuilder.build().method() + "' to '" + endpoint + "' failed with: '" + res.code() + "', '" + res.message() + "'" + (hasBody(reqBuilder) ? " with body \n[" + IOUtils.toString(getBody(reqBuilder), "UTF-8") + "] " : ""),
                     expectedStatus, res.code());
             body = res.body().string();
         }
@@ -144,6 +166,15 @@ public abstract class BaseHttpIT {
         return body;
     }
 
+    /**
+     * Converts the supplied {@code discoUri} to an HTTP URL by encoding {@code discoUri} and appending it to
+     * {@link #discosEndpoint}.  The returned URL is not guaranteed to exist.
+     *
+     * @param discoUri the URI to a DiSCO
+     * @return the HTTP URL for the DiSCO
+     * @throws MalformedURLException
+     * @throws UnsupportedEncodingException
+     */
     static URL encodeDiscoUriAsUrl(String discoUri) throws MalformedURLException, UnsupportedEncodingException {
         return URI.create(discosEndpoint.toString() + "/" + URLEncoder.encode(discoUri, "UTF-8")).toURL();
     }
