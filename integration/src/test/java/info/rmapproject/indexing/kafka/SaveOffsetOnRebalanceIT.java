@@ -140,7 +140,7 @@ public class SaveOffsetOnRebalanceIT extends BaseKafkaIT {
             // Create necessary agents
             createAgents(rmapObjects);
 
-            addTriplesFromResource("http://foo/bar", triplestore, rmapObjects);
+            addTriplesFromResource("", triplestore, rmapObjects);
             triplestoreInitialized = true;
 
             events = getRmapObjects(rmapObjects, RMapObjectType.EVENT, rdfHandler, comparing(RMapEvent::getStartTime));

@@ -378,7 +378,7 @@ public class TestUtils {
                          RepositoryConnection c = triplestore.getConnection();
                     ) {
                         assertTrue(c.isOpen());
-                        c.add(in, "http://foo/bar", source.getRdfFormat());
+                        c.add(in, "", source.getRdfFormat());
                     } catch (IOException e) {
                         e.printStackTrace(System.err);
                         fail("Unexpected IOException");
