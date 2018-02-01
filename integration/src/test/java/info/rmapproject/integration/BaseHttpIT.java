@@ -1,7 +1,11 @@
 package info.rmapproject.integration;
 
 import info.rmapproject.indexing.solr.repository.DiscoRepository;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -11,11 +15,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.logging.Level;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -76,6 +85,67 @@ public abstract class BaseHttpIT {
 
     static String encodeAuthCreds(String accessKey, String secret) {
         return Base64.getEncoder().encodeToString(String.valueOf(accessKey + ":" + secret).getBytes());
+    }
+
+    /**
+     * Deposit the DiSCO by performing a {@code POST} to the {@code endpoint}.  The {@code discoBody} must be encoded as
+     * rdf/xml. If the request is successful, the return should be a URI to the newly created DiSCO.
+     *
+     * @param endpoint the /discos API endpoint; /discos/{uri} may be used to create a new version of the disco at
+     *                 /discos/{uri}
+     * @param discoBody the DiSCO to deposit, encoded as rdf/xml
+     * @return a URI to the newly created DiSCO
+     * @throws IOException
+     */
+    String depositDisco(URL endpoint, String discoBody) throws IOException {
+        return decorateAndExecuteRequest(endpoint,
+                new Request.Builder()
+                        .post(RequestBody.create(MediaType.parse(APPLICATION_RDFXML), discoBody))
+                        .url(endpoint),
+                201);
+    }
+
+    /**
+     * Delete (a.k.a. "tombstone", "soft delete") the DiSCO by sending a {@code DELETE} request to the {@code endpoint}.
+     *
+     * @param endpoint a URL that identifies the DiSCO to delete; /discos/{uri}
+     * @throws IOException
+     */
+    void deleteDisco(URL endpoint) throws IOException {
+        decorateAndExecuteRequest(endpoint,
+                new Request.Builder()
+                        .delete()
+                        .url(endpoint),
+                200);
+    }
+
+    /**
+     * Executes the supplied request and verifies the response code.  The request is decorated with authentication
+     * credentials before being sent.
+     *
+     * @param endpoint the HTTP endpoint
+     * @param req the request builder, which is complete except for authentication credentials
+     * @param expectedStatus the status that is expected upon successful execution
+     * @return the body of the response as a String
+     * @throws IOException
+     */
+    String decorateAndExecuteRequest(URL endpoint, Request.Builder req, int expectedStatus) throws IOException {
+        String body;
+
+        try (Response res =
+                     http.newCall(req.addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
+                             .build())
+                             .execute()) {
+            assertEquals(endpoint + " failed with: '" + res.code() + "', '" + res.message() + "'",
+                    expectedStatus, res.code());
+            body = res.body().string();
+        }
+
+        return body;
+    }
+
+    static URL encodeDiscoUriAsUrl(String discoUri) throws MalformedURLException, UnsupportedEncodingException {
+        return URI.create(discosEndpoint.toString() + "/" + URLEncoder.encode(discoUri, "UTF-8")).toURL();
     }
 
 }
