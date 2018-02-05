@@ -2,25 +2,17 @@ package info.rmapproject.integration;
 
 import info.rmapproject.indexing.kafka.Condition;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -136,7 +128,7 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
         // Deposit version 2 of the DiSCO; expect a second document to be indexed as the ACTIVE DiSCO, and the former
         // document to be INACTIVE
 
-        String v2DiscoUri = depositDisco(URI.create(discosEndpoint.toString() + "/" + URLEncoder.encode(v1DiscoUri, "UTF-8")).toURL(), discoV2);
+        String v2DiscoUri = depositDisco(encodeDiscoUriAsUrl(v1DiscoUri), discoV2);
 
         // Verify that the DiSCO is indexed, inferred by the increase in the number of Solr documents in the
         // index for the lineage.  One should be active, one should be inactive
@@ -163,7 +155,7 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
         // Deposit version 3 of the DiSCO; expect a third document to be indexed as the ACTIVE DiSCO, and the former
         // documents to be INACTIVE
 
-        String v3DiscoUri = depositDisco(URI.create(discosEndpoint.toString() + "/" + URLEncoder.encode(v2DiscoUri, "UTF-8")).toURL(), discoV3);
+        String v3DiscoUri = depositDisco(encodeDiscoUriAsUrl(v2DiscoUri), discoV3);
 
         // Verify that the DiSCO is indexed, inferred by the increase in the number of Solr documents in the
         // index for the lineage.  One should be active, others should be inactive
@@ -182,7 +174,7 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
 
         // Tombstone version 2 of the DiSCO; expect the documents that pertain to version 2 to be deleted from the index
 
-        deleteDisco(URI.create(discosEndpoint.toString() + "/" + URLEncoder.encode(v2DiscoUri, "UTF-8")).toURL());
+        deleteDisco(encodeDiscoUriAsUrl(v2DiscoUri));
 
         // Verify that the DiSCO is deleted, inferred by the decrease in the number of Solr documents in the
         // index for the lineage.  One should be active, others should be inactive.
@@ -199,63 +191,6 @@ public class TombstoneAndHardDeleteIT extends BaseHttpIT {
                     && docs.get(2).getEventLineageProgenitorUri().equals(v1DiscoUri);
         }));
 
-    }
-
-    /**
-     * Deposit the DiSCO by performing a {@code POST} to the {@code endpoint}.  The {@code discoBody} must be encoded as
-     * rdf/xml. If the request is successful, the return should be a URI to the newly created DiSCO.
-     *
-     * @param endpoint the /discos API endpoint; /discos/{uri} may be used to create a new version of the disco at
-     *                 /discos/{uri}
-     * @param discoBody the DiSCO to deposit, encoded as rdf/xml
-     * @return a URI to the newly created DiSCO
-     * @throws IOException
-     */
-    private String depositDisco(URL endpoint, String discoBody) throws IOException {
-        return decorateAndExecuteRequest(endpoint,
-                new Request.Builder()
-                        .post(RequestBody.create(MediaType.parse(APPLICATION_RDFXML), discoBody))
-                        .url(endpoint),
-                201);
-    }
-
-    /**
-     * Delete (a.k.a. "tombstone", "soft delete") the DiSCO by sending a {@code DELETE} request to the {@code endpoint}.
-     *
-     * @param endpoint a URL that identifies the DiSCO to delete; /discos/{uri}
-     * @throws IOException
-     */
-    private void deleteDisco(URL endpoint) throws IOException {
-        decorateAndExecuteRequest(endpoint,
-                new Request.Builder()
-                        .delete()
-                        .url(endpoint),
-                200);
-    }
-
-    /**
-     * Executes the supplied request and verifies the response code.  The request is decorated with authentication
-     * credentials before being sent.
-     *
-     * @param endpoint the HTTP endpoint
-     * @param req the request builder, which is complete except for authentication credentials
-     * @param expectedStatus the status that is expected upon successful execution
-     * @return the body of the response as a String
-     * @throws IOException
-     */
-    private String decorateAndExecuteRequest(URL endpoint, Request.Builder req, int expectedStatus) throws IOException {
-        String body;
-
-        try (Response res =
-                     http.newCall(req.addHeader("Authorization", "Basic " + encodeAuthCreds(accessKey, secret))
-                             .build())
-                             .execute()) {
-            assertEquals(endpoint + " failed with: '" + res.code() + "', '" + res.message() + "'",
-                    expectedStatus, res.code());
-            body = res.body().string();
-        }
-
-        return body;
     }
 
     /**
