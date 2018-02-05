@@ -179,6 +179,14 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-auth</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -402,6 +410,10 @@
                             </copy>
                             <copy>
                                 <file>${project.basedir}/src/main/resources/logback.xml</file>
+                                <todir>shared/classes</todir>
+                            </copy>
+                            <copy>
+                                <file>${project.build.testOutputDirectory}/create-rmap-agent.sql</file>
                                 <todir>shared/classes</todir>
                             </copy>
                         </files>
