@@ -11,7 +11,9 @@
 
         <context:property-placeholder ignore-unresolvable="true"/>
 
-        <util:properties id="producerProperties" location="classpath*:/event-producer.properties" local-override="true">
+        <util:properties id="producerProperties" location="classpath*:/event-producer.properties, ${rmap.configFile}" ignore-resource-not-found="true">
+            <!-- if the 'bootstrap.servers' property is present in properties referenced by the 'location' attribute,
+                 the value will override the value set below -->
             <prop key="bootstrap.servers">${bootstrap.servers}</prop>
         </util:properties>
 
@@ -33,7 +35,9 @@
             <property name="defaultTopic" value="${rmapcore.producer.topic}"/>
         </bean>
 
-        <util:properties id="consumerProperties" location="classpath:/event-consumer.properties" local-override="true">
+        <util:properties id="consumerProperties" location="classpath*:/event-consumer.properties, ${rmap.configFile}" ignore-resource-not-found="true">
+            <!-- if the 'bootstrap.servers' property is present in properties referenced by the 'location' attribute,
+                 the value will override the value set below -->
             <prop key="bootstrap.servers">${bootstrap.servers}</prop>
         </util:properties>
 
