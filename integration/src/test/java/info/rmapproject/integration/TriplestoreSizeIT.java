@@ -42,10 +42,15 @@ public class TriplestoreSizeIT extends BaseHttpIT {
     private static final String RMAP_NS = "http://purl.org/ontology/rmap#";
 
     /**
+     * The URL template for retrieving the endpoint for a particular triplestore managed by the RDF4J server
+     */
+    private static final String RDF4J_SERVER_REPOSITORY_TEMPLATE = "%s/repositories/%s";
+
+    /**
      * The URL template for retrieving the number of statements present in a context from the RDF4J server
      * (N.B. OkHttp has a url encoding issue with parameters)
      */
-    private static final String SIZE_URL_TEMPLATE = "%s://%s:%s/%s/repositories/%s/size?context=<%s%%3e";
+    private static final String SIZE_URL_TEMPLATE = RDF4J_SERVER_REPOSITORY_TEMPLATE + "/size?context=<%s%%3e";
 
     /**
      * If the disco in {@link #depositDisco()} has been deposited
@@ -118,7 +123,7 @@ public class TriplestoreSizeIT extends BaseHttpIT {
      */
     @Before
     public void setUpTriplestore() throws Exception {
-        final String repoUrl = format("%s://%s:%s/%s/repositories/%s/", scheme, host, port, rdf4jCtxPath, rdf4jRepoName);
+        final String repoUrl = repositoryUrl();
         triplestore = new HTTPRepository(repoUrl);
         try (RepositoryConnection c = triplestore.getConnection()) {
             assertNotNull("Unable to obtain connection from " + repoUrl, c);
@@ -136,7 +141,7 @@ public class TriplestoreSizeIT extends BaseHttpIT {
      */
     @Test
     public void simpleTest() throws Exception {
-        String rdf4jSizeEndpoint = format(SIZE_URL_TEMPLATE, scheme, host, port, rdf4jCtxPath, rdf4jRepoName, discoUri);
+        String rdf4jSizeEndpoint = sizeEndpoint(discoUri);
         LOG.debug("Retrieving count for context '{}' from '{}'", discoUri, rdf4jSizeEndpoint);
         Request req = new Request.Builder().get().url(rdf4jSizeEndpoint).build();
         Response res = http.newCall(req).execute();
@@ -168,7 +173,7 @@ public class TriplestoreSizeIT extends BaseHttpIT {
             c.add(in, "", RDFFormat.NQUADS);
         }
 
-        String rdf4jSizeEndpoint = format(SIZE_URL_TEMPLATE, scheme, host, port, rdf4jCtxPath, rdf4jRepoName, fooUri);
+        String rdf4jSizeEndpoint = sizeEndpoint(fooUri);
         LOG.debug("Retrieving count for context '{}' from '{}'", fooUri, rdf4jSizeEndpoint);
         Request req = new Request.Builder().get().url(rdf4jSizeEndpoint).build();
         Response res = http.newCall(req).execute();
@@ -195,7 +200,7 @@ public class TriplestoreSizeIT extends BaseHttpIT {
             c.add(in, "", RDFFormat.RDFXML, context);
         }
 
-        String rdf4jSizeEndpoint = format(SIZE_URL_TEMPLATE, scheme, host, port, rdf4jCtxPath, rdf4jRepoName, discoIri);
+        String rdf4jSizeEndpoint = sizeEndpoint(discoIri);
         LOG.debug("Retrieving count for context '{}' from '{}'", discoIri, rdf4jSizeEndpoint);
         Request req = new Request.Builder().get().url(rdf4jSizeEndpoint).build();
         Response res = http.newCall(req).execute();
@@ -206,4 +211,13 @@ public class TriplestoreSizeIT extends BaseHttpIT {
         assertTrue("Expected more than one statement in the context '" + discoIri + "'",
                 Integer.parseInt(bodyText) > 1);
     }
+
+    private static String sizeEndpoint(String contextIri) {
+        return format(SIZE_URL_TEMPLATE, rdf4jRepoUrl, rdf4jRepoName, contextIri);
+    }
+
+    private static String repositoryUrl() {
+        return format(RDF4J_SERVER_REPOSITORY_TEMPLATE + "/", rdf4jRepoUrl, rdf4jRepoName);
+    }
+
 }

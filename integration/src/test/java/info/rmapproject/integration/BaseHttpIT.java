@@ -68,6 +68,8 @@ public abstract class BaseHttpIT {
 
     static String rdf4jCtxPath = System.getProperty("rdf4j.http.context");
 
+    static String rdf4jRepoUrl = System.getProperty("rdf4jhttp.repository.url");
+
     static String rdf4jRepoName = System.getProperty("rdf4jhttp.repository.name");
 
     static URL apiBaseUrl;
@@ -106,9 +108,11 @@ public abstract class BaseHttpIT {
         assertNotNull("System property 'rmap.api.context' must be specified.", apiCtxPath);
         assertNotNull("System property 'rdf4j.http.context' must be specified.", rdf4jCtxPath);
         assertNotNull("System property 'rdf4jhttp.repository.name' must be specified.", rdf4jRepoName);
+        assertNotNull("System property 'rdf4jhttp.repository.url' must be specified.", rdf4jRepoUrl);
         apiBaseUrl = new URL(scheme, host, Integer.parseInt(port), apiCtxPath);
         appBaseUrl = new URL(scheme, host, Integer.parseInt(port), webappCtxPath);
         discosEndpoint = URI.create(apiBaseUrl.toString() + "/discos");
+        rdf4jRepoUrl = System.getProperty("rdf4jhttp.repository.url");
     }
 
     static String encodeAuthCreds(String accessKey, String secret) {
