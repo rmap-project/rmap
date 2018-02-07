@@ -40,22 +40,4 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration({"classpath*:/servlet-context.xml", "classpath*:/rmap-kafka-shared-test.xml"})
 public abstract class WebTestAbstractIT {
 
-	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
-	protected static boolean thisClassSetProfilesProperty = false;
-
-	@Before
-    public void setUp() throws Exception {
-        if (System.getProperty(SPRING_ACTIVE_PROFILE_PROP) == null) {
-            System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default, inmemory-db, inmemory-triplestore, inmemory-idservice, embedded-solr, mock-kafka");
-            thisClassSetProfilesProperty = true;
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (thisClassSetProfilesProperty) {
-            System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
-        }
-    }
-	
 }

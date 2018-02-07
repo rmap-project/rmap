@@ -38,22 +38,5 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration("classpath:/beans.xml")
 @Transactional
 public abstract class ApiTestAbstractIT {
-	
-	private static final String SPRING_ACTIVE_PROFILE_PROP = "spring.profiles.active";
-	private static boolean activeProfilesPreSet = System.getProperties().containsKey(SPRING_ACTIVE_PROFILE_PROP);
-	
-	@BeforeClass
-	public static void setUpSpringProfiles() {
-		if (!activeProfilesPreSet) {
-			System.setProperty(SPRING_ACTIVE_PROFILE_PROP, "default,inmemory-db,inmemory-idservice,inmemory-triplestore,embedded-solr,mock-kafka");
-		}
-	}
-
-	@AfterClass
-	public static void resetSpringProfiles() throws Exception {
-		if (!activeProfilesPreSet) {
-			System.getProperties().remove(SPRING_ACTIVE_PROFILE_PROP);
-		}
-	}
 
 }
