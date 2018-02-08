@@ -40,7 +40,7 @@ services:
        - "${SOLR_PORT}:${SOLR_PORT}"
        - "${SOLR_DEBUG_PORT}:${SOLR_DEBUG_PORT}"
      volumes:
-       - "./cores:/opt/solr/server/solr/mycores"
+       - "../cores:/opt/solr/server/solr/mycores"
      entrypoint:
        - docker-entrypoint.sh
        - solr

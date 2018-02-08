@@ -149,6 +149,12 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-indexing-solr-resources</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -264,6 +270,32 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-remote-resources</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>info.rmapproject:rmap-indexing-solr-resources:${project.parent.version}</resourceBundle>
+                            </resourceBundles>
+                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>info.rmapproject</groupId>
+                        <artifactId>rmap-indexing-solr-resources</artifactId>
+                        <version>${project.parent.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
         </plugins>
