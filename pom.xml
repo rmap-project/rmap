@@ -26,6 +26,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scp.port>122</scp.port>
 
         <java-version>1.8</java-version>
         <org.springframework-version>5.0.2.RELEASE</org.springframework-version>
@@ -67,11 +68,27 @@
         <ezid.version>1.0.1</ezid.version>
         <assertj.version>3.8.0</assertj.version>
         <maven.war.plugin.version>3.2.0</maven.war.plugin.version>
+        <maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
+        <wagon.ssh.version>2.10</wagon.ssh.version>
     </properties>
 
+    <profiles>
+
+        <profile>
+            <id>external</id>
+            <properties>
+                <scp.port>122</scp.port>
+            </properties>
+        </profile>
+
+    </profiles>
+
     <build>
+
         <pluginManagement>
+
             <plugins>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -84,26 +101,31 @@
                         <showDeprecation>true</showDeprecation>
                     </configuration>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.20.1</version>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>2.20.1</version>
                 </plugin>
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>${build-helper.plugin.version}</version>
                 </plugin>
+
                 <plugin>
                     <groupId>com.github.genthaler</groupId>
                     <artifactId>beanshell-maven-plugin</artifactId>
                     <version>1.4</version>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -116,16 +138,19 @@
                         </execution>
                     </executions>
                 </plugin>
+
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>0.23.0</version>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.0.2</version>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-remote-resources-plugin</artifactId>
@@ -138,8 +163,26 @@
                     <version>${maven.war.plugin.version}</version>
                 </plugin>
 
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${maven.deploy.plugin.version}</version>
+                    <configuration>
+                        <retryFailedDeploymentCount>5</retryFailedDeploymentCount>
+                    </configuration>
+                    <!-- See https://jira.codehaus.org/browse/WAGON-393 -->
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.wagon</groupId>
+                            <artifactId>wagon-ssh</artifactId>
+                            <version>${wagon.ssh.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
             </plugins>
+
         </pluginManagement>
+
     </build>
 
     <dependencyManagement>
@@ -549,5 +592,22 @@
         </repository>
 
     </repositories>
+
+    <distributionManagement>
+
+        <repository>
+            <id>dc.public.releases</id>
+            <name>Data Conservancy Release Maven Repository</name>
+            <url>scp://maven.dataconservancy.org:${scp.port}/data/maven-dc/public/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>dc.public.snapshots</id>
+            <name>Data Conservancy Snapshot Maven Repository</name>
+            <url>scp://maven.dataconservancy.org:${scp.port}/data/maven-dc/public/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+
+    </distributionManagement>
 
 </project>
