@@ -28,8 +28,6 @@ public class StandAloneStatusInferencerTest extends AbstractSpringIndexingTest {
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         rm = TestResourceManager.load(
                 "/data/discos/rmd18mddcw", RDFFormat.NQUADS, rdfHandler);
     }

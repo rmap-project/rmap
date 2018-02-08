@@ -75,7 +75,7 @@ Behind the scenes, RMap uses [Spring Profiles](http://docs.spring.io/spring/docs
 
 The use of an in-memory profile is mutually exclusive with its analog.  For example, activating the `inmemory-triplestore` _and_ the `http-triplestore` at the same time is not supported.
 
-For production, the following profiles are active:
+For production (i.e. the RMap API and HTML UI web applications), the following profiles are active:
 * `persistent-db`
 * `ark-idservice`
 * `http-triplestore`
@@ -83,7 +83,7 @@ For production, the following profiles are active:
 * `prod-kafka`
 * `auto-start-indexing`
 
-For development, the following profiles are active:
+For development (i.e. when executing unit tests), the following profiles are active:
 * `inmemory-triplestore`
 * `inmemory-db`
 * `inmemory-idservice`
@@ -97,7 +97,9 @@ For integration tests, the following profiles are active:
 * `http-solr`
 * `prod-kafka`
 
-Regardless of which profiles are active, the `rmap.properties` file is used for configuration.  That means you can configure the database connectivity and the identifier generation service in the same place, regardless of which profiles are active.
+The `rmap.properties` configuration file is used for runtime configuration; most properties specified therein will override the default values.  
+
+By default, `rmap.properties` is discovered as the class path resource `/rmap.properties`.  A different resource can be specified by the system property `rmap.configFile`.  For example, `-Drmap.configFile=file:///path/to/rmap.conf` will configure RMap from a `file:/` URL pointing to `rmap.conf` instead of discovering `/rmap.properties` on the class path.  This can be useful when preserving RMap settings across application upgrades.
 
 ## Logging
 Logging for the runtime is configured in two places.  

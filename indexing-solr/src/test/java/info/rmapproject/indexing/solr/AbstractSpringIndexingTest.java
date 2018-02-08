@@ -25,20 +25,4 @@ public abstract class AbstractSpringIndexingTest {
     @Autowired
     protected RDFHandler rdfHandler;
 
-    protected static boolean thisClassSetProfilesProperty = false;
-
-    @Before
-    public void setUp() throws Exception {
-        if (System.getProperty("spring.profiles.active") == null) {
-            System.setProperty("spring.profiles.active", "default, inmemory-db, inmemory-triplestore, inmemory-idservice, embedded-solr, mock-kafka");
-            thisClassSetProfilesProperty = true;
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (thisClassSetProfilesProperty) {
-            System.getProperties().remove("spring.profiles.active");
-        }
-    }
 }
