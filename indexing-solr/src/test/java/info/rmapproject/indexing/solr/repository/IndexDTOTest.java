@@ -22,11 +22,8 @@ public class IndexDTOTest extends AbstractSpringIndexingTest {
 
     private static TestResourceManager rm;
 
-    @Override
     @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         rm = TestResourceManager.load("/data/discos/rmd18mddcw", RDFFormat.NQUADS, rdfHandler);
     }
 

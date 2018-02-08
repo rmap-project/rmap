@@ -31,6 +31,10 @@ mvn clean install
 ``` 
 This command will build each module (`core`, `auth`, `api`, etc.) in dependency order, and install the built artifacts (i.e. the resulting JAR and WAR files) into your local Maven repository (normally located at `~/.m2/repository`).
 The `war` files will be found in the `/target` folder of `webapp` and `api`. These can be installed per the [installation documentation](https://rmap-project.atlassian.net/wiki/display/RMAPPS/Installation).  If, however, you simply need to run a local instance of RMap for development purposes, see below for instructions on the [developer runtime](#developer-runtime)
+Note: the RMap integration tests require Docker. If you don't have Docker, you can skip the integration tests using the following:
+```
+mvn clean install -DskipITs -Ddocker.skip -Dcargo.maven.skip
+``` 
 
 # [Developer runtime](#developer-runtime)
 ## Running RMap
@@ -65,26 +69,37 @@ The configuration of these implementations takes place in `integration/src/main/
 Behind the scenes, RMap uses [Spring Profiles](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/beans.html#beans-environment) to activate beans (or graphs of beans) at runtime.  Example supported profiles are:
 * `inmemory-triplestore`, `integration-triplestore` and `http-triplestore`
 * `inmemory-db`, `integration-db`, and `persistent-db`
-* `inmemory-idservice` and its analog `http-idservice`
+* `inmemory-idservice` , its analog `http-idservice`, and `ark-idservice` which can be used with [EZID's](https://ezid.cdlib.org/) ARK minting service.
+* `embedded-solr` and `http-solr`
+* `mock-kafka` and `prod-kafka`
 
 The use of an in-memory profile is mutually exclusive with its analog.  For example, activating the `inmemory-triplestore` _and_ the `http-triplestore` at the same time is not supported.
 
-For production, the following profiles are active:
-* `http-triplestore`
+For production (i.e. the RMap API and HTML UI web applications), the following profiles are active:
 * `persistent-db`
-* `http-idservice`
+* `ark-idservice`
+* `http-triplestore`
+* `http-solr`
+* `prod-kafka`
+* `auto-start-indexing`
 
-For development, the following profiles are active:
+For development (i.e. when executing unit tests), the following profiles are active:
 * `inmemory-triplestore`
 * `inmemory-db`
 * `inmemory-idservice`
+* `embedded-solr`
+* `mock-kafka`
 
 For integration tests, the following profiles are active:
 * `integration-triplestore`
 * `integration-db`
 * `inmemory-idservice`
+* `http-solr`
+* `prod-kafka`
 
-Regardless of which profiles are active, the `rmap.properties` file is used for configuration.  That means you can configure the database connectivity and the identifier generation service in the same place, regardless of which profiles are active.
+The `rmap.properties` configuration file is used for runtime configuration; most properties specified therein will override the default values.  
+
+By default, `rmap.properties` is discovered as the class path resource `/rmap.properties`.  A different resource can be specified by the system property `rmap.configFile`.  For example, `-Drmap.configFile=file:///path/to/rmap.conf` will configure RMap from a `file:/` URL pointing to `rmap.conf` instead of discovering `/rmap.properties` on the class path.  This can be useful when preserving RMap settings across application upgrades.
 
 ## Logging
 Logging for the runtime is configured in two places.  
@@ -98,8 +113,10 @@ To modify the logging level of RMap or the majority of RMap 3rd-party dependenci
 # Integration Tests
 RMap integration tests use the same developer runtime documented above.  When integration tests are executed, the following Spring profiles are activated:
 * `integration-triplestore`
-* `integration-db`
+* `integration-db` (Docker)
 * `inmemory-idservice`
+* `http-solr` (Docker)
+* `prod-kafka` (Docker)
 
 Hibernate is used to generate the database schema, and Spring is used to populate the database tables and to create a RDF4J HTTP triplestore.  The purpose of the `integration-*` profiles is to manage the persistent state created by running the  [developer runtime](#developer-runtime) or executing integration tests.  The integration profiles provide a Spring configuration that is used to preserve existing data in the database and triplestore.  This insures that a developer can inspect the state of the database and triplestore after an integration test failure.  Without these mechanisms, it would be difficult to debug a failing integration test, or to support re-starts of the developer runtime.
 
