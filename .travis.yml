@@ -28,7 +28,7 @@ before_install:
   - sudo service sshguard stop
   - sudo service ssh stop
   - sudo service rsyslog stop
-  - [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && openssl aes-256-cbc -K $encrypted_68e41c8904c9_key -iv $encrypted_68e41c8904c9_iv -in settings.tar.enc -out settings.tar -d && tar -xf settings.tar && cat known_hosts >> ~/.ssh/known_hosts
+#  - [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && openssl aes-256-cbc -K $encrypted_68e41c8904c9_key -iv $encrypted_68e41c8904c9_iv -in settings.tar.enc -out settings.tar -d && tar -xf settings.tar && cat known_hosts >> ~/.ssh/known_hosts
 
 install: mvn install -Dcargo.maven.skip -Ddocker.skip -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
