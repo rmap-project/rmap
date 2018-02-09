@@ -122,6 +122,13 @@
         </dependency>
 
         <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-indexing-solr-resources</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
         </dependency>
@@ -194,6 +201,7 @@
         <plugins>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
                 <executions>
                     <execution>
@@ -204,6 +212,7 @@
                         <configuration>
                             <resourceBundles>
                                 <resourceBundle>info.rmapproject:rmap-testdata:${project.parent.version}</resourceBundle>
+                                <resourceBundle>info.rmapproject:rmap-indexing-solr-resources:${project.parent.version}</resourceBundle>
                             </resourceBundles>
                             <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
                         </configuration>
@@ -213,6 +222,11 @@
                     <dependency>
                         <groupId>info.rmapproject</groupId>
                         <artifactId>rmap-testdata</artifactId>
+                        <version>${project.parent.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>info.rmapproject</groupId>
+                        <artifactId>rmap-indexing-solr-resources</artifactId>
                         <version>${project.parent.version}</version>
                     </dependency>
                 </dependencies>
