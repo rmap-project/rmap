@@ -22,10 +22,12 @@ import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 
 import java.net.URI;
 
-public class HttpArkIdService implements IdService {
+public class HttpArkIdService implements IdService, InitializingBean, DisposableBean {
 
     /** The log. */
     private static final Logger log = LoggerFactory.getLogger(HttpArkIdService.class);
@@ -67,14 +69,29 @@ public class HttpArkIdService implements IdService {
     private int maxStoreSize=200;
 
     /** indicates whether we have a process running which is replenishing the cache **/
-    private boolean replenishingCache = false;
+    private volatile boolean replenishingCache = false;
 
+    private MVStore mvs;
 
     /**
      * Instantiates a new ARK ID service.
      */
     public HttpArkIdService() {
 
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (idStoreFile == null || idStoreFile.trim().length() == 0) {
+            throw new IllegalStateException("ID store file must not be empty or null.");
+        }
+        this.mvs = MVStore.open(idStoreFile);
+    }
+
+
+    @Override
+    public void destroy() throws Exception {
+        this.mvs.close();
     }
 
     /* (non-Javadoc)
@@ -84,7 +101,6 @@ public class HttpArkIdService implements IdService {
     public boolean isValidId(URI id) throws Exception {
         return isValidId(id.toASCIIString());
     }
-
 
     /**
      * Check the string value of an ID is valid by checking it matches a regex and is the right length
@@ -107,16 +123,18 @@ public class HttpArkIdService implements IdService {
     /* (non-Javadoc)
      * @see info.rmapproject.core.idservice.IdService#createId()
      */
-    public synchronized URI createId() throws Exception {
-        MVStore mvs = MVStore.open(idStoreFile);
+    public URI createId() throws Exception {
         ezids = mvs.openMap(DATA);
 
         try {
-            return new URI(getEzid());
+            URI id = new URI(getEzid());
+            // commit() is potentially expensive.  could explore different strategies for committing
+            // (note MVStore _does_ have some kind of support for auto-commits
+            mvs.commit();
+            return id;
         } catch (Exception e) {
-            throw new Exception("Failed to create a new ID.", e);
-        } finally {
-            mvs.close();
+            mvs.rollback();
+            throw new Exception("Failed to create a new ID: " + e.getMessage(), e);
         }
     }
 
