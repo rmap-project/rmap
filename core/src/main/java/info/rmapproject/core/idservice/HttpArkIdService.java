@@ -108,7 +108,7 @@ public class HttpArkIdService implements IdService {
     /* (non-Javadoc)
      * @see info.rmapproject.core.idservice.IdService#createId()
      */
-    public URI createId() throws Exception {
+    public synchronized URI createId() throws Exception {
         MVStore mvs = MVStore.open(idStoreFile);
         ezids = mvs.openMap(DATA);
 
