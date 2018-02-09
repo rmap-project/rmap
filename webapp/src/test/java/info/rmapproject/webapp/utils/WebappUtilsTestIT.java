@@ -53,12 +53,12 @@ public class WebappUtilsTestIT extends WebTestAbstractIT {
 
 
 	/**
-	 * Test node type retrieval.
+	 * Test node type retrieval for Text
 	 *
 	 * @throws Exception the exception
 	 */
 	@Test
-	public void testNodeTypeRetrieval() throws Exception {
+	public void testNodeTypeRetrievalText() throws Exception {
 		String url = "http://purl.org/ontology/rmap#DiSCO";
 		String nodeType = WebappUtils.getNodeType(new URI(url));
 		assertTrue(nodeType.equals("DiSCO"));
@@ -67,12 +67,34 @@ public class WebappUtilsTestIT extends WebTestAbstractIT {
 		uris.add(new URI("http://purl.org/ontology/rmap#DiSCO"));
 		uris.add(new URI("http://purl.org/dc/terms/Agent"));
 		uris.add(new URI("http://purl.org/dc/dcmitype/Text"));
-		uris.add(new URI("http://purl.org/spar/fabio/JournalArticle"));
+		uris.add(new URI("http://purl.org/spar/fabio/ConferencePaper"));
 		uris.add(new URI("http://purl.org/spar/fabio/JournalArticle"));
 		nodeType = WebappUtils.getNodeType(uris);
 		assertTrue(nodeType.equals("Text"));
 	}
 
+
+	/**
+	 * Test node type retrieval for Action
+	 *
+	 * @throws Exception the exception
+	 */
+	@Test
+	public void testNodeTypeRetrievalActivity() throws Exception {
+		String url = "http://purl.org/ontology/rmap#DiSCO";
+		String nodeType = WebappUtils.getNodeType(new URI(url));
+		assertTrue(nodeType.equals("DiSCO"));
+
+		List<URI> uris = new ArrayList<URI>();
+		uris.add(new URI("http://purl.org/ontology/rmap#DiSCO"));
+		uris.add(new URI("http://www.w3.org/ns/prov#Activity"));
+		uris.add(new URI("http://purl.org/dc/dcmitype/Text"));
+		uris.add(new URI("http://www.w3.org/ns/prov#Activity"));
+		uris.add(new URI("http://purl.org/spar/fabio/JournalArticle"));
+		nodeType = WebappUtils.getNodeType(uris);
+		assertTrue(nodeType.equals("Action"));
+	}
+	
 	/**
 	 * Test formatting of snippet
 	 *
