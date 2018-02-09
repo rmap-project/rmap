@@ -32,4 +32,4 @@ before_install:
 
 install: mvn install -Dcargo.maven.skip -Ddocker.skip -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
-script: [[ "$TRAVIS_PULL_REQUEST" == "false" ]] && mvn deploy -DtrimStackTrace=false  || mvn verify -DtrimStackTrace=false
+script: if [ "$TRAVIS_PULL_REQUEST" == "false" ] ; then mvn deploy -DtrimStackTrace=false ; else mvn verify -DtrimStackTrace=false ; fi
