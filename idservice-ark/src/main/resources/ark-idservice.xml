@@ -9,16 +9,27 @@
 
         <context:property-placeholder location="classpath*:/http-arkidservice.properties" ignore-unresolvable="true"/>
 
-        <bean id="httpArkIdService" class="info.rmapproject.core.idservice.HttpArkIdService">
-            <property name="serviceUrl" value="${idservice.idMinterUrl}"/>
-            <property name="idPrefix" value="${idservice.idPrefix}"/>
-            <property name="maxRetryAttempts" value="${idservice.maxRetries}"/>
-            <property name="userName" value="${idservice.userName}"/>
-            <property name="userPassword" value="${idservice.userPassword}"/>
+        <bean id="ezidClient" class="edu.ucsb.nceas.ezid.EZIDClient">
+            <constructor-arg value="${idservice.idMinterUrl}"/>
+        </bean>
+
+        <bean id="lockHolder" class="info.rmapproject.core.idservice.LockHolder" scope="prototype"/>
+
+        <bean id="replenisher" class="info.rmapproject.core.idservice.ConcurrentEzidReplenisher" scope="prototype">
+            <constructor-arg value="${idservice.idMinterUrl}"/>
+            <constructor-arg ref="ezidClient"/>
+            <property name="maxStoreSize" value="${idservice.maxStoreSize}"/>
+        </bean>
+
+        <bean id="httpArkIdService" class="info.rmapproject.core.idservice.ConcurrentCachingIdService" scope="prototype"
+              autowire-candidate="false">
             <property name="idLength" value="${idservice.idLength}"/>
             <property name="idRegex" value="${idservice.idRegex}"/>
-            <property name="maxStoreSize" value="${idservice.maxStoreSize}"/>
-            <property name="idStoreFile" value="${idservice.idStoreFile}"/>
+        </bean>
+
+        <bean id="concurrentArkIdService" class="info.rmapproject.core.idservice.ConcurrentArkIdService">
+            <constructor-arg value="4"/>
+            <property name="idStoreFilePrefix" value="${idservice.idStoreFile}"/>
         </bean>
 
     </beans>

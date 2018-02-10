@@ -16,39 +16,41 @@
 
 package info.rmapproject.core.idservice;
 
+import edu.ucsb.nceas.ezid.EZIDClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
-import java.io.File;
+import java.io.IOException;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import static java.lang.String.valueOf;
+import static info.rmapproject.core.idservice.EzidTestUtil.randomString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
- * Test class for {@link info.rmapproject.core.idservice.HttpArkIdService}.
+ * Test class for {@link ConcurrentCachingIdService}.
  *
  * @author jrm
  */
-public class HttpArkIdServiceTest {
+public class ConcurrentCachingIdServiceTest {
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    private String minterUrl = "https://ezid.cdlib.org";
-
     private String idPrefix = "ark:/99999/fk4";
-
-    private int maxRetries = 2;
-
-    private String userName = "apitest";
-
-    private String userPassword = "apitest";
 
     private int idLength = 21;
 
@@ -57,20 +59,20 @@ public class HttpArkIdServiceTest {
 
     private int maxStoreSize = 200;
 
-    private HttpArkIdService idService;
+    private ConcurrentCachingIdService idService;
+
+    private ConcurrentEzidReplenisher replenisher;
 
     @Before
     public void setUp() throws Exception {
-        idService = new HttpArkIdService();
+        replenisher = mock(ConcurrentEzidReplenisher.class);
+        idService = new ConcurrentCachingIdService();
+        configure();
+    }
+
+    private void configure() throws IOException {
         idService.setIdLength(idLength);
-        idService.setIdPrefix(idPrefix);
         idService.setIdRegex(idRegex);
-        idService.setMaxRetryAttempts(maxRetries);
-        idService.setMaxStoreSize(valueOf(maxStoreSize));
-        idService.setUserName(userName);
-        idService.setUserPassword(userPassword);
-        idService.setServiceUrl(minterUrl);
-        idService.setIdStoreFile(tempFolder.newFile().getAbsolutePath());
     }
 
     /**
@@ -107,9 +109,12 @@ public class HttpArkIdServiceTest {
 
         URI validID1 = new URI("ark:/29292/fkasd90kes");
         URI validID2 = new URI("ark:/29292/fkasd90kes");
+        URI validID3 = new URI("ark:/99999/fk4Sv90coy".toLowerCase());
+
 
         assertTrue(idService.isValidId(validID1));
         assertTrue(idService.isValidId(validID2));
+        assertTrue(idService.isValidId(validID3));
     }
 
 
@@ -133,17 +138,27 @@ public class HttpArkIdServiceTest {
     }
 
     /**
-     * Test method for {@link info.rmapproject.core.idservice.HttpArkIdService#createId()}.
+     * Test method for {@link ConcurrentCachingIdService#createId()}.
      * Tests createId() 6 times, which requires a list refill.
      * Ensures returned IDs are formatted as expected.  Checks IDs are unique.
      **/
     @Test
     public void multipleUniqueIdsCreated() throws Exception {
-        Set<String> ids = new HashSet<String>();
-
-        File testFile = tempFolder.newFile("idCacheFile");
-        idService.setIdStoreFile(testFile.getAbsolutePath());
-        idService.setMaxStoreSize("4");
+        List<String> ids = new ArrayList<>();
+        ApplicationContext appCtx = mock(ApplicationContext.class);
+        when(appCtx.getId()).thenReturn("foo");
+        EZIDClient client = mock(EZIDClient.class);
+        when(client.mintIdentifier(any(), any())).thenReturn(idPrefix + randomString(7).toLowerCase());
+        ConcurrentMap<Integer, String> map = new ConcurrentHashMap<>();
+        final LockHolder lockHolder = new LockHolder();
+        replenisher = new ConcurrentEzidReplenisher("http://example.org/idservice", client);
+        replenisher.setLockHolder(lockHolder);
+        Thread t = new Thread(() -> replenisher.replenish(map));
+        t.start();
+        idService = new ConcurrentCachingIdService();
+        configure();
+        idService.setIdCache(map);
+        idService.setLockHolder(lockHolder);
 
         URI newArkId = idService.createId();
         assertTrue(idService.isValidId(newArkId));
@@ -170,7 +185,65 @@ public class HttpArkIdServiceTest {
         ids.add(newArkId.toString());
 
         //check there are 6 unique IDS
-        assertTrue(ids.size() == 6);
+        assertEquals(6, ids.size());
+
+        t.interrupt();
+        t.join(10000);
     }
 
+    /**
+     * Test method for {@link ConcurrentCachingIdService#createId()}.
+     * Tests createId() 6 times, which requires a list refill.
+     * Ensures returned IDs are formatted as expected.  Checks IDs are unique.
+     **/
+    @Test
+    public void createMultipleIdsWithReplenish() throws Exception {
+        List<String> ids = new ArrayList<>();
+        ApplicationContext appCtx = mock(ApplicationContext.class);
+        when(appCtx.getId()).thenReturn("foo");
+        EZIDClient client = mock(EZIDClient.class);
+        when(client.mintIdentifier(any(), any())).thenReturn(idPrefix + randomString(7).toLowerCase());
+        ConcurrentMap<Integer, String> map = new ConcurrentHashMap<>();
+        final LockHolder lockHolder = new LockHolder();
+        replenisher = new ConcurrentEzidReplenisher("http://example.org/idservice", client);
+        replenisher.setLockHolder(lockHolder);
+        replenisher.setMaxStoreSize(4);
+        Thread t = new Thread(() -> replenisher.replenish(map));
+        t.start();
+
+        idService = new ConcurrentCachingIdService();
+        configure();
+        idService.setIdCache(map);
+        idService.setLockHolder(lockHolder);
+
+        URI newArkId = idService.createId();
+        assertTrue(idService.isValidId(newArkId));
+        ids.add(newArkId.toString());
+
+        newArkId = idService.createId();
+        assertTrue(idService.isValidId(newArkId));
+        ids.add(newArkId.toString());
+
+        newArkId = idService.createId();
+        assertTrue(idService.isValidId(newArkId));
+        ids.add(newArkId.toString());
+
+        newArkId = idService.createId();
+        assertTrue(idService.isValidId(newArkId));
+        ids.add(newArkId.toString());
+
+        newArkId = idService.createId();
+        assertTrue(idService.isValidId(newArkId));
+        ids.add(newArkId.toString());
+
+        newArkId = idService.createId();
+        assertTrue(idService.isValidId(newArkId));
+        ids.add(newArkId.toString());
+
+        //check there are 6 unique IDS
+        assertEquals(6, ids.size());
+
+        t.interrupt();
+        t.join(10000);
+    }
 }
