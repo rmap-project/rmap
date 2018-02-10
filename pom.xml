@@ -23,6 +23,10 @@
         <module>indexing-solr</module>
         <module>indexing-solr-resources</module>
         <module>kafka-shared</module>
+        <module>idservice-api</module>
+        <module>idservice-ark</module>
+        <module>idservice-http</module>
+        <module>idservice-rand</module>
     </modules>
 
     <properties>
@@ -535,6 +539,12 @@
                 <groupId>edu.ucsb.nceas</groupId>
                 <artifactId>ezid</artifactId>
                 <version>${ezid.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <beans profile="ark-idservice">
+
+        <context:property-placeholder location="classpath*:/http-arkidservice.properties" ignore-unresolvable="true"/>
+
+        <bean id="httpArkIdService" class="info.rmapproject.core.idservice.HttpArkIdService">
+            <property name="serviceUrl" value="${idservice.idMinterUrl}"/>
+            <property name="idPrefix" value="${idservice.idPrefix}"/>
+            <property name="maxRetryAttempts" value="${idservice.maxRetries}"/>
+            <property name="userName" value="${idservice.userName}"/>
+            <property name="userPassword" value="${idservice.userPassword}"/>
+            <property name="idLength" value="${idservice.idLength}"/>
+            <property name="idRegex" value="${idservice.idRegex}"/>
+            <property name="maxStoreSize" value="${idservice.maxStoreSize}"/>
+            <property name="idStoreFile" value="${idservice.idStoreFile}"/>
+        </bean>
+
+    </beans>
+
+</beans>

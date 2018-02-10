@@ -46,15 +46,31 @@
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
         </dependency>
-        <!-- persistent file-based store -->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2-mvstore</artifactId>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-idservice-api</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
-        <!-- EZID service -->
+
         <dependency>
-            <groupId>edu.ucsb.nceas</groupId>
-            <artifactId>ezid</artifactId>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-idservice-ark</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-idservice-http</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>info.rmapproject</groupId>
+            <artifactId>rmap-idservice-rand</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- spring framework -->

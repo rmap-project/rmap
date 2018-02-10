@@ -23,13 +23,12 @@ import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URI;
 
 public class HttpArkIdService implements IdService {
 
     /** The log. */
-    private static final Logger log = LoggerFactory.getLogger(HttpUrlIdService.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpArkIdService.class);
 
     /**  Wait time to retry when ID retrieval unsuccessful (5 seconds). */
     private static final int RETRY_WAIT_TIME = 5000;
