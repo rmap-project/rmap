@@ -89,11 +89,6 @@ public class ConcurrentArkIdService implements IdService, ApplicationContextAwar
     private ApplicationContext appCtx;
 
     /**
-     * FIXME: Hack used to avoid initializing the {@code MVStore} for the RMAP HTML UI
-     */
-    private final static String RMAP_WEBAPP_SPRING_CONTEXT_ID = "/app/appServlet";
-
-    /**
      * The name for the ID cache map
      */
     private static final String ID_CACHE_NAME = "ezidData";
@@ -223,11 +218,6 @@ public class ConcurrentArkIdService implements IdService, ApplicationContextAwar
     @Override
     public void destroy() throws Exception {
 
-        if (!isApi(appCtx)) {
-            LOG.debug("DESTROY - Skipping destroy: {} is not being deployed by the RMap API", serviceName(this));
-            return;
-        }
-
         // Shut down the replenisherExecutor
 
         LOG.debug("DESTROY - Shutting down the replenisher executor.");
@@ -267,11 +257,6 @@ public class ConcurrentArkIdService implements IdService, ApplicationContextAwar
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        if (!isApi(appCtx)) {
-            LOG.debug("INIT - Skipping initialization: {} is not being deployed by the RMap API", serviceName(this));
-            return;
-        }
-
         // Every ConcurrentCachingIdService is paired with a ConcurrentEzidReplenisher.  The id service and replenisher share
         // access to a ConcurrentMap that contains a cache of identifiers.  Access to the map is mediated by the objects
         // in the LockHolder.  This means that:
@@ -299,7 +284,7 @@ public class ConcurrentArkIdService implements IdService, ApplicationContextAwar
             LOG.debug("INIT - Set {} on {} and {}", serviceName(lockHolder), serviceName(idService), serviceName(replenisher));
 
             // 3. Open the MVStore that backs the id cache for this pair, and open the cache.
-            String fileName = idStoreFilePrefix + i;
+            String fileName = format("%s-%s-%s", idStoreFilePrefix, normalizeSpringContextId(appCtx), i);
             MVStore idStore = MVStore.open(fileName);
             ConcurrentMap<Integer, String> idCache = idStore.openMap(ID_CACHE_NAME);
             openIdStores.add(idStore);
@@ -331,7 +316,45 @@ public class ConcurrentArkIdService implements IdService, ApplicationContextAwar
         return format("%s@%s", o.getClass().getSimpleName(), toHexString(identityHashCode(o)));
     }
 
-    private static boolean isApi(ApplicationContext appCtx) {
-        return !appCtx.getId().contains(RMAP_WEBAPP_SPRING_CONTEXT_ID);
+    /**
+     * Produce a String that is unique to the Spring Application context that this instance is running in.  That is to
+     * say, given two different Application Contexts, this method will return two different strings.  Given two
+     * identical application contexts, this method will return the same string.
+     * <p>
+     * The returned String should be suitable as a suffix that can be appended to file names.  This method insures that
+     * colons, forward slashes, backward slashes, and spaces won't appear in the returned string, and guarantees that
+     * the returned string is all lower-case.
+     * </p>
+     *
+     * @param appCtx the Spring Application Context
+     * @return a normalized id for the application context
+     * @throws IllegalArgumentException if the Spring Application context has a null or empty id, or if the ID does
+     *                                  <em>not</em> contain a colon
+     * @see ApplicationContext#getId()
+     */
+    private static String normalizeSpringContextId(ApplicationContext appCtx) {
+        String appCtxId = appCtx.getId();
+
+        if (appCtxId == null || appCtxId.trim().length() == 0) {
+            throw new IllegalArgumentException("The Spring Application context id is null or empty.");
+        }
+
+        if (!appCtxId.contains(":")) {
+            throw new IllegalArgumentException("Unable to parse the Spring Application ID '" + appCtxId + "': " +
+                    "does not contain a colon ':'");
+        }
+
+        if (appCtxId.lastIndexOf(":") + 1 == appCtxId.length()) {
+            throw new IllegalArgumentException("Unable to parse the Spring Application ID '" + appCtxId + "': " +
+                    "ends with a colon ':'");
+        }
+
+        String suffix = appCtxId.substring(appCtxId.lastIndexOf(":") + 1)
+                .replace('\\', '-')
+                .replace('/', '-')
+                .replace(' ', '_')
+                .toLowerCase();
+
+        return suffix;
     }
 }
