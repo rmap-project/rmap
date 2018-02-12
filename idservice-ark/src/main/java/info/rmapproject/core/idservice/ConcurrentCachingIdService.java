@@ -29,7 +29,14 @@ import java.util.concurrent.locks.Lock;
  * Allocates identifiers from a {@link ConcurrentMap cache}.  The cache is shared between this id service and a {@link
  * ConcurrentEzidReplenisher replenisher}.  Access to the cache is mediated by a shared {@link Lock}. When this id
  * service exhausts the cache, it pauses, signals the replenisher to fill the cache, and resumes when the cache has been
- * filled.
+ * filled.  The first request to {@link #createId()} will fill the cache.
+ * <h3>Configuration</h3>
+ * <ul>
+ *     <li>{@link #setLockHolder(LockHolder)}: a {@link LockHolder} must be set prior to invoking
+ *         {@link #createId()}</li>
+ *     <li>{@link #setIdCache(ConcurrentMap)}: a {@code ConcurrentMap} containing identifiers allocated by this id
+ *         service</li>
+ * </ul>
  */
 public class ConcurrentCachingIdService implements IdService {
 
@@ -93,8 +100,14 @@ public class ConcurrentCachingIdService implements IdService {
         return isValid;
     }
 
-    /* (non-Javadoc)
-     * @see info.rmapproject.core.idservice.IdService#createId()
+    /**
+     * {@inheritDoc}
+     * <h3>Implementation note</h3>
+     * This instance must be configured with a {@link #setLockHolder(LockHolder) LockHolder} and {@link
+     * #setIdCache(ConcurrentMap) a cache of identifiers} prior to invoking this method.
+     *
+     * @return an identifier from the cache
+     * @throws IllegalStateException if a {@code LockHolder} or {@code ConcurrentMap} of identifiers are not present
      */
     public URI createId() throws Exception {
         if (idCache == null) {
@@ -108,7 +121,7 @@ public class ConcurrentCachingIdService implements IdService {
     }
 
     /**
-     * Obtains an EZID from the cache, and removes it.  If the cache is empty, this method pause and signal the
+     * Obtains an EZID from the cache, and removes it.  If the cache is empty, this method will pause and signal the
      * replenisher to fill the cache before allocating an identifier.
      *
      * @param ezidCache the cache of identifiers

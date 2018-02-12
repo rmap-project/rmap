@@ -6,10 +6,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
 
 import static java.lang.String.format;
 
 /**
+ * Mints identifiers from the EZID service, and places them in a {@link ConcurrentMap cache}.
+ * The cache is shared between this id service and a {@link
+ * ConcurrentEzidReplenisher replenisher}.  Access to the cache is mediated by a shared {@link Lock}. When this id
+ * service exhausts the cache, it pauses, signals the replenisher to fill the cache, and resumes when the cache has been
+ * filled.  The first request to {@link #createId()} will fill the cache.
+ * <h3>Configuration</h3>
+ * <ul>
+ *     <li>{@link #setLockHolder(LockHolder)}: a {@link LockHolder} must be set prior to invoking
+ *         {@link #createId()}</li>
+ *     <li>{@link #setIdCache(ConcurrentMap)}: a {@code ConcurrentMap} containing identifiers allocated by this id
+ *         service</li>
+ * </ul>
  *
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
@@ -69,6 +82,10 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
      */
     private String serviceUrl;
 
+    /**
+     * Contains the locks and conditions used to communicate with {@link ConcurrentCachingIdService}.  This instance is
+     * shared with a {@code ConcurrentCachingIdService}.
+     */
     private LockHolder lockHolder;
 
     public ConcurrentEzidReplenisher(String serviceUrl, EZIDClient ezidClient) {
