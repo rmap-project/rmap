@@ -11,26 +11,26 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Elliot Metsger (emetsger@jhu.edu)
  */
-class LockHolder {
+public class LockHolder {
 
     /**
      * Mediates access to a map of identifiers between an instance of {@link ConcurrentCachingIdService} and
      * {@link ConcurrentEzidReplenisher}.  The id service and the replenisher <em>must</em> share the same instance of
      * this lock in order for threaded communication to be successful.
      */
-    Lock idStoreLock = new ReentrantLock();
+    public Lock idStoreLock = new ReentrantLock();
 
     /**
      * Used by the {@link ConcurrentCachingIdService} to signal the {@link ConcurrentEzidReplenisher} that the identifier map
      * is empty, and needs to be replenished.
      */
-    Condition idStoreEmptyCondition = idStoreLock.newCondition();
+    public Condition idStoreEmptyCondition = idStoreLock.newCondition();
 
     /**
      * Used by the {@link ConcurrentEzidReplenisher} to signal the {@link ConcurrentCachingIdService} that the identifier map
      * has been replenished.
      */
-    Condition idStoreNotEmptyCondition = idStoreLock.newCondition();
+    public Condition idStoreNotEmptyCondition = idStoreLock.newCondition();
 
     @Override
     public String toString() {
