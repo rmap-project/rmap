@@ -28,21 +28,21 @@ import static java.lang.System.identityHashCode;
 /**
  * An identifier service that manages the creation, allocation, and persistence of identifiers between pairs of
  * {@link ConcurrentCachingIdService} and {@link ConcurrentEzidReplenisher}.
- * <p>
  * <h3>Shared state</h3>
+ * <p>
  * A {@code ConcurrentCachingIdService} must be paired with a {@code ConcurrentEzidReplenisher}.  This id service will
  * instantiate an id service/replenisher pair, and then properly configure the state shared between the pair.  Each pair
  * will have a lock and identifier cache distinct from other pairs.
  * </p>
- * <p>
  * <h3>Concurrent allocation</h3>
+ * <p>
  * This id service allocates identifiers from a configured number of threads (by default it uses one thread per
  * {@link Runtime#availableProcessors() available processor}, but can be {@link #ConcurrentArkIdService(int)
  * overridden}).  This way any number of {@code ConcurrentCachingIdService} instances can be allocating identifiers,
  * while being replenished in the background.
  * </p>
- * <p>
  * <h3>Persistence</h3>
+ * <p>
  * This id service manages the persistent store that backs the identifier cache.  This includes allocating and opening
  * a persistent store for each id service/replenisher pair, committing data to the store periodically, and properly
  * closing the store when this identifier service is shut down.

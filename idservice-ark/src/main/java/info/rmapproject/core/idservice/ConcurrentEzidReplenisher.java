@@ -284,7 +284,6 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
      * Governs retry behavior when <em>errors occur</em> while minting identifiers.   If errors <em>do not</em> occur
      * during the minting process (i.e. {@code EZIDException} is never thrown by {@link #replenish(ConcurrentMap)}), it may take
      * as long as it needs in order to fill the {@code Map} with identifiers.
-     * <p>
      * <dl>
      * <dt>maxWaitTimeMs</dt>
      * <dd>The maximum amount of time {@link #replenish(ConcurrentMap)} is allowed to execute, in millis.  If
