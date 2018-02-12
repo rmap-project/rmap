@@ -1,7 +1,6 @@
 package info.rmapproject.core.idservice;
 
 import edu.ucsb.nceas.ezid.EZIDClient;
-import edu.ucsb.nceas.ezid.EZIDException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,17 +10,15 @@ import java.util.concurrent.locks.Lock;
 import static java.lang.String.format;
 
 /**
- * Mints identifiers from the EZID service, and places them in a {@link ConcurrentMap cache}.
- * The cache is shared between this id service and a {@link
- * ConcurrentEzidReplenisher replenisher}.  Access to the cache is mediated by a shared {@link Lock}. When this id
- * service exhausts the cache, it pauses, signals the replenisher to fill the cache, and resumes when the cache has been
- * filled.  The first request to {@link #createId()} will fill the cache.
+ * Mints identifiers from the EZID service, and places them in a {@link ConcurrentMap cache}. The cache is shared
+ * between this replenisher and the {@link ConcurrentCachingIdService}.  Access to the cache is mediated by a shared
+ * {@link Lock}.  When this replenisher starts, it examines the cache.  If the cache is empty, it fills it, and signals
+ * the id service that the cache has been filled.  After filling the cache, the replenisher waits until signalled by the
+ * id service to re-fill the cache.
  * <h3>Configuration</h3>
  * <ul>
  *     <li>{@link #setLockHolder(LockHolder)}: a {@link LockHolder} must be set prior to invoking
- *         {@link #createId()}</li>
- *     <li>{@link #setIdCache(ConcurrentMap)}: a {@code ConcurrentMap} containing identifiers allocated by this id
- *         service</li>
+ *         {@link #replenish(ConcurrentMap)}</li>
  * </ul>
  *
  * @author Elliot Metsger (emetsger@jhu.edu)
@@ -88,6 +85,14 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
      */
     private LockHolder lockHolder;
 
+    /**
+     * Instantiates a replenisher that will mint new identifiers from the supplied {@code serviceUrl} using the supplied
+     * {@code ezidClient}.  Note that this class will manage logging in and out of the client, and shutting down the
+     * client when it is no longer needed.
+     *
+     * @param serviceUrl the EZID service url the {@code ezidClient} is configured to talk to
+     * @param ezidClient the EZID client, pre-configured by the caller to talk to {@code serviceUrl}
+     */
     public ConcurrentEzidReplenisher(String serviceUrl, EZIDClient ezidClient) {
         if (ezidClient == null) {
             throw new IllegalArgumentException("EZIDClient must not be null.");
@@ -99,14 +104,37 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
         this.serviceUrl = serviceUrl;
     }
 
+    /**
+     * The lock and conditions used to communicate with {@link ConcurrentCachingIdService}.  This {@code lockHolder}
+     * should be shared with the id service.
+     *
+     * @return the lock holder, shared with a {@link ConcurrentCachingIdService}
+     */
     public LockHolder getLockHolder() {
         return lockHolder;
     }
 
+    /**
+     * The lock and conditions used to communicate with {@link ConcurrentCachingIdService}.  This {@code lockHolder}
+     * should be shared with the id service.
+     *
+     * @param lockHolder the lock holder, shared with a {@link ConcurrentCachingIdService}
+     */
     public void setLockHolder(LockHolder lockHolder) {
         this.lockHolder = lockHolder;
     }
 
+    /**
+     * Populate the supplied {@code ConcurrentMap} by minting new identifiers and placing them in the cache.  The size
+     * of the map should not grow beyond its {@link #getMaxStoreSize() maximum store size}.  The supplied {@code
+     * ConcurrentMap} may be empty, full, or partially full.
+     * <p>
+     * If errors are encountered when communicating with the EZID service, this method will retry according to the
+     * supplied {@link #getRetryParams() retry parameters}.
+     * </p>
+     * @param ezids the cache of EZIDs to populate
+     * @see Retry
+     */
     @Override
     public void replenish(ConcurrentMap<Integer, String> ezids) {
         if (lockHolder == null) {
@@ -271,7 +299,7 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
      * attempts</dd>
      * </dl>
      */
-    static class Retry {
+    public static class Retry {
         long maxWaitTimeMs = 60 * 1000;    // 60 sec
 
         long initialWaitTimeMs = 5 * 1000; // 5 sec
