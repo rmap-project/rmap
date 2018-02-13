@@ -20,7 +20,6 @@
 package info.rmapproject.webapp.controllers;
 
 import java.net.URI;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import org.slf4j.Logger;
@@ -84,9 +83,6 @@ public class AgentDisplayController {
 	@RequestMapping(value="/agents/{uri}", method = RequestMethod.GET)
 	public String agent(@PathVariable(value="uri") String agentUri, Model model) throws Exception {
 		LOG.info("Agent requested: {}", agentUri);	
-
-		agentUri = URLDecoder.decode(agentUri, "UTF-8");
-		
 		AgentDTO agentDTO = dataDisplayService.getAgentDTO(agentUri);
 	    model.addAttribute("AGENT", agentDTO);	    
 	    model.addAttribute("RESOURCEURI", agentDTO.getUri());
@@ -121,8 +117,6 @@ public class AgentDisplayController {
 	public String agentDataVisual(@PathVariable(value="uri") String agentUri, Model model) throws Exception {
 		LOG.info("Agent requested: {}", agentUri);	
 
-		agentUri = URLDecoder.decode(agentUri, "UTF-8");
-		
 		AgentDTO agentDTO = dataDisplayService.getAgentDTO(agentUri);
 	    model.addAttribute("AGENT", agentDTO);	    
 	    model.addAttribute("RESOURCEURI", agentDTO.getUri());
@@ -143,8 +137,6 @@ public class AgentDisplayController {
 	public String agentDataWidget(@PathVariable(value="uri") String agentUri, Model model) throws Exception {
 		LOG.info("Agent requested: {}", agentUri);	
 
-		agentUri = URLDecoder.decode(agentUri, "UTF-8");
-		
 		AgentDTO agentDTO = dataDisplayService.getAgentDTO(agentUri);
 	    model.addAttribute("AGENT", agentDTO);	    
 	    model.addAttribute("RESOURCEURI", agentDTO.getUri());
@@ -165,8 +157,6 @@ public class AgentDisplayController {
 		LOG.info("Agent requested: {}", agentUri);	
 
 		try {
-			agentUri = URLDecoder.decode(agentUri, "UTF-8");
-			
 			AgentDTO agentDTO = dataDisplayService.getAgentDTO(agentUri);
 		    model.addAttribute("AGENT", agentDTO);	    
 		    model.addAttribute("RESOURCEURI", agentDTO.getUri());
@@ -194,8 +184,6 @@ public class AgentDisplayController {
 			view=STANDARD_VIEW;
 		}
 		try {
-			agentUri = URLDecoder.decode(agentUri, "UTF-8");
-			
 			AgentDTO agentDTO = dataDisplayService.getAgentDTO(agentUri);
 			Graph agentGraph = dataDisplayService.getAgentGraph(agentDTO);
 	
@@ -227,8 +215,6 @@ public class AgentDisplayController {
 			offset=0;
 		}
 		try {
-			agentUri = URLDecoder.decode(agentUri, "UTF-8");
-			
 			RMapStatusFilter statusFilter = RMapStatusFilter.getStatusFromTerm(status);
 			statusFilter = (statusFilter==null) ? RMapStatusFilter.ACTIVE : statusFilter;	
 			RMapSearchParams params = paramsFactory.newInstance();
