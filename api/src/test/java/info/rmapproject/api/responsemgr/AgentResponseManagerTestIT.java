@@ -24,9 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -109,7 +106,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
     	Response response=null;
     		
 		try {
-			response = agentResponseManager.getRMapAgent(URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()),RdfMediaType.APPLICATION_RDFXML);
+			response = agentResponseManager.getRMapAgent(TestConstants.SYSAGENT_ID,RdfMediaType.APPLICATION_RDFXML);
 		} catch (Exception e) {
 			e.printStackTrace();			
 			fail("Exception thrown " + e.getMessage());
@@ -154,7 +151,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 			queryParams.add(Constants.FROM_PARAM, "20121201000000");
 			
 			response = agentResponseManager.getRMapAgentEvents(
-					URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()), 
+					TestConstants.SYSAGENT_ID,
 					NonRdfType.JSON, 
 					queryParams);
 		} catch (Exception e) {
@@ -189,7 +186,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 			
 	    	//first test no discos    	
 			response = agentResponseManager.getRMapAgentDiSCOs(
-					URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()),
+					TestConstants.SYSAGENT_ID,
 					NonRdfType.JSON, 
 					queryParams);
 			
@@ -211,7 +208,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 			rmapService.createDiSCO(rmapDisco2, requestEventDetails);
 					
 			response = agentResponseManager.getRMapAgentDiSCOs(
-					URLEncoder.encode(TestConstants.SYSAGENT_ID,StandardCharsets.UTF_8.name()),
+					TestConstants.SYSAGENT_ID,
 					NonRdfType.JSON, 
 					queryParams);
 

@@ -24,8 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.URLEncoder;
-
 import javax.ws.rs.core.Response;
 
 import org.junit.Before;
@@ -128,7 +126,7 @@ public class EventResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 			
 			//getRMapStatement
 			Response response = null;
-			response = eventResponseManager.getRMapEvent(URLEncoder.encode(sEventUri, "UTF-8"),RdfMediaType.APPLICATION_RDFXML);
+			response = eventResponseManager.getRMapEvent(sEventUri,RdfMediaType.APPLICATION_RDFXML);
 			//response = responseManager.getRMapEvent("ark%3A%2F27927%2Ftf9yhn14ef","RDFXML");
 	
 			assertNotNull(response);
@@ -167,19 +165,19 @@ public class EventResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 			//getRMapStatement
 			Response response = null;
 			
-			response = eventResponseManager.getRMapEventRelatedObjs(URLEncoder.encode(sEventUri, "UTF-8"), RMapObjectType.OBJECT, NonRdfType.JSON);
+			response = eventResponseManager.getRMapEventRelatedObjs(sEventUri, RMapObjectType.OBJECT, NonRdfType.JSON);
 			assertNotNull(response);
 			String body = response.getEntity().toString();
 			assertTrue(body.contains(discoIri.toString()));
 			assertEquals(200, response.getStatus());
 
-			response = eventResponseManager.getRMapEventRelatedObjs(URLEncoder.encode(sEventUri, "UTF-8"), RMapObjectType.DISCO, NonRdfType.JSON);
+			response = eventResponseManager.getRMapEventRelatedObjs(sEventUri, RMapObjectType.DISCO, NonRdfType.JSON);
 			assertNotNull(response);
 			body = response.getEntity().toString();
 			assertTrue(body.contains(discoIri.toString()));
 			assertEquals(200, response.getStatus());
 			
-			response = eventResponseManager.getRMapEventRelatedObjs(URLEncoder.encode(sEventUri, "UTF-8"), RMapObjectType.AGENT, NonRdfType.JSON);
+			response = eventResponseManager.getRMapEventRelatedObjs(sEventUri, RMapObjectType.AGENT, NonRdfType.JSON);
 			assertNotNull(response);
 			body = response.getEntity().toString();
 			assertTrue(body.contains("[]"));

@@ -458,7 +458,6 @@ input[readonly]{background-color:#f0f0f0;}
 
 .navlinks {
 	display:inline-block;
-	text-align:center;
 	width:100%;
 	-webkit-user-select: none;  
 	-moz-user-select: none;    

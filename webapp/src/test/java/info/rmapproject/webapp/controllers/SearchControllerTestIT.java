@@ -135,7 +135,7 @@ public class SearchControllerTestIT extends WebTestAbstractIT {
      */
     @Test
     public void searchDiscosWithUmlautAndSharpS() throws Exception {    	
-    	mockMvc.perform(get("/searchresults?search=Jörg%20Groß"))
+    	mockMvc.perform(get("/searchresults").param("search", "Jörg Groß"))
    	        	.andExpect(view().name("searchresults")); 
 
 		verify(searchService)

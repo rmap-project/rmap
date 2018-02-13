@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -237,11 +236,10 @@ public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT
 	        assertNotNull(discoURI);
 			rmapService.createDiSCO(rmapDisco,requestEventDetails);
 						
-			String testDiscoDoi = URLEncoder.encode(TestConstants.TEST_DISCO_DOI,"UTF-8");
 			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
 			params.add(Constants.PAGE_PARAM, "1");
 			params.add(Constants.FROM_PARAM, "20121201000000");
-			response = resourceResponseManager.getRMapResourceTriples(testDiscoDoi, RdfMediaType.APPLICATION_RDFXML, params);
+			response = resourceResponseManager.getRMapResourceTriples(TestConstants.TEST_DISCO_DOI, RdfMediaType.APPLICATION_RDFXML, params);
 
 			assertNotNull(response);
 			String body = response.getEntity().toString();
@@ -267,13 +265,11 @@ public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT
 			String discoURI = rmapDisco.getId().toString();
 	        assertNotNull(discoURI);
 			rmapService.createDiSCO(rmapDisco,requestEventDetails);
-			
-			String resourceUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
-			
+						
 			MultivaluedMap<String, String> params = new MultivaluedHashMap<String, String>();
 			params.add(Constants.LIMIT_PARAM, "2");
 						
-			response = resourceResponseManager.getRMapResourceTriples(resourceUri, RdfMediaType.APPLICATION_RDFXML, params);
+			response = resourceResponseManager.getRMapResourceTriples(discoURI, RdfMediaType.APPLICATION_RDFXML, params);
 
 			assertNotNull(response);
 			String body = response.getEntity().toString();
@@ -290,7 +286,7 @@ public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT
 			params.add(Constants.PAGE_PARAM, "1");	
 			params.add(Constants.UNTIL_PARAM, untildate);
 
-			response = resourceResponseManager.getRMapResourceTriples(resourceUri, RdfMediaType.APPLICATION_RDFXML, params);
+			response = resourceResponseManager.getRMapResourceTriples(discoURI, RdfMediaType.APPLICATION_RDFXML, params);
 			assertEquals(200,response.getStatus());
 			body = response.getEntity().toString();
 			int numMatches = StringUtils.countMatches(body, "xmlns=");
