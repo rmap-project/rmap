@@ -4,10 +4,13 @@ import edu.ucsb.nceas.ezid.EZIDClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 
 import static java.lang.String.format;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.format.ISODateTimeFormat.basicDateTimeNoMillis;
 
 /**
  * Mints identifiers from the EZID service, and places them in a {@link ConcurrentMap cache}. The cache is shared
@@ -39,6 +42,22 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
      * Will retry up to 10 times, or timeout after 60 seconds, whichever comes first.
      */
     static EzidReplenisher.Retry DEFAULT_RETRY_PARAMS = new EzidReplenisher.Retry();
+
+    /**
+     * Basic metadata attached to each ID minted by this replenisher
+     * TODO: replace hard-coded metadata with more flexible, pluggable metadata generation
+     *
+     * @see <a href="https://ezid.cdlib.org/doc/apidoc.html#operation-get-identifier-metadata">obtaining metadata</a>
+     * @see <a href="https://ezid.cdlib.org/doc/apidoc.html#profile-erc">erc metadata profile</a>
+     */
+    static final HashMap<String, String> ID_METADATA = new HashMap<String, String>() {
+        {
+            put("_profile", "erc");
+            put("erc.who", "RMap Project (http://rmap-project.info/)");
+            put("erc.what", "RDF Resource in RMap");
+            put("erc.when", basicDateTimeNoMillis().withZoneUTC().print(now()));
+        }
+    };
 
     private static final Logger LOG = LoggerFactory.getLogger(EzidReplenisher.class);
 
@@ -173,7 +192,8 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
                 try {
                     ezidClient.login(userName, userPassword);
                     for (int i = 1; ezids.size() < maxStoreSize; i++) {
-                        String id = ezidClient.mintIdentifier(idPrefix, null);
+                        // TODO: fix hard-coded metadata
+                        String id = ezidClient.mintIdentifier(idPrefix, ID_METADATA);
                         if (id == null) {
                             LOG.error("EZID service {} minted a null id.", serviceUrl);
                         } else {
@@ -307,5 +327,7 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
 
         int maxRetryAttempts = 10;
     }
+
+
 
 }

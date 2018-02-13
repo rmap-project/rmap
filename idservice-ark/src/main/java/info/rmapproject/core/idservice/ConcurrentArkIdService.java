@@ -339,21 +339,35 @@ public class ConcurrentArkIdService implements IdService, ApplicationContextAwar
             throw new IllegalArgumentException("The Spring Application context id is null or empty.");
         }
 
-        if (!appCtxId.contains(":")) {
+        // app context id is in the form 'org.springframework.context.support.GenericApplicationContext@4493d195' for
+        // integration tests
+
+        if (!appCtxId.contains(":") && !appCtxId.contains("@")) {
             throw new IllegalArgumentException("Unable to parse the Spring Application ID '" + appCtxId + "': " +
-                    "does not contain a colon ':'");
+                    "does not contain a colon ':' or an at sign '@'");
         }
 
-        if (appCtxId.lastIndexOf(":") + 1 == appCtxId.length()) {
+        if (appCtxId.contains(":") && appCtxId.contains("@")) {
             throw new IllegalArgumentException("Unable to parse the Spring Application ID '" + appCtxId + "': " +
-                    "ends with a colon ':'");
+                    "contains a colon ':' AND an at sign '@'");
         }
 
-        String suffix = appCtxId.substring(appCtxId.lastIndexOf(":") + 1)
-                .replace('\\', '-')
-                .replace('/', '-')
-                .replace(' ', '_')
-                .toLowerCase();
+        if (appCtxId.endsWith(":") || appCtxId.endsWith("@")) {
+            throw new IllegalArgumentException("Unable to parse the Spring Application ID '" + appCtxId + "': " +
+                    "ends with a colon ':' or '@'");
+        }
+
+        String suffix = (appCtxId.contains(":"))
+                ? appCtxId.substring(appCtxId.lastIndexOf(":") + 1)
+                    .replace('\\', '-')
+                    .replace('/', '-')
+                    .replace(' ', '_')
+                    .toLowerCase()
+                : appCtxId.substring(appCtxId.lastIndexOf("@") + 1)
+                    .replace('\\', '-')
+                    .replace('/', '-')
+                    .replace(' ', '_')
+                    .toLowerCase();
 
         return suffix;
     }
