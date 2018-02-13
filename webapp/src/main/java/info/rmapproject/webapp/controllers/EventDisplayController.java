@@ -19,7 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import org.slf4j.Logger;
@@ -67,9 +66,6 @@ public class EventDisplayController {
 	@RequestMapping(value="/events/{uri}", method = RequestMethod.GET)
 	public String event(@PathVariable(value="uri") String eventUri, Model model) throws Exception {
 		LOG.info("Event requested {}", eventUri);
-
-		eventUri = URLDecoder.decode(eventUri, "UTF-8");
-		
 		EventDTO eventDTO = dataDisplayService.getEventDTO(eventUri);
 		model.addAttribute("EVENT", eventDTO);
 	    model.addAttribute("RESOURCEURI", eventDTO.getUri());

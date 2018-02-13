@@ -122,6 +122,7 @@ public class SearchServiceSolr implements SearchService {
 							String label = snippet.substring(snippet.lastIndexOf(IndexUtils.HL_POSTFIX)+IndexUtils.HL_POSTFIX.length()+1);
 							//remove highlighted part, trim and remove quotes
 							label = label.trim().substring(1, label.length()-4);
+							label = label.replace("\\\"", "\"");
 							labels.add(label);	
 						}
 					}
