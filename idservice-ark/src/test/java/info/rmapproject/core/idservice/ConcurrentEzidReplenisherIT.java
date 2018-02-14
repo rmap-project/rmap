@@ -84,9 +84,10 @@ public class ConcurrentEzidReplenisherIT {
         ConcurrentEzidReplenisher.ID_METADATA.forEach((key, value) -> {
             assertTrue(metadata.contains(key));
             if (!key.equals("erc.when")) {
-                assertTrue(metadata.contains(value));
+                assertTrue("Response metadata did not contain '" + value + "' (response body: '" + metadata + "'", metadata.contains(value));
             } else {
-                assertTrue(metadata.contains(basicDate().print(now())));
+                value = basicDate().withZoneUTC().print(now());
+                assertTrue("Response metadata did not contain '" + value + "' (response body: '" + metadata + "'", metadata.contains(value));
             }
         });
     }
