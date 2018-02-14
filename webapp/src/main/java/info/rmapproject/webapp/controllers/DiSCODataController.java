@@ -19,7 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp.controllers;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -78,8 +77,6 @@ public class DiSCODataController {
 	public String disco(@PathVariable(value="uri") String discoUri, Model model) throws Exception {
 		LOG.info("DiSCO requested: {}", discoUri);
 
-		discoUri = URLDecoder.decode(discoUri, "UTF-8");
-
 		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 	    
 		model.addAttribute("DISCO",discoDTO);	    
@@ -113,8 +110,6 @@ public class DiSCODataController {
 	@RequestMapping(value="/discos/{uri}/visual", method = RequestMethod.GET)
 	public String discoGraphVisual(@PathVariable(value="uri") String discoUri,  Model model) throws Exception {
 		LOG.info("DiSCO visualization requested: {}", discoUri);
-
-		discoUri = URLDecoder.decode(discoUri, "UTF-8");
 		
 		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 	    
@@ -135,8 +130,6 @@ public class DiSCODataController {
 	@RequestMapping(value="/discos/{uri}/widget", method = RequestMethod.GET)
 	public String discoGraphWidget(@PathVariable(value="uri") String discoUri, Model model) throws Exception {
 		LOG.info("DiSCO visualization requested: {}", discoUri);
-
-		discoUri = URLDecoder.decode(discoUri, "UTF-8");
 		
 		DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 	    
@@ -163,8 +156,6 @@ public class DiSCODataController {
 			view=STANDARD_VIEW;
 		}
 		try {
-			discoUri = URLDecoder.decode(discoUri, "UTF-8");
-			
 			DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 		    
 			model.addAttribute("DISCO", discoDTO);	
@@ -198,8 +189,6 @@ public class DiSCODataController {
 			view=STANDARD_VIEW;
 		}
 		try {
-			discoUri = URLDecoder.decode(discoUri, "UTF-8");
-			
 			DiSCODTO discoDTO = dataDisplayService.getDiSCODTO(discoUri);
 		    
 			model.addAttribute("DISCO", discoDTO);	

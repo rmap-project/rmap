@@ -20,7 +20,6 @@
 package info.rmapproject.webapp.controllers;
 
 import java.net.URI;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -101,7 +100,6 @@ public class ResourceDisplayController {
 		LOG.info("Resource requested {}", sResourceUri);
 		
 		if (resview == null) {resview = 0;}
-		sResourceUri = URLDecoder.decode(sResourceUri, "UTF-8");
 	
 		if (resview==0) {
 			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(sResourceUri));
@@ -169,13 +167,11 @@ public class ResourceDisplayController {
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
 		
-		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
-	
 		//by default the system will redirect to the object type 
 		//e.g. a disco uri will redirect to DiSCO view.
 		if (resview == null) {resview = 0;}
 		if (resview==0) {
-			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(decodedUri));
+			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(reqUri));
 			if (rmapType.length()>0){
 				return "redirect:/" + rmapType.toLowerCase() + "s/" + reqUri + "/visual";
 			}
@@ -206,23 +202,21 @@ public class ResourceDisplayController {
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
 
-		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
-		
 		//by default the system will redirect to the object type 
 		//e.g. a disco uri will redirect to DiSCO view.
 		if (resview == null) {resview = 0;}
 		if (resview==0) {
-			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(decodedUri));
+			String rmapType = dataDisplayService.getRMapTypeDisplayName(new URI(reqUri));
 			if (rmapType.length()>0){
 				return "redirect:/" + rmapType.toLowerCase() + "s/" + reqUri + "/widget";
 			}
 		}    	
 
-		model.addAttribute("RESOURCEURI", decodedUri);
+		model.addAttribute("RESOURCEURI", reqUri);
 		model.addAttribute("status", status);
 				
 		RMapSearchParams params = generateSearchParams(status, offset);
-		ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, params, PaginatorType.RESOURCE_GRAPH);
+		ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(reqUri, params, PaginatorType.RESOURCE_GRAPH);
 		if (triplebatch==null || triplebatch.size()==0) {
 			return "resourcenotfoundembedded";
 		}
@@ -248,19 +242,18 @@ public class ResourceDisplayController {
 				@RequestParam(value="status", required=false) String status,
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
-		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
 		try {
 
-			model.addAttribute("RESOURCEURI", decodedUri);
+			model.addAttribute("RESOURCEURI", reqUri);
 			model.addAttribute("status", status);
 			
 			RMapSearchParams params = generateSearchParams(status, offset);
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, params, PaginatorType.RESOURCE_TABLE);
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(reqUri, params, PaginatorType.RESOURCE_TABLE);
 			if (triplebatch==null || triplebatch.size()==0) {
 				return "resourcenotfoundembedded";
 			}
 			params.setOffset(0); //
-			ResourceDescription rd = dataDisplayService.getResourceTableData(decodedUri, triplebatch, params, true);
+			ResourceDescription rd = dataDisplayService.getResourceTableData(reqUri, triplebatch, params, true);
 			PageStatus pageStatus = dataDisplayService.getPageStatus(triplebatch, PaginatorType.RESOURCE_TABLE);
 	
 			model.addAttribute("TABLEDATA", rd);
@@ -292,13 +285,12 @@ public class ResourceDisplayController {
 		if (view==null || view.length()==0){
 			view = STANDARD_VIEW;
 		}
-		String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
 		try {
-			model.addAttribute("RESOURCEURI", decodedUri);
+			model.addAttribute("RESOURCEURI", reqUri);
 			model.addAttribute("status", status);
 			RMapSearchParams params = generateSearchParams(status,offset);
 			
-			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(decodedUri, params, PaginatorType.RESOURCE_GRAPH);
+			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceBatch(reqUri, params, PaginatorType.RESOURCE_GRAPH);
 			if (triplebatch==null || triplebatch.size()==0) {
 				return "resourcenotfoundembedded";
 			}
@@ -330,14 +322,12 @@ public class ResourceDisplayController {
 				Model model) throws Exception {
 		LOG.info("Resource requested {}", reqUri);
 		try {
-			String decodedUri = URLDecoder.decode(reqUri, "UTF-8");
-			
 			RMapSearchParams params = generateSearchParams(status, offset);
 
-			ResultBatch<URI> resourceDiscos = dataDisplayService.getResourceRelatedDiSCOs(decodedUri, params);
+			ResultBatch<URI> resourceDiscos = dataDisplayService.getResourceRelatedDiSCOs(reqUri, params);
 		    PageStatus resDiscoPageStatus = dataDisplayService.getPageStatus(resourceDiscos, PaginatorType.RESOURCE_DISCOS);
 	
-		    model.addAttribute("RESOURCEURI", decodedUri);
+		    model.addAttribute("RESOURCEURI", reqUri);
 		    model.addAttribute("URILIST", resourceDiscos.getResultList());
 		    model.addAttribute("PAGINATOR", resDiscoPageStatus);
 	
@@ -371,8 +361,6 @@ public class ResourceDisplayController {
 			view=STANDARD_VIEW;
 		}
 		try {
-			resourceUri = URLDecoder.decode(resourceUri, "UTF-8");
-			
 			RMapSearchParams params = generateSearchParams(status,offset);
 			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiterals(resourceUri, params);
 			ResourceDescription resourceDescription = dataDisplayService.getResourceTableData(resourceUri, triplebatch, params, true);
@@ -416,9 +404,6 @@ public class ResourceDisplayController {
 		}
 		
 		try {
-			resourceUri = URLDecoder.decode(resourceUri, "UTF-8");
-			contextUri = URLDecoder.decode(contextUri, "UTF-8");
-
 			RMapSearchParams params = generateSearchParams(RMapStatusFilter.ALL, offset);
 			
 			ResultBatch<RMapTriple> triplebatch = dataDisplayService.getResourceLiteralsInContext(resourceUri, contextUri, params);

@@ -291,15 +291,11 @@ public class PathUtils {
 	public static URI convertPathStringToURI(String sPathString) throws RMapApiException{
 		URI uri = null;
 		try {
-			sPathString = URLDecoder.decode(sPathString, "UTF-8");
 			sPathString = sPathString.replace(" ", "+");
 			sPathString = removeUriAngleBrackets(sPathString);
 			uri = new URI(sPathString);
 		}
 		catch (URISyntaxException ex){
-			throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
-		}
-		catch (UnsupportedEncodingException ex){
 			throw RMapApiException.wrap(ex, ErrorCode.ER_PARAM_WONT_CONVERT_TO_URI);
 		}
 		return uri;

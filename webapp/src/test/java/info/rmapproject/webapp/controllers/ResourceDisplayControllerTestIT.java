@@ -85,6 +85,8 @@ public class ResourceDisplayControllerTestIT extends WebDataRetrievalTestAbstrac
     
     /**
      * Check invalid resource page should still return resources page, page display should handle empty
+     * Note: due to a glitch with encoding/decoding path variables in mockmvc, cannot depend on auto-decoding
+     * that is usual for PathVariable. So URI param is not encoded.
      * @throws Exception
      */
     @Test
@@ -95,7 +97,7 @@ public class ResourceDisplayControllerTestIT extends WebDataRetrievalTestAbstrac
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
 		rmapService.createDiSCO(disco, reqEventDetails);
-	    mockMvc.perform(get("/resources/fakefake%3Auri"))
+	    mockMvc.perform(get("/resources/{uri}","fakefake:uri"))
 	        	.andExpect(view().name("resources")); 
 
 		verify(dataDisplayService)
@@ -105,22 +107,20 @@ public class ResourceDisplayControllerTestIT extends WebDataRetrievalTestAbstrac
 
     /**
      * Check valid resource uri retrieves resource view
+     * Note: due to a problem with encoding/decoding path variables in mockmvc, cannot depend on auto-decoding
+     * that is usual for PathVariable, so URI is not encoded with URI queryparam
      * @throws Exception
      */
     @Test
-    public void testResourcePath() throws Exception {
+    public void testResourcePathRedirect() throws Exception {
     	doReturn("fakelabel").when(dataDisplayService).getResourceLabel(any(), any());
 
 		ORMapDiSCO disco = getRMapDiSCOObj(TestFile.DISCOB_V1_XML);
 		String discoUri = disco.getId().toString();
         assertNotNull(discoUri);
 		rmapService.createDiSCO(disco, reqEventDetails);
-        mockMvc.perform(get("/resources/ark%3A%2F27927%2F12121212"))
-        	.andExpect(view().name("resources"));     
-
-        	verify(dataDisplayService)
-			.getRMapTypeDisplayName(resourceUriCaptor.capture());
-		assertEquals(new URI("ark:/27927/12121212"),resourceUriCaptor.getValue());
+        mockMvc.perform(get("/resources?uri={uri}","ark:/27927/12121212"))
+        	.andExpect(view().name("redirect:/resources/ark%3A%2F27927%2F12121212"));     
         
     }
     

@@ -26,8 +26,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +65,6 @@ public class ResourceApiServiceTestIT extends ApiDataCreationTestAbstractIT {
 		assertNotNull(discoURI);
 		rmapService.createDiSCO(rmapDisco,requestEventDetails);
 
-		String resourceUri = URLEncoder.encode(discoURI, StandardCharsets.UTF_8.name());
 		HttpHeaders httpheaders = mock(HttpHeaders.class);
 		UriInfo uriInfo = mock(UriInfo.class);
 
@@ -80,7 +77,7 @@ public class ResourceApiServiceTestIT extends ApiDataCreationTestAbstractIT {
 		when (uriInfo.getQueryParameters()).thenReturn(params);
 		when (httpheaders.getAcceptableMediaTypes()).thenReturn(mediatypes);
 
-		response = resourceApiService.apiGetRMapResourceTriples(httpheaders, resourceUri, uriInfo);
+		response = resourceApiService.apiGetRMapResourceTriples(httpheaders, discoURI, uriInfo);
 
 		assertNotNull(response);
 		String body = response.getEntity().toString();
@@ -97,7 +94,7 @@ public class ResourceApiServiceTestIT extends ApiDataCreationTestAbstractIT {
 		params.add(Constants.PAGE_PARAM, "1");
 		params.add(Constants.UNTIL_PARAM, untildate);
 
-		response = resourceApiService.apiGetRMapResourceTriples(httpheaders, resourceUri, uriInfo);
+		response = resourceApiService.apiGetRMapResourceTriples(httpheaders, discoURI, uriInfo);
 
 		assertEquals(200,response.getStatus());
 		body = response.getEntity().toString();
