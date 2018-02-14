@@ -56,6 +56,17 @@
             <artifactId>ezid</artifactId>
         </dependency>
 
+        <!--
+          edu.ucsb.nceas.ezid:ezid:1.0.1 has a compile-time dependency on
+          org.apache.httpcomponents:httpclient.  The dependency on httpclient
+          is missing from some versions of the edu.ucsb.nceas:ezid:1.0.1 POM,
+          so we include it in our list of dependencies
+        -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
