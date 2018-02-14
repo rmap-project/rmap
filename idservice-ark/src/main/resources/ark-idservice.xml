@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <context:property-placeholder location="${rmap.configFile}" ignore-resource-not-found="true" ignore-unresolvable="true"/>
+    <context:property-placeholder location="classpath*:/http-arkidservice.properties" ignore-unresolvable="true"/>
+
+    <bean id="ezidClient" class="edu.ucsb.nceas.ezid.EZIDClient">
+        <constructor-arg value="${idservice.idMinterUrl}"/>
+    </bean>
+
+    <bean id="lockHolder" class="info.rmapproject.core.idservice.LockHolder" scope="prototype"/>
+
+    <bean id="retryParams" class="info.rmapproject.core.idservice.ConcurrentEzidReplenisher$Retry">
+        <property name="backOffFactor" value="${idservice.backoffFactor}"/>
+        <property name="initialWaitTimeMs" value="${idservice.initialWaitTimeMs}"/>
+        <property name="maxRetryAttempts" value="${idservice.maxRetries}"/>
+        <property name="maxWaitTimeMs" value="${idservice.maxWaitTimeMs}"/>
+    </bean>
+
+    <beans profile="ark-idservice">
+
+        <!-- If this bean configuration is updated, insure that the test version of the bean, below, is updated as well -->
+        <bean id="replenisher" class="info.rmapproject.core.idservice.ConcurrentEzidReplenisher" scope="prototype">
+            <constructor-arg value="${idservice.idMinterUrl}"/>
+            <constructor-arg ref="ezidClient"/>
+            <property name="maxStoreSize" value="${idservice.maxStoreSize}"/>
+            <property name="idPrefix" value="${idservice.idPrefix}"/>
+            <property name="userName" value="${idservice.userName}"/>
+            <property name="userPassword" value="${idservice.userPassword}"/>
+            <property name="retryParams" ref="retryParams"/>
+        </bean>
+
+        <bean id="httpArkIdService" class="info.rmapproject.core.idservice.ConcurrentCachingIdService" scope="prototype"
+              autowire-candidate="false">
+            <property name="idLength" value="${idservice.idLength}"/>
+            <property name="idRegex" value="${idservice.idRegex}"/>
+        </bean>
+
+        <!--
+          When ConcurrentArkIdService is instantiated, it requests arks from EZID.  This would be problematic during
+          integration tests, when multiple instances of this bean are created and destroyed - it would result in lots of
+          spurious ID creation, even if it is just test IDs.  One option is to set 'lazy-init' to 'true', but that's not
+          ideal for production.  Instead, we have a separate bean profile, 'ark-idserviceintegration' integration, below.
+        -->
+        <bean id="concurrentArkIdService" class="info.rmapproject.core.idservice.ConcurrentArkIdService">
+            <constructor-arg value="4"/>
+            <property name="idStoreFilePrefix" value="${idservice.idStoreFile}"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="ark-idserviceintegration">
+
+        <context:property-placeholder location="classpath*:/http-arkidservice.properties" ignore-unresolvable="true"/>
+
+        <bean id="testReplenisher" class="info.rmapproject.core.idservice.ConcurrentEzidReplenisher" scope="prototype">
+            <constructor-arg value="${idservice.idMinterUrl}"/>
+            <constructor-arg ref="ezidClient"/>
+            <property name="maxStoreSize" value="${idservice.maxStoreSize}"/>
+            <property name="idPrefix" value="${idservice.idPrefix}"/>
+            <property name="userName" value="${idservice.userName}"/>
+            <property name="userPassword" value="${idservice.userPassword}"/>
+            <property name="retryParams" ref="retryParams"/>
+        </bean>
+
+    </beans>
+
+</beans>

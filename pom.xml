@@ -23,11 +23,15 @@
         <module>indexing-solr</module>
         <module>indexing-solr-resources</module>
         <module>kafka-shared</module>
+        <module>idservice-api</module>
+        <module>idservice-ark</module>
+        <module>idservice-http</module>
+        <module>idservice-rand</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <scp.port>122</scp.port>
+        <scp.port>22</scp.port>
 
         <java-version>1.8</java-version>
         <org.springframework-version>5.0.2.RELEASE</org.springframework-version>
@@ -535,6 +539,12 @@
                 <groupId>edu.ucsb.nceas</groupId>
                 <artifactId>ezid</artifactId>
                 <version>${ezid.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
