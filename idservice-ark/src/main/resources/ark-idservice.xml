@@ -15,6 +15,13 @@
 
     <bean id="lockHolder" class="info.rmapproject.core.idservice.LockHolder" scope="prototype"/>
 
+    <bean id="retryParams" class="info.rmapproject.core.idservice.ConcurrentEzidReplenisher$Retry">
+        <property name="backOffFactor" value="${idservice.backoffFactor}"/>
+        <property name="initialWaitTimeMs" value="${idservice.initialWaitTimeMs}"/>
+        <property name="maxRetryAttempts" value="${idservice.maxRetries}"/>
+        <property name="maxWaitTimeMs" value="${idservice.maxWaitTimeMs}"/>
+    </bean>
+
     <beans profile="ark-idservice">
 
         <!-- If this bean configuration is updated, insure that the test version of the bean, below, is updated as well -->
@@ -22,6 +29,10 @@
             <constructor-arg value="${idservice.idMinterUrl}"/>
             <constructor-arg ref="ezidClient"/>
             <property name="maxStoreSize" value="${idservice.maxStoreSize}"/>
+            <property name="idPrefix" value="${idservice.idPrefix}"/>
+            <property name="userName" value="${idservice.userName}"/>
+            <property name="userPassword" value="${idservice.userPassword}"/>
+            <property name="retryParams" ref="retryParams"/>
         </bean>
 
         <bean id="httpArkIdService" class="info.rmapproject.core.idservice.ConcurrentCachingIdService" scope="prototype"
@@ -51,6 +62,10 @@
             <constructor-arg value="${idservice.idMinterUrl}"/>
             <constructor-arg ref="ezidClient"/>
             <property name="maxStoreSize" value="${idservice.maxStoreSize}"/>
+            <property name="idPrefix" value="${idservice.idPrefix}"/>
+            <property name="userName" value="${idservice.userName}"/>
+            <property name="userPassword" value="${idservice.userPassword}"/>
+            <property name="retryParams" ref="retryParams"/>
         </bean>
 
     </beans>

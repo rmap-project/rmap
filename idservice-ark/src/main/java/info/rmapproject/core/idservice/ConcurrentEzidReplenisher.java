@@ -41,7 +41,7 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
     /**
      * Will retry up to 10 times, or timeout after 60 seconds, whichever comes first.
      */
-    static EzidReplenisher.Retry DEFAULT_RETRY_PARAMS = new EzidReplenisher.Retry();
+    static Retry DEFAULT_RETRY_PARAMS = new ConcurrentEzidReplenisher.Retry();
 
     /**
      * Basic metadata attached to each ID minted by this replenisher
@@ -66,7 +66,7 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
     /**
      * Governs how often, and for how long, attempts will be made to request IDs from the EZID service when errors occur
      */
-    private EzidReplenisher.Retry retryParams = DEFAULT_RETRY_PARAMS;
+    private Retry retryParams = DEFAULT_RETRY_PARAMS;
 
     /**
      * The id prefix, or "shoulder", that all IDs will start with
@@ -236,11 +236,11 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
         }
     }
 
-    public EzidReplenisher.Retry getRetryParams() {
+    public Retry getRetryParams() {
         return retryParams;
     }
 
-    public void setRetryParams(EzidReplenisher.Retry retryParams) {
+    public void setRetryParams(Retry retryParams) {
         if (retryParams.maxWaitTimeMs < 0) {
             throw new IllegalArgumentException("Max wait time must be a 0 or greater");
         }
@@ -326,6 +326,48 @@ public class ConcurrentEzidReplenisher implements ConcurrentIdReplenisher {
         float backOffFactor = 1.2f;
 
         int maxRetryAttempts = 10;
+
+        public long getMaxWaitTimeMs() {
+            return maxWaitTimeMs;
+        }
+
+        public void setMaxWaitTimeMs(long maxWaitTimeMs) {
+            this.maxWaitTimeMs = maxWaitTimeMs;
+        }
+
+        public long getInitialWaitTimeMs() {
+            return initialWaitTimeMs;
+        }
+
+        public void setInitialWaitTimeMs(long initialWaitTimeMs) {
+            this.initialWaitTimeMs = initialWaitTimeMs;
+        }
+
+        public float getBackOffFactor() {
+            return backOffFactor;
+        }
+
+        public void setBackOffFactor(float backOffFactor) {
+            this.backOffFactor = backOffFactor;
+        }
+
+        public int getMaxRetryAttempts() {
+            return maxRetryAttempts;
+        }
+
+        public void setMaxRetryAttempts(int maxRetryAttempts) {
+            this.maxRetryAttempts = maxRetryAttempts;
+        }
+
+        @Override
+        public String toString() {
+            return "Retry{" +
+                    "maxWaitTimeMs=" + maxWaitTimeMs +
+                    ", initialWaitTimeMs=" + initialWaitTimeMs +
+                    ", backOffFactor=" + backOffFactor +
+                    ", maxRetryAttempts=" + maxRetryAttempts +
+                    '}';
+        }
     }
 
 
