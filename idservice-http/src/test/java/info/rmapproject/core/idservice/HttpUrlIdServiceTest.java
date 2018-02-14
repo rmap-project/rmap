@@ -119,7 +119,7 @@ public class HttpUrlIdServiceTest {
     }
 
     /**
-     * Tests valid and invalid IDs using properties set in arkidservice.properties.
+     * Tests valid and invalid IDs using properties set in http-idservice.properties.
      */
     @Test
     public void validArkIdsAreIdentifiedAsValid() throws Exception {
@@ -137,7 +137,7 @@ public class HttpUrlIdServiceTest {
 
 
     /**
-     * Tests invalid IDs using properties set in arkidservice.properties.
+     * Tests invalid IDs using properties set in http-idservice.properties.
      */
     @Test
     public void invalidArkIdsAreIdentifiedAsInvalid() throws Exception {
