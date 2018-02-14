@@ -81,6 +81,11 @@
 
         <profile>
             <id>external</id>
+            <activation>
+                <property>
+                    <name>external</name>
+                </property>
+            </activation>
             <properties>
                 <scp.port>122</scp.port>
             </properties>
