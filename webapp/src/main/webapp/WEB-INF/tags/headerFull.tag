@@ -38,6 +38,7 @@
 				<ul class="dropdown-menu">
 					<li><a href="<c:url value='/about'/>">About RMap</a></li>	
 					<li><a href="<c:url value='/about/glossary'/>">Glossary</a></li>	
+					<li><a href="<c:url value='/about/terms'/>">Terms of Use</a></li>	
 				</ul>
 			</li>
 			

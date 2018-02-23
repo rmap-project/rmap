@@ -19,8 +19,9 @@
 			<input type="hidden" name="status" value="active"/>
 			<input type="submit" value="Search" style="margin-top:3px;">
 			<p style="font-size: 85%;">Example search terms: 
-			<a href="<c:url value='/searchresults?search=NASA&status=active'/>">"NASA"</a>, 
-			<a href="<c:url value='/searchresults?search=https://doi.org/10.7265/n59p2ztg&status=active'/>">"https://doi.org/10.7265/n59p2ztg"</a>
+			<a href="<c:url value='/searchresults?search=IEEE&status=active'/>">"IEEE"</a>, 
+			<a href="<c:url value='/searchresults?search=climate&status=active'/>">"climate"</a>, 
+			<a href="<c:url value='/searchresults?search=https://doi.org/10.1109/jlt.2006.888256&status=active'/>">"https://doi.org/10.1109/jlt.2006.888256"</a>
 			</p>
 			<br>
 			<div class="containframe">
