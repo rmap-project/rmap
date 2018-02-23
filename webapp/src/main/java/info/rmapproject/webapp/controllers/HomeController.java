@@ -58,10 +58,26 @@ public class HomeController {
 	public String about(Model model) {
 		return "about";
 	}
-	
+
+    /**
+     * GETs the Glossary page
+     *
+     * @param model the Spring model
+     * @return the about page
+     */
 	@RequestMapping(value={"/about/glossary"}, method=RequestMethod.GET)
 	public String glossary(Model model) {
 		return "glossary";
 	}	
-	
+
+    /**
+     * GETs the Terms of Use page
+     *
+     * @param model the Spring model
+     * @return the about page
+     */
+    @RequestMapping(value={"/about/terms"}, method=RequestMethod.GET)
+    public String terms(Model model) {
+        return "terms";
+    }   
 }

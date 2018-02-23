@@ -11,6 +11,7 @@
 		<a href="#using-ids">Using ORCID IDs, DOIs and other PIDs</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#why-duplicates">Why are there duplicates in the visualization?</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#funding">Funding</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+		<a href="#ieee-discos">IEEE DiSCOs</a>&nbsp;&nbsp;|&nbsp;&nbsp;
 		<a href="#additional-info">Additional information</a>
 	</p>
 	
@@ -86,7 +87,14 @@
 	This instance of RMap is managed by 
 	<a href="${SITEPROPS.getInstitutionUrl()}" target="_blank">${SITEPROPS.getInstitutionName()}</a>.
 	</p>
-	
+			
+	<div id="ieee-discos"></div>
+	<h2>IEEE DiSCOs</h2>
+	<p>The <a href="https://rmap-hub.org">instance of RMap</a> hosted by the <a href="https://library.jhu.edu/" target="_blank">Sheridan Libraries at Johns Hopkins University</a> was 
+	initially populated using over 680,000 DiSCOs provided by the <a href="https://www.ieee.org" target="_blank">Institute of Electrical and Electronics Engineers</a> (IEEE). 
+	These were created using IEEE’s article database. All of them include basic article metadata such as title, journal, and author names, but many also contain additional relationships 
+	such as citation links, ORCID IDs, and dataset links as available.</p>
+		
 	<div id="additional-info"></div>
 	<h2>Additional information</h2>
 	<p>For additional information about RMap, visit the <a href="http://rmap-project.info/rmap/?page_id=98" target="_blank">RMap Project website</a>. 
