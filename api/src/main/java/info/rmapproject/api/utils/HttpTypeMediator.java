@@ -37,7 +37,7 @@ import javax.ws.rs.core.MediaType;
 public class HttpTypeMediator {
 
 	/** The media type version. */
-	private static String MEDIATYPE_VERSION = "1.0.0-beta";
+	private static String MEDIATYPE_VERSION = "1.0";
 	
 	/**
 	 * Maps the accept-type to the matching response type.
