@@ -227,12 +227,16 @@ public abstract class Rdf4jTriplestore  {
 			resultset = getConnection().getStatements(subj, pred, obj, includeInferred);
 		}
 		else	{
-			resultset = getConnection().getStatements(subj, pred, obj, includeInferred, context);
+		    if (getConnection().size(context)>0) {
+		        resultset = getConnection().getStatements(subj, pred, obj, includeInferred, context);
+		    }
 		}
-		while (resultset.hasNext()) {
-			Statement stmt = resultset.next();
-			stmts.add(stmt);
-		}		
+		if (resultset!=null) {
+    		while (resultset.hasNext()) {
+    			Statement stmt = resultset.next();
+    			stmts.add(stmt);
+    		}	
+		}
 		return stmts;
 	}
 	

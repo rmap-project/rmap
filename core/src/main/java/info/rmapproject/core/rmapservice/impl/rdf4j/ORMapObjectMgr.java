@@ -158,12 +158,14 @@ public abstract class ORMapObjectMgr {
 	protected Set<Statement> getNamedGraph(IRI id, Rdf4jTriplestore ts) throws RMapObjectNotFoundException, RMapException {
 		Set<Statement> matchingTriples = null;
 		try {
-			matchingTriples = ts.getStatements(null, null, null, false, id);     
+            if (ts.getConnection().size(id)>0) {
+                matchingTriples = ts.getStatements(null, null, null, false, id);   
+            }
 		} catch (Exception e) {
 			throw new RMapException("Exception fetching triples matching named graph id "
 					+ id.stringValue(), e);
 		}
-		if (matchingTriples.isEmpty()){
+		if (matchingTriples==null || matchingTriples.isEmpty()){
 			throw new RMapObjectNotFoundException("could not find triples matching named graph id " + id.toString());
 		}
 		return matchingTriples;
