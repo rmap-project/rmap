@@ -298,6 +298,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			RMapEventType eventType = this.getEventType(eventId, ts);
 			RMapEventTargetType targetType = this.getEventTargetType(eventId, ts);
 			
+            if (!this.isEventId(eventId, ts)) {
+                throw new RMapException ("Event ID not recognized")  ;                
+            }
 			switch (targetType){
 			case DISCO:
 				switch (eventType){
@@ -853,6 +856,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 
 		Set<Statement> stmts = null;
 		Set<Statement> returnStmts = new HashSet<Statement>();
+
 		try {
 			stmts = ts.getStatements(null, eventPredicate, objectUri);
 			for (Statement stmt:stmts){
@@ -910,19 +914,22 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		IRI createdDisco = null;
 		Set<Statement> stmts = null;
 		try {
-			stmts = ts.getStatements(updateEventID, PROV.GENERATED, null, updateEventID);
+
+            if (this.isEventId(updateEventID, ts)) {
+                stmts = ts.getStatements(updateEventID, PROV.GENERATED, null, updateEventID);
+            }
 			if (stmts != null){
-					for (Statement stmt:stmts){
-						Value vObject = stmt.getObject();
-						if (vObject instanceof IRI){
-							IRI iri = (IRI)vObject;
-							if (this.isDiscoId(iri, ts)){
-								createdDisco = (IRI)vObject;
-								break;
-							}
+				for (Statement stmt:stmts){
+					Value vObject = stmt.getObject();
+					if (vObject instanceof IRI){
+						IRI iri = (IRI)vObject;
+						if (this.isDiscoId(iri, ts)){
+							createdDisco = (IRI)vObject;
+							break;
 						}
 					}
 				}
+			}
 		} catch (Exception e) {
 			throw new RMapException (e);
 		}
