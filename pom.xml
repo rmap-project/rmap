@@ -65,8 +65,8 @@
         <ant.version>1.10.1</ant.version>
         <solr.version>6.6.2</solr.version>
         <spring-data-solr.version>3.0.1.RELEASE</spring-data-solr.version>
-        <spring-kafka.version>2.1.0.RELEASE</spring-kafka.version>
-        <kafka.version>1.0.0</kafka.version>
+        <spring-kafka.version>2.1.4.RELEASE</spring-kafka.version>
+        <kafka.version>1.0.1</kafka.version>
         <joda-time.version>2.9.9</joda-time.version>
         <javax-el.version>3.0.1-b08</javax-el.version>
         <h2-mvstore.version>1.4.196</h2-mvstore.version>
