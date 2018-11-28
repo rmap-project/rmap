@@ -351,7 +351,7 @@
                     <container>
                         <containerId>tomcat8x</containerId>
                         <type>installed</type>
-						<timeout>180000</timeout>
+                        <timeout>180000</timeout>
                         <artifactInstaller>
                             <groupId>org.apache.tomcat</groupId>
                             <artifactId>tomcat</artifactId>
