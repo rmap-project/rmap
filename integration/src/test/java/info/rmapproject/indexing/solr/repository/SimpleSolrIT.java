@@ -559,7 +559,7 @@ public class SimpleSolrIT extends BaseKafkaIT {
     }
 
     private static void registerUriConverter(SolrTemplate solrTemplate) {
-        DefaultQueryParser queryParser = new DefaultQueryParser();
+        DefaultQueryParser queryParser = new DefaultQueryParser(null);
         queryParser.registerConverter(new Converter<URI, String>() {
             @Nullable
             @Override
