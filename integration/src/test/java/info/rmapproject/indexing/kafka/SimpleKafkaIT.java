@@ -1,7 +1,6 @@
 package info.rmapproject.indexing.kafka;
 
 import info.rmapproject.core.rdfhandler.RDFHandler;
-import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.repository.IndexDTO;
 import info.rmapproject.kafka.shared.GenericJvmObjectDeserializer;
 import info.rmapproject.kafka.shared.GenericJvmObjectSerializer;

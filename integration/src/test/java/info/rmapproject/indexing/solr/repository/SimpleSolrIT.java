@@ -58,7 +58,6 @@ import info.rmapproject.core.model.event.RMapEventWithNewObjects;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.indexing.IndexUtils;
-import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 
 /**
@@ -248,7 +247,6 @@ public class SimpleSolrIT extends BaseKafkaIT {
      * Write a document using the SolrTemplate
      */
     @Test
-    @SuppressWarnings("unchecked")
     public void simpleWrite() throws Exception {
         DiscoSolrDocument doc = discoDocument("1", "simpleWriteWithTemplate");
 
@@ -322,7 +320,7 @@ public class SimpleSolrIT extends BaseKafkaIT {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "serial"})
+    @SuppressWarnings({"serial"})
     public void testCaseInsensitiveUriSearch() throws Exception {
         registerUriConverter(solrTemplate);
         discoRepository.deleteAll();
