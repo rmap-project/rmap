@@ -67,7 +67,7 @@
             <artifactId>spring-orm</artifactId>
         </dependency>
         
-        <!-- db / hibernate -->	
+        <!-- db / hibernate -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -90,11 +90,11 @@
             <scope>runtime</scope>
         </dependency>
 
-		<!-- AspectJ -->
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-		</dependency>
+        <!-- AspectJ -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+        </dependency>
         
         <!-- needed for testing db on desktop -->
         <dependency>
