@@ -19,8 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.webapp;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;

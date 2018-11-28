@@ -111,7 +111,6 @@
         <dependency>
             <groupId>info.rmapproject</groupId>
             <artifactId>rmap-testdata</artifactId>
-            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

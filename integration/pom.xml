@@ -118,7 +118,6 @@
         <dependency>
             <groupId>info.rmapproject</groupId>
             <artifactId>rmap-testdata</artifactId>
-            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -143,7 +142,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
 

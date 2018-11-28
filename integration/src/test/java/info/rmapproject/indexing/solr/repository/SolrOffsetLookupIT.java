@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import info.rmapproject.indexing.kafka.OffsetLookup;
 import info.rmapproject.indexing.kafka.Seek;
-import info.rmapproject.indexing.solr.AbstractSpringIndexingTest;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 
 public class SolrOffsetLookupIT extends BaseKafkaIT {
