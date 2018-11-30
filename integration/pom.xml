@@ -362,8 +362,8 @@
                             <cargo.servlet.port>${rmap.webapp.test.port}</cargo.servlet.port>
                             <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
                             <rdf4jhttp.repository.name>${rdf4jhttp.repository.name}</rdf4jhttp.repository.name>
-                            <rdf4jhttp.repository.url>http://${docker.host.address}:${rdf4j.port}/${rdf4j.http.context}</rdf4jhttp.repository.url>
-                            <rdf4jhttp.workbench.url>http://${docker.host.address}:${rdf4j.port}/${rdf4j.workbench.context}</rdf4jhttp.workbench.url>
+                            <rdf4jhttp.repository.url>http://${docker.host.address}:${rdf4j.port}${rdf4j.http.context}</rdf4jhttp.repository.url>
+                            <rdf4jhttp.workbench.url>http://${docker.host.address}:${rdf4j.port}${rdf4j.workbench.context}</rdf4jhttp.workbench.url>
                             <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,http-solr,prod-kafka,auto-start-indexing</spring.profiles.active>
                             <org.eclipse.rdf4j.appdata.basedir>${project.build.testOutputDirectory}/rdf4j</org.eclipse.rdf4j.appdata.basedir>
                             <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
@@ -462,8 +462,8 @@
                                     <logback.configurationFile>${project.basedir}/src/main/resources/logback.xml</logback.configurationFile>
                                     <org.eclipse.rdf4j.appdata.basedir>${project.build.testOutputDirectory}/rdf4j</org.eclipse.rdf4j.appdata.basedir>
                                     <rdf4jhttp.repository.name>${rdf4jhttp.repository.name}</rdf4jhttp.repository.name>
-                                    <rdf4jhttp.repository.url>http://${docker.host.address}:${rdf4j.port}/${rdf4j.http.context}</rdf4jhttp.repository.url>
-                                    <rdf4jhttp.workbench.url>http://${docker.host.address}:${rdf4j.port}/${rdf4j.workbench.context}</rdf4jhttp.workbench.url>
+                                    <rdf4jhttp.repository.url>http://${docker.host.address}:${rdf4j.port}${rdf4j.http.context}</rdf4jhttp.repository.url>
+                                    <rdf4jhttp.workbench.url>http://${docker.host.address}:${rdf4j.port}${rdf4j.workbench.context}</rdf4jhttp.workbench.url>
                                     <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
                                     <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
                                     <docker.host.address>${docker.host.address}</docker.host.address>
@@ -490,8 +490,8 @@
                         <rmap.configFile>file:///${project.basedir}/src/main/resources/rmap.properties</rmap.configFile>
                         <spring.profiles.active>default,integration-db,inmemory-idservice,integration-triplestore,http-solr,prod-kafka,auto-start-indexing</spring.profiles.active>
                         <rdf4jhttp.repository.name>${rdf4jhttp.repository.name}</rdf4jhttp.repository.name>
-                        <rdf4jhttp.repository.url>http://${docker.host.address}:${rdf4j.port}/${rdf4j.http.context}</rdf4jhttp.repository.url>
-                        <rdf4jhttp.workbench.url>http://${docker.host.address}:${rdf4j.port}/${rdf4j.workbench.context}</rdf4jhttp.workbench.url>
+                        <rdf4jhttp.repository.url>http://${docker.host.address}:${rdf4j.port}${rdf4j.http.context}</rdf4jhttp.repository.url>
+                        <rdf4jhttp.workbench.url>http://${docker.host.address}:${rdf4j.port}${rdf4j.workbench.context}</rdf4jhttp.workbench.url>
                         <rmap.solr.url>http://${docker.host.address}:8983/solr</rmap.solr.url>
                         <bootstrap.servers>${docker.host.address}:29092</bootstrap.servers>
                         <docker.host.address>${docker.host.address}</docker.host.address>
