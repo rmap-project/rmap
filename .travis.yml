@@ -33,3 +33,5 @@ before_install:
 install: mvn install -Dcargo.maven.skip -Ddocker.skip -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
 script: if [ "$TRAVIS_PULL_REQUEST" == "false" ] ; then mvn -s ./settings.xml deploy -Dexternal -DtrimStackTrace=false ; else mvn verify -DtrimStackTrace=false ; fi
+
+after_failure: for testdir in `find . -name surefire-reports -o -name failsafe-reports` ; do cat ${testdir}/*.txt ; done
