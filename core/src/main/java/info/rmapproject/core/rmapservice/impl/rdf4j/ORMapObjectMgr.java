@@ -86,7 +86,7 @@ public abstract class ORMapObjectMgr {
 		}
 		boolean isRmapType = false;
 		try {
-			if (ts.getConnection().size(id)>0) {
+			if (ts.resourceIsContext(id)) {
 				//resource exists somewhere, lets find out where
 				if (ts.getConnection().hasStatement(id, RDF.TYPE, typeIRI, false, id)) {
 					//it is of defined type!
@@ -158,7 +158,7 @@ public abstract class ORMapObjectMgr {
 	protected Set<Statement> getNamedGraph(IRI id, Rdf4jTriplestore ts) throws RMapObjectNotFoundException, RMapException {
 		Set<Statement> matchingTriples = null;
 		try {
-            if (ts.getConnection().size(id)>0) {
+            if (ts.resourceIsContext(id)) {
                 matchingTriples = ts.getStatements(null, null, null, false, id);   
             }
 		} catch (Exception e) {

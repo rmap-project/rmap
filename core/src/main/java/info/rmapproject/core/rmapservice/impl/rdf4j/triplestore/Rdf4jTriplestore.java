@@ -227,7 +227,7 @@ public abstract class Rdf4jTriplestore  {
 			resultset = getConnection().getStatements(subj, pred, obj, includeInferred);
 		}
 		else	{
-		    if (getConnection().size(context)>0) {
+		    if (resourceIsContext(context)) {
 		        resultset = getConnection().getStatements(subj, pred, obj, includeInferred, context);
 		    }
 		}
@@ -373,7 +373,23 @@ public abstract class Rdf4jTriplestore  {
 		List<BindingSet> bs = QueryResults.stream(resultset).collect(Collectors.toList());
 		return bs;
 	}
-
+	
+	/**
+	 * Checks if there is at least one statement with the matching context. If there is return true, 
+	 * if not returns false.
+	 * @param id
+	 * @return true if there is at least one statement with this context, false if there is not
+	 */
+	public boolean resourceIsContext(Resource id) {
+		String sparqlQuery = "select ?s ?p ?o where {GRAPH <" + id.toString() + "> {?s ?p ?o}} limit 1";
+		TupleQuery tupleQuery = getConnection().prepareTupleQuery(QueryLanguage.SPARQL, sparqlQuery);
+		TupleQueryResult resultset = tupleQuery.evaluate();
+		if (resultset.hasNext()) {
+			return true;
+		}		
+		return false;	
+	}
+		
 	/**
 	 * Removes a set of statements from the triplestore.
 	 *

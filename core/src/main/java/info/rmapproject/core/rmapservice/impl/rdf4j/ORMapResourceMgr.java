@@ -439,7 +439,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		}
 		Set<Statement> triples = null;
 		try {
-		    if (ts.getConnection().size(contextIri)>0) {
+		    if (ts.resourceIsContext(contextIri)) {
 		        triples = ts.getStatements(resourceIri, RDF.TYPE, null, contextIri);
 		    }
 		} catch (Exception e) {
