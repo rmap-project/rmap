@@ -43,9 +43,10 @@ The developer runtime is appropriate for testing modifications to the source cod
 - `mvn clean install` from the base RMap directory
 - then `cd` into the `integration` directory
 - run `mvn process-test-resources docker:start cargo:run`
-  - the `process-test-resource` phase prepares RDF4J web applications for deployment
-  - `docker:start` boots Postgres, Zookeeper, Kafka, RDF4J, and Solr in Docker
-  - `cargo:run` starts Tomcat, which runs the RMap API and RMap HTML web applications
+  - the **`process-test-resource`** phase prepares RDF4J web applications for deployment
+    - builds and copies test data and wars to `integration/target/test-classes/docker` 
+  - **`docker:start`** boots Postgres, Zookeeper, Kafka, RDF4J (both the "workbench" app and the "server" app from `integration/target/test-classes/docker/webapps`), and Solr in Docker
+  - **`cargo:run`** starts Tomcat, which runs the RMap API and RMap HTML web applications
 > Because the runtime configuration depends on the presence of the `docker.host.address` property, and because that property is only available when the [Docker Maven Plugin](https://dmp.fabric8.io/) is invoked, `docker:start` must be invoked with `cargo:run` on the same command line.
 - the runtime can be stopped by typing `CTRL-C` at the console, followed by `mvn docker:stop`
 - `mvn clean` will remove any data created by the runtime
