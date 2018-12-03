@@ -255,9 +255,6 @@ public class PathUtils {
 	public String appendEncodedUriToURL(String baseURL, String objUri) throws RMapApiException {
 		String url = null;
 		try {
-			//may already been encoded, so let's decode first to make sure we aren't double encoding
-			objUri = URLDecoder.decode(objUri,"UTF-8");
-			//now encode!
 			url = baseURL + URLEncoder.encode(objUri,"UTF-8");
 		}
 		catch (Exception e)	{
