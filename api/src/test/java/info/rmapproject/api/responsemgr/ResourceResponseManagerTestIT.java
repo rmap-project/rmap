@@ -24,13 +24,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
+import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
+import org.eclipse.rdf4j.model.Statement;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
@@ -45,6 +47,8 @@ import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.rdfhandler.RDFType;
+import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
 import info.rmapproject.core.utils.Terms;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
@@ -288,8 +292,10 @@ public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT
 			response = resourceResponseManager.getRMapResourceTriples(discoURI, RdfMediaType.APPLICATION_RDFXML, params);
 			assertEquals(200,response.getStatus());
 			body = response.getEntity().toString();
-			int numMatches = StringUtils.countMatches(body, "xmlns=");
-			assertEquals(2,numMatches);
+
+			RioRDFHandler rdfHandler = new RioRDFHandler();
+			Set<Statement> stmts = rdfHandler.convertRDFToStmtList(new ByteArrayInputStream(body.getBytes()), RDFType.RDFXML, "");
+			assertEquals(2,stmts.size());
 						
 		} catch (Exception e) {
 			e.printStackTrace();			

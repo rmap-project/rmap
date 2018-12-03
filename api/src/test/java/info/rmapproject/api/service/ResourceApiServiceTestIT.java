@@ -25,9 +25,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -37,6 +39,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.rdf4j.model.Statement;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
@@ -46,6 +49,8 @@ import info.rmapproject.api.ApiDataCreationTestAbstractIT;
 import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.core.model.disco.RMapDiSCO;
+import info.rmapproject.core.rdfhandler.RDFType;
+import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
 import info.rmapproject.testdata.service.TestFile;
 
 public class ResourceApiServiceTestIT extends ApiDataCreationTestAbstractIT {
@@ -98,8 +103,10 @@ public class ResourceApiServiceTestIT extends ApiDataCreationTestAbstractIT {
 
 		assertEquals(200,response.getStatus());
 		body = response.getEntity().toString();
-		int numMatches = StringUtils.countMatches(body, "xmlns=");
-		assertEquals(2,numMatches);
+
+		RioRDFHandler rdfHandler = new RioRDFHandler();
+		Set<Statement> stmts = rdfHandler.convertRDFToStmtList(new ByteArrayInputStream(body.getBytes()), RDFType.RDFXML, "");
+		assertEquals(2,stmts.size());
 	}
 
 }
