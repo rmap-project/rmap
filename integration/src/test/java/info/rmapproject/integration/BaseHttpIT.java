@@ -60,11 +60,15 @@ public abstract class BaseHttpIT {
 
     static String port = System.getProperty("rmap.webapp.test.port");
 
+    static String rdf4jPort = System.getProperty("rdf4j.port");
+
     static String webappCtxPath = System.getProperty("rmap.webapp.context");
 
     static String apiCtxPath = System.getProperty("rmap.api.context");
 
     static String rdf4jCtxPath = System.getProperty("rdf4j.http.context");
+
+    static String rdf4jRepoUrl = System.getProperty("rdf4jhttp.repository.url");
 
     static String rdf4jRepoName = System.getProperty("rdf4jhttp.repository.name");
 
@@ -97,13 +101,18 @@ public abstract class BaseHttpIT {
         assertNotNull("System property 'rmap.webapp.test.port' must be specified.", port);
         assertTrue("System property 'rmap.webapp.test.port' must be an integer greater than 0",
                 Integer.parseInt(port) > 0);
+        assertNotNull("System property 'rdf4j.port' must be specified.", rdf4jPort);
+        assertTrue("System property 'rdf4j.port' must be an integer greater than 0",
+                Integer.parseInt(rdf4jPort) > 0);
         assertNotNull("System property 'rmap.webapp.context' must be specified.", webappCtxPath);
         assertNotNull("System property 'rmap.api.context' must be specified.", apiCtxPath);
         assertNotNull("System property 'rdf4j.http.context' must be specified.", rdf4jCtxPath);
         assertNotNull("System property 'rdf4jhttp.repository.name' must be specified.", rdf4jRepoName);
+        assertNotNull("System property 'rdf4jhttp.repository.url' must be specified.", rdf4jRepoUrl);
         apiBaseUrl = new URL(scheme, host, Integer.parseInt(port), apiCtxPath);
         appBaseUrl = new URL(scheme, host, Integer.parseInt(port), webappCtxPath);
         discosEndpoint = URI.create(apiBaseUrl.toString() + "/discos");
+        rdf4jRepoUrl = System.getProperty("rdf4jhttp.repository.url");
     }
 
     static String encodeAuthCreds(String accessKey, String secret) {

@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
 
+import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,8 +42,15 @@ public class SmokeTestIT extends BaseHttpIT {
      */
     @Test
     public void testApi200Ok() throws IOException {
+        String searchString = "https://rmap-project.atlassian.net/wiki/display/RMAPPS/API+Documentation";
         URL url = new URL(apiBaseUrl, apiCtxPath + "/discos");
         Response res = http.newCall(new Request.Builder().get().url(url).build()).execute();
+        ResponseBody body = res.body();
+        assertNotNull("Expected a non-null response body from " + appBaseUrl.toString(), body);
+        String bodyString = body.string();
+        assertTrue("Expected the HTML body returned from " + appBaseUrl.toString() + " to contain the " +
+                        "string '" + searchString + "' (body was: [" + bodyString + "])",
+                bodyString.contains(searchString));
         assertEquals(url.toString() + " failed with: '" + res.code() + "', '" + res.message() + "'",
                 200, res.code());
     }
@@ -54,8 +62,39 @@ public class SmokeTestIT extends BaseHttpIT {
      */
     @Test
     public void testWebapp200Ok() throws IOException {
+        String searchString = "RMap";
         Response res = http.newCall(new Request.Builder().get().url(appBaseUrl).build()).execute();
+        ResponseBody body = res.body();
+        assertNotNull("Expected a non-null response body from " + appBaseUrl.toString(), body);
+        String bodyString = body.string();
+        assertTrue("Expected the HTML body returned from " + appBaseUrl.toString() + " to contain the " +
+                        "string '" + searchString + "' (body was: [" + bodyString + "])",
+                bodyString.contains(searchString));
         assertEquals(appBaseUrl.toString() + " failed with: '" + res.code() + "', '" + res.message() + "'",
+                200, res.code());
+    }
+
+    /**
+     * The RDF4J triplestore, deployed under the {@code /rdf4j-server} context, should return a 200, indicating
+     * successful startup.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testTriplestoreOk() throws IOException {
+        String searchString = "RDF4J Server";
+        // The RDF4J triplestore, deployed under the {@code /rdf4j-server} context, has problems.  When visiting the
+        // base URL, e.g. http://192.168.99.100:8080/rdf4j-server/, you should expect a 200, but instead you get a 404.
+        // This is because the base URL doesn't forward properly, at least in our integration environment.  Manually
+        // munging the URL will get us to the right place.
+        String rdf4jRepoUrl = BaseHttpIT.rdf4jRepoUrl + "/home/overview.view";
+        Response res = http.newCall(new Request.Builder().get().url(rdf4jRepoUrl).build()).execute();
+        ResponseBody body = res.body();
+        assertNotNull("Expected a non-null response body from " + rdf4jRepoUrl, body);
+        String bodyString = body.string();
+        assertTrue("Expected the HTML body returned from " + rdf4jRepoUrl + " to contain the string '" +
+                searchString + "' (body was: [" + bodyString + "])", bodyString.contains(searchString));
+        assertEquals(rdf4jRepoUrl + " failed with: '" + res.code() + "', '" + res.message() + "'",
                 200, res.code());
     }
 
