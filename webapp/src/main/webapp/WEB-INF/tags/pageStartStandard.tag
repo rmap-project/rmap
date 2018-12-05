@@ -5,9 +5,11 @@
 <%@ attribute name="pageTitle" rtexprvalue="true" required="true" type="java.lang.String" description="Title of page" %> 
 <%@ attribute name="includeCalendarScripts" rtexprvalue="true" required="false" type="java.lang.Boolean" description="True to include calendar script" %>
 <%@ attribute name="includeSearchScripts" rtexprvalue="true" required="false" type="java.lang.Boolean" description="True to include search control js" %>
+<%@ attribute name="includeClipboardJs" rtexprvalue="true" required="false" type="java.lang.Boolean" description="True to include clipboard.min.js" %>
 
 <c:set var="incCal" value="${(empty includeCalendarScripts) ? false : includeCalendarScripts}" />
 <c:set var="incSearchJs" value="${(empty includeSearchScripts) ? false : includeSearchScripts}" />
+<c:set var="incClipboardJs" value="${(empty includeClipboardJs) ? false : includeClipboardJs}" />
 
 <tl:headerDocType/>
 <head>        
@@ -30,6 +32,9 @@
 	</c:if>
 	<c:if test="${incSearchJs}">
 		<script src="<c:url value='/includes/js/searchcontrol.js'/>"></script>  
+	</c:if>
+	<c:if test="${incClipboardJs}">
+		<script src="<c:url value='/includes/js/clipboard.js'/>"></script>  
 	</c:if>
 </head>
 <body>
