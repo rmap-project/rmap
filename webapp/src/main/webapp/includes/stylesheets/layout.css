@@ -415,6 +415,13 @@ p.greybox{
 	color:#0000C1;
 }
 
+.small-grey-text {
+    display:block;
+    position:relative;
+    color:grey;
+    font-size:0.75rem;
+}
+
 legend {
     font-size:1.4em;
 }

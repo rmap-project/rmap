@@ -13,13 +13,16 @@
 		for "${user.getName()}"
 	</c:if>
 	</h1>
-	
+	<p>
+		Once created, DiSCOs in RMap are immediately visible to the public through both the API and website. To create, update, or delete DiSCOs through the API, a key is required. 
+		You can manage keys for API access here.
+	</p>	
 	<c:if test="${not user.hasRMapAgent() && not user.doRMapAgentSync}">
 	<p class="notice">
-		WARNING: API Keys are used to generate RMap DiSCOs.  In order to add data to RMap, a public RMap System Agent must 
-		also be created so that it can be associated with any changes. 
-		To initiate the creation of an Agent, visit the <a href="<c:url value='${pathStart}/user/settings'/>">settings</a> page
-		and set the option to generate an RMap:Agent to "yes".
+		IMPORTANT NOTE: The first time you create a DiSCO, a public representation of your "RMap System Agent" will 
+		also be created. This will be associated with your DiSCOs in the RMap linked data store. To review the information that 
+		will be included in this and authorize its creation, visit the <a href="<c:url value='${pathStart}/user/settings'/>">settings</a> page
+		and set the option to generate an RMap:Agent to "yes". This must be enabled before the keys can be used.
 	</p>
 	</c:if>
 	<c:if test="${notice!=null}">

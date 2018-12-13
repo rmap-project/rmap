@@ -52,9 +52,9 @@
 
 <c:if test="${isDisco}">
 	<hr style="margin-bottom:1px;"/>
-	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the DiSCO. To discover other references to this resource, click the <em>Redraw</em> button.</span>
+	<span class="small-grey-text">This data is part of the DiSCO. To discover other references to this resource, click the <em>Redraw</em> button.</span>
 </c:if>
 <c:if test="${isAgent}">
 	<hr style="margin-bottom:1px;"/>
-	<span style="display:block;position:relative;color:grey;font-size:12px;">This data is part of the Agent. To discover other references to this resource, click the <em>Redraw</em> button.</span>
+	<span class="small-grey-text">This data is part of the Agent. To discover other references to this resource, click the <em>Redraw</em> button.</span>
 </c:if>
