@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;
@@ -263,5 +264,108 @@ public class SmokeTestIT extends BaseHttpIT {
             return currentActiveCount == 0;
         }));
     }
+
+    /**
+     * Creates a disco and then attempts to access the web GUI page for that DiSCO multiple times.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testCreateAndLoadDiscoWebpageWithWait() throws Exception {
+        LOG.trace("** Beginning testCreateDeleteDiSCOWithIndexer");
+
+        URL apiUrl = new URL(apiBaseUrl, apiCtxPath + "/discos");
+        String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.rdf"), StandardCharsets.UTF_8);
+
+        LOG.trace("** Depositing DiSCO ...");
+        // Deposit a DiSCO
+        String discoUri = depositDisco(apiUrl, sampleDisco);
+        LOG.trace("** Deposited DiSCO with URI {}", discoUri);
+        
+        // wait 30 seconds to circumvent issue where first disco isn't getting deposited. 
+        // this test is ignoring that and moving to the second disco.
+        TimeUnit.SECONDS.sleep(30);
+        
+        //do a second deposit, this one should work, but repeated attempts to access it via the webapp
+        //may hang the system.
+        String discoUri2 = depositDisco(apiUrl, sampleDisco);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+
+        try {
+          deleteDisco(new URL(apiUrl + URLEncoder.encode(discoUri, "UTF-8")));
+          deleteDisco(new URL(apiUrl + URLEncoder.encode(discoUri2, "UTF-8")));
+        } catch (Exception ex) {
+          //do nothing
+        }
+
+    }
+    
+
+    /**
+     * Creates a disco and then attempts to access the web GUI page for that DiSCO multiple times.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testCreateAndLoadDiscoWebpage() throws Exception {
+        LOG.trace("** Beginning testCreateDeleteDiSCOWithIndexer");
+
+        URL apiUrl = new URL(apiBaseUrl, apiCtxPath + "/discos");
+        String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.rdf"), StandardCharsets.UTF_8);
+
+        LOG.trace("** Depositing DiSCO ...");
+        // Deposit a DiSCO; expect the DiSCO to be indexed.
+        String discoUri = depositDisco(apiUrl, sampleDisco);
+        LOG.trace("** Deposited DiSCO with URI {}", discoUri);
+
+        // Access DiSCO just created in GUI several times        
+        checkWebDiscoUrlLoads(discoUri);
+        checkWebDiscoUrlLoads(discoUri);
+        checkWebDiscoUrlLoads(discoUri);
+        checkWebDiscoUrlLoads(discoUri);
+        checkWebDiscoUrlLoads(discoUri);
+        
+        String discoUri2 = depositDisco(apiUrl, sampleDisco);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        checkWebDiscoUrlLoads(discoUri2);
+        
+        try {
+          deleteDisco(new URL(apiUrl + URLEncoder.encode(discoUri, "UTF-8")));
+        } catch (Exception ex) {
+          //do nothing
+        }
+
+    }
+    
+    private void checkWebDiscoUrlLoads(String discoUri) throws Exception {
+        String appUrl = appBaseUrl + "/discos/" + URLEncoder.encode(discoUri, "UTF-8");
+        
+        Response res = http.newCall(new Request.Builder().get().url(appUrl).build()).execute();
+        ResponseBody body = res.body();
+        assertNotNull("Expected a non-null response body from " + appUrl.toString(), body);
+        String bodyString = body.string();
+        assertTrue("Expected the HTML body returned from " + appBaseUrl.toString() + " to contain the " +
+                        "string '" + discoUri + "' (body was: [" + bodyString + "])",
+                bodyString.contains(discoUri));
+        assertEquals(appBaseUrl.toString() + " failed with: '" + res.code() + "', '" + res.message() + "'",
+                200, res.code());
+        LOG.trace("** HTTP GET {} returned Web GUI version of DiSCO {})", appUrl, discoUri);
+    }
+    
+
 
 }
