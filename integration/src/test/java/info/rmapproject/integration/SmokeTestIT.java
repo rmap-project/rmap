@@ -289,6 +289,7 @@ public class SmokeTestIT extends BaseHttpIT {
         //do a second deposit, this one should work, but repeated attempts to access it via the webapp
         //may hang the system.
         String discoUri2 = depositDisco(apiUrl, sampleDisco);
+        TimeUnit.SECONDS.sleep(10);
         checkWebDiscoUrlLoads(discoUri2);
         checkWebDiscoUrlLoads(discoUri2);
         checkWebDiscoUrlLoads(discoUri2);
@@ -326,6 +327,7 @@ public class SmokeTestIT extends BaseHttpIT {
         LOG.trace("** Depositing DiSCO ...");
         // Deposit a DiSCO; expect the DiSCO to be indexed.
         String discoUri = depositDisco(apiUrl, sampleDisco);
+        TimeUnit.SECONDS.sleep(10);
         LOG.trace("** Deposited DiSCO with URI {}", discoUri);
 
         // Access DiSCO just created in GUI several times        
@@ -336,6 +338,7 @@ public class SmokeTestIT extends BaseHttpIT {
         checkWebDiscoUrlLoads(discoUri);
         
         String discoUri2 = depositDisco(apiUrl, sampleDisco);
+        TimeUnit.SECONDS.sleep(10);
         checkWebDiscoUrlLoads(discoUri2);
         checkWebDiscoUrlLoads(discoUri2);
         checkWebDiscoUrlLoads(discoUri2);
