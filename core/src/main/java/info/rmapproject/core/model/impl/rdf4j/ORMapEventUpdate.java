@@ -37,7 +37,6 @@ import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdate;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * The concrete class representing the Update Event for the RDF4J implementation of RMap.
@@ -183,7 +182,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	protected void setInactivatedObjectStmt(IRI intactivatedObject) {
 		if (intactivatedObject != null){
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP.INACTIVATEDOBJECT,
+					RMAP_INACTIVATEDOBJECT,
 					intactivatedObject, this.context);
 			this.inactivatedObjectStatement = stmt;
 		}
@@ -232,7 +231,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
 		if (derivedObject != null){
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP.DERIVEDOBJECT,
+					RMAP_DERIVEDOBJECT,
 					derivedObject, this.context);
 			this.derivationStatement = stmt;
 		}

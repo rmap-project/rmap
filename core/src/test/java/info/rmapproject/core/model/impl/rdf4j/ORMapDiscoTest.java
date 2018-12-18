@@ -47,8 +47,6 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -60,8 +58,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
-import info.rmapproject.core.vocabulary.impl.rdf4j.ORE;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -108,10 +104,10 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		relatedStmts = new ArrayList<Statement>();
 		//predicates are nonsense here
 		// first test connected r->a r->b b->c b->d
-		s1 = vf.createStatement(r,RMAP.DERIVEDOBJECT,a);
-		s2 = vf.createStatement(r,RMAP.DERIVEDOBJECT,b);
-		s3 = vf.createStatement(b,RMAP.DERIVEDOBJECT,c);
-		s4 = vf.createStatement(b,RMAP.DERIVEDOBJECT,d);
+		s1 = vf.createStatement(r,RMAP_DERIVEDOBJECT,a);
+		s2 = vf.createStatement(r,RMAP_DERIVEDOBJECT,b);
+		s3 = vf.createStatement(b,RMAP_DERIVEDOBJECT,c);
+		s4 = vf.createStatement(b,RMAP_DERIVEDOBJECT,d);
 		creator = vf.createLiteral("Mary Smith");
 		creatorIRI = vf.createIRI("http://orcid.org/0000-0003-2069-1219");
 		creatorIRI2 = vf.createIRI("http://orcid.org/2222-0003-2069-1219");
@@ -139,12 +135,12 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 			model.addAll(resources);
 			Set<IRI> predicates = model.predicates();
 			assertEquals(1,predicates.size());
-			assertTrue(predicates.contains(ORE.AGGREGATES));
+			assertTrue(predicates.contains(ORE_AGGREGATES));
 			Set<Value> objects = model.objects();
 			assertTrue(objects.contains(r));
 			assertTrue(objects.contains (r2));
 			Statement cstmt = disco.getCreatorStmt();
-			assertEquals(DCTERMS.CREATOR,cstmt.getPredicate());
+			assertEquals(DCTERMS_CREATOR,cstmt.getPredicate());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -182,8 +178,8 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	@Test
 	public void testReferencesAggregate() throws RMapException {
 		ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())));
-		Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
-		Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
+		Statement rStmt = vf.createStatement(disco.context, ORE_AGGREGATES, r,disco.context);
+		Statement rStmt2 = vf.createStatement(disco.context, ORE_AGGREGATES, r2,disco.context);
 		disco.aggregatedResources = new ArrayList<Statement>();
 		disco.aggregatedResources.add(rStmt);
 		disco.aggregatedResources.add(rStmt2);
@@ -209,8 +205,8 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	public void testGetAggregatedResourceStatements() {
 		try {
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())));
-			Statement rStmt = vf.createStatement(disco.context, ORE.AGGREGATES, r,disco.context);
-			Statement rStmt2 = vf.createStatement(disco.context, ORE.AGGREGATES, r2,disco.context);
+			Statement rStmt = vf.createStatement(disco.context, ORE_AGGREGATES, r,disco.context);
+			Statement rStmt2 = vf.createStatement(disco.context, ORE_AGGREGATES, r2,disco.context);
 			List<java.net.URI> list1 = new ArrayList<java.net.URI>();
 			list1.add(ORAdapter.rdf4jIri2URI(r));
 			list1.add(ORAdapter.rdf4jIri2URI(r2));
@@ -321,8 +317,8 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
 			Statement stmt = disco.getTypeStatement();
 			assertEquals(disco.getId().getStringValue(), stmt.getSubject().stringValue());
-			assertEquals(RDF.TYPE, stmt.getPredicate());
-			assertEquals(RMAP.DISCO, stmt.getObject());
+			assertEquals(RDF_TYPE, stmt.getPredicate());
+			assertEquals(RMAP_DISCO.toString(), stmt.getObject().toString());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			fail(e.getMessage());

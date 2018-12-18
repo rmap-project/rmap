@@ -69,9 +69,8 @@ import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.utils.Terms;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * Creates HTTP responses for RMap DiSCO REST API requests.
@@ -789,7 +788,7 @@ public class DiscoResponseManager extends ResponseManager {
 				outputString= URIListHandler.uriListToPlainText(uriList);	
 			}
 			else	{
-				outputString= URIListHandler.uriListToJson(uriList, Terms.RMAP_DISCO_PATH);		
+				outputString= URIListHandler.uriListToJson(uriList, RMAP.DISCO.toString());		
 			}
 		    			
 			response = Response.status(Response.Status.OK)
@@ -946,7 +945,7 @@ public class DiscoResponseManager extends ResponseManager {
 				outputString= URIListHandler.uriListToPlainText(uriList);
 			}
 			else	{
-				outputString= URIListHandler.uriListToJson(uriList, Terms.RMAP_EVENT_PATH);		
+				outputString= URIListHandler.uriListToJson(uriList, RMAP.EVENT.toString());		
 			}
     		
     		response = Response.status(Response.Status.OK)

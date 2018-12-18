@@ -25,7 +25,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * The Enum for RMap Object Types
@@ -33,16 +33,16 @@ import info.rmapproject.core.utils.Terms;
 public enum RMapObjectType {
 	
 	/** RMap DiSCO object. */
-	DISCO (Terms.RMAP_DISCO_PATH), 
+	DISCO (RMAP.DISCO.toString()), 
 	
 	/** RMap Agent object. */
-	AGENT (Terms.RMAP_AGENT_PATH),
+	AGENT (RMAP.AGENT.toString()),
 	
 	/** The RMap event object. */
-	EVENT (Terms.RMAP_EVENT_PATH),
+	EVENT (RMAP.EVENT.toString()),
 	
 	/** The generic Object (unspecified type). */
-	OBJECT (Terms.RMAP_OBJECT_PATH); 
+	OBJECT (RMAP.OBJECT.toString()); 
 
 	/** The object type ontology path. */
 	private  RMapIri objectTypePath= null ;

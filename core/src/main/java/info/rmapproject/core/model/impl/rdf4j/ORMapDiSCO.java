@@ -31,8 +31,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.vocabulary.DC;
-import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -43,8 +41,6 @@ import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.vocabulary.impl.rdf4j.ORE;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
 
 /**
  * Each DiSCO is a named graph.  Constituent statements will share same context, which is same
@@ -155,7 +151,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		}
 		List<Statement>aggResources = null;
 		if (aggregatedResources != null){
-			IRI predicate = ORE.AGGREGATES;
+			IRI predicate = ORE_AGGREGATES;
 			aggResources = new ArrayList<Statement>();
 			try {
 				for (java.net.URI rmapResource:aggregatedResources){
@@ -208,7 +204,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	public void setCreator(RMapIri creator) throws RMapException {
 		Statement stmt = null;
 		if (creator != null){
-			IRI predicate = DCTERMS.CREATOR;
+			IRI predicate = DCTERMS_CREATOR;
 			try {
 				Resource subject = this.context;
 				IRI vcreator = ORAdapter.rMapIri2Rdf4jIri(creator);
@@ -250,7 +246,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	public void setDescription(RMapValue description) throws RMapException {
 		Statement stmt = null;
 		if (description != null){
-			IRI predicate = DC.DESCRIPTION;
+			IRI predicate = DC_DESCRIPTION;
 			try {
 				Resource subject = this.context;
 				Value vdesc = ORAdapter.rMapValue2Rdf4jValue(description);
@@ -328,7 +324,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	public void setProvGeneratedBy(RMapIri provGeneratedBy) throws RMapException {
 		Statement stmt = null;
 		if (provGeneratedBy != null){
-			IRI predicate = PROV.WASGENERATEDBY;
+			IRI predicate = PROV_WASGENERATEDBY;
 			try {
 				Resource subject = this.context;
 				IRI vprovgeneratedby = ORAdapter.rMapIri2Rdf4jIri(provGeneratedBy);

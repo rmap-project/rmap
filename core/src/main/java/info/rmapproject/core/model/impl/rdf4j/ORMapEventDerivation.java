@@ -37,7 +37,6 @@ import info.rmapproject.core.model.event.RMapEventDerivation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * The concrete class representing the Derivation Event for the rdf4j implementation of RMap.
@@ -192,7 +191,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
 		if (derivedObject != null){
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP.DERIVEDOBJECT,
+					RMAP_DERIVEDOBJECT,
 					derivedObject, this.context);
 			this.derivationStatement = stmt;
 		}
@@ -225,7 +224,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 		Statement stmt = null;
 		if (sourceObject != null){
 			stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP.HASSOURCEOBJECT, sourceObject, this.context);
+					RMAP_HASSOURCEOBJECT, sourceObject, this.context);
 		}
 		this.sourceObjectStatement = stmt;
 	}

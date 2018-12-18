@@ -33,7 +33,7 @@ import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventCreation;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 
 @TestPropertySource(properties = {"rmapauth.baseUrl = https://fake-rmap-server.org"})
 public class UserRMapAgentServiceImplIT extends AuthDBAbstractIT {
@@ -94,7 +94,7 @@ public class UserRMapAgentServiceImplIT extends AuthDBAbstractIT {
 		assertTrue(event!=null);
 		assertTrue(event instanceof RMapEventCreation);
 		RMapEventCreation createEvent = (RMapEventCreation) event;
-		assertTrue(createEvent.getEventTargetType().getPath().getStringValue().equals(Terms.RMAP_AGENT_PATH));
+		assertTrue(createEvent.getEventTargetType().getPath().equals(RMAP.AGENT));
 		assertTrue(createEvent.getCreatedObjectIds().get(0).toString().equals(testAgentUri));
 		assertTrue(createEvent.getAssociatedKey().toString().equals(TESTKEY));
 		
@@ -108,7 +108,7 @@ public class UserRMapAgentServiceImplIT extends AuthDBAbstractIT {
 		assertTrue(event instanceof RMapEventUpdateWithReplace);
 		RMapEventUpdateWithReplace replaceEvent = (RMapEventUpdateWithReplace) event;
 		assertTrue(replaceEvent.getAssociatedAgent().toString().equals(testAgentUri));
-		assertTrue(replaceEvent.getEventTargetType().getPath().getStringValue().equals(Terms.RMAP_AGENT_PATH));
+		assertTrue(replaceEvent.getEventTargetType().getPath().equals(RMAP.AGENT));
 		assertTrue(replaceEvent.getUpdatedObjectId().toString().equals(testAgentUri));
 		assertTrue(replaceEvent.getAssociatedKey().toString().equals(TESTKEY));
 		

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.api.ApiTestAbstractIT;
@@ -107,8 +106,10 @@ public class PathUtilsTestIT extends ApiTestAbstractIT {
 	 */
 	@Test 
 	public void testConvertObjectStringToRMapValue() throws RMapApiException {
+		final String XMLSCHEMA_DATE = "http://www.w3.org/2001/XMLSchema#date";
+		
 		String objectJustLiteral = "\"This is a literal\"";
-		String objectWithType = "\"2015-09-01\"^^" + XMLSchema.DATE.toString();
+		String objectWithType = "\"2015-09-01\"^^" + XMLSCHEMA_DATE;
 		String objectWithLanguage = "\"This is a literal\"@en";
 				
 		RMapValue object = PathUtils.convertPathStringToRMapValue(objectJustLiteral);
@@ -118,7 +119,7 @@ public class PathUtilsTestIT extends ApiTestAbstractIT {
 		object = PathUtils.convertPathStringToRMapValue(objectWithType);
 		litObj = (RMapLiteral)object;
 		assertTrue(litObj.getValue().equals("2015-09-01"));
-		assertTrue(litObj.getDatatype().toString().equals(XMLSchema.DATE.toString()));
+		assertTrue(litObj.getDatatype().toString().equals(XMLSCHEMA_DATE));
 
 		object = PathUtils.convertPathStringToRMapValue(objectWithLanguage);
 		litObj = (RMapLiteral)object;

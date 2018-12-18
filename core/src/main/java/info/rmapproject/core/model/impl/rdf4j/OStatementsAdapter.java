@@ -19,6 +19,8 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.rdf4j;
 
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,10 +37,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.vocabulary.DC;
-import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
-import org.eclipse.rdf4j.model.vocabulary.FOAF;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +45,13 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.vocabulary.impl.rdf4j.ORE;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
+import info.rmapproject.core.vocabulary.DC;
+import info.rmapproject.core.vocabulary.DCTERMS;
+import info.rmapproject.core.vocabulary.FOAF;
+import info.rmapproject.core.vocabulary.ORE;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * Adapts sets of RDF statements to RMap objects.
@@ -60,6 +62,11 @@ public class OStatementsAdapter {
 
 	
 	private static final Logger LOG = LoggerFactory.getLogger("OStatementsAdapter.class");
+	
+	private static final IRI RMAP_DISCO = rMapIri2Rdf4jIri(RMAP.DISCO);
+	private static final IRI RMAP_EVENT = rMapIri2Rdf4jIri(RMAP.EVENT);
+	private static final IRI RMAP_AGENT = rMapIri2Rdf4jIri(RMAP.AGENT);
+	private static final IRI RMAP_PROVIDERID = rMapIri2Rdf4jIri(RMAP.PROVIDERID);
 	
     private static final String MISSING_RDF_TYPE = "Missing identifiers in statements; maybe the statements did not " +
             "include an 'rdf:type' predicate?";
@@ -92,7 +99,7 @@ public class OStatementsAdapter {
         // itself, and use that BNode identifier as resource - or
         // possibly also submitter used a local (non-RMap) identifier in RDF
 
-        Identifiers identifiers = identifiers(stmts, RMAP.DISCO).orElseThrow(() ->
+        Identifiers identifiers = identifiers(stmts, RMAP_DISCO).orElseThrow(() ->
                 new RMapDefectiveArgumentException(MISSING_RDF_TYPE));
 
         if (identifiers.assertedId == null || identifiers.assertedId.stringValue().trim().length() == 0) {
@@ -109,7 +116,7 @@ public class OStatementsAdapter {
         // if the user has asserted their own ID, capture this as provider ID. Only IRIs acceptable
         if (identifiers.assertedId instanceof IRI && !(identifiers.assertedId instanceof BNode)
                 && !identifiers.officalId.stringValue().equals(identifiers.assertedId.stringValue())) {
-            disco.providerIdStmt = ORAdapter.getValueFactory().createStatement(identifiers.officalId, RMAP.PROVIDERID,
+            disco.providerIdStmt = ORAdapter.getValueFactory().createStatement(identifiers.officalId, RMAP_PROVIDERID,
                     identifiers.assertedId, disco.getContext());
         }
 
@@ -134,14 +141,14 @@ public class OStatementsAdapter {
             if (object.stringValue().equals(identifiers.assertedId.stringValue())) {
                 object = identifiers.officalId;
             }
-            if (predicate.equals(RDF.TYPE)) {
+            if (predicate.toString().equals(RDF.TYPE.toString())) {
                 if (!subjectIsDisco) {
                     // we automatically created a type statement for disco so only
                     //only add stmt if in body of disco
                     relStatements.add(ORAdapter.getValueFactory().createStatement
                             (subject, predicate, object, disco.getContext()));
                 }
-            } else if (predicate.equals(DCTERMS.CREATOR) && subjectIsDisco) {
+            } else if (predicate.toString().equals(DCTERMS.CREATOR.toString()) && subjectIsDisco) {
                 // make sure creator value is a IRI
                 if (!(object instanceof IRI)) {
                     throw new RMapException("Object of DiSCO creator statement should be a IRI and is not: "
@@ -149,16 +156,18 @@ public class OStatementsAdapter {
                 }
                 disco.creator = ORAdapter.getValueFactory().createStatement
                         (subject, predicate, object, disco.getContext());
-            } else if (predicate.equals(PROV.WASGENERATEDBY) && subjectIsDisco) {
+            } else if (predicate.toString().equals(PROV.WASGENERATEDBY.toString()) && subjectIsDisco) {
                 disco.provGeneratedByStmt = ORAdapter.getValueFactory().createStatement
                         (subject, predicate, object, disco.getContext());
-            } else if (predicate.equals(RMAP.PROVIDERID) && subjectIsDisco) {
+            } else if (predicate.toString().equals(RMAP.PROVIDERID.toString()) && subjectIsDisco) {
                 disco.providerIdStmt = ORAdapter.getValueFactory().createStatement
                         (subject, predicate, object, disco.getContext());
-            } else if (predicate.equals(ORE.AGGREGATES) && subjectIsDisco) {
+            } else if (predicate.toString().equals(ORE.AGGREGATES.toString()) && subjectIsDisco) {
                 aggResources.add(ORAdapter.getValueFactory().createStatement
                         (subject, predicate, object, disco.getContext()));
-            } else if ((predicate.equals(DC.DESCRIPTION) || predicate.equals(DCTERMS.DESCRIPTION)) && subjectIsDisco) {
+            } else if ((predicate.toString().equals(DC.DESCRIPTION.toString()) 
+            		|| predicate.toString().equals(DCTERMS.DESCRIPTION.toString())) 
+            		&& subjectIsDisco) {
                 disco.description = ORAdapter.getValueFactory().createStatement
                         (subject, predicate, object, disco.getContext());
             } else {
@@ -195,7 +204,7 @@ public class OStatementsAdapter {
             throw new RMapDefectiveArgumentException(NULL_STATEMENTS);
         }
 
-        Identifiers identifiers = identifiers(stmts, RMAP.AGENT).orElseThrow(() ->
+        Identifiers identifiers = identifiers(stmts, RMAP_AGENT).orElseThrow(() ->
                 new RMapDefectiveArgumentException(MISSING_RDF_TYPE));
 
         if (identifiers.assertedId == null || identifiers.assertedId.stringValue().trim().length() == 0) {
@@ -223,16 +232,16 @@ public class OStatementsAdapter {
             LOG.debug("Processing Agent statement: {} - {} - {}", subject, predicate, object);
             
             boolean agentIsSubject = subject.stringValue().equals(identifiers.assertedId.stringValue());
-            if (agentIsSubject && predicate.equals(RDF.TYPE) && object.equals(RMAP.AGENT) && !typeRecorded) {
+            if (agentIsSubject && predicate.toString().equals(RDF.TYPE.toString()) && object.toString().equals(RMAP.AGENT.toString()) && !typeRecorded) {
                 agent.setTypeStatement(RMapObjectType.AGENT);
                 typeRecorded = true;
-            } else if (agentIsSubject && predicate.equals(FOAF.NAME) && !nameRecorded) {
+            } else if (agentIsSubject && predicate.toString().equals(FOAF.NAME.toString()) && !nameRecorded) {
                 agent.setNameStmt(object);
                 nameRecorded = true;
-            } else if (agentIsSubject && predicate.equals(RMAP.IDENTITYPROVIDER) && !idProviderRecorded) {
+            } else if (agentIsSubject && predicate.toString().equals(RMAP.IDENTITYPROVIDER.toString()) && !idProviderRecorded) {
                 agent.setIdProviderStmt((IRI) object);
                 idProviderRecorded = true;
-            } else if (agentIsSubject && predicate.equals(RMAP.USERAUTHID) && !authIdRecorded) {
+            } else if (agentIsSubject && predicate.toString().equals(RMAP.USERAUTHID.toString()) && !authIdRecorded) {
                 agent.setAuthIdStmt((IRI) object);
                 authIdRecorded = true;
             } else { //there is an invalid statement in there
@@ -301,75 +310,75 @@ public class OStatementsAdapter {
                         "; actual context: " + stmt.getContext().stringValue());
             }
             IRI predicate = stmt.getPredicate();
-            if (predicate.equals(RDF.TYPE)){
+            if (predicate.toString().equals(RDF.TYPE.toString())){
                 typeStatement = stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.EVENTTYPE)){
+            if (predicate.toString().equals(RMAP.EVENTTYPE.toString())){
                 eventTypeStmt = stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.TARGETTYPE)){
+            if (predicate.toString().equals(RMAP.TARGETTYPE.toString())){
                 eventTargetTypeStmt = stmt;
                 continue;
             }
-            if (predicate.equals(PROV.STARTEDATTIME)){
+            if (predicate.toString().equals(PROV.STARTEDATTIME.toString())){
                 startTimeStmt =stmt;
                 continue;
             }
-            if (predicate.equals(PROV.ENDEDATTIME)){
+            if (predicate.toString().equals(PROV.ENDEDATTIME.toString())){
                 endTimeStmt = stmt;
                 continue;
             }
-            if (predicate.equals(PROV.WASASSOCIATEDWITH)){
+            if (predicate.toString().equals(PROV.WASASSOCIATEDWITH.toString())){
                 associatedAgentStmt = stmt;
                 continue;
             }
-            if (predicate.equals(DC.DESCRIPTION)){
+            if (predicate.toString().equals(DC.DESCRIPTION.toString())){
                 descriptionStmt = stmt;
                 continue;
             }
-            if (predicate.equals(PROV.USED)){
+            if (predicate.toString().equals(PROV.USED.toString())){
                 associatedKeyStmt = stmt;
                 continue;
             }
-            if (predicate.equals(PROV.GENERATED)){
+            if (predicate.toString().equals(PROV.GENERATED.toString())){
                 createdObjects.add(stmt);
                 continue;
             }
-            if (predicate.equals(RMAP.HASSOURCEOBJECT)){
+            if (predicate.toString().equals(RMAP.HASSOURCEOBJECT.toString())){
                 sourceObjectStatement = stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.DERIVEDOBJECT)){
+            if (predicate.toString().equals(RMAP.DERIVEDOBJECT.toString())){
                 derivationStatement = stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.INACTIVATEDOBJECT)){
+            if (predicate.toString().equals(RMAP.INACTIVATEDOBJECT.toString())){
                 inactivatedObjectStatement = stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.TOMBSTONEDOBJECT)){
+            if (predicate.toString().equals(RMAP.TOMBSTONEDOBJECT.toString())){
                 tombstonedObjectStatement = stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.DELETEDOBJECT)){
+            if (predicate.toString().equals(RMAP.DELETEDOBJECT.toString())){
                 deletedObjectStatement = stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.UPDATEDOBJECT)){
+            if (predicate.toString().equals(RMAP.UPDATEDOBJECT.toString())){
                 replacedObjectStatement=stmt;
                 continue;
             }
-            if (predicate.equals(RMAP.LINEAGE_PROGENITOR)) {
+            if (predicate.toString().equals(RMAP.LINEAGE_PROGENITOR.toString())) {
                 lineageProgenitorStatement = stmt;
                 continue;
             }
         }
         // validate all required statements for all event types
         if (typeStatement != null){
-            if (!(typeStatement.getObject().equals(RMAP.EVENT))){
-                throw new RMapException("RDF type should be " + RMAP.EVENT.stringValue()
+            if (!(typeStatement.getObject().toString().equals(RMAP_EVENT.toString()))){
+                throw new RMapException("RDF type should be " + RMAP.EVENT.toString()
                         + " but is " + typeStatement.getObject().stringValue());
             }
         }
@@ -517,7 +526,7 @@ public class OStatementsAdapter {
      */
     static Optional<Identifiers> identifiers(Set<Statement> statements, IRI typeIri) {
         Optional<Identifiers> ids = statements.stream()
-                .filter(s -> s.getPredicate().equals(RDF.TYPE) && s.getObject().equals(typeIri))
+                .filter(s -> s.getPredicate().toString().equals(RDF.TYPE.toString()) && s.getObject().equals(typeIri))
                 .map(s -> new Identifiers(s.getContext(), s.getSubject()))
                 .findAny();
 

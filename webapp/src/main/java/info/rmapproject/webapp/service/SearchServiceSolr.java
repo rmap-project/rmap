@@ -40,7 +40,6 @@ import info.rmapproject.core.model.request.DateRange;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.utils.DateUtils;
-import info.rmapproject.core.utils.Terms;
 import info.rmapproject.indexing.IndexUtils;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import info.rmapproject.indexing.solr.repository.DiscoRepository;
@@ -144,7 +143,8 @@ public class SearchServiceSolr implements SearchService {
 		if (statusFilter.equals(RMapStatusFilter.INACTIVE)||statusFilter.equals(RMapStatusFilter.ACTIVE)) {
 			return statusFilter.getStatusTerm();			
 		} else {
-			return "(" + Terms.RMAP_INACTIVE + " OR " + Terms.RMAP_ACTIVE + ")";						
+			return "(" + RMapStatusFilter.INACTIVE.getStatusTerm() 
+						+ " OR " + RMapStatusFilter.ACTIVE.getStatusTerm() + ")";						
 		}
 	}
 	

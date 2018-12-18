@@ -28,12 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.eclipse.rdf4j.model.vocabulary.DC;
-import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
-import org.eclipse.rdf4j.model.vocabulary.FOAF;
-import org.eclipse.rdf4j.model.vocabulary.RDFS;
-import org.eclipse.rdf4j.model.vocabulary.SKOS;
-
+import info.rmapproject.core.vocabulary.DC;
+import info.rmapproject.core.vocabulary.DCTERMS;
+import info.rmapproject.core.vocabulary.FOAF;
 import info.rmapproject.webapp.exception.ErrorCode;
 import info.rmapproject.webapp.exception.RMapWebException;
 
@@ -49,6 +46,13 @@ public class ResourceDescription implements Serializable {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
+	private static final String RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
+	private static final String RDFS_LABEL = RDFS_NS + "label";
+	private static final String RDFS_SEEALSO = RDFS_NS + "seeAlso";
+
+	private static final String SKOS_NS = "http://www.w3.org/2004/02/skos/core#";
+	private static final String SKOS_PREFLABEL = SKOS_NS + "prefLabel";
+
 	/** Name of resource - generally a string version of the URI for the Resource. */
 	private String resourceName; 
 		
@@ -61,6 +65,8 @@ public class ResourceDescription implements Serializable {
 	 * describing the Resources along with additional information to support display 
 	 * of the Resource */
 	private Map<String, TripleDisplayFormat> propertyValues;
+	
+	
 	
 	/**
 	 * Instantiates a new resource description.
@@ -155,9 +161,9 @@ public class ResourceDescription implements Serializable {
 		if (tripleDF!=null) {
 			
 			//these predicates should be first in the list. Property Values list is ordered alphabetically.
-			String[] bubbleToTop = {DC.TITLE.toString(),DCTERMS.TITLE.toString(),FOAF.NAME.toString(),
-									RDFS.LABEL.toString(), RDFS.SEEALSO.toString(), DC.IDENTIFIER.toString(),
-									DCTERMS.IDENTIFIER.toString(), SKOS.PREF_LABEL.toString()};
+			String[] bubbleToTop = {DC.TITLE.toString(), DCTERMS.TITLE.toString(), FOAF.NAME.toString(),
+									RDFS_LABEL, RDFS_SEEALSO, DC.IDENTIFIER.toString(),
+									DCTERMS.IDENTIFIER.toString(), SKOS_PREFLABEL};
 			
 			String listKey;
 			String predicate= tripleDF.getPredicate().toString();

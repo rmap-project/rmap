@@ -19,7 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.core.model;
 
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,16 +34,16 @@ import java.net.URISyntaxException;
 public enum RMapStatus {
 	
 	/** ACTIVE status - currently assumed to be true. Information is publicly visible */
-	ACTIVE (Terms.RMAP_ACTIVE_PATH, Terms.RMAP_ACTIVE),
+	ACTIVE (RMAP.ACTIVE.toString(), RMAP.ACTIVE_SN),
 	
 	/** INACTIVE status - information may have been updated or retracted. Information is publicly visible */
-	INACTIVE (Terms.RMAP_INACTIVE_PATH, Terms.RMAP_INACTIVE),
+	INACTIVE (RMAP.INACTIVE.toString(), RMAP.INACTIVE_SN),
 	
 	/** TOMBSTONED - information has been retracted and is no longer publicly visible though it still exists in the RMap database. */
-	TOMBSTONED (Terms.RMAP_TOMBSTONED_PATH, Terms.RMAP_TOMBSTONED),
+	TOMBSTONED (RMAP.TOMBSTONED.toString(), RMAP.TOMBSTONED_SN),
 	
 	/** DELETED - the information has been retracted and removed.  Only provenance metadata is visible in the RMap database. */
-	DELETED(Terms.RMAP_DELETED_PATH, Terms.RMAP_DELETED);
+	DELETED(RMAP.DELETED.toString(), RMAP.DELETED_SN);
 
 	/** The status ontology path. */
 	private  URI statusPath= null ;

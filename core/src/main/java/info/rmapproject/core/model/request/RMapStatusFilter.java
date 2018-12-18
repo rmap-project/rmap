@@ -22,6 +22,7 @@
  */
 package info.rmapproject.core.model.request;
 
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * The Enum to describe possible status filters for an RMap request.
@@ -31,10 +32,10 @@ package info.rmapproject.core.model.request;
 public enum RMapStatusFilter {
 	
 	/** Filter by RMap Objects with an ACTIVE status. */
-	ACTIVE ("active"),
+	ACTIVE (RMAP.ACTIVE_SN),
 	
 	/** Filter by RMap Objects with an INACTIVE status */
-	INACTIVE ("inactive"),
+	INACTIVE (RMAP.INACTIVE_SN),
 	
 	/** Show both ACTIVE and INACTIVE RMap Objects. Note that there are also TOMBSTONED and DELETED
 	 * objects, but these are always hidden from public view. */

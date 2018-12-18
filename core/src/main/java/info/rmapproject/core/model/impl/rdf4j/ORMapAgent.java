@@ -24,7 +24,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.vocabulary.FOAF;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -32,7 +31,6 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * Concrete class of RMapAgent, specific to RDF4J object model.
@@ -43,7 +41,7 @@ import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 public class ORMapAgent extends ORMapObject implements RMapAgent {
 
 	private static final long serialVersionUID = 1L;
-	
+		
 	/** The Agent's name stmt. */
 	protected Statement nameStmt;
 	
@@ -139,7 +137,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 		if (name == null || name.toString().length()==0)
 			{throw new RMapDefectiveArgumentException("RMapAgent name is null or empty");}
 		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-				FOAF.NAME, name, this.context);
+				FOAF_NAME, name, this.context);
 		this.nameStmt = stmt;
 	}
 
@@ -182,7 +180,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			{throw new RMapDefectiveArgumentException("RMapAgent idProvider is null or empty");}
 		
 		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-				RMAP.IDENTITYPROVIDER, idProvider, this.context);
+				RMAP_IDENTITYPROVIDER, idProvider, this.context);
 		this.idProviderStmt = stmt;
 	}
 	
@@ -223,7 +221,7 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 			throw new RMapDefectiveArgumentException("RMapAgent authId is null or empty");
 			}
 		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-				RMAP.USERAUTHID, authId, this.context);
+				RMAP_USERAUTHID, authId, this.context);
 		this.authIdStmt = stmt;
 	}
 

@@ -32,8 +32,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.MultiValueMap;
-import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +58,10 @@ import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.utils.Terms;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
+import info.rmapproject.core.vocabulary.DCTERMS;
+import info.rmapproject.core.vocabulary.ORE;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.webapp.domain.Graph;
 import info.rmapproject.webapp.domain.PageStatus;
 import info.rmapproject.webapp.domain.PaginatorType;
@@ -138,8 +138,8 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		//this is to support customization of node types - support those who would like to categorize DiSCO and Agent 
 		//as something other than default.
 		try {
-			discoNodeType = WebappUtils.getNodeType(new URI(Terms.RMAP_DISCO_PATH));
-			agentNodeType = WebappUtils.getNodeType(new URI(Terms.RMAP_AGENT_PATH));
+			discoNodeType = WebappUtils.getNodeType(RMAP.DISCO.getIri());
+			agentNodeType = WebappUtils.getNodeType(RMAP.AGENT.getIri());
 		} catch (Exception e){
 			//set default
 			discoNodeType = Constants.NODETYPE_OTHER;
@@ -202,7 +202,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 			List<URI> rdfTypes = rmapService.getResourceRdfTypesInContext(aggregate, discoDTO.getUri());
 			String targetNodeType = WebappUtils.getNodeType(rdfTypes);
 			graph.addNode(aggregate.toString(), targetNodeType);
-			graph.addEdge(sDiscoUri, aggregate.toString(), Terms.ORE_AGGREGATES_PATH);
+			graph.addEdge(sDiscoUri, aggregate.toString(), ORE.AGGREGATES.toString());
 		}
 
 		List<RMapTriple> triples = discoDTO.getRelatedStatements();
@@ -564,8 +564,8 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		graph.addNode(agentDTO.getIdProvider(), agentNodeType);
 		graph.addNode(agentDTO.getAuthId(), Constants.NODETYPE_NOTYPE);
 		
-		graph.addEdge(sAgentUri, agentDTO.getIdProvider(), Terms.RMAP_IDENTITYPROVIDER_PATH);
-		graph.addEdge(sAgentUri, agentDTO.getAuthId(), Terms.RMAP_USERAUTHID_PATH);
+		graph.addEdge(sAgentUri, agentDTO.getIdProvider(), RMAP.IDENTITYPROVIDER.toString());
+		graph.addEdge(sAgentUri, agentDTO.getAuthId(), RMAP.USERAUTHID.toString());
 
 		return graph;			
 	}	
@@ -858,16 +858,16 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 					
 		if (rmapService.isDiSCOId(resourceUri)) {
 			log.debug("Type identified as a rmap:DiSCO");
-			return Terms.RMAP_DISCO;			
+			return RMAP.DISCO_SN;			
 		}
 		
 		if (rmapService.isAgentId(resourceUri)) {
 			log.debug("Type identified as a rmap:Agent");
-			return Terms.RMAP_AGENT;			
+			return RMAP.AGENT_SN;			
 		}
 		if (rmapService.isEventId(resourceUri)) {
 			log.debug("Type identified as an rmap:Event");
-			return Terms.RMAP_EVENT;			
+			return RMAP.EVENT_SN;			
 		}		
 		
 		log.debug("Type not identified, it's a non-RMap resource");

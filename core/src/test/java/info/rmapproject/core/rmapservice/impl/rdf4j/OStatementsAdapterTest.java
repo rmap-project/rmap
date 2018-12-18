@@ -45,7 +45,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -147,10 +146,10 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		
 		//predicates are nonsense here
 		// first test connected r->a r->b b->c b->d
-		Statement s1 = vf.createStatement(agg1,RMAP.DERIVEDOBJECT,litA);
-		Statement s2 = vf.createStatement(agg1,RMAP.DERIVEDOBJECT,resB);
-		Statement s3 = vf.createStatement(resB,RMAP.DERIVEDOBJECT,resC);
-		Statement s4 = vf.createStatement(resB,RMAP.DERIVEDOBJECT,resD);
+		Statement s1 = vf.createStatement(agg1,RMAP_DERIVEDOBJECT,litA);
+		Statement s2 = vf.createStatement(agg1,RMAP_DERIVEDOBJECT,resB);
+		Statement s3 = vf.createStatement(resB,RMAP_DERIVEDOBJECT,resC);
+		Statement s4 = vf.createStatement(resB,RMAP_DERIVEDOBJECT,resD);
 		relatedStmts.add(s1);
 		relatedStmts.add(s2);
 		relatedStmts.add(s3);
@@ -165,9 +164,9 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		assertFalse(isConnected);
 		
 		// third test connected r->a  b->c r2->c c->b, handles cycle, duplicates
-		Statement s5 = vf.createStatement(agg2,RMAP.DERIVEDOBJECT,resC);
-		Statement s6 = vf.createStatement(resC,RMAP.DERIVEDOBJECT,resB);
-		Statement s7 = vf.createStatement(resC,RMAP.DERIVEDOBJECT,resB);
+		Statement s5 = vf.createStatement(agg2,RMAP_DERIVEDOBJECT,resC);
+		Statement s6 = vf.createStatement(resC,RMAP_DERIVEDOBJECT,resB);
+		Statement s7 = vf.createStatement(resC,RMAP_DERIVEDOBJECT,resB);
 		relatedStmts.add(s6);
 		relatedStmts.add(s5);
 		relatedStmts.add(s7);
@@ -175,7 +174,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		assertTrue (isConnected);
 
 		// fourth test connected handles stmt that directs TO the aggregated resource
-		Statement s8 = vf.createStatement(resE,RMAP.DERIVEDOBJECT,resC);
+		Statement s8 = vf.createStatement(resE,RMAP_DERIVEDOBJECT,resC);
 		relatedStmts.add(s8);
 		isConnected = OStatementsAdapter.isConnectedGraph(aggregatedResources, relatedStmts);
 		assertTrue (isConnected);

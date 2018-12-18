@@ -35,10 +35,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.eclipse.rdf4j.model.IRI;
-//import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
-//import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,7 +51,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapAgentMgr;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapDiSCOMgr;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapEventMgr;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -86,8 +82,8 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			java.net.URI id1 =null;
 				id1 = rmapIdService.createId();
 			IRI subject = ORAdapter.uri2Rdf4jIri(id1);
-			IRI predicate = RDF.TYPE;
-			IRI object = RMAP.DISCO;
+			IRI predicate = RDF_TYPE;
+			IRI object = RMAP_DISCO;
 			
 			IRI context = subject;
 
@@ -114,7 +110,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	public void testIsRMapType() {
 		try {
 			//check agent type
-			boolean istype = discomgr.isRMapType(triplestore, ORAdapter.uri2Rdf4jIri(reqEventDetails.getSystemAgent()), RMAP.AGENT);
+			boolean istype = discomgr.isRMapType(triplestore, ORAdapter.uri2Rdf4jIri(reqEventDetails.getSystemAgent()), RMAP_AGENT);
 			assertTrue(istype);
 			
 			//check disco type
@@ -122,12 +118,12 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			URI dUri = disco.getId().getIri();
 			IRI dIri = ORAdapter.uri2Rdf4jIri(dUri);			
-			istype = discomgr.isRMapType(triplestore, dIri, RMAP.DISCO);
+			istype = discomgr.isRMapType(triplestore, dIri, RMAP_DISCO);
 			assertTrue(istype);
 			
 			//check event typs
 			IRI eIri = ORAdapter.rMapIri2Rdf4jIri(event.getId());
-			istype = discomgr.isRMapType(triplestore, eIri, RMAP.EVENT);
+			istype = discomgr.isRMapType(triplestore, eIri, RMAP_EVENT);
 						
 		} catch (RepositoryException e1) {
 			e1.printStackTrace();

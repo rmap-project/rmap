@@ -22,20 +22,26 @@
  */
 package info.rmapproject.core.rmapservice.impl.rdf4j;
 
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+
 import java.net.URI;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
+import info.rmapproject.core.vocabulary.DC;
+import info.rmapproject.core.vocabulary.ORE;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
+import info.rmapproject.core.vocabulary.FOAF;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +55,39 @@ import org.slf4j.LoggerFactory;
 public abstract class ORMapObjectMgr {
 
 	final Logger log = LoggerFactory.getLogger(this.getClass());
-
+	
+	protected static final IRI RMAP_DISCO = rMapIri2Rdf4jIri(RMAP.DISCO);
+	protected static final IRI RMAP_EVENT = rMapIri2Rdf4jIri(RMAP.EVENT);
+	protected static final IRI RMAP_AGENT = rMapIri2Rdf4jIri(RMAP.AGENT);
+	protected static final IRI RMAP_OBJECT = rMapIri2Rdf4jIri(RMAP.OBJECT);
+	protected static final IRI RMAP_DERIVEDOBJECT = rMapIri2Rdf4jIri(RMAP.DERIVEDOBJECT);
+	protected static final IRI RMAP_EVENTTYPE = rMapIri2Rdf4jIri(RMAP.EVENTTYPE);
+	protected static final IRI RMAP_TARGETTYPE = rMapIri2Rdf4jIri(RMAP.TARGETTYPE);
+	protected static final IRI RMAP_DELETEDOBJECT = rMapIri2Rdf4jIri(RMAP.DELETEDOBJECT);
+	protected static final IRI RMAP_DELETION = rMapIri2Rdf4jIri(RMAP.DELETION);
+	protected static final IRI RMAP_INACTIVATION = rMapIri2Rdf4jIri(RMAP.INACTIVATION);
+	protected static final IRI RMAP_DERIVATION = rMapIri2Rdf4jIri(RMAP.DERIVATION);
+	protected static final IRI RMAP_HASSOURCEOBJECT = rMapIri2Rdf4jIri(RMAP.HASSOURCEOBJECT);
+	protected static final IRI RMAP_INACTIVATEDOBJECT = rMapIri2Rdf4jIri(RMAP.INACTIVATEDOBJECT);
+	protected static final IRI RMAP_IDENTITYPROVIDER = rMapIri2Rdf4jIri(RMAP.IDENTITYPROVIDER);
+	protected static final IRI RMAP_USERAUTHID = rMapIri2Rdf4jIri(RMAP.USERAUTHID);
+	protected static final IRI RMAP_TOMBSTONEDOBJECT = rMapIri2Rdf4jIri(RMAP.TOMBSTONEDOBJECT);
+	protected static final IRI RMAP_UPDATEDOBJECT = rMapIri2Rdf4jIri(RMAP.UPDATEDOBJECT);
+	
+	protected static final IRI PROV_STARTEDATTIME = rMapIri2Rdf4jIri(PROV.STARTEDATTIME);
+	protected static final IRI PROV_ENDEDATTIME = rMapIri2Rdf4jIri(PROV.ENDEDATTIME);
+	protected static final IRI PROV_WASASSOCIATEDWITH = rMapIri2Rdf4jIri(PROV.WASASSOCIATEDWITH);
+	protected static final IRI PROV_USED = rMapIri2Rdf4jIri(PROV.USED);
+	protected static final IRI PROV_GENERATED = rMapIri2Rdf4jIri(PROV.GENERATED);
+	
+	protected static final IRI ORE_AGGREGATES = rMapIri2Rdf4jIri(ORE.AGGREGATES);
+	
+	protected static final IRI DC_DESCRIPTION = rMapIri2Rdf4jIri(DC.DESCRIPTION);
+	
+	protected static final IRI RDF_TYPE = rMapIri2Rdf4jIri(RDF.TYPE);
+	
+	protected static final IRI FOAF_NAME = rMapIri2Rdf4jIri(FOAF.NAME);
+	
 	@Autowired
 	IdService idService;
 
@@ -88,17 +126,17 @@ public abstract class ORMapObjectMgr {
 		try {
 			if (ts.getConnection().size(id)>0) {
 				//resource exists somewhere, lets find out where
-				if (ts.getConnection().hasStatement(id, RDF.TYPE, typeIRI, false, id)) {
+				if (ts.getConnection().hasStatement(id, RDF_TYPE, typeIRI, false, id)) {
 					//it is of defined type!
 					return true;
 				} 
-			} else if (typeIRI.equals(RMAP.DISCO)) {
+			} else if (typeIRI.equals(RMAP_DISCO)) {
 				//check events to see if it's a deleted DiSCO
-				Set<Statement> stmts = ts.getStatements(null, RMAP.DELETEDOBJECT, id);
+				Set<Statement> stmts = ts.getStatements(null, RMAP_DELETEDOBJECT, id);
 				for (Statement stmt : stmts) {
 					IRI subject = (IRI) stmt.getSubject();
 					IRI context = (IRI) stmt.getContext();
-					if (subject.equals(context) && this.isRMapType(ts, subject, RMAP.EVENT)) {
+					if (subject.equals(context) && this.isRMapType(ts, subject, RMAP_EVENT)) {
 						return true;
 					}						
 				}		
@@ -118,7 +156,7 @@ public abstract class ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 */
 	public boolean isDiscoId(IRI id, Rdf4jTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP.DISCO);		
+		return this.isRMapType(ts, id, RMAP_DISCO);		
 	}
 	
 	/**
@@ -130,7 +168,7 @@ public abstract class ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 */
 	public boolean isEventId (IRI id, Rdf4jTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP.EVENT);
+		return this.isRMapType(ts, id, RMAP_EVENT);
 	}
 	
 	/**
@@ -142,7 +180,7 @@ public abstract class ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 */
 	public boolean isAgentId(IRI id, Rdf4jTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP.AGENT);		
+		return this.isRMapType(ts, id, RMAP_AGENT);		
 	}
 	
 	/**

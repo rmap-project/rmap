@@ -37,7 +37,7 @@ import info.rmapproject.api.lists.RdfMediaType;
 import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -114,7 +114,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 
 		assertNotNull(response);
 		String body = response.getEntity().toString();
-		assertTrue(body.contains(Terms.RMAP_AGENT_PATH));
+		assertTrue(body.contains(RMAP.AGENT.toString()));
 		assertEquals(200, response.getStatus());
 	}
 	
@@ -161,7 +161,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 
 		assertNotNull(response);
 		String body = response.getEntity().toString();
-		assertTrue(body.contains(Terms.RMAP_EVENT_PATH));
+		assertTrue(body.contains(RMAP.EVENT.toString()));
 		assertEquals(200, response.getStatus());
 	}
 
@@ -192,7 +192,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 			
 			assertNotNull(response);
 			String body = response.getEntity().toString();
-			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
+			assertTrue(body.contains(RMAP.DISCO.toString()));
 			assertEquals(200, response.getStatus());
 	    	
 			//createDisco
@@ -214,7 +214,7 @@ public class AgentResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 
 			assertNotNull(response);
 			body = response.getEntity().toString();
-			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
+			assertTrue(body.contains(RMAP.DISCO.toString()));
 			assertEquals(200, response.getStatus());
 			
 		} catch (Exception e) {

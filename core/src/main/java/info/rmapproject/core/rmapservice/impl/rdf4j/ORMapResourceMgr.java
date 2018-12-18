@@ -30,7 +30,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 
@@ -41,8 +40,9 @@ import info.rmapproject.core.model.request.OrderBy;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  *  A concrete class for managing RMap Resources, implemented using RDF4J
@@ -87,7 +87,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		  }
 		*/
 
-		List<IRI> discos = getRelatedObjects(resource, params, ts, RMAP.DISCO);
+		List<IRI> discos = getRelatedObjects(resource, params, ts, RMAP_DISCO);
 		return discos;			
 	}
 	
@@ -440,7 +440,7 @@ public class ORMapResourceMgr extends ORMapObjectMgr {
 		Set<Statement> triples = null;
 		try {
 		    if (ts.getConnection().size(contextIri)>0) {
-		        triples = ts.getStatements(resourceIri, RDF.TYPE, null, contextIri);
+		        triples = ts.getStatements(resourceIri, RDF_TYPE, null, contextIri);
 		    }
 		} catch (Exception e) {
 			throw new RMapException (e);

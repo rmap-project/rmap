@@ -39,7 +39,6 @@ import java.util.Set;
 import org.junit.Test;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.vocabulary.DC;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.model.RMapIri;
@@ -51,6 +50,7 @@ import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapDiSCOMgr;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapStatementMgr;
+import info.rmapproject.core.vocabulary.DC;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -81,7 +81,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 		Date dateFrom = dateFormat.parse("2014-1-1");
 		Date dateTo = dateFormat.parse("2050-1-1");
 		IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-		IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
+		IRI predicate = ORAdapter.rMapIri2Rdf4jIri(DC.SUBJECT);
 		Value object = ORAdapter.getValueFactory().createLiteral("storage management");
 		
 		RMapSearchParams params = paramsFactory.newInstance();

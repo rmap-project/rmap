@@ -17,19 +17,14 @@
  * The RMap Project was funded by the Alfred P. Sloan Foundation and is a 
  * collaboration between Data Conservancy, Portico, and IEEE.
  *******************************************************************************/
-package info.rmapproject.core.vocabulary.impl.rdf4j;
+package info.rmapproject.core.vocabulary;
 
-import info.rmapproject.core.utils.Terms;
-
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleNamespace;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import info.rmapproject.core.model.RMapIri;
 
 /**
- * The ORE ontology class implemented using RDF4J model
+ * Contains the ORE ontology elements that are used by RMap
  * 
+ * @see <a href="http://www.openarchives.org/ore/terms/">ORE Terms</a>
  * @author khanson
  */
 public class ORE {
@@ -37,38 +32,28 @@ public class ORE {
 	/**
 	 * OAI-ORE elements namespace: http://www.openarchives.org/ore/terms/
 	 */
-	public static final String NAMESPACE = Terms.ORE_NAMESPACE;
+	public static final String NAMESPACE = "http://www.openarchives.org/ore/terms/";
 
 	/** Recommend prefix for the OAI-ORE elements namespace: "ore". */
-	public static final String PREFIX = Terms.ORE_PREFIX;
-
-	/**
-	 * An immutable {@link Namespace} constant that represents the RMapProject
-	 * namespace.
-	 */
-	public static final Namespace NS = new SimpleNamespace(PREFIX, NAMESPACE);
-
+	public static final String PREFIX = "ore";
 	
 	/** IRI for ore:similarTo property. */
-	public static final IRI SIMILARTO;
+	public static final RMapIri SIMILARTO;
 
 	/** IRI for ore:describes property. */
-	public static final IRI DESCRIBES;
+	public static final RMapIri DESCRIBES;
 
 	/** IRI for ore:aggregation class. */
-	public static final IRI AGGREGATION;
+	public static final RMapIri AGGREGATION;
 
 	/** IRI for ore:aggregation property. */
-	public static final IRI AGGREGATES;
+	public static final RMapIri AGGREGATES;
 	
 	static {
-		final ValueFactory f = SimpleValueFactory.getInstance();
-
-		SIMILARTO = f.createIRI(NAMESPACE, Terms.ORE_SIMILARTO);
-		DESCRIBES = f.createIRI(NAMESPACE, Terms.ORE_DESCRIBES);
-		AGGREGATION = f.createIRI(NAMESPACE, Terms.ORE_AGGREGATION);
-		AGGREGATES = f.createIRI(NAMESPACE, Terms.ORE_AGGREGATES);
+		SIMILARTO = new RMapIri(NAMESPACE + "similarTo");
+		DESCRIBES = new RMapIri(NAMESPACE + "describes");
+		AGGREGATION = new RMapIri(NAMESPACE + "Aggregation");
+		AGGREGATES = new RMapIri(NAMESPACE + "aggregates");
 	}
-	
 	
 }

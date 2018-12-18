@@ -55,7 +55,25 @@ public class RMapIri extends RMapResource  {
 		}
 		this.iri = iri;
 	}
-	
+
+	/**
+	 * Constructor.
+	 *
+	 * @param iri IRI of resource as string
+	 * @throws IllegalArgumentException if IRI is null or not valid
+	 */
+	public RMapIri(String iri){
+		this();
+		if (iri == null) {
+			throw new IllegalArgumentException("IRI cannot be null.");
+		}
+		try {
+			this.iri = new URI(iri);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("IRI provided is invalid.");			
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RdfResource#getStringValue()
 	 */

@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -35,8 +34,9 @@ import info.rmapproject.core.model.request.OrderBy;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * A concrete class for managing RMap Statements using the RDF4J API.
@@ -81,7 +81,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 			FILTER NOT EXISTS {?statusChangeEventId <http://purl.org/ontology/rmap#inactivatedObject> ?rmapObjId} 
 		}
 		*/
-		List<IRI> discos = getRelatedObjects(subject, predicate, object, params,ts, RMAP.DISCO);
+		List<IRI> discos = getRelatedObjects(subject, predicate, object, params,ts, RMAP_DISCO);
 		return discos;		
 	}
 	
@@ -122,7 +122,7 @@ public class ORMapStatementMgr extends ORMapObjectMgr {
 		}
 		*/
 		//note - active is the only status that is visible, so that is the filter.
-		List<IRI> agents = getRelatedObjects(subject, predicate, object, params, ts, RMAP.AGENT);
+		List<IRI> agents = getRelatedObjects(subject, predicate, object, params, ts, RMAP_AGENT);
 		return agents;		
 	}
 

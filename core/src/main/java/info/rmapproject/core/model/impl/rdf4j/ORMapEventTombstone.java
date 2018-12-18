@@ -33,7 +33,6 @@ import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventTombstone;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * The concrete class representing the Tombstone Event for the RDF4J implementation of RMap.
@@ -156,7 +155,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	private void setTombstonedResourceIdStmt(IRI tombstonedResource) throws RMapException {
 		if (tombstonedResource != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.TOMBSTONEDOBJECT,
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP_TOMBSTONEDOBJECT,
 					tombstonedResource, this.context);
 			this.tombstoned = stmt;
 		}

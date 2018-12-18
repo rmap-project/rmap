@@ -63,7 +63,7 @@ import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.rdfhandler.RDFType;
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -178,7 +178,7 @@ public class DiscoResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 
 		assertNotNull(response);
 		String body = response.getEntity().toString();
-		assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
+		assertTrue(body.contains(RMAP.DISCO.toString()));
 		assertEquals(200, response.getStatus());
 	}
 	
@@ -230,7 +230,7 @@ public class DiscoResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 			assertTrue(links1.contains(encodedDiscoUri2 + successorAndLatestVersionLink));
 			assertTrue(!links1.contains(predecessorVersionLink));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.TIMEMAP + "\""));
-			assertTrue(links1.contains("#" + Terms.RMAP_INACTIVE));
+			assertTrue(links1.contains("#" + RMAP.INACTIVE_SN));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			String location1 = response.getHeaderString("location");
 			assertTrue(location1.contains(encodedDiscoUri1));
@@ -243,13 +243,13 @@ public class DiscoResponseManagerTestIT extends ApiDataCreationTestAbstractIT {
 					
 			assertNotNull(response);
 			String body = response.getEntity().toString();
-			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
+			assertTrue(body.contains(RMAP.DISCO.toString()));
 			assertEquals(200, response.getStatus());
 			String links2 = response.getLinks().toString();
 			assertTrue(links2.contains(encodedDiscoUri1 + predecessorVersionLink));
 			assertTrue(links2.contains(encodedDiscoUri2 + latestVersionLink));
 			assertTrue(!links2.contains(successorVersionLink));
-			assertTrue(links2.contains("#" + Terms.RMAP_ACTIVE));
+			assertTrue(links2.contains("#" + RMAP.ACTIVE_SN));
 			assertTrue(links1.contains(">;rel=\"" + LinkRels.ORIGINAL + " " + LinkRels.TIMEGATE + "\""));
 			String location2 = response.getHeaderString(HttpHeaders.LOCATION);
 			assertTrue(location2.contains(encodedDiscoUri2));

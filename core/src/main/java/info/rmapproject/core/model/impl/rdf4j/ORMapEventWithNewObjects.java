@@ -36,7 +36,6 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventWithNewObjects;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
 
 /**
  * Abstract class representing all Events that generate new objects for the RDF4J implementation of RMap.
@@ -129,7 +128,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 			stmts = new ArrayList<Statement>();
 			for (RMapIri rIri:createdObjects){
 				IRI id = ORAdapter.rMapIri2Rdf4jIri(rIri);
-				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV.GENERATED, id, this.context);
+				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV_GENERATED, id, this.context);
 				stmts.add(stmt);
 			}
 			this.createdObjects = stmts;
@@ -156,7 +155,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 		if (createdObjects != null){
 			stmts = new ArrayList<Statement>();
 			for (IRI id:createdObjects){
-				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV.GENERATED, id, 
+				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV_GENERATED, id, 
 						this.context);
 				stmts.add(stmt);
 			}

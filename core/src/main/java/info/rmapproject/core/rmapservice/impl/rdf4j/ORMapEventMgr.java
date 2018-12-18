@@ -56,8 +56,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -275,7 +273,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		Map <Date, IRI>date2event = new HashMap<Date, IRI>();
 		for (IRI eventId:eventIds){
-			Date date = this.getEventDate(eventId,PROV.ENDEDATTIME, ts);
+			Date date = this.getEventDate(eventId,PROV_ENDEDATTIME, ts);
 			date2event.put(date, eventId);
 		}
 		return date2event;
@@ -305,36 +303,36 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			case DISCO:
 				switch (eventType){
 				case CREATION :
-					affectedObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
+					affectedObjects= ts.getStatements(eventId, PROV_GENERATED, null, eventId);
 					break;
 				case UPDATE:
-					affectedObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
-					Statement stmt = ts.getStatement(eventId, RMAP.INACTIVATEDOBJECT, null, eventId);
+					affectedObjects= ts.getStatements(eventId, PROV_GENERATED, null, eventId);
+					Statement stmt = ts.getStatement(eventId, RMAP_INACTIVATEDOBJECT, null, eventId);
 					if (stmt != null){
 						affectedObjects.add(stmt);
 					}
 					break;	
 				case INACTIVATION:
-						Statement stmt2 = ts.getStatement(eventId,  RMAP.INACTIVATEDOBJECT, null, eventId);
+						Statement stmt2 = ts.getStatement(eventId,  RMAP_INACTIVATEDOBJECT, null, eventId);
 						if (stmt2 != null){
 							affectedObjects.add(stmt2);
 						}
 					break;
 				case DERIVATION:
-					affectedObjects= ts.getStatements(eventId, PROV.GENERATED, null, eventId);
-					Statement stmt3 = ts.getStatement(eventId, RMAP.HASSOURCEOBJECT, null, eventId);
+					affectedObjects= ts.getStatements(eventId, PROV_GENERATED, null, eventId);
+					Statement stmt3 = ts.getStatement(eventId, RMAP_HASSOURCEOBJECT, null, eventId);
 					if (stmt3 != null){
 						affectedObjects.add(stmt3);
 					}
 					break;	
 				case TOMBSTONE:
-					Statement stmt4 = ts.getStatement(eventId, RMAP.TOMBSTONEDOBJECT, null, eventId);
+					Statement stmt4 = ts.getStatement(eventId, RMAP_TOMBSTONEDOBJECT, null, eventId);
 					if (stmt4 != null){
 						affectedObjects.add(stmt4);
 					}
 					break;
 				case DELETION:
-					affectedObjects= ts.getStatements(eventId, RMAP.DELETEDOBJECT, null, eventId);
+					affectedObjects= ts.getStatements(eventId, RMAP_DELETEDOBJECT, null, eventId);
 					break;
 				default:
 					throw new RMapException("Unrecognized event type");
@@ -392,12 +390,12 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DELETEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.TOMBSTONEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.INACTIVATEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DERIVEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.HASSOURCEOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(PROV.GENERATED, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_DELETEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_TOMBSTONEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_INACTIVATEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_DERIVEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_HASSOURCEOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(PROV_GENERATED, discoid, ts));
 				if (eventStmts.isEmpty()){
 					break;
 				}
@@ -443,10 +441,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DELETEDOBJECT, agentid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.TOMBSTONEDOBJECT, agentid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP.UPDATEDOBJECT, agentid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(PROV.GENERATED, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_DELETEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_TOMBSTONEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP_UPDATEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(PROV_GENERATED, agentid, ts));
 				if (eventStmts.isEmpty()){
 					break;
 				}
@@ -559,7 +557,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		Value type = null;
 		Statement stmt = null;
 		try {
-			stmt = ts.getStatement(eventId, RMAP.EVENTTYPE, null, eventId);
+			stmt = ts.getStatement(eventId, RMAP_EVENTTYPE, null, eventId);
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown getting event type for " 
 					+ eventId.stringValue(), e);
@@ -595,7 +593,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		Value type = null;
 		Statement stmt = null;
 		try {
-			stmt = ts.getStatement(eventId, RMAP.TARGETTYPE, null, eventId);
+			stmt = ts.getStatement(eventId, RMAP_TARGETTYPE, null, eventId);
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown getting event type for " 
 					+ eventId.stringValue(), e);
@@ -609,10 +607,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		
 		RMapEventTargetType tType = null;
-		if (RMAP.DISCO.toString().equals(type.toString())){
+		if (RMAP_DISCO.toString().equals(type.toString())){
 			return RMapEventTargetType.DISCO;
 		}
-		else if (RMAP.AGENT.toString().equals(type.toString())){
+		else if (RMAP_AGENT.toString().equals(type.toString())){
 			return RMapEventTargetType.AGENT;			
 		}
 		else {
@@ -632,7 +630,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	public Date getEventStartDate (IRI eventId, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
-		return getEventDate (eventId, PROV.STARTEDATTIME, ts);
+		return getEventDate (eventId, PROV_STARTEDATTIME, ts);
 	}
 
 	/**
@@ -646,7 +644,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	public Date getEventEndDate (IRI eventId, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
-		return getEventDate (eventId, PROV.ENDEDATTIME, ts);
+		return getEventDate (eventId, PROV_ENDEDATTIME, ts);
 	}
 
 	/**
@@ -667,7 +665,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (ts==null){
 			throw new RMapException ("null triplestore");
 		}
-		if (!provDateType.equals(PROV.STARTEDATTIME)&&!provDateType.equals(PROV.ENDEDATTIME)){
+		if (!provDateType.equals(PROV_STARTEDATTIME)&&!provDateType.equals(PROV_ENDEDATTIME)){
 			throw new RMapException ("Date type must be PROV.STARTEDATTIME or PROV.ENDEDATTIME");			
 		}
 		Date eventDate = null;
@@ -776,7 +774,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		IRI agent = null;
 		Statement stmt = null;
 		try {
-			stmt = ts.getStatement(event, PROV.WASASSOCIATEDWITH, null, event);
+			stmt = ts.getStatement(event, PROV_WASASSOCIATEDWITH, null, event);
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown when querying for event associated agent", e);
 		}
@@ -805,7 +803,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	protected Statement getCreateObjEventStmt(IRI iri, Rdf4jTriplestore ts) throws RMapException {
 		Statement createEventStmt = null;
-		Set<Statement> stmts = getEventStmtsByPredicate(PROV.GENERATED, iri, ts);
+		Set<Statement> stmts = getEventStmtsByPredicate(PROV_GENERATED, iri, ts);
 		//should only be one, convert to single statement.
 		for (Statement stmt:stmts) {
 			createEventStmt = stmt;
@@ -824,7 +822,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	protected Set<Statement> getInactivatedObjEventStmt(IRI targetId, Rdf4jTriplestore ts)
 			throws RMapException {
-		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.INACTIVATEDOBJECT, targetId, ts);		
+		Set<Statement> stmts = getEventStmtsByPredicate(RMAP_INACTIVATEDOBJECT, targetId, ts);		
 		return stmts;
 	}
 	
@@ -839,7 +837,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 */
 	protected Set<Statement> getDerivationSourceEventStmt(IRI targetId, Rdf4jTriplestore ts)
 			throws RMapException {
-		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.HASSOURCEOBJECT, targetId, ts);
+		Set<Statement> stmts = getEventStmtsByPredicate(RMAP_HASSOURCEOBJECT, targetId, ts);
 		return stmts;
 	}
 	
@@ -885,10 +883,10 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		IRI sourceDisco = null;
 		Statement stmt = null;
 		try {
-			stmt = ts.getStatement(eventId, RMAP.INACTIVATEDOBJECT, null, eventId);
+			stmt = ts.getStatement(eventId, RMAP_INACTIVATEDOBJECT, null, eventId);
 			if (stmt == null) {
 				//try derived obj where agent asserting about someone else's disco
-				stmt = ts.getStatement(eventId, RMAP.HASSOURCEOBJECT, null, eventId);
+				stmt = ts.getStatement(eventId, RMAP_HASSOURCEOBJECT, null, eventId);
 			}
 						
 			if (stmt != null){
@@ -916,7 +914,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		try {
 
             if (this.isEventId(updateEventID, ts)) {
-                stmts = ts.getStatements(updateEventID, PROV.GENERATED, null, updateEventID);
+                stmts = ts.getStatements(updateEventID, PROV_GENERATED, null, updateEventID);
             }
 			if (stmts != null){
 				for (Statement stmt:stmts){
@@ -950,7 +948,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		List<IRI> returnEventIds = new ArrayList<IRI>();
 		try {
 			//PROV.GENERATED used for all created objects
-			Set<Statement> stmts = this.getEventStmtsByPredicate(PROV.GENERATED, iri, ts);
+			Set<Statement> stmts = this.getEventStmtsByPredicate(PROV_GENERATED, iri, ts);
 			for (Statement stmt:stmts){
 				if (stmt != null){
 					returnEventIds.add((IRI)stmt.getContext());

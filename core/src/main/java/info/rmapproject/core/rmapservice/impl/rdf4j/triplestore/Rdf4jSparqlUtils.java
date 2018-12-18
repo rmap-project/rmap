@@ -26,7 +26,6 @@ import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -34,8 +33,9 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.request.DateRange;
 import info.rmapproject.core.model.request.RMapStatusFilter;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * Some common conversions from RDF4J model to SPARQL query pieces.

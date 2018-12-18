@@ -20,7 +20,7 @@
 package info.rmapproject.core.model.event;
 
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,10 +36,10 @@ import java.util.Map;
 public enum RMapEventTargetType {
 	
 	/** RMap DiSCO */
-	DISCO(Terms.RMAP_DISCO_PATH),
+	DISCO(RMAP.DISCO.toString()),
 	
 	/** RMap Agent. */
-	AGENT(Terms.RMAP_AGENT_PATH);	
+	AGENT(RMAP.AGENT.toString());	
 	
 	/** The event target type ontology path. */
 	private RMapIri eventTargetTypePath= null ;

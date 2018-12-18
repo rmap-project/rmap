@@ -33,7 +33,6 @@ import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * The concrete class representing the Update with Replace Event for the RDF4J implementation of RMap.
@@ -156,7 +155,7 @@ public class ORMapEventUpdateWithReplace extends ORMapEvent implements RMapEvent
 	public void setUpdatedObjectId(RMapIri updatedObjectId) 
 			throws RMapException, RMapDefectiveArgumentException {
 		if (updatedObjectId != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.UPDATEDOBJECT,
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP_UPDATEDOBJECT,
 					ORAdapter.rMapIri2Rdf4jIri(updatedObjectId), this.context);
 			this.updatedObjectIdStmt = stmt;
 		}

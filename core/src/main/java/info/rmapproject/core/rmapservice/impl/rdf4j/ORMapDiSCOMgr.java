@@ -67,8 +67,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapEventWithNewObjects;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * A concrete class for managing RMap DiSCOs, implemented using RDF4J.
@@ -523,25 +521,25 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			Set<Statement> eventStmts = null;
 			try {
 				//   ? RMap:Deletes discoId  done return deleted
-				eventStmts = ts.getStatements(null, RMAP.DELETEDOBJECT, discoId);
+				eventStmts = ts.getStatements(null, RMAP_DELETEDOBJECT, discoId);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.DELETED;
 					break;
 				}
 				//   ? RMap:Tombstones discoID	done return tombstoned
-				eventStmts = ts.getStatements(null, RMAP.TOMBSTONEDOBJECT, discoId);
+				eventStmts = ts.getStatements(null, RMAP_TOMBSTONEDOBJECT, discoId);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.TOMBSTONED;
 					break;
 				}
 				//   ? RMap:Updates discoID	done return Inactive
-				eventStmts = ts.getStatements(null, RMAP.INACTIVATEDOBJECT, discoId);
+				eventStmts = ts.getStatements(null, RMAP_INACTIVATEDOBJECT, discoId);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.INACTIVE;
 					break;
 				}
 			   //   else return active if create event found
-				eventStmts = ts.getStatements(null, PROV.GENERATED, discoId);
+				eventStmts = ts.getStatements(null, PROV_GENERATED, discoId);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.ACTIVE;
 					break;

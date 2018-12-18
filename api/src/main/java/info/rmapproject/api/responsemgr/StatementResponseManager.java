@@ -45,7 +45,7 @@ import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.ResultBatch;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rmapservice.RMapService;
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * Creates HTTP responses for Statement REST API requests.
@@ -200,7 +200,7 @@ public class StatementResponseManager extends ResponseManager {
 					outputString= URIListHandler.uriListToPlainText(resultbatch.getResultList());
 				}
 				else	{
-					outputString= URIListHandler.uriListToJson(resultbatch.getResultList(), Terms.RMAP_DISCO_PATH);		
+					outputString= URIListHandler.uriListToJson(resultbatch.getResultList(), RMAP.DISCO.toString());		
 				}
 				responseBldr.entity(outputString);
 
@@ -302,7 +302,7 @@ public class StatementResponseManager extends ResponseManager {
 					outputString= URIListHandler.uriListToPlainText(resultbatch.getResultList());
 				}
 				else	{
-					outputString= URIListHandler.uriListToJson(resultbatch.getResultList(), Terms.RMAP_AGENT_PATH);		
+					outputString= URIListHandler.uriListToJson(resultbatch.getResultList(), RMAP.AGENT.toString());		
 				}
 				responseBldr.entity(outputString);
 

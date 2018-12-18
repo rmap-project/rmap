@@ -29,7 +29,6 @@ import info.rmapproject.core.model.event.RMapEventInactivation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -146,7 +145,7 @@ public class ORMapEventInactivation extends ORMapEvent implements
 	protected void setInactivatedObjectStmt(IRI inactivatedObject) {
 		if (inactivatedObject != null){
 			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP.INACTIVATEDOBJECT,
+					RMAP_INACTIVATEDOBJECT,
 					inactivatedObject, this.context);
 			this.inactivatedObjectStatement = stmt;
 		}

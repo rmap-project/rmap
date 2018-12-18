@@ -23,13 +23,21 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.vocabulary.DC;
+import info.rmapproject.core.vocabulary.DCTERMS;
+import info.rmapproject.core.vocabulary.FOAF;
+import info.rmapproject.core.vocabulary.ORE;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
+
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
 
 import java.io.Serializable;
 
@@ -43,6 +51,29 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	protected static final IRI RMAP_IDENTITYPROVIDER = rMapIri2Rdf4jIri(RMAP.IDENTITYPROVIDER);
+	protected static final IRI RMAP_USERAUTHID = rMapIri2Rdf4jIri(RMAP.USERAUTHID);
+	protected static final IRI RMAP_EVENTTYPE = rMapIri2Rdf4jIri(RMAP.EVENTTYPE);
+	protected static final IRI RMAP_TARGETTYPE = rMapIri2Rdf4jIri(RMAP.TARGETTYPE);
+	protected static final IRI RMAP_DELETEDOBJECT = rMapIri2Rdf4jIri(RMAP.DELETEDOBJECT);
+	protected static final IRI RMAP_DERIVEDOBJECT = rMapIri2Rdf4jIri(RMAP.DERIVEDOBJECT);
+	protected static final IRI RMAP_HASSOURCEOBJECT = rMapIri2Rdf4jIri(RMAP.HASSOURCEOBJECT);
+	protected static final IRI RMAP_INACTIVATEDOBJECT = rMapIri2Rdf4jIri(RMAP.INACTIVATEDOBJECT);
+	protected static final IRI RMAP_UPDATEDOBJECT = rMapIri2Rdf4jIri(RMAP.UPDATEDOBJECT);
+	protected static final IRI RMAP_TOMBSTONEDOBJECT = rMapIri2Rdf4jIri(RMAP.TOMBSTONEDOBJECT);
+	protected static final IRI RMAP_LINEAGE_PROGENITOR = rMapIri2Rdf4jIri(RMAP.LINEAGE_PROGENITOR);
+	protected static final IRI PROV_USED = rMapIri2Rdf4jIri(PROV.USED);
+	protected static final IRI PROV_WASASSOCIATEDWITH = rMapIri2Rdf4jIri(PROV.WASASSOCIATEDWITH);
+	protected static final IRI PROV_WASGENERATEDBY = rMapIri2Rdf4jIri(PROV.WASGENERATEDBY);
+	protected static final IRI PROV_STARTEDATTIME = rMapIri2Rdf4jIri(PROV.STARTEDATTIME);
+	protected static final IRI PROV_ENDEDATTIME = rMapIri2Rdf4jIri(PROV.ENDEDATTIME);
+	protected static final IRI PROV_GENERATED = rMapIri2Rdf4jIri(PROV.GENERATED);
+	protected static final IRI RDF_TYPE = rMapIri2Rdf4jIri(RDF.TYPE);
+	protected static final IRI ORE_AGGREGATES = rMapIri2Rdf4jIri(ORE.AGGREGATES);
+	protected static final IRI FOAF_NAME = rMapIri2Rdf4jIri(FOAF.NAME);
+	protected static final IRI DC_DESCRIPTION = rMapIri2Rdf4jIri(DC.DESCRIPTION);
+	protected static final IRI DCTERMS_CREATOR = rMapIri2Rdf4jIri(DCTERMS.CREATOR);
+	
 	/** The object unique ID. */
 	protected IRI id;
 	
@@ -123,7 +154,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 		}
 		try {
 			IRI typeIri = ORAdapter.rMapIri2Rdf4jIri(type.getPath());
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.id, RDF.TYPE, typeIri, this.context);
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.id, RDF_TYPE, typeIri, this.context);
 			this.typeStatement = stmt;
 		} catch (Exception e) {
 			throw new RMapException("Invalid object type provided.", e);

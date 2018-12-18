@@ -55,7 +55,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapEventMgr;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * @author smorrissey
@@ -123,7 +122,7 @@ public class ORMapEventCreationTest extends ORMapCommonEventTest {
 			//Date edate = event.getEndTime();
 			
 			Statement tStmt = event.getTypeStatement();
-			assertEquals(RMAP.EVENT, tStmt.getObject());
+			assertEquals(RMAP_EVENT, tStmt.getObject());
 			IRI crEventId = eventmgr.createEvent(event, triplestore);
 			assertEquals(context, crEventId);
 			assertFalse(context.stringValue().equals(discoContext.stringValue()));

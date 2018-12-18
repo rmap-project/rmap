@@ -44,8 +44,6 @@ import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.vocabulary.DC;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -62,8 +60,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapEventDerivation;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * @author smorrissey, khanson
@@ -184,38 +180,38 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 		// make list of statements out of list of created object IDS
 		List<Statement> createdObjects = new ArrayList<Statement>();
 		for (IRI iri:iris){
-			createdObjects.add(vf.createStatement(context, PROV.GENERATED, iri, context));
+			createdObjects.add(vf.createStatement(context, PROV_GENERATED, iri, context));
 		}		
 		
 		Literal litStart = vf.createLiteral(startTime);
-		Statement startTimeStmt = vf.createStatement(context, PROV.STARTEDATTIME, litStart, context);		
+		Statement startTimeStmt = vf.createStatement(context, PROV_STARTEDATTIME, litStart, context);		
 	
-		Statement eventTypeStmt = vf.createStatement(context, RMAP.EVENTTYPE, RMAP.DERIVATION,context); 
+		Statement eventTypeStmt = vf.createStatement(context, RMAP_EVENTTYPE, RMAP_DERIVATION,context); 
 		
 		Statement eventTargetTypeStmt = vf.createStatement(context,
-				RMAP.TARGETTYPE, RMAP.DISCO,context);
+				RMAP_TARGETTYPE, RMAP_DISCO,context);
 		
 		Statement associatedAgentStmt= vf.createStatement(context,
-				PROV.WASASSOCIATEDWITH, creatorIRI,context);
+				PROV_WASASSOCIATEDWITH, creatorIRI,context);
 		
 		Literal desc = vf.createLiteral("This is a delete event");
-		Statement descriptionStmt = vf.createStatement(context, DC.DESCRIPTION, desc, context);	
+		Statement descriptionStmt = vf.createStatement(context, DC_DESCRIPTION, desc, context);	
 
 		IRI associatedKey = ORAdapter.uri2Rdf4jIri(new java.net.URI("ark:/29297/testkey"));
-		Statement associatedKeyStmt = vf.createStatement(context, PROV.USED, associatedKey, context);			
+		Statement associatedKeyStmt = vf.createStatement(context, PROV_USED, associatedKey, context);			
 		
-		Statement typeStatement = vf.createStatement(context, RDF.TYPE, RMAP.EVENT, context);
+		Statement typeStatement = vf.createStatement(context, RDF_TYPE, RMAP_EVENT, context);
 		
 		IRI oldDiscoId = ORAdapter.uri2Rdf4jIri(id2);
-		Statement sourceObjectStatement = vf.createStatement(context, RMAP.HASSOURCEOBJECT, oldDiscoId, context);
+		Statement sourceObjectStatement = vf.createStatement(context, RMAP_HASSOURCEOBJECT, oldDiscoId, context);
 		
-		Statement derivationStatement = vf.createStatement(context, RMAP.DERIVEDOBJECT, newDiscoContext,
+		Statement derivationStatement = vf.createStatement(context, RMAP_DERIVEDOBJECT, newDiscoContext,
 				 context);
 		
 		Date end = new Date();
 		String endTime = DateUtils.getIsoStringDate(end);
 		Literal litEnd = vf.createLiteral(endTime);
-		Statement endTimeStmt = vf.createStatement(context, PROV.ENDEDATTIME, litEnd, context);
+		Statement endTimeStmt = vf.createStatement(context, PROV_ENDEDATTIME, litEnd, context);
 		
 		ORMapEventDerivation event = new ORMapEventDerivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
 				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, null,
@@ -225,7 +221,7 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 		assertEquals(RMapEventType.DERIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
 		Statement tStmt = event.getTypeStatement();
-		assertEquals(RMAP.EVENT.toString(), tStmt.getObject().toString());
+		assertEquals(RMAP_EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(11, eventModel.size());
 		assertEquals(oldDiscoId,ORAdapter.rMapIri2Rdf4jIri(event.getSourceObjectId()));

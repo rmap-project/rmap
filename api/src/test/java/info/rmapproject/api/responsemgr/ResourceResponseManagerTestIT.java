@@ -46,7 +46,7 @@ import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.api.utils.Constants;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.disco.RMapDiSCO;
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -124,7 +124,7 @@ public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT
 			//String location = response.getLocation().toString();
 			String body = response.getEntity().toString();
 			//assertTrue(location.contains("resource"));
-			assertTrue(body.contains(Terms.RMAP_OBJECT_PATH));
+			assertTrue(body.contains(RMAP.OBJECT.toString()));
 			assertEquals(200, response.getStatus());	
 			
 		} catch (Exception e) {
@@ -154,7 +154,7 @@ public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT
 
 			assertNotNull(response);
 			String body = response.getEntity().toString();
-			assertTrue(body.contains(Terms.RMAP_DISCO_PATH));
+			assertTrue(body.contains(RMAP.DISCO.toString()));
 			assertEquals(200, response.getStatus());	
 			
 		} catch (Exception e) {
@@ -195,21 +195,21 @@ public class ResourceResponseManagerTestIT extends ApiDataCreationTestAbstractIT
 			queryParams.add(Constants.LIMIT_PARAM, "2");
 			queryParams.add(Constants.FROM_PARAM, "20121201000000");
 
-			queryParams.add(Constants.STATUS_PARAM, Terms.RMAP_ACTIVE);
+			queryParams.add(Constants.STATUS_PARAM, RMAP.ACTIVE_SN);
 			responseActive = resourceResponseManager.getRMapResourceRelatedObjs(TestConstants.TEST_DISCO_DOI, RMapObjectType.DISCO, NonRdfType.JSON, queryParams);
 
 			queryParams.remove(Constants.STATUS_PARAM);
-			queryParams.add(Constants.STATUS_PARAM, Terms.RMAP_INACTIVE);
+			queryParams.add(Constants.STATUS_PARAM, RMAP.INACTIVE_SN);
 			responseInactive = resourceResponseManager.getRMapResourceRelatedObjs(TestConstants.TEST_DISCO_DOI, RMapObjectType.DISCO, NonRdfType.JSON, queryParams);
 
 			assertNotNull(responseActive);
 			assertNotNull(responseInactive);
 			
 			String bodyActive = responseActive.getEntity().toString();
-			assertTrue(bodyActive.contains(Terms.RMAP_DISCO_PATH));
+			assertTrue(bodyActive.contains(RMAP.DISCO.toString()));
 			
 			String bodyInactive = responseInactive.getEntity().toString();
-			assertTrue(bodyInactive.contains(Terms.RMAP_DISCO_PATH));
+			assertTrue(bodyInactive.contains(RMAP.DISCO.toString()));
 			
 			assertTrue(!bodyActive.equals(bodyInactive));
 			

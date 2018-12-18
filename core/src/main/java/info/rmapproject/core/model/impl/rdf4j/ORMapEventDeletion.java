@@ -30,7 +30,6 @@ import info.rmapproject.core.model.event.RMapEventDeletion;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * The concrete class representing the Deletion Event for the RDF4J implementation of RMap.
@@ -142,7 +141,7 @@ public class ORMapEventDeletion extends ORMapEvent implements RMapEventDeletion 
 	 */
 	private void setDeletedResourceIdStmt(IRI deletedResource) throws RMapException {
 		if (deletedResource != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.DELETEDOBJECT,
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP_DELETEDOBJECT,
 					deletedResource, this.context);
 			this.deleted = stmt;
 		}

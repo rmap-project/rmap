@@ -34,7 +34,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.model.vocabulary.DC;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -46,8 +45,6 @@ import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.utils.DateUtils;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 
 /**
  * Abstract Event class, defines core components of RMap Event, specific to RDF4J object model.
@@ -128,7 +125,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		super(id);
 		Date date = new Date();
 		Literal dateLiteral = ORAdapter.getValueFactory().createLiteral(date);
-		Statement startTime = ORAdapter.getValueFactory().createStatement(this.id, PROV.STARTEDATTIME, 
+		Statement startTime = ORAdapter.getValueFactory().createStatement(this.id, PROV_STARTEDATTIME, 
 				dateLiteral, this.context);
 		this.startTimeStmt = startTime;
 		setTypeStatement(RMapObjectType.EVENT);
@@ -185,7 +182,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}
 		try {
 			IRI eventtypeIri = ORAdapter.rMapIri2Rdf4jIri(eventType.getPath());
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.EVENTTYPE, eventtypeIri, this.context);
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP_EVENTTYPE, eventtypeIri, this.context);
 			this.eventTypeStmt = stmt;
 		} catch (Exception e) {
 			throw new RMapException("Invalid path for the object type provided.", e);
@@ -232,7 +229,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		}
 		try {
 			IRI eventTTIri = ORAdapter.rMapIri2Rdf4jIri(eventTargetType.getPath());
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP.TARGETTYPE, eventTTIri, this.context);
+			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP_TARGETTYPE, eventTTIri, this.context);
 			this.eventTargetTypeStmt = stmt;
 		} catch (Exception e) {
 			throw new RMapException("Invalid path for the object type provided.", e);
@@ -277,7 +274,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 		if (this.id == null || this.context==null){
 			throw new RMapException("The object ID and context value must be set before creating an associated agent statement");
 		}
-		Statement agent = ORAdapter.getValueFactory().createStatement(this.context, PROV.WASASSOCIATEDWITH, 
+		Statement agent = ORAdapter.getValueFactory().createStatement(this.context, PROV_WASASSOCIATEDWITH, 
 								associatedAgent, this.context);
 		this.associatedAgentStmt=agent;
 	}
@@ -346,7 +343,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 			throw new RMapDefectiveArgumentException("The object ID and context value must be set before creating an associated key statement");
 		}
 		if (associatedKey!=null){
-			Statement keystmt = ORAdapter.getValueFactory().createStatement(this.id, PROV.USED, 
+			Statement keystmt = ORAdapter.getValueFactory().createStatement(this.id, PROV_USED, 
 										associatedKey, this.context);
 			this.associatedKeyStmt=keystmt;
 		}			
@@ -445,7 +442,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	@Override
 	public void setEndTime(Date endTime) throws RMapException {
 		Literal dateLiteral = ORAdapter.getValueFactory().createLiteral(endTime);
-		Statement endTimeStmt = ORAdapter.getValueFactory().createStatement(this.context, PROV.ENDEDATTIME, 
+		Statement endTimeStmt = ORAdapter.getValueFactory().createStatement(this.context, PROV_ENDEDATTIME, 
 				dateLiteral, this.context);
 		this.endTimeStmt = endTimeStmt;
 	}
@@ -458,7 +455,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	public void setDescription(RMapValue description) throws RMapException {
 		if (description != null){
 			Statement descSt = ORAdapter.getValueFactory().createStatement(this.context, 
-					DC.DESCRIPTION, ORAdapter.rMapValue2Rdf4jValue(description), this.context);
+					DC_DESCRIPTION, ORAdapter.rMapValue2Rdf4jValue(description), this.context);
 			this.descriptionStmt = descSt;
 		}
 	}
@@ -500,7 +497,7 @@ public abstract class ORMapEvent extends ORMapObject implements RMapEvent {
 	    if (lineageiri != null) {
 	        this.lineageProgenitorStmt = ORAdapter.getValueFactory().createStatement(
 	                this.context,
-	                RMAP.LINEAGE_PROGENITOR, 
+	                RMAP_LINEAGE_PROGENITOR, 
 	                ORAdapter.rMapIri2Rdf4jIri(lineageiri), 
 	                this.context);
 	    }

@@ -34,8 +34,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.vocabulary.FOAF;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 import info.rmapproject.core.exception.RMapAgentNotFoundException;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -55,11 +53,12 @@ import info.rmapproject.core.model.request.OrderBy;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jSparqlUtils;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
-import info.rmapproject.core.vocabulary.impl.rdf4j.RMAP;
 import info.rmapproject.core.model.request.RMapSearchParams;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * A concrete class for managing RMap Agents, implemented using RDF4J
@@ -282,23 +281,23 @@ public class ORMapAgentMgr extends ORMapObjectMgr {
 			
 			//as a precaution take one predicate at a time to make sure we don't delete anything we shouldn't
 			if (!origName.equals(newName)) {
-				Set <Statement> stmts = ts.getStatements(agentId, FOAF.NAME, null, agentId);
+				Set <Statement> stmts = ts.getStatements(agentId, FOAF_NAME, null, agentId);
 				ts.removeStatements(stmts);		
-				ts.addStatement(agentId, FOAF.NAME, newName, agentId);	
+				ts.addStatement(agentId, FOAF_NAME, newName, agentId);	
 				sEventDescrip=sEventDescrip + "foaf:name=" + origName.stringValue() + " -> " + newName.stringValue() + "; ";
 				updatesFound=true;
 			}
 			if (!origIdProvider.equals(newIdProvider)) {
-				Set <Statement> stmts = ts.getStatements(agentId, RMAP.IDENTITYPROVIDER, null, agentId);
+				Set <Statement> stmts = ts.getStatements(agentId, RMAP_IDENTITYPROVIDER, null, agentId);
 				ts.removeStatements(stmts);		
-				ts.addStatement(agentId, RMAP.IDENTITYPROVIDER, newIdProvider, agentId);	
+				ts.addStatement(agentId, RMAP_IDENTITYPROVIDER, newIdProvider, agentId);	
 				sEventDescrip=sEventDescrip + "rmap:identityProvider=" + origIdProvider.stringValue() + " -> " + newIdProvider.stringValue() + "; ";
 				updatesFound=true;
 			}
 			if (!origAuthId.equals(newAuthId)) {
-				Set <Statement> stmts = ts.getStatements(agentId, RMAP.USERAUTHID, null, agentId);
+				Set <Statement> stmts = ts.getStatements(agentId, RMAP_USERAUTHID, null, agentId);
 				ts.removeStatements(stmts);	
-				ts.addStatement(agentId, RMAP.USERAUTHID, newAuthId, agentId);
+				ts.addStatement(agentId, RMAP_USERAUTHID, newAuthId, agentId);
 				sEventDescrip=sEventDescrip + "rmap:userAuthId=" + origAuthId.stringValue() + " -> " + newAuthId.stringValue() + "; ";
 				updatesFound=true;
 			}

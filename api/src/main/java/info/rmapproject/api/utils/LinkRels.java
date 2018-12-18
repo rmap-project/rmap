@@ -19,10 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.api.utils;
 
-import org.eclipse.rdf4j.model.vocabulary.DC;
-
-import info.rmapproject.core.utils.Terms;
-import info.rmapproject.core.vocabulary.impl.rdf4j.PROV;
+import info.rmapproject.core.vocabulary.DC;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * 
@@ -45,7 +44,7 @@ public final class LinkRels {
 	public static final String WAS_GENERATED_BY = PROV.WASGENERATEDBY.toString();
 	
 	/** HTTP Response header link relationship for Status link**/
-	public static final String HAS_STATUS = Terms.RMAP_HASSTATUS_PATH;
+	public static final String HAS_STATUS = RMAP.HASSTATUS.toString();
 	
 	
 	

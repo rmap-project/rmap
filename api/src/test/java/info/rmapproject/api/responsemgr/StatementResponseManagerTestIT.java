@@ -31,7 +31,6 @@ import javax.ws.rs.core.Response;
 import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.api.ApiDataCreationTestAbstractIT;
@@ -40,7 +39,8 @@ import info.rmapproject.api.test.TestUtils;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapStatusFilter;
-import info.rmapproject.core.utils.Terms;
+import info.rmapproject.core.vocabulary.RDF;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -206,7 +206,7 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 														TestConstants.TEST_DISCO_DOI_TYPE, NonRdfType.JSON, queryParams);
 			assertNotNull(response);
 			assertEquals(response.getStatus(),200);
-			assertEquals(response.getEntity(),"{\""+ Terms.RMAP_AGENT_PATH + "\":[\"" + TestConstants.SYSAGENT_ID + "\"]}");
+			assertEquals(response.getEntity(),"{\""+ RMAP.AGENT.toString() + "\":[\"" + TestConstants.SYSAGENT_ID + "\"]}");
 
 		} catch (Exception e) {
 			e.printStackTrace();	

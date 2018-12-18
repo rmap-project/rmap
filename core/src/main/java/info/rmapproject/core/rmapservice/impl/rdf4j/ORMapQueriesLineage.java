@@ -20,12 +20,6 @@
 
 package info.rmapproject.core.rmapservice.impl.rdf4j;
 
-import static info.rmapproject.core.utils.Terms.PROV_ENDEDATTIME_PATH;
-import static info.rmapproject.core.utils.Terms.PROV_GENERATED_PATH;
-import static info.rmapproject.core.utils.Terms.RMAP_DERIVEDOBJECT_PATH;
-import static info.rmapproject.core.utils.Terms.RMAP_EVENT_PATH;
-import static info.rmapproject.core.utils.Terms.RMAP_HASSOURCEOBJECT_PATH;
-import static info.rmapproject.core.utils.Terms.RMAP_LINEAGE_PROGENITOR_PATH;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -43,6 +37,8 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RMAP;
 
 /**
  * Lineage-related sparql queries and lookups
@@ -60,29 +56,29 @@ abstract class ORMapQueriesLineage {
     static final String QUERY_LINEAGE_SEARCH =
             String.format("SELECT ?%s\n", BINDING_LINEAGE) +
                     "WHERE {\nGRAPH ?g { \n" +
-                    String.format("?e a <%s> .\n", RMAP_EVENT_PATH) +
-                    String.format("?e <%s> ?%s .\n", RMAP_LINEAGE_PROGENITOR_PATH, BINDING_LINEAGE) +
-                    String.format("?e <%s> ?%s .\n}}", PROV_GENERATED_PATH, BINDING_RESOURCE);
+                    String.format("?e a <%s> .\n", RMAP.EVENT.toString()) +
+                    String.format("?e <%s> ?%s .\n", RMAP.LINEAGE_PROGENITOR.toString(), BINDING_LINEAGE) +
+                    String.format("?e <%s> ?%s .\n}}", PROV.GENERATED.toString(), BINDING_RESOURCE);
 
     static final String QUERY_GET_LINEAGE_MEMBERS =
             String.format("SELECT ?%s ?%s\n", BINDING_RESOURCE, BINDING_DATE) +
                     "WHERE {\nGRAPH ?g { \n" +
-                    String.format("?e a <%s> .\n", RMAP_EVENT_PATH) +
-                    String.format("?e <%s> ?%s .\n", RMAP_LINEAGE_PROGENITOR_PATH, BINDING_LINEAGE) +
-                    String.format("?e <%s> ?%s .\n", PROV_GENERATED_PATH, BINDING_RESOURCE) +
-                    String.format("?e <%s> ?%s .\n}}", PROV_ENDEDATTIME_PATH, BINDING_DATE);
+                    String.format("?e a <%s> .\n", RMAP.EVENT.toString()) +
+                    String.format("?e <%s> ?%s .\n", RMAP.LINEAGE_PROGENITOR.toString(), BINDING_LINEAGE) +
+                    String.format("?e <%s> ?%s .\n", PROV.GENERATED.toString(), BINDING_RESOURCE) +
+                    String.format("?e <%s> ?%s .\n}}", PROV.ENDEDATTIME.toString(), BINDING_DATE);
 
     static final String QUERY_FIND_DERIVATIVES =
             String.format("SELECT ?%s\n", BINDING_RESOURCE) +
                     "WHERE " +
                     "{\nGRAPH ?p { \n" +
-                    String.format("?derivativeEvent a <%s> .\n", RMAP_EVENT_PATH) +
-                    String.format("?derivativeEvent <%s> ?%s .\n", RMAP_DERIVEDOBJECT_PATH, BINDING_RESOURCE) +
-                    String.format("?derivativeEvent <%s> ?lineageResource .\n", RMAP_HASSOURCEOBJECT_PATH) +
+                    String.format("?derivativeEvent a <%s> .\n", RMAP.EVENT.toString()) +
+                    String.format("?derivativeEvent <%s> ?%s .\n", RMAP.DERIVEDOBJECT.toString(), BINDING_RESOURCE) +
+                    String.format("?derivativeEvent <%s> ?lineageResource .\n", RMAP.HASSOURCEOBJECT.toString()) +
                     "}\n GRAPH ?q {" +
-                    String.format("?eventInLineage a <%s> .\n", RMAP_EVENT_PATH) +
-                    String.format("?eventInLineage <%s> ?%s .\n", RMAP_LINEAGE_PROGENITOR_PATH, BINDING_LINEAGE) +
-                    String.format("?eventInLineage <%s> ?lineageResource .\n}}", PROV_GENERATED_PATH);
+                    String.format("?eventInLineage a <%s> .\n", RMAP.EVENT.toString()) +
+                    String.format("?eventInLineage <%s> ?%s .\n", RMAP.LINEAGE_PROGENITOR.toString(), BINDING_LINEAGE) +
+                    String.format("?eventInLineage <%s> ?lineageResource .\n}}", PROV.GENERATED.toString());
 
     /**
      * Find the lineage progenitor for the given disco.
