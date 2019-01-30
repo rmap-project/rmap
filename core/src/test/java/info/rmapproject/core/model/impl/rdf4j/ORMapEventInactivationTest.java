@@ -22,7 +22,6 @@
  */
 package info.rmapproject.core.model.impl.rdf4j;
 
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -31,13 +30,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.ValueFactory;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -45,14 +39,13 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdService;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEventInactivation;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
+import info.rmapproject.core.vocabulary.XMLSchema;
 
 /**
  * @author smorrissey
@@ -67,91 +60,55 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 	
 	@Autowired
 	private IdService rmapIdService;
-	
-	private ValueFactory vf;
-	
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-		vf = ORAdapter.getValueFactory();
-	}
-
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapEventInactivation#ORMapEventInactivation(org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.IRI, org.eclipse.rdf4j.model.Statement, org.eclipse.rdf4j.model.Statement)}.
-	 * @throws RMapDefectiveArgumentException 
-	 * @throws RMapException 
-	 * @throws URISyntaxException 
+	 * Tests inactivation event with all properties provided.
+	 * @throws Exception
 	 */
 	@Test
-	public void testORMapEventInactivationStatements() throws RMapException, RMapDefectiveArgumentException, URISyntaxException {
-		java.net.URI id1 = null, id2 = null;
+	public void testORMapEventInactivationAllProperties() throws Exception {
+		RMapIri id2 = null;
 		try {
-			// id for event
-			id1 = rmapIdService.createId();
 			// id for old disco
-			id2 = rmapIdService.createId();
+			id2 = new RMapIri(rmapIdService.createId());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
 		// create new disco
-		IRI creatorIRI = vf.createIRI("http://orcid.org/0000-0000-0000-0000");
-		
-		IRI context = ORAdapter.uri2Rdf4jIri(id1);
-		
-		Date start = new Date();
-		String startTime = DateUtils.getIsoStringDate(start);
+		RMapIri creatorIRI = new RMapIri("http://orcid.org/0000-0000-0000-0000");
+				
+		Date start = new Date();		
+		RMapLiteral startTime = new RMapLiteral(DateUtils.getIsoStringDate(start), XMLSchema.DATETIME);	
 
-		Literal litStart = vf.createLiteral(startTime);
-		Statement startTimeStmt = vf.createStatement(context, PROV_STARTEDATTIME, litStart, context);		
-	
-		Statement eventTypeStmt = vf.createStatement(context, RMAP_EVENTTYPE, RMAP_INACTIVATION,context); 
+		RMapObjectType type = RMapObjectType.EVENT;
+		RMapEventType eventType = RMapEventType.INACTIVATION; 
+		RMapEventTargetType eventTargetType = RMapEventTargetType.DISCO;	
+		RMapLiteral desc = new RMapLiteral("This is an inactivation event");	
+		RMapIri keyIRI = new RMapIri("ark:/29297/testkey");
 		
-		Statement eventTargetTypeStmt = vf.createStatement(context, RMAP_TARGETTYPE, RMAP_DISCO,context);
+		RMapIri oldDiscoId = id2;
 		
-		Statement associatedAgentStmt= vf.createStatement(context, PROV_WASASSOCIATEDWITH, creatorIRI,context);
+		Date end = new Date();		
+		RMapLiteral endTime = new RMapLiteral(DateUtils.getIsoStringDate(end), XMLSchema.DATETIME);	
 		
-		Literal desc = vf.createLiteral("This is a delete event");
+		ORMapEventInactivation event = new ORMapEventInactivation(eventType, eventTargetType, creatorIRI,  
+				desc, startTime,  endTime, context, type, keyIRI, null, oldDiscoId) ;
 		
-		Statement descriptionStmt = vf.createStatement(context, DC_DESCRIPTION, desc, context);		
-		
-		Statement typeStatement = vf.createStatement(context, RDF_TYPE, RMAP_EVENT, context);
-		
-		IRI oldDiscoId = ORAdapter.uri2Rdf4jIri(id2);
-		Statement sourceObjectStatement = vf.createStatement(context, RMAP_INACTIVATEDOBJECT, oldDiscoId, context);
-		
-		
-		Date end = new Date();
-		String endTime = DateUtils.getIsoStringDate(end);
-		Literal litEnd = vf.createLiteral(endTime);
-		Statement endTimeStmt = vf.createStatement(context, PROV_ENDEDATTIME, litEnd, context);
-		
-		IRI associatedKey = ORAdapter.uri2Rdf4jIri(new java.net.URI("ark:/29297/testkey"));
-		Statement associatedKeyStmt = vf.createStatement(context, PROV_USED, associatedKey, context);	
-		
-		ORMapEventInactivation event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-				descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt,
-				null, sourceObjectStatement) ;
-		String eventTypeUrl = RMAP_INACTIVATION.toString();
-		assertEquals(eventTypeUrl, event.getEventType().getPath().toString());
+		assertEquals(RMapObjectType.EVENT, event.getType());
+		assertEquals(RMapEventType.INACTIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
-		Statement tStmt = event.getTypeStatement();
-		assertEquals(RMAP_EVENT.toString(), tStmt.getObject().toString());
 		Model eventModel = event.getAsModel();
 		assertEquals(9, eventModel.size());
-		assertEquals(oldDiscoId,ORAdapter.rMapIri2Rdf4jIri(event.getInactivatedObjectId()));		
-		assertEquals(desc.stringValue(), event.getDescription().getStringValue());
+		assertEquals(oldDiscoId,event.getInactivatedObjectId());		
+		assertEquals(desc, event.getDescription());
 
 		try{
-			event = new ORMapEventInactivation(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,  
-					descriptionStmt, startTimeStmt,  endTimeStmt, context, typeStatement, associatedKeyStmt, 
-					null, null) ;
+			event = new ORMapEventInactivation(eventType, eventTargetType, creatorIRI,  
+					desc, startTime,  endTime, context, type, keyIRI, null, null) ;
 			fail("Should not allow null source object");
-		}catch(RMapException r){}	
+		} catch(RMapException r){}	
 	}
 
 	/**
@@ -162,30 +119,24 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 	 */
 	@Test
 	public void testORMapEventInactivationRMapIriRMapEventTargetTypeRMapValue() throws RMapException, RMapDefectiveArgumentException, URISyntaxException {
-		RMapIri associatedAgent= null;
-		try {
-			associatedAgent = new RMapIri(
-					new java.net.URI("http://orcid.org/0000-0000-0000-0000"));
-		} catch (URISyntaxException e1) {
-			e1.printStackTrace();
-			fail("could not create agent");
-		}
+		RMapIri associatedAgent = new RMapIri("http://orcid.org/0000-0000-0000-0000");
+		
 		RMapLiteral desc = new RMapLiteral("This is an inactivation event");		
 		RequestEventDetails reqEventDetails = new RequestEventDetails(associatedAgent.getIri(), new URI("ark:/29297/testkey"), desc);
-		ORMapEventInactivation event = new ORMapEventInactivation(uri2Rdf4jIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
+		ORMapEventInactivation event = new ORMapEventInactivation(new RMapIri(create("http://example.org/event/1")), reqEventDetails, RMapEventTargetType.DISCO);
 		Model model = event.getAsModel();
 		assertEquals(7, model.size());
 		
-		java.net.URI id1 = null;
+		RMapIri id1 = null;
 		try {
 			// id for old disco (source object)
-			id1 = rmapIdService.createId();
+			id1 = new RMapIri(rmapIdService.createId());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unable to create id");
 		} 
-		IRI inactivatedObject = ORAdapter.uri2Rdf4jIri(id1);
-		event.setInactivatedObjectStmt(inactivatedObject);
+		RMapIri inactivatedObjectId = id1;
+		event.setInactivatedObjectId(inactivatedObjectId);
 		model = event.getAsModel();
 		assertEquals(8,model.size());
 		Date end = new Date();
@@ -193,11 +144,11 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
 		model = event.getAsModel();
 		assertEquals(9,model.size());
 		RMapIri iIri = event.getInactivatedObjectId();
-		assertEquals(inactivatedObject.stringValue(), iIri.getStringValue());
+		assertEquals(inactivatedObjectId.getStringValue(), iIri.getStringValue());
 		assertEquals(RMapEventType.INACTIVATION, event.getEventType());
 		assertEquals(RMapEventTargetType.DISCO, event.getEventTargetType());
-		Statement tStmt = event.getTypeStatement();
-		assertEquals(RMAP_EVENT, tStmt.getObject());
+		RMapObjectType type = event.getType();
+		assertEquals(RMapObjectType.EVENT, type);
 	
 	}
 
@@ -209,14 +160,13 @@ public class ORMapEventInactivationTest extends ORMapCommonEventTest {
     @Override
     protected ORMapEvent newEvent(RMapIri context, RMapIri associatedAgent, RMapLiteral description, Date startTime,
             Date endTime, RMapIri associatedKey, RMapIri lineage) {
-        
-        final ORMapEventInactivation event = new ORMapEventInactivation(ORAdapter.rMapIri2Rdf4jIri(context));
-        
-        event.setAssociatedAgentStatement(ORAdapter.rMapIri2Rdf4jIri(associatedAgent));
-        event.setEventTargetTypeStatement(RMapEventTargetType.DISCO);
+    	
+        final ORMapEventInactivation event = new ORMapEventInactivation(context, new RequestEventDetails(associatedAgent.getIri()), 
+        		RMapEventTargetType.DISCO);
+               
         event.setDescription(description);
         event.setEndTime(endTime);
-        event.setAssociatedKeyStatement(ORAdapter.rMapIri2Rdf4jIri(associatedKey));
+        event.setAssociatedKey(associatedKey);
         event.setLineageProgenitor(lineage);
         event.setInactivatedObjectId(new RMapIri(URI.create("test:inactivated")));
         

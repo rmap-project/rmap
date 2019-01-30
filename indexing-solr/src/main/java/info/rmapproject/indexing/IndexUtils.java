@@ -277,7 +277,8 @@ public class IndexUtils {
             switch (event.getEventType()) {
                 case CREATION:
                     // TODO: handle multiple creation ids
-                    iri = Optional.of(assertNotNullOrEmpty(((RMapEventCreation) event).getCreatedObjectIds()).get(0));
+                	
+                    iri = Optional.of(assertNotNullOrEmpty(((RMapEventCreation) event).getCreatedObjectIds()).iterator().next());
                     break;
 
                 case DERIVATION:

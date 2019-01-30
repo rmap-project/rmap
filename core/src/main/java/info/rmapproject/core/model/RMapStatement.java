@@ -27,25 +27,22 @@ import java.io.Serializable;
 /**
  * Models the concept of an RDF triple, which contains a subject, predicate and object
  *
- * @author smorrissey
+ * @author khanson
  */
-public class RMapTriple implements Serializable {
+public class RMapStatement implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	/** The subject. */
-	protected RMapResource subject;
+	protected RMapTriple triple;
 	
 	/** The predicate. */
-	protected RMapIri predicate;
-	
-	/** The object. */
-	protected RMapValue object;
+	protected RMapIri context;
 	
 	/**
 	 * Instantiates a new RMap triple.
 	 */
-	protected RMapTriple() {
+	protected RMapStatement() {
 		super();
 	}
 	
@@ -57,21 +54,20 @@ public class RMapTriple implements Serializable {
 	 * @param object the object
 	 * @throws IllegalArgumentException if subject, predicate, or object is null
 	 */
-	public RMapTriple(RMapResource subject, RMapIri predicate, RMapValue object){
+	public RMapStatement(RMapResource subject, RMapIri predicate, RMapValue object, RMapIri context){
 		this();
 		if (subject==null){
-			throw new IllegalArgumentException("Subject cannot be null in RMapTriple");
+			throw new IllegalArgumentException("Subject cannot be null in RMapStatement");
 		}
 		if (predicate==null){
-			throw new IllegalArgumentException("Predicate cannot be null in RMapTriple");
+			throw new IllegalArgumentException("Predicate cannot be null in RMapStatement");
 		}
 		if (object==null){
-			throw new IllegalArgumentException("Object cannot be null in RMapTriple");
+			throw new IllegalArgumentException("Object cannot be null in RMapStatement");
 		}
-		
-		this.subject = subject;
-		this.predicate = predicate;
-		this.object = object;
+		RMapTriple triple = new RMapTriple(subject, predicate, object);
+		this.triple = triple;
+		this.context = context;
 	}
 
 	/**
@@ -80,7 +76,7 @@ public class RMapTriple implements Serializable {
 	 * @return the subject
 	 */
 	public RMapResource getSubject() {
-		return subject;
+		return triple.getSubject();
 	}
 
 	/**
@@ -89,7 +85,7 @@ public class RMapTriple implements Serializable {
 	 * @return the predicate
 	 */
 	public RMapIri getPredicate() {
-		return predicate;
+		return triple.getPredicate();
 	}
 
 	/**
@@ -98,15 +94,25 @@ public class RMapTriple implements Serializable {
 	 * @return the object
 	 */
 	public RMapValue getObject() {
-		return object;
+		return triple.getObject();
+	}
+
+	/**
+	 * Gets the context.
+	 *
+	 * @return the context
+	 */
+	public RMapIri getContext() {
+		return context;
 	}
 
 	@Override
 	public String toString() {
-		return "RMapTriple{" +
-				"subject=" + subject +
-				", predicate=" + predicate +
-				", object=" + object +
+		return "RMapStatement{" +
+				"subject=" + triple.getSubject() +
+				", predicate=" + triple.getPredicate() +
+				", object=" + triple.getObject() +
+				", context=" + context +
 				'}';
 	}
 
@@ -115,18 +121,15 @@ public class RMapTriple implements Serializable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		RMapTriple that = (RMapTriple) o;
-
-		if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
-		if (predicate != null ? !predicate.equals(that.predicate) : that.predicate != null) return false;
-		return object != null ? object.equals(that.object) : that.object == null;
+		RMapStatement that = (RMapStatement) o;
+		if (triple != null ? !triple.equals(that.triple) : that.triple != null) return false;
+		return context != null ? context.equals(that.context) : that.context == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = subject != null ? subject.hashCode() : 0;
-		result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
-		result = 31 * result + (object != null ? object.hashCode() : 0);
+		int result = triple != null ? triple.hashCode() : 0;
+		result = 31 * result + (context != null ? context.hashCode() : 0);
 		return result;
 	}
 }

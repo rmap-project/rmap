@@ -131,7 +131,8 @@ public class TestUtil {
                     case DELETE_ON_EXIT:
                         tmpFile.deleteOnExit();
                         break;
-                    // PRESERVE is a no-op
+					default:
+						break;
                 }
             } else {
                 // default when preserveMode is null

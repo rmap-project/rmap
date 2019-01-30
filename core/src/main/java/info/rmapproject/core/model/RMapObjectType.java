@@ -19,8 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.core.model;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +43,7 @@ public enum RMapObjectType {
 	OBJECT (RMAP.OBJECT.toString()); 
 
 	/** The object type ontology path. */
-	private  RMapIri objectTypePath= null ;
+	private  String objectTypePath= null ;
 
 	/**
 	 * Instantiates a new RMap object type.
@@ -53,11 +51,7 @@ public enum RMapObjectType {
 	 * @param path the ontology path for the type
 	 */
 	RMapObjectType(String path){		
-		try {
-			this.objectTypePath = new RMapIri(new URI(path));		
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		this.objectTypePath = path;		
 	}
 	
 
@@ -66,9 +60,10 @@ public enum RMapObjectType {
 	 *
 	 * @return the ontology path
 	 */
-	public RMapIri getPath()  {
+	public String getPath()  {
 		return this.objectTypePath;
 	}
+
 
     /**
      * Gets the object type.
@@ -76,13 +71,12 @@ public enum RMapObjectType {
      * @param path the ontology path
      * @return the object type
      */
-    public static RMapObjectType getObjectType(RMapIri path) { 
+    public static RMapObjectType getRMapObjectType(String path) { 
     	Map<String, RMapObjectType> lookup = new HashMap<String, RMapObjectType>();
-        for(RMapObjectType objtype : EnumSet.allOf(RMapObjectType.class)) {
-            lookup.put(objtype.getPath().toString(), objtype);
+        for(RMapObjectType objectType : EnumSet.allOf(RMapObjectType.class)) {
+            lookup.put(objectType.getPath().toString(), objectType);
         }
-        return lookup.get(path.toString()); 
+        return lookup.get(path); 
     }
 	
-
 }

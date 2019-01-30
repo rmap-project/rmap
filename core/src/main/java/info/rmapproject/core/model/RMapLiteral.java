@@ -19,8 +19,11 @@
  *******************************************************************************/
 package info.rmapproject.core.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
+
+import info.rmapproject.core.vocabulary.XMLSchema;
 
 /**
  * Models the concept of an RDF Literal.  Literals have a string value. 
@@ -30,8 +33,10 @@ import java.util.Optional;
  * Concrete class for RDF resources represented by a literal string. 
  * @see http://www.w3.org/TR/2014/REC-rdf11-concepts-20140225/#resources-and-statements
  */
-public class RMapLiteral implements RMapValue {
-	
+public class RMapLiteral implements RMapValue, Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	/** The literal string value. */
 	String value;
 	
@@ -55,8 +60,7 @@ public class RMapLiteral implements RMapValue {
 	 * @throws IllegalArgumentException if value argument is null
 	 */
 	public RMapLiteral(String value){
-		this();
-		this.setValue(value);
+		this(value, XMLSchema.STRING);
 	}
 
 	/**

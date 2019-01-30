@@ -22,8 +22,8 @@
  */
 package info.rmapproject.core.model.impl.rdf4j;
 
-import java.util.ArrayList;
-import java.util.List;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.IRI;
@@ -33,7 +33,11 @@ import org.eclipse.rdf4j.model.Statement;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventTargetType;
+import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventWithNewObjects;
 import info.rmapproject.core.model.request.RequestEventDetails;
 
@@ -47,8 +51,8 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 
 	private static final long serialVersionUID = 1L;
 
-	/** List of statements that have references to IRIs of created objects. */
-	protected List<Statement> createdObjects;
+	/** Set of IRIs for created objects. */
+	protected Set<RMapIri> createdObjectIds;
 
 	/**
 	 * Instantiates a new RMap Event in which new objects were created.
@@ -64,15 +68,12 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @param associatedKeyStmt - the statement containing a reference to the associated API key IRI, null if none provided
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventWithNewObjects(Statement eventTypeStmt,
-			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
-			Statement descriptionStmt, Statement startTimeStmt,
-			Statement endTimeStmt, IRI context, Statement typeStatement, 
-			Statement associatedKeyStmt, Statement lineageProgenitorStmt)
-			throws RMapException {
-		super(eventTypeStmt, eventTargetTypeStmt, associatedAgentStmt,
-				descriptionStmt, startTimeStmt, endTimeStmt, context,
-				typeStatement, associatedKeyStmt, lineageProgenitorStmt);
+	public ORMapEventWithNewObjects(RMapEventType eventType, RMapEventTargetType eventTargetType, RMapIri associatedAgent,
+			RMapValue description, RMapLiteral startTime, RMapLiteral endTime, RMapIri id,
+			RMapObjectType type, RMapIri associatedKey, RMapIri lineageProgenitor, Set<RMapIri> createdObjects)
+					throws RMapException {
+		super(eventType,eventTargetType,associatedAgent,description, startTime, endTime, id, type, associatedKey, lineageProgenitor);
+		this.createdObjectIds = createdObjects;
 	}
 
 	/**
@@ -80,7 +81,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventWithNewObjects(IRI id) throws RMapException {
+	protected ORMapEventWithNewObjects(RMapIri id) throws RMapException {
 		super(id);
 	}
 
@@ -92,7 +93,7 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	protected ORMapEventWithNewObjects(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
+	protected ORMapEventWithNewObjects(RMapIri id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType) throws RMapException, RMapDefectiveArgumentException {
 		super(id, reqEventDetails, targetType);
 	}
 
@@ -100,81 +101,34 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 	 * @see info.rmapproject.core.model.RMapEventWithNewObjects#getCreatedObjectIds()
 	 */
 	@Override
-	public List<RMapIri> getCreatedObjectIds() throws RMapException {
-		List<RMapIri> iris = null;
-		if (this.createdObjects != null){
-			try {
-				iris = new ArrayList<RMapIri>();
-				for (Statement stmt:this.createdObjects){
-					IRI idIRI = (IRI) stmt.getObject();
-					RMapIri rid = ORAdapter.rdf4jIri2RMapIri(idIRI);
-					iris.add(rid);
-				}
-			} catch (IllegalArgumentException ex){
-				throw new RMapException("Could not retrieve created object ids", ex);
-			}
-		}
-		return iris;
+	public Set<RMapIri> getCreatedObjectIds() throws RMapException {
+		return createdObjectIds;
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapEventWithNewObjects#setCreatedObjectIds(java.util.List)
+	 * @see info.rmapproject.core.model.RMapEventWithNewObjects#setCreatedObjectIds(java.util.Set)
 	 */
 	@Override
-	public void setCreatedObjectIds(List<RMapIri> createdObjects)
+	public void setCreatedObjectIds(Set<RMapIri> createdObjects)
 			throws RMapException, RMapDefectiveArgumentException {
-		List<Statement> stmts = null;
-		if (createdObjects != null){
-			stmts = new ArrayList<Statement>();
-			for (RMapIri rIri:createdObjects){
-				IRI id = ORAdapter.rMapIri2Rdf4jIri(rIri);
-				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV_GENERATED, id, this.context);
-				stmts.add(stmt);
-			}
-			this.createdObjects = stmts;
-		}
-	}
-
-	/**
-	 * Gets list of statements containing a reference to the created object IRIs
-	 *
-	 * @return the created object statements
-	 */
-	public List<Statement> getCreatedObjectStatements(){
-		return this.createdObjects;
+		this.createdObjectIds = createdObjects;
 	}
 		
-	/**
-	 * Sets the list of statements containing a reference to the created object IRIs
-	 *
-	 * @param createdObjects a list of created object IRIs
-	 * @throws RMapException the RMap exception
-	 */
-	public void setCreatedObjectIdsFromIRI (Set<IRI> createdObjects) throws RMapException {
-		List<Statement> stmts = null;
-		if (createdObjects != null){
-			stmts = new ArrayList<Statement>();
-			for (IRI id:createdObjects){
-				Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, PROV_GENERATED, id, 
-						this.context);
-				stmts.add(stmt);
-			}
-			this.createdObjects = stmts;
-		}
-	}
-	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.impl.rdf4j.ORMapEvent#getAsModel()
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
-		Model model = super.getAsModel();
-		if (createdObjects != null){
-			for (Statement stmt: createdObjects){
-				model.add(stmt);
+		Model eventModel = super.getAsModel();
+		IRI id = rMapIri2Rdf4jIri(this.id);
+		if (createdObjectIds != null){
+			for (RMapIri rIri:createdObjectIds){
+				IRI createdobjIri = ORAdapter.rMapIri2Rdf4jIri(rIri);
+				Statement stmt = ORAdapter.getValueFactory().createStatement(id, PROV_GENERATED, createdobjIri, id);
+				eventModel.add(stmt);
 			}
 		}
-		return model;
+		return eventModel;
 	}
 
 	@Override
@@ -185,13 +139,13 @@ public abstract class ORMapEventWithNewObjects extends ORMapEvent implements
 
 		ORMapEventWithNewObjects that = (ORMapEventWithNewObjects) o;
 
-		return createdObjects != null ? createdObjects.equals(that.createdObjects) : that.createdObjects == null;
+		return createdObjectIds != null ? createdObjectIds.equals(that.createdObjectIds) : that.createdObjectIds == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result + (createdObjects != null ? createdObjects.hashCode() : 0);
+		result = 31 * result + (createdObjectIds != null ? createdObjectIds.hashCode() : 0);
 		return result;
 	}
 }

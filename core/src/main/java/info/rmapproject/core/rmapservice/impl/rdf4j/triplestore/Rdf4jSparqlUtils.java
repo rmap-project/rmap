@@ -19,6 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.rdf4j.triplestore;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.request.DateRange;
 import info.rmapproject.core.model.request.RMapStatusFilter;
@@ -54,6 +56,16 @@ public class Rdf4jSparqlUtils {
 		String sIri = iri.stringValue();
 		sIri = "<"  + sIri.replace("\"","\\\"") + ">";
 		return sIri;
+	}
+	
+	/**
+	 * Converts RMapIri to a string that can be slotted into a SPARQL query.
+	 *
+	 * @param iri an IRI to convert to a Sparql parameter
+	 * @return the IRI as a SPARQL snippet 
+	 */
+	public static String convertIriToSparqlParam(RMapIri iri) {
+		return convertIriToSparqlParam(ORAdapter.rMapIri2Rdf4jIri(iri));
 	}
 	
 	/**
@@ -97,13 +109,13 @@ public class Rdf4jSparqlUtils {
 	 * @param systemAgents a list of Agent IRIs
 	 * @return the list of Agent IRIs as a SPARQL snippet
 	 */
-	public static String convertSysAgentIriListToSparqlFilter(Set<IRI> systemAgents){
+	public static String convertSysAgentIriListToSparqlFilter(Set<URI> systemAgents){
 		String sysAgentSparql = "";
 		
 		//build system agent filter SPARQL
 		if (systemAgents != null && systemAgents.size()>0) {
 			Integer i = 0;			
-			for (IRI systemAgent : systemAgents) {
+			for (URI systemAgent : systemAgents) {
 				i=i+1;
 				if (i>1){
 					sysAgentSparql = sysAgentSparql + " UNION ";

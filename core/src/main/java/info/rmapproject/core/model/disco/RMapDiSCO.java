@@ -19,7 +19,6 @@
  *******************************************************************************/
 package info.rmapproject.core.model.disco;
 
-import java.net.URI;
 import java.util.List;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
@@ -48,7 +47,7 @@ public interface RMapDiSCO extends RMapObject  {
 	 * @return list of aggregated resources
 	 * @throws RMapException the RMapException
 	 */
-	public List<URI> getAggregatedResources() throws RMapException;
+	public List<RMapIri> getAggregatedResources() throws RMapException;
 
 	/**
 	 * Sets the aggregated resources list
@@ -57,7 +56,7 @@ public interface RMapDiSCO extends RMapObject  {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public void setAggregatedResources(List<URI> aggregratedResources) 
+	public void setAggregatedResources(List<RMapIri> aggregratedResources) 
 			throws RMapException, RMapDefectiveArgumentException;
 
 	/**
@@ -135,6 +134,6 @@ public interface RMapDiSCO extends RMapObject  {
 	 *
 	 * @return the provider id
 	 */
-	public String getProviderId();
+	public RMapValue getProviderId();
 	
 }

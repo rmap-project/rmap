@@ -22,17 +22,14 @@
  */
 package info.rmapproject.core.model.impl.rdf4j;
 
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
 import static java.net.URI.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -40,24 +37,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 
 import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -69,24 +63,23 @@ import info.rmapproject.testdata.service.TestFile;
  */
 public class ORMapDiscoTest extends CoreTestAbstract {
 	
-	protected ValueFactory vf = null;
-	protected Statement rStmt;
-	protected Statement rStmt2;
-	protected Statement s1;
-	protected Statement s2;
-	protected Statement s3;
-	protected Statement s4;
-	protected List<Statement> relatedStmts;
-	protected IRI r;
-	protected IRI r2;
-	protected Literal a;
-	protected IRI b;
-	protected IRI c;
-	protected IRI d;
+	protected RMapTriple rStmt;
+	protected RMapTriple rStmt2;
+	protected RMapTriple s1;
+	protected RMapTriple s2;
+	protected RMapTriple s3;
+	protected RMapTriple s4;
+	protected List<RMapTriple> relatedStmts;
+	protected RMapIri r;
+	protected RMapIri r2;
+	protected RMapLiteral a;
+	protected RMapIri b;
+	protected RMapIri c;
+	protected RMapIri d;
 	
-	protected Literal creator;
-	protected IRI creatorIRI;
-	protected IRI creatorIRI2;
+	protected RMapLiteral creator;
+	protected RMapIri creatorIRI;
+	protected RMapIri creatorIRI2;
 	private final AtomicInteger counter = new AtomicInteger();
 
 	/**
@@ -94,80 +87,61 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		vf = ORAdapter.getValueFactory();
-		r = vf.createIRI("http://rmap-info.org");	
-		r2 = vf.createIRI("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki");
-		a = vf.createLiteral("a");
-		b = vf.createIRI("http://b.org");
-		c = vf.createIRI("http://c.org");
-		d = vf.createIRI("http://d.org");		
-		relatedStmts = new ArrayList<Statement>();
+		r = new RMapIri("http://rmap-info.org");	
+		r2 = new RMapIri("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki");
+		a = new RMapLiteral("a");
+		b = new RMapIri("http://b.org");
+		c =  new RMapIri("http://c.org");
+		d =  new RMapIri("http://d.org");		
+		relatedStmts = new ArrayList<RMapTriple>();
 		//predicates are nonsense here
 		// first test connected r->a r->b b->c b->d
-		s1 = vf.createStatement(r,RMAP_DERIVEDOBJECT,a);
-		s2 = vf.createStatement(r,RMAP_DERIVEDOBJECT,b);
-		s3 = vf.createStatement(b,RMAP_DERIVEDOBJECT,c);
-		s4 = vf.createStatement(b,RMAP_DERIVEDOBJECT,d);
-		creator = vf.createLiteral("Mary Smith");
-		creatorIRI = vf.createIRI("http://orcid.org/0000-0003-2069-1219");
-		creatorIRI2 = vf.createIRI("http://orcid.org/2222-0003-2069-1219");
+		s1 = new RMapTriple(r,RMAP.DERIVEDOBJECT,a);
+		s2 = new RMapTriple(r,RMAP.DERIVEDOBJECT,b);
+		s3 = new RMapTriple(b,RMAP.DERIVEDOBJECT,c);
+		s4 = new RMapTriple(b,RMAP.DERIVEDOBJECT,d);
+		creator = new RMapLiteral("Mary Smith");
+		creatorIRI = new RMapIri("http://orcid.org/0000-0003-2069-1219");
+		creatorIRI2 = new RMapIri("http://orcid.org/2222-0003-2069-1219");
 	}
 
 
 	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO#ORMapDiSCO(RMapIri, java.util.List)}.
+	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO#ORMapDiSCO(RMapIri, RMapIri, java.util.Set)}.
 	 * @throws RMapDefectiveArgumentException 
 	 * @throws RMapException 
 	 */
 	@Test
-	public void testORMapDiSCORMapResourceListOfURI() throws RMapException, RMapDefectiveArgumentException {
-		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
-		try {
-			resourceList.add(new java.net.URI("http://rmap-info.org"));
-			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/1")), author, resourceList);
-			assertEquals(author.toString(),disco.getCreator().getStringValue());
-			List<Statement>resources = disco.getAggregatedResourceStatements();
-			assertEquals(2, resources.size());
-			Model model = new LinkedHashModel();
-			model.addAll(resources);
-			Set<IRI> predicates = model.predicates();
-			assertEquals(1,predicates.size());
-			assertTrue(predicates.contains(ORE_AGGREGATES));
-			Set<Value> objects = model.objects();
-			assertTrue(objects.contains(r));
-			assertTrue(objects.contains (r2));
-			Statement cstmt = disco.getCreatorStmt();
-			assertEquals(DCTERMS_CREATOR,cstmt.getPredicate());
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
-		
+	public void testORMapDiSCOConstructor() throws RMapException, RMapDefectiveArgumentException {
+		List<RMapIri> resourceList = new ArrayList<RMapIri>();
+		resourceList.add(new RMapIri("http://rmap-info.org"));
+		resourceList.add(new RMapIri("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+		ORMapDiSCO disco = new ORMapDiSCO(new RMapIri(create("http://example.org/disco/1")), creatorIRI, resourceList);
+		assertEquals(creatorIRI,disco.getCreator());
+		List<RMapIri>resources = disco.getAggregatedResources();
+		assertEquals(2, resources.size());
+
+		assertTrue(resources.contains(r));
+		assertTrue(resources.contains(r2));
+		RMapIri creator = disco.getCreator();
+		assertEquals(creatorIRI,creator);
+	
 	}
 
 	@Test
 	public void testORMapDisco() throws RMapException, RMapDefectiveArgumentException, FileNotFoundException {
-		try {
-			InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
-			RioRDFHandler handler = new RioRDFHandler();
-			Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
-			ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
-			assertEquals(29, disco.getRelatedStatementsAsList().size());
-			OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);
-			String output = os.toString();
-			assertTrue(output.contains("Green, M."));
-			stream = TestDataHandler.getTestData(TestFile.DISCOB_V1_XML);
-			stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
-			disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
-			assertTrue(true);
-		}
-		catch (RMapException e){
-			e.printStackTrace();
-			fail("should have handled converted to DiSCOs");			
-		}
+		InputStream stream = TestDataHandler.getTestData(TestFile.DISCOA_XML);
+		RioRDFHandler handler = new RioRDFHandler();
+		Set <Statement> stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+		ORMapDiSCO disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
+		assertEquals(29, disco.getRelatedStatements().size());
+		OutputStream os = handler.disco2Rdf(disco, RDFType.RDFXML);
+		String output = os.toString();
+		assertTrue(output.contains("Green, M."));
+		stream = TestDataHandler.getTestData(TestFile.DISCOB_V1_XML);
+		stmts = handler.convertRDFToStmtList(stream, RDFType.RDFXML, "");
+		disco = OStatementsAdapter.asDisco(stmts, () -> create("http://example.org/disco/" + counter.getAndIncrement()));
+		assertTrue(true);
 	}
 	
 	/**
@@ -177,12 +151,10 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	 */
 	@Test
 	public void testReferencesAggregate() throws RMapException {
-		ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())));
-		Statement rStmt = vf.createStatement(disco.context, ORE_AGGREGATES, r,disco.context);
-		Statement rStmt2 = vf.createStatement(disco.context, ORE_AGGREGATES, r2,disco.context);
-		disco.aggregatedResources = new ArrayList<Statement>();
-		disco.aggregatedResources.add(rStmt);
-		disco.aggregatedResources.add(rStmt2);
+		ORMapDiSCO disco = new ORMapDiSCO(new RMapIri(create("http://example.org/disco/" + counter.getAndIncrement())));
+		disco.aggregatedResources = new ArrayList<RMapIri>();
+		disco.aggregatedResources.add(r);
+		disco.aggregatedResources.add(r2);
 		relatedStmts.add(s1);
 		relatedStmts.add(s2);
 		relatedStmts.add(s3);
@@ -198,81 +170,6 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		
 	}
 
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO#getAggregatedResourceStatements()}.
-	 */
-	@Test
-	public void testGetAggregatedResourceStatements() {
-		try {
-			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())));
-			Statement rStmt = vf.createStatement(disco.context, ORE_AGGREGATES, r,disco.context);
-			Statement rStmt2 = vf.createStatement(disco.context, ORE_AGGREGATES, r2,disco.context);
-			List<java.net.URI> list1 = new ArrayList<java.net.URI>();
-			list1.add(ORAdapter.rdf4jIri2URI(r));
-			list1.add(ORAdapter.rdf4jIri2URI(r2));
-			disco.setAggregatedResources(list1);	
-			List<Statement>list2 = disco.getAggregatedResourceStatements();
-			assertEquals(2,list2.size());
-			assertTrue(list2.contains(rStmt));
-			assertTrue(list2.contains(rStmt2));
-		} catch (RMapDefectiveArgumentException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
-	}
-
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO#setAggregatedResources(java.util.List)}.
-	 */
-	@Test
-	public void testSetAggregratedResources() {
-		try {
-			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())));
-			List<java.net.URI> list1 = new ArrayList<java.net.URI>();
-			list1.add(ORAdapter.rdf4jIri2URI(r));
-			list1.add(ORAdapter.rdf4jIri2URI(r2));
-			disco.setAggregatedResources(list1);
-			List<java.net.URI>list2 = disco.getAggregatedResources();
-			assertEquals(2,list2.size());
-			assertTrue(list2.contains(ORAdapter.rdf4jIri2URI(r)));
-			assertTrue(list2.contains(ORAdapter.rdf4jIri2URI(r2)));
-		} catch (RMapDefectiveArgumentException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
-		
-	}
-
-
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO#setCreator(RMapIri)}.
-	 * @throws RMapDefectiveArgumentException 
-	 * @throws RMapException 
-	 */
-	@Test
-	public void testSetCreator() throws RMapException, RMapDefectiveArgumentException {
-		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
-		try {
-			resourceList.add(new java.net.URI("http://rmap-info.org"));
-			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
-			assertEquals(author.toString(),disco.getCreator().getStringValue());
-			try {
-				RMapIri author2 = ORAdapter.rdf4jIri2RMapIri(creatorIRI2);
-				disco.setCreator(author2);
-				assertEquals(author2.toString(),disco.getCreator().getStringValue());
-			}catch (RMapException r){
-				fail(r.getMessage());
-			}
-			
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
-		
-	}
 
 	/**
 	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO#setDescription(RMapValue)}.
@@ -281,24 +178,15 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	 */
 	@Test
 	public void testSetDescription() throws RMapException, RMapDefectiveArgumentException {
-		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
-		try {
-			resourceList.add(new java.net.URI("http://rmap-info.org"));
-			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
-			Literal desc = vf.createLiteral("this is a description");
-			RMapValue rdesc = ORAdapter.rdf4jValue2RMapValue(desc);
-			disco.setDescription(rdesc);
-			RMapValue gDesc = disco.getDescription();
-			assertEquals (rdesc.getStringValue(), gDesc.getStringValue());
-			Statement descSt = disco.getDescriptonStatement();
-			assertEquals(desc, descSt.getObject());
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}	}
+		List<RMapIri> resourceList = new ArrayList<RMapIri>();
+		resourceList.add(r);
+		resourceList.add(r2);
+		ORMapDiSCO disco = new ORMapDiSCO(new RMapIri(create("http://example.org/disco/" + counter.getAndIncrement())), creatorIRI, resourceList);
+		RMapLiteral desc = new RMapLiteral("this is a description");
+		disco.setDescription(desc);
+		RMapValue gDesc = disco.getDescription();
+		assertEquals (desc.getStringValue(), gDesc.getStringValue());
+}
 
 
 	/**
@@ -307,47 +195,13 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	 * @throws RMapException 
 	 */
 	@Test
-	public void testGetTypeStatement() throws RMapException, RMapDefectiveArgumentException {
-		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
-		try {
-			resourceList.add(new java.net.URI("http://rmap-info.org"));
-			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
-			Statement stmt = disco.getTypeStatement();
-			assertEquals(disco.getId().getStringValue(), stmt.getSubject().stringValue());
-			assertEquals(RDF_TYPE, stmt.getPredicate());
-			assertEquals(RMAP_DISCO.toString(), stmt.getObject().toString());
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
-	}
-
-	/**
-	 * Test method for {@link info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO#getDiscoContext()}.
-	 * @throws RMapDefectiveArgumentException 
-	 * @throws RMapException 
-	 */
-	@Test
-	public void testGetDiscoContext() throws RMapException, RMapDefectiveArgumentException {
-		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
-		try {
-			resourceList.add(new java.net.URI("http://rmap-info.org"));
-			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
-			IRI context = disco.getDiscoContext();
-			Model model = new LinkedHashModel();
-			for (Statement stm:model){
-				assertEquals(context, stm.getContext());
-			}
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
-		}
+	public void testGetType() throws RMapException, RMapDefectiveArgumentException {
+		List<RMapIri> resourceList = new ArrayList<RMapIri>();
+		resourceList.add(r);
+		resourceList.add(r2);
+		ORMapDiSCO disco = new ORMapDiSCO(new RMapIri(create("http://example.org/disco/" + counter.getAndIncrement())), creatorIRI, resourceList);
+		RMapObjectType type = disco.getType();
+		assertEquals(RMapObjectType.DISCO, type);
 	}
 
 }

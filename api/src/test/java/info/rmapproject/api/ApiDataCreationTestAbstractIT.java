@@ -27,14 +27,13 @@ import java.net.URISyntaxException;
 import info.rmapproject.testdata.service.TestConstants;
 import org.junit.After;
 import org.junit.Before;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rdfhandler.RDFHandler;
@@ -104,10 +103,10 @@ public abstract class ApiDataCreationTestAbstractIT extends ApiTestAbstractIT {
 	 */
 	protected void createSystemAgent() throws RMapException, RMapDefectiveArgumentException, URISyntaxException{
 		if (sysagent == null) {
-			IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID);
-			IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
-			IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_AUTH_ID);
-			Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT_NAME);	
+			RMapIri AGENT_IRI = new RMapIri(TestConstants.SYSAGENT_ID);
+			RMapIri ID_PROVIDER_IRI = new RMapIri(TestConstants.SYSAGENT_ID_PROVIDER);
+			RMapIri AUTH_ID_IRI = new RMapIri(TestConstants.SYSAGENT_AUTH_ID);
+			RMapLiteral NAME = new RMapLiteral(TestConstants.SYSAGENT_NAME);	
 			sysagent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			
 			if (requestEventDetails==null){

@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
 import info.rmapproject.core.idservice.IdService;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.vocabulary.DC;
 import info.rmapproject.core.vocabulary.ORE;
@@ -155,8 +156,9 @@ public abstract class ORMapObjectMgr {
 	 * @return true, if the IRI is a DiSCO IRI
 	 * @throws RMapException the RMap exception
 	 */
-	public boolean isDiscoId(IRI id, Rdf4jTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP_DISCO);		
+	public boolean isDiscoId(RMapIri id, Rdf4jTriplestore ts) throws RMapException {	
+		IRI discoId = rMapIri2Rdf4jIri(id);
+		return this.isRMapType(ts, discoId, RMAP_DISCO);		
 	}
 	
 	/**
@@ -167,8 +169,9 @@ public abstract class ORMapObjectMgr {
 	 * @return true, if the IRI is a Event IRI
 	 * @throws RMapException the RMap exception
 	 */
-	public boolean isEventId (IRI id, Rdf4jTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP_EVENT);
+	public boolean isEventId (RMapIri id, Rdf4jTriplestore ts) throws RMapException {	
+		IRI eventId = rMapIri2Rdf4jIri(id);
+		return this.isRMapType(ts, eventId, RMAP_EVENT);
 	}
 	
 	/**
@@ -179,8 +182,9 @@ public abstract class ORMapObjectMgr {
 	 * @return true, if the IRI is an Agent IRI
 	 * @throws RMapException the RMap exception
 	 */
-	public boolean isAgentId(IRI id, Rdf4jTriplestore ts) throws RMapException {	
-		return this.isRMapType(ts, id, RMAP_AGENT);		
+	public boolean isAgentId(RMapIri id, Rdf4jTriplestore ts) throws RMapException {	
+		IRI agentId = rMapIri2Rdf4jIri(id);
+		return this.isRMapType(ts, agentId, RMAP_AGENT);		
 	}
 	
 	/**
@@ -193,15 +197,16 @@ public abstract class ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getNamedGraph(IRI id, Rdf4jTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+	protected Set<Statement> getNamedGraph(RMapIri id, Rdf4jTriplestore ts) throws RMapObjectNotFoundException, RMapException {
+		IRI iri = rMapIri2Rdf4jIri(id);
 		Set<Statement> matchingTriples = null;
 		try {
-            if (ts.getConnection().size(id)>0) {
-                matchingTriples = ts.getStatements(null, null, null, false, id);   
+            if (ts.getConnection().size(iri)>0) {
+                matchingTriples = ts.getStatements(null, null, null, false, iri);   
             }
 		} catch (Exception e) {
 			throw new RMapException("Exception fetching triples matching named graph id "
-					+ id.stringValue(), e);
+					+ iri.stringValue(), e);
 		}
 		if (matchingTriples==null || matchingTriples.isEmpty()){
 			throw new RMapObjectNotFoundException("could not find triples matching named graph id " + id.toString());

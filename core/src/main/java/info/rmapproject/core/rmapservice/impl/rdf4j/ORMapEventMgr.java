@@ -19,6 +19,9 @@
  *******************************************************************************/
 package info.rmapproject.core.rmapservice.impl.rdf4j;
 
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jIri2RMapIri;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +38,8 @@ import java.util.concurrent.TimeoutException;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 
@@ -43,19 +48,18 @@ import info.rmapproject.core.exception.RMapDiSCONotFoundException;
 import info.rmapproject.core.exception.RMapEventNotFoundException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapObjectNotFoundException;
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
+import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEventDeletion;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEventDerivation;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEventInactivation;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEventTombstone;
-import info.rmapproject.core.model.impl.rdf4j.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventUpdateWithReplace;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.rmapservice.impl.rdf4j.triplestore.Rdf4jTriplestore;
 import info.rmapproject.core.utils.DateUtils;
+import info.rmapproject.core.vocabulary.PROV;
+import info.rmapproject.core.vocabulary.RMAP;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -94,96 +98,16 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the iri
 	 * @throws RMapException the RMap exception
 	 */
-	public IRI createEvent (ORMapEvent event, Rdf4jTriplestore ts) throws RMapException {
+	public RMapIri createEvent (ORMapEvent event, Rdf4jTriplestore ts) throws RMapException {
 		if (event==null){
 			throw new RMapException ("Cannot create null Event");
 		}
-		IRI eventId = event.getContext();
-		this.createStatement(ts, event.getTypeStatement());
-		this.createStatement(ts, event.getEventTypeStmt());
-		this.createStatement(ts, event.getEventTargetTypeStmt());
-		this.createStatement(ts, event.getAssociatedAgentStmt());
-		this.createStatement(ts, event.getStartTimeStmt());
-		this.createStatement(ts, event.getEndTimeStmt());
-		if (event.getLineageProgenitorStmt() != null) {
-		    this.createStatement(ts, event.getLineageProgenitorStmt());
-		}	
-		if (event.getDescriptionStmt()!= null){
-			this.createStatement(ts, event.getDescriptionStmt());
-		}
-		if (event.getAssociatedKey()!=null){
-			this.createStatement(ts, event.getAssociatedKeyStmt());			
+		
+		Model model = event.getAsModel();
+		for (Statement stmt : model) {
+			this.createStatement(ts, stmt);
 		}
 		
-		if (event instanceof ORMapEventCreation){
-			ORMapEventCreation crEvent = (ORMapEventCreation)event;
-			List<Statement> stmts = crEvent.getCreatedObjectStatements();
-			if (stmts != null && !stmts.isEmpty()){
-				for (Statement stmt:stmts){
-					this.createStatement(ts, stmt);
-				}
-			}			
-		}
-		else if (event instanceof ORMapEventUpdate){
-			ORMapEventUpdate upEvent = (ORMapEventUpdate)event;
-			Statement inactivated = upEvent.getInactivatedObjectStmt();
-			if (inactivated != null){
-				this.createStatement(ts, inactivated);
-			}
-			Statement derivationSource = upEvent.getDerivationStmt();
-			if (derivationSource != null){
-				this.createStatement(ts, derivationSource);
-			}
-			List<Statement> stmts = upEvent.getCreatedObjectStatements();
-			if (stmts != null && !stmts.isEmpty()){
-				for (Statement stmt:stmts){
-					this.createStatement(ts, stmt);
-				}
-			}	
-		}
-		else if (event instanceof ORMapEventInactivation){
-			ORMapEventInactivation inEvent = (ORMapEventInactivation)event;
-			Statement inactivated = inEvent.getInactivatedObjectStatement();
-			if (inactivated != null){
-				this.createStatement(ts, inactivated);
-			}
-		}
-		else if (event instanceof ORMapEventDerivation){
-			ORMapEventDerivation dEvent = (ORMapEventDerivation)event;
-			Statement sourceStmt = dEvent.getSourceObjectStatement();
-			if (sourceStmt != null){
-				this.createStatement(ts,sourceStmt);
-			}
-			Statement derivationSource = dEvent.getDerivationStmt();
-			if (derivationSource != null){
-				this.createStatement(ts, derivationSource);
-			}
-			List<Statement> stmts = dEvent.getCreatedObjectStatements();
-			if (stmts != null && !stmts.isEmpty()){
-				for (Statement stmt:stmts){
-					this.createStatement(ts, stmt);
-				}
-			}	
-		}
-		else if (event instanceof ORMapEventTombstone){
-			ORMapEventTombstone tsEvent = (ORMapEventTombstone)event;
-			this.createStatement(ts, tsEvent.getTombstonedResourceStmt());
-		}
-		else if (event instanceof ORMapEventDeletion){
-			ORMapEventDeletion dEvent = (ORMapEventDeletion)event;
-			this.createStatement(ts, dEvent.getDeletedResourceStmt());
-		}
-		else if (event instanceof ORMapEventUpdateWithReplace){
-			ORMapEventUpdateWithReplace replEvent = (ORMapEventUpdateWithReplace)event;
-			Statement updatedObjectStmt = replEvent.getUpdatedObjectStmt();
-			if (updatedObjectStmt != null){
-				this.createStatement(ts, updatedObjectStmt);
-			}
-		}
-		else {
-			throw new RMapException ("Unrecognized event type");
-		}
-
 		if (kafkaTemplate != null) {
 			log.debug("Sending {} to topic {} with {}@{}", event.getId().getStringValue(), topic,
 					kafkaTemplate.getClass().getSimpleName(), toHexString(identityHashCode(kafkaTemplate)));
@@ -209,7 +133,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			}
 		}
 
-		return eventId;
+		return event.getId();
 	}
 	
 	/**
@@ -220,7 +144,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the ORMap event
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 */
-	public ORMapEvent readEvent(IRI eventId, Rdf4jTriplestore ts) 
+	public ORMapEvent readEvent(RMapIri eventId, Rdf4jTriplestore ts) 
 	throws RMapEventNotFoundException {
 		ORMapEvent event = null;
 		if (eventId ==null){
@@ -234,7 +158,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			eventStmts=this.getNamedGraph(eventId, ts);
 		}
 		catch (RMapObjectNotFoundException e){
-			throw new RMapEventNotFoundException ("No event found for id " + eventId.stringValue(), e);
+			throw new RMapEventNotFoundException ("No event found for id " + eventId.toString(), e);
 		}		
 		event = OStatementsAdapter.asEvent(eventStmts);
 		return event;
@@ -248,9 +172,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the latest event
 	 * @throws RMapException the RMap exception
 	 */
-	public IRI getLatestEvent (Set<IRI> eventIds,Rdf4jTriplestore ts)
+	public RMapIri getLatestEvent (Set<RMapIri> eventIds,Rdf4jTriplestore ts)
 	throws RMapException {
-		Map <Date, IRI>date2event = this.getDate2EventMap(eventIds, ts);
+		Map <Date, RMapIri>date2event = this.getDate2EventMap(eventIds, ts);
 				new HashMap<Date, IRI>();
 		SortedSet<Date> dates = new TreeSet<Date>();
 		dates.addAll(date2event.keySet());
@@ -266,14 +190,14 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return a date-to-EventURI map
 	 * @throws RMapException the RMap exception
 	 */
-	public Map <Date, IRI> getDate2EventMap(Set<IRI> eventIds,Rdf4jTriplestore ts)
+	public Map <Date, RMapIri> getDate2EventMap(Set<RMapIri> eventIds,Rdf4jTriplestore ts)
 	throws RMapException {
 		if (eventIds==null){
 			throw new RMapException("List of eventIds is null");
 		}
-		Map <Date, IRI>date2event = new HashMap<Date, IRI>();
-		for (IRI eventId:eventIds){
-			Date date = this.getEventDate(eventId,PROV_ENDEDATTIME, ts);
+		Map <Date, RMapIri>date2event = new HashMap<Date, RMapIri>();
+		for (RMapIri eventId:eventIds){
+			Date date = getEventDate(eventId, PROV.ENDEDATTIME, ts);
 			date2event.put(date, eventId);
 		}
 		return date2event;
@@ -286,53 +210,56 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return a list of IRIs for the affected DiSCOs
 	 * @throws RMapException the RMap exception
 	 */
-	public List<IRI> getAffectedDiSCOs(IRI eventId, Rdf4jTriplestore ts) 
+	public List<RMapIri> getAffectedDiSCOs(RMapIri eventId, Rdf4jTriplestore ts) 
 			throws RMapException{
 
+		List<RMapIri> relatedDiSCOs = new ArrayList<RMapIri>();
 		Set<Statement> affectedObjects= new HashSet<Statement>();
-		List<IRI> relatedDiSCOs = new ArrayList<IRI>();
 
 		try {
-			RMapEventType eventType = this.getEventType(eventId, ts);
-			RMapEventTargetType targetType = this.getEventTargetType(eventId, ts);
+			RMapEventType eventType = getEventType(eventId, ts);
+			RMapEventTargetType targetType = getEventTargetType(eventId, ts);
 			
-            if (!this.isEventId(eventId, ts)) {
+            if (!isEventId(eventId, ts)) {
                 throw new RMapException ("Event ID not recognized")  ;                
             }
+            
+            IRI eventIri = rMapIri2Rdf4jIri(eventId);
+            
 			switch (targetType){
 			case DISCO:
 				switch (eventType){
 				case CREATION :
-					affectedObjects= ts.getStatements(eventId, PROV_GENERATED, null, eventId);
+					affectedObjects= ts.getStatements(eventIri, PROV_GENERATED, null, eventIri);
 					break;
 				case UPDATE:
-					affectedObjects= ts.getStatements(eventId, PROV_GENERATED, null, eventId);
-					Statement stmt = ts.getStatement(eventId, RMAP_INACTIVATEDOBJECT, null, eventId);
+					affectedObjects= ts.getStatements(eventIri, PROV_GENERATED, null, eventIri);
+					Statement stmt = ts.getStatement(eventIri, RMAP_INACTIVATEDOBJECT, null, eventIri);
 					if (stmt != null){
 						affectedObjects.add(stmt);
 					}
 					break;	
 				case INACTIVATION:
-						Statement stmt2 = ts.getStatement(eventId,  RMAP_INACTIVATEDOBJECT, null, eventId);
+						Statement stmt2 = ts.getStatement(eventIri,  RMAP_INACTIVATEDOBJECT, null, eventIri);
 						if (stmt2 != null){
 							affectedObjects.add(stmt2);
 						}
 					break;
 				case DERIVATION:
-					affectedObjects= ts.getStatements(eventId, PROV_GENERATED, null, eventId);
-					Statement stmt3 = ts.getStatement(eventId, RMAP_HASSOURCEOBJECT, null, eventId);
+					affectedObjects= ts.getStatements(eventIri, PROV_GENERATED, null, eventIri);
+					Statement stmt3 = ts.getStatement(eventIri, RMAP_HASSOURCEOBJECT, null, eventIri);
 					if (stmt3 != null){
 						affectedObjects.add(stmt3);
 					}
 					break;	
 				case TOMBSTONE:
-					Statement stmt4 = ts.getStatement(eventId, RMAP_TOMBSTONEDOBJECT, null, eventId);
+					Statement stmt4 = ts.getStatement(eventIri, RMAP_TOMBSTONEDOBJECT, null, eventIri);
 					if (stmt4 != null){
 						affectedObjects.add(stmt4);
 					}
 					break;
 				case DELETION:
-					affectedObjects= ts.getStatements(eventId, RMAP_DELETEDOBJECT, null, eventId);
+					affectedObjects= ts.getStatements(eventIri, RMAP_DELETEDOBJECT, null, eventIri);
 					break;
 				default:
 					throw new RMapException("Unrecognized event type");
@@ -347,7 +274,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			for (Statement st:affectedObjects){
 				Value obj = st.getObject();
 				if (obj instanceof IRI){
-					IRI iri = (IRI)obj;
+					RMapIri iri = new RMapIri(obj.stringValue());
 					if (this.isDiscoId(iri, ts)){
 						relatedDiSCOs.add(iri);
 					}
@@ -356,7 +283,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	
 		} catch (Exception e) {
 			throw new RMapException("exception thrown getting created objects for event "
-					+ eventId.stringValue(), e);
+					+ eventId.toString(), e);
 		}
 		
 		return relatedDiSCOs;
@@ -377,31 +304,31 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap di SCO not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public List<IRI> getDiscoRelatedEventIds(IRI discoid, Rdf4jTriplestore ts) 
+	public List<RMapIri> getDiscoRelatedEventIds(RMapIri discoid, Rdf4jTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
-		List<IRI> events = null;
+		List<RMapIri> events = null;
 		if (discoid==null){
 			throw new RMapException ("Null DiSCO IRI");
 		}
 		// first ensure Exists statement IRI rdf:TYPE rmap:DISCO  if not: raise NOTFOUND exception
 		if (! this.isDiscoId(discoid, ts)){
-			throw new RMapDiSCONotFoundException ("No DiSCO found with id " + discoid.stringValue());
+			throw new RMapDiSCONotFoundException ("No DiSCO found with id " + discoid.toString());
 		}
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_DELETEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_TOMBSTONEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_INACTIVATEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_DERIVEDOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_HASSOURCEOBJECT, discoid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(PROV_GENERATED, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DELETEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.TOMBSTONEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.INACTIVATEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DERIVEDOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.HASSOURCEOBJECT, discoid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(PROV.GENERATED, discoid, ts));
 				if (eventStmts.isEmpty()){
 					break;
 				}
-				events = new ArrayList<IRI>();
+				events = new ArrayList<RMapIri>();
 				for (Statement stmt:eventStmts){
-					IRI eventId = (IRI)stmt.getSubject();
+					RMapIri eventId = new RMapIri(stmt.getSubject().stringValue());
 					events.add(eventId);
 				}
 			} catch (Exception e) {
@@ -428,29 +355,29 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 */
-	public List<IRI> getAgentRelatedEventIds(IRI agentid, Rdf4jTriplestore ts) 
+	public List<RMapIri> getAgentRelatedEventIds(RMapIri agentid, Rdf4jTriplestore ts) 
 			throws RMapAgentNotFoundException, RMapException {
-		List<IRI> events = null;
+		List<RMapIri> events = null;
 		if (agentid==null){
 			throw new RMapException ("Null Agent IRI");
 		}
 		// first ensure Exists statement IRI rdf:TYPE rmap:DISCO  if not: raise NOTFOUND exception
-		if (! this.isAgentId(agentid, ts)){
-			throw new RMapAgentNotFoundException ("No Agent found with id " + agentid.stringValue());
+		if (! isAgentId(agentid, ts)){
+			throw new RMapAgentNotFoundException ("No Agent found with id " + agentid.toString());
 		}
 		do {
 			List<Statement> eventStmts = new ArrayList<Statement>();
 			try {
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_DELETEDOBJECT, agentid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_TOMBSTONEDOBJECT, agentid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(RMAP_UPDATEDOBJECT, agentid, ts));
-				eventStmts.addAll(getEventStmtsByPredicate(PROV_GENERATED, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.DELETEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.TOMBSTONEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(RMAP.UPDATEDOBJECT, agentid, ts));
+				eventStmts.addAll(getEventStmtsByPredicate(PROV.GENERATED, agentid, ts));
 				if (eventStmts.isEmpty()){
 					break;
 				}
-				events = new ArrayList<IRI>();
+				events = new ArrayList<RMapIri>();
 				for (Statement stmt:eventStmts){
-					IRI eventId = (IRI)stmt.getSubject();
+					RMapIri eventId = ORAdapter.rdf4jIri2RMapIri((IRI) stmt.getSubject());
 					events.add(eventId);
 				}
 			} catch (Exception e) {
@@ -473,15 +400,15 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return a list of IRIs for Resources affected by a specific Event
 	 */
-	public List<IRI> getAffectedResources (IRI eventId,Rdf4jTriplestore ts){
-		Set<IRI> resources = new HashSet<IRI>();
+	public List<RMapIri> getAffectedResources (RMapIri eventId,Rdf4jTriplestore ts){
+		Set<RMapIri> resources = new HashSet<RMapIri>();
 		// get DiSCO resources
-		Set<IRI> relatedDiSCOs = new HashSet<IRI>();
+		Set<RMapIri> relatedDiSCOs = new HashSet<RMapIri>();
 		relatedDiSCOs.addAll(this.getAffectedDiSCOs(eventId, ts));;
 		resources.addAll(relatedDiSCOs);
 		// get Agent resources
 		resources.addAll(this.getAffectedAgents(eventId, ts));
-		List<IRI> lResources = new ArrayList<IRI>();
+		List<RMapIri> lResources = new ArrayList<RMapIri>();
 		lResources.addAll(resources);
 		return lResources;
 	}
@@ -497,11 +424,11 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 */
-	public List<IRI> getAffectedAgents (IRI eventId, Rdf4jTriplestore ts)
+	public List<RMapIri> getAffectedAgents (RMapIri eventId, Rdf4jTriplestore ts)
     throws RMapException, RMapAgentNotFoundException, RMapEventNotFoundException {
 
-		List<Statement> affectedObjects= new ArrayList<Statement>();
-		List<IRI> agents = new ArrayList<IRI>();
+		Set<RMapIri> affectedObjects= new HashSet<RMapIri>();
+		List<RMapIri> agents = new ArrayList<RMapIri>();
 				
 		ORMapEvent event = this.readEvent(eventId, ts);
 		
@@ -510,26 +437,22 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 			switch (eventType){
 				case CREATION:
 					ORMapEventCreation crEvent = (ORMapEventCreation)event;
-					affectedObjects=crEvent.getCreatedObjectStatements();
+					affectedObjects=crEvent.getCreatedObjectIds();
 					break;
 				case REPLACE:
 					ORMapEventUpdateWithReplace updEvent = (ORMapEventUpdateWithReplace)event;
-					Statement stmt = updEvent.getUpdatedObjectStmt();
-					if (stmt!=null){
-						affectedObjects.add(stmt);
+					RMapIri updObjId = updEvent.getUpdatedObjectId();
+					if (updObjId!=null){
+						affectedObjects.add(updObjId);
 					}
 					break;
 				default:
 					break;			
 			}
 			//check if objects are Agents
-			for (Statement st:affectedObjects){
-				Value object = st.getObject();
-				if (object instanceof IRI){
-					IRI iri = (IRI)object;
-					if (this.isAgentId(iri, ts)){
-						agents.add(iri);
-					}
+			for (RMapIri iri:affectedObjects){
+				if (isAgentId(iri, ts)){
+					agents.add(iri);
 				}
 			}
 			
@@ -546,8 +469,8 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public RMapEventType getEventType (IRI eventId, Rdf4jTriplestore ts) 
-	throws RMapEventNotFoundException, RMapException{
+	public RMapEventType getEventType(RMapIri eventId, Rdf4jTriplestore ts) 
+			throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
 		}
@@ -556,15 +479,16 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		Value type = null;
 		Statement stmt = null;
+		IRI eventIri = rMapIri2Rdf4jIri(eventId);
 		try {
-			stmt = ts.getStatement(eventId, RMAP_EVENTTYPE, null, eventId);
+			stmt = ts.getStatement(eventIri, RMAP_EVENTTYPE, null, eventIri);
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown getting event type for " 
-					+ eventId.stringValue(), e);
+					+ eventId.toString(), e);
 		}
 		if (stmt == null){
 			throw new RMapEventNotFoundException("No event type statement found for ID " +
-		            eventId.stringValue());
+		            eventId.toString());
 		}
 		else {
 			type = stmt.getObject();
@@ -582,8 +506,8 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public RMapEventTargetType getEventTargetType (IRI eventId, Rdf4jTriplestore ts) 
-	throws RMapEventNotFoundException, RMapException{
+	public RMapEventTargetType getEventTargetType (RMapIri eventId, Rdf4jTriplestore ts) 
+			throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
 		}
@@ -592,15 +516,16 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		}
 		Value type = null;
 		Statement stmt = null;
+		IRI eventIri = rMapIri2Rdf4jIri(eventId);
 		try {
-			stmt = ts.getStatement(eventId, RMAP_TARGETTYPE, null, eventId);
+			stmt = ts.getStatement(eventIri, RMAP_TARGETTYPE, null, eventIri);
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown getting event type for " 
-					+ eventId.stringValue(), e);
+					+ eventId.toString(), e);
 		}
 		if (stmt == null){
 			throw new RMapEventNotFoundException("No event type statement found for ID " +
-		            eventId.stringValue());
+		            eventId.toString());
 		}
 		else {
 			type = stmt.getObject();
@@ -628,9 +553,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Date getEventStartDate (IRI eventId, Rdf4jTriplestore ts) 
+	public Date getEventStartDate (RMapIri eventId, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
-		return getEventDate (eventId, PROV_STARTEDATTIME, ts);
+		return getEventDate(eventId, PROV.STARTEDATTIME, ts);
 	}
 
 	/**
@@ -642,9 +567,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public Date getEventEndDate (IRI eventId, Rdf4jTriplestore ts) 
+	public Date getEventEndDate (RMapIri eventId, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
-		return getEventDate (eventId, PROV_ENDEDATTIME, ts);
+		return getEventDate(eventId, PROV.ENDEDATTIME, ts);
 	}
 
 	/**
@@ -657,7 +582,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapEventNotFoundException the RMap event not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	private Date getEventDate (IRI eventId, IRI provDateType, Rdf4jTriplestore ts) 
+	private Date getEventDate (RMapIri eventId, RMapIri provDateType, Rdf4jTriplestore ts) 
 		throws RMapEventNotFoundException, RMapException{
 		if (eventId == null){
 			throw new RMapException("null eventID");
@@ -665,24 +590,27 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 		if (ts==null){
 			throw new RMapException ("null triplestore");
 		}
-		if (!provDateType.equals(PROV_STARTEDATTIME)&&!provDateType.equals(PROV_ENDEDATTIME)){
+		if (!provDateType.equals(PROV.STARTEDATTIME)&&!provDateType.equals(PROV.ENDEDATTIME)){
 			throw new RMapException ("Date type must be PROV.STARTEDATTIME or PROV.ENDEDATTIME");			
 		}
 		Date eventDate = null;
 		Statement stmt = null;
+		Resource eventIri = ORAdapter.rMapIri2Rdf4jIri(eventId);
+		IRI provDateTypeIri = ORAdapter.rMapIri2Rdf4jIri(provDateType);
 		try {
-			stmt = ts.getStatement(eventId, provDateType, null, eventId);
+			
+			stmt = ts.getStatement(eventIri, provDateTypeIri, null, eventIri);
 			if (stmt == null){
-				throw new RMapEventNotFoundException("No Event " + provDateType.getLocalName() + " statement found for ID " 
-			        + eventId.stringValue());
+				throw new RMapEventNotFoundException("No Event " + provDateTypeIri.getLocalName() + " statement found for ID " 
+			        + eventIri.stringValue());
 			}
 			else {
 				Literal startDateLiteral = (Literal) stmt.getObject();
 				eventDate = DateUtils.xmlGregorianCalendarToDate(startDateLiteral.calendarValue());
 			}
 		} catch (Exception e) {
-			throw new RMapException ("Exception thrown getting Event " +  provDateType.getLocalName()  + " for " 
-					+ eventId.stringValue(), e);
+			throw new RMapException ("Exception thrown getting Event " +  provDateTypeIri.getLocalName()  + " for " 
+					+ eventId.getStringValue(), e);
 		}
 
 		return eventDate;
@@ -696,8 +624,8 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is CREATION event
 	 */
-	protected boolean isCreationEvent(IRI eventId, Rdf4jTriplestore ts){
-		RMapEventType et = this.getEventType(eventId, ts);
+	protected boolean isCreationEvent(RMapIri eventId, Rdf4jTriplestore ts){
+		RMapEventType et = getEventType(eventId, ts);
 		return et.equals(RMapEventType.CREATION);
 	}
 	
@@ -708,8 +636,8 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is update event
 	 */
-	protected boolean isUpdateEvent(IRI eventId, Rdf4jTriplestore ts){
-		RMapEventType et = this.getEventType(eventId, ts);
+	protected boolean isUpdateEvent(RMapIri eventId, Rdf4jTriplestore ts){
+		RMapEventType et = getEventType(eventId, ts);
 		return et.equals(RMapEventType.UPDATE);
 	}
 	
@@ -720,7 +648,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is DERIVATION event
 	 */
-	protected boolean isDerivationEvent (IRI eventId, Rdf4jTriplestore ts){
+	protected boolean isDerivationEvent (RMapIri eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.DERIVATION);
 	}
@@ -732,7 +660,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is inactivate event
 	 */
-	protected boolean isInactivateEvent (IRI eventId, Rdf4jTriplestore ts){
+	protected boolean isInactivateEvent (RMapIri eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.INACTIVATION);
 	}
@@ -744,7 +672,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is TOMBSTONE event
 	 */
-	protected boolean isTombstoneEvent(IRI eventId, Rdf4jTriplestore ts){
+	protected boolean isTombstoneEvent(RMapIri eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.TOMBSTONE);
 	}
@@ -756,7 +684,7 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return true, if is DELETION event
 	 */
-	protected boolean isDeleteEvent(IRI eventId, Rdf4jTriplestore ts){
+	protected boolean isDeleteEvent(RMapIri eventId, Rdf4jTriplestore ts){
 		RMapEventType et = this.getEventType(eventId, ts);
 		return et.equals(RMapEventType.DELETION);
 	}
@@ -770,25 +698,26 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 */
-	protected IRI getEventAssocAgent (IRI event, Rdf4jTriplestore ts) throws RMapException {
-		IRI agent = null;
+	protected RMapIri getEventAssocAgent (RMapIri eventId, Rdf4jTriplestore ts) throws RMapException {
+		RMapIri agent = null;
 		Statement stmt = null;
+		IRI eventIri = rMapIri2Rdf4jIri(eventId);
 		try {
-			stmt = ts.getStatement(event, PROV_WASASSOCIATEDWITH, null, event);
+			stmt = ts.getStatement(eventIri, PROV_WASASSOCIATEDWITH, null, eventIri);
 		} catch (Exception e) {
 			throw new RMapException ("Exception thrown when querying for event associated agent", e);
 		}
 		if (stmt!=null){
 			Value vAgent = stmt.getObject();
 			if (vAgent instanceof IRI){
-				agent = (IRI)vAgent;
+				agent = new RMapIri(vAgent.stringValue());
 			}
 			else {
 				throw new RMapException ("Associated Agent ID is not IRI");
 			}
 		}
 		else {
-			throw new RMapAgentNotFoundException ("No system agent associated with event " + event.toString());
+			throw new RMapAgentNotFoundException ("No system agent associated with event " + eventId.toString());
 		}
 		return agent;
 	}
@@ -801,9 +730,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the RMap Object creation event statement
 	 * @throws RMapException the RMap exception
 	 */
-	protected Statement getCreateObjEventStmt(IRI iri, Rdf4jTriplestore ts) throws RMapException {
+	protected Statement getCreateObjEventStmt(RMapIri iri, Rdf4jTriplestore ts) throws RMapException {
 		Statement createEventStmt = null;
-		Set<Statement> stmts = getEventStmtsByPredicate(PROV_GENERATED, iri, ts);
+		Set<Statement> stmts = getEventStmtsByPredicate(PROV.GENERATED, iri, ts);
 		//should only be one, convert to single statement.
 		for (Statement stmt:stmts) {
 			createEventStmt = stmt;
@@ -820,9 +749,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the update events
 	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getInactivatedObjEventStmt(IRI targetId, Rdf4jTriplestore ts)
+	protected Set<Statement> getInactivatedObjEventStmt(RMapIri targetId, Rdf4jTriplestore ts)
 			throws RMapException {
-		Set<Statement> stmts = getEventStmtsByPredicate(RMAP_INACTIVATEDOBJECT, targetId, ts);		
+		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.INACTIVATEDOBJECT, targetId, ts);		
 		return stmts;
 	}
 	
@@ -835,9 +764,9 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the update events
 	 * @throws RMapException the RMap exception
 	 */
-	protected Set<Statement> getDerivationSourceEventStmt(IRI targetId, Rdf4jTriplestore ts)
+	protected Set<Statement> getDerivationSourceEventStmt(RMapIri targetId, Rdf4jTriplestore ts)
 			throws RMapException {
-		Set<Statement> stmts = getEventStmtsByPredicate(RMAP_HASSOURCEOBJECT, targetId, ts);
+		Set<Statement> stmts = getEventStmtsByPredicate(RMAP.HASSOURCEOBJECT, targetId, ts);
 		return stmts;
 	}
 	
@@ -850,22 +779,22 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param eventPredicate
 	 * @return
 	 */
-	private Set<Statement> getEventStmtsByPredicate(IRI eventPredicate, IRI objectUri, Rdf4jTriplestore ts) {
+	private Set<Statement> getEventStmtsByPredicate(RMapIri eventPredicate, RMapIri objectUri, Rdf4jTriplestore ts) {
 
 		Set<Statement> stmts = null;
 		Set<Statement> returnStmts = new HashSet<Statement>();
 
 		try {
-			stmts = ts.getStatements(null, eventPredicate, objectUri);
+			stmts = ts.getStatements(null, rMapIri2Rdf4jIri(eventPredicate), rMapIri2Rdf4jIri(objectUri));
 			for (Statement stmt:stmts){
-				IRI eventId = (IRI) stmt.getContext();
+				RMapIri eventId = new RMapIri(stmt.getContext().stringValue());
 				// make sure this is an event
-				if (stmt != null && this.isEventId(eventId, ts));
+				if (stmt != null && isEventId(eventId, ts));
 					returnStmts.add(stmt);
 				}
 		} catch (Exception e) {
 			throw new RMapException (
-					"Exception thrown when querying for event statements where predicate is " + eventPredicate.toString() + " and id is " + objectUri.stringValue(), e);
+					"Exception thrown when querying for event statements where predicate is " + eventPredicate.toString() + " and id is " + objectUri.toString(), e);
 		}		
 		return returnStmts;
 	}
@@ -908,21 +837,22 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @param ts the triplestore instance
 	 * @return IRI of created DiSCO from UpdateEvent, or null if not found
 	 */
-	protected IRI getIdOfCreatedDisco(IRI updateEventID, Rdf4jTriplestore ts){
-		IRI createdDisco = null;
+	protected RMapIri getIdOfCreatedDisco(RMapIri updateEventID, Rdf4jTriplestore ts){
+		RMapIri createdDisco = null;
 		Set<Statement> stmts = null;
 		try {
 
-            if (this.isEventId(updateEventID, ts)) {
-                stmts = ts.getStatements(updateEventID, PROV_GENERATED, null, updateEventID);
+            IRI eventIri = rMapIri2Rdf4jIri(updateEventID);
+            if (isEventId(updateEventID, ts)) {
+                stmts = ts.getStatements(eventIri, PROV_GENERATED, null, eventIri);
             }
 			if (stmts != null){
 				for (Statement stmt:stmts){
 					Value vObject = stmt.getObject();
 					if (vObject instanceof IRI){
-						IRI iri = (IRI)vObject;
-						if (this.isDiscoId(iri, ts)){
-							createdDisco = (IRI)vObject;
+						RMapIri iri = rdf4jIri2RMapIri((IRI) vObject);
+						if (isDiscoId(iri, ts)){
+							createdDisco = iri;
 							break;
 						}
 					}
@@ -944,20 +874,20 @@ public class ORMapEventMgr extends ORMapObjectMgr {
 	 * @return the list of IRIs for Events that created the RMap Object
 	 * @throws RMapException the RMap exception
 	 */
-	protected List<IRI> getMakeObjectEvents(IRI iri, Rdf4jTriplestore ts) throws RMapException {
-		List<IRI> returnEventIds = new ArrayList<IRI>();
+	protected List<RMapIri> getMakeObjectEvents(RMapIri iri, Rdf4jTriplestore ts) throws RMapException {
+		List<RMapIri> returnEventIds = new ArrayList<RMapIri>();
 		try {
 			//PROV.GENERATED used for all created objects
-			Set<Statement> stmts = this.getEventStmtsByPredicate(PROV_GENERATED, iri, ts);
+			Set<Statement> stmts = getEventStmtsByPredicate(PROV.GENERATED, iri, ts);
 			for (Statement stmt:stmts){
 				if (stmt != null){
-					returnEventIds.add((IRI)stmt.getContext());
+					returnEventIds.add(new RMapIri(stmt.getContext().stringValue()));
 				}
 			}
 		} catch (Exception e) {
 			throw new RMapException (
 					"Exception thrown when querying for derive and generate events for id " 
-							+ iri.stringValue(), e);
+							+ iri.toString(), e);
 		}		
 		return returnEventIds;
 	}

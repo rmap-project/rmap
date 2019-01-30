@@ -21,10 +21,10 @@ package info.rmapproject.integration;
 
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
@@ -40,23 +40,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import static info.rmapproject.core.SerializationAssertions.serializeTest;
-import static info.rmapproject.core.TestUtil.asIri;
-import static info.rmapproject.core.TestUtil.asLiteral;
 import static info.rmapproject.core.TestUtil.asRmapIri;
+import static info.rmapproject.core.TestUtil.asRmapLiteral;
 import static info.rmapproject.core.TestUtil.count;
 import static info.rmapproject.testdata.service.TestConstants.SYSAGENT_AUTH_ID;
 import static info.rmapproject.testdata.service.TestConstants.SYSAGENT_ID;
@@ -65,6 +61,7 @@ import static info.rmapproject.testdata.service.TestConstants.SYSAGENT_KEY;
 import static info.rmapproject.testdata.service.TestConstants.SYSAGENT_NAME;
 import static java.net.URI.create;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -81,11 +78,11 @@ import static org.junit.Assert.assertNotNull;
 @ActiveProfiles({"integration-triplestore", "integration-db", "inmemory-idservice", "mock-kafka"})
 public class ManagerObjectSerializationIT {
 
-    private static final IRI DISCO_IRI = asIri("http://example.org/disco/1");
+    private static final RMapIri DISCO_IRI = asRmapIri("http://example.org/disco/1");
 
     private static final RMapIri CREATOR_IRI = asRmapIri("http://example.org/creator/1");
 
-    private static final List<URI> AGGREGATED_RESOURCES = singletonList(create("http://example.org/resources/1"));
+    private static final List<RMapIri> AGGREGATED_RESOURCES = singletonList(asRmapIri("http://example.org/resources/1"));
 
     @Autowired
     private RMapService rMapService;
@@ -105,10 +102,10 @@ public class ManagerObjectSerializationIT {
     @Autowired
     private TriplestoreManager tsMgr;
 
-    private RMapAgent systemAgent = new ORMapAgent(asIri(SYSAGENT_ID),
-                                        asIri(SYSAGENT_ID_PROVIDER),
-                                        asIri(SYSAGENT_AUTH_ID),
-                                        asLiteral(SYSAGENT_NAME));
+    private RMapAgent systemAgent = new ORMapAgent(asRmapIri(SYSAGENT_ID),
+    									asRmapIri(SYSAGENT_ID_PROVIDER),
+    									asRmapIri(SYSAGENT_AUTH_ID),
+    									asRmapLiteral(SYSAGENT_NAME));
 
     private RequestEventDetails reqEventDetails = new RequestEventDetails(create(SYSAGENT_ID), create(SYSAGENT_KEY));
 
@@ -159,7 +156,7 @@ public class ManagerObjectSerializationIT {
         discoMgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
 
         ORMapDiSCO newDisco = new ORMapDiSCO(
-                asIri("http://example.org/disco/2"), CREATOR_IRI, AGGREGATED_RESOURCES);
+                asRmapIri("http://example.org/disco/2"), CREATOR_IRI, AGGREGATED_RESOURCES);
 
         doUpdateAndPerformAssertions(DISCO_IRI, newDisco, false);
     }
@@ -170,17 +167,17 @@ public class ManagerObjectSerializationIT {
         discoMgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
 
         ORMapDiSCO newDisco = new ORMapDiSCO(
-                asIri("http://example.org/disco/2"), CREATOR_IRI, AGGREGATED_RESOURCES);
+                asRmapIri("http://example.org/disco/2"), CREATOR_IRI, AGGREGATED_RESOURCES);
 
         doUpdateAndPerformAssertions(DISCO_IRI, newDisco, true);
     }
 
     @Test
     public void eventManagerCreateSerialization() throws Exception {
-        IRI eventIri = asIri("http://example.com/event/1");
+        RMapIri eventIri = asRmapIri("http://example.com/event/1");
         RMapEventTargetType type = RMapEventTargetType.DISCO;
         RMapLiteral desc = new RMapLiteral("Creation Event Description");
-        List<RMapIri> created = singletonList(asRmapIri("http://example.org/disco/1"));
+        Set<RMapIri> created = singleton(asRmapIri("http://example.org/disco/1"));
         reqEventDetails.setDescription(desc);
         
         ORMapEventCreation event = new ORMapEventCreation(eventIri, reqEventDetails, type, created);
@@ -189,7 +186,7 @@ public class ManagerObjectSerializationIT {
         event.setEndTime(endTime.getTime());
         serializeTest(event);
 
-        IRI iri = eventMgr.createEvent(event, triplestore);
+        RMapIri iri = eventMgr.createEvent(event, triplestore);
 
         assertNotNull(iri);
         serializeTest(iri);
@@ -197,10 +194,10 @@ public class ManagerObjectSerializationIT {
 
     @Test
     public void agentManagerSerialization() throws Exception {
-        IRI agentIri = asIri("http://example.com/agent/" + count());
-        IRI providerIri = asIri("http://example.com/provider/" + count());
-        IRI authIri = asIri("http://example.com/authid/" + count());
-        Value agentName = ORAdapter.getValueFactory().createLiteral("An Agent");
+    	RMapIri agentIri = asRmapIri("http://example.com/agent/" + count());
+    	RMapIri providerIri = asRmapIri("http://example.com/provider/" + count());
+    	RMapIri authIri = asRmapIri("http://example.com/authid/" + count());
+        RMapValue agentName = new RMapLiteral("An Agent");
 
         ORMapAgent agent = new ORMapAgent(agentIri, providerIri, authIri, agentName);
         serializeTest(agent);
@@ -240,10 +237,10 @@ public class ManagerObjectSerializationIT {
 
     @Test
     public void rmapServiceCreateAgentThree() throws Exception {
-        IRI agentIri = asIri("http://example.com/agent/" + count());
-        IRI providerIri = asIri("http://example.com/provider/" + count());
-        IRI authIri = asIri("http://example.com/authid/" + count());
-        Value agentName = ORAdapter.getValueFactory().createLiteral("An Agent");
+        RMapIri agentIri = asRmapIri("http://example.com/agent/" + count());
+        RMapIri providerIri = asRmapIri("http://example.com/provider/" + count());
+        RMapIri authIri = asRmapIri("http://example.com/authid/" + count());
+        RMapValue agentName = new RMapLiteral("An Agent");
         ORMapAgent agent = new ORMapAgent(agentIri, providerIri, authIri, agentName);
 
         RMapEvent event = rMapService.createAgent(agent, reqEventDetails);
@@ -252,7 +249,7 @@ public class ManagerObjectSerializationIT {
         serializeTest(event);
     }
 
-    private void doUpdateAndPerformAssertions(IRI discoIri, ORMapDiSCO newDisco, boolean inactivate)
+    private void doUpdateAndPerformAssertions(RMapIri discoIri, ORMapDiSCO newDisco, boolean inactivate)
             throws IOException, ClassNotFoundException {
         RMapEvent event = discoMgr.updateDiSCO(discoIri, newDisco, reqEventDetails, inactivate, triplestore);
 

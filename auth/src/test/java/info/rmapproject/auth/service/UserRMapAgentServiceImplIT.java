@@ -95,7 +95,7 @@ public class UserRMapAgentServiceImplIT extends AuthDBAbstractIT {
 		assertTrue(event instanceof RMapEventCreation);
 		RMapEventCreation createEvent = (RMapEventCreation) event;
 		assertTrue(createEvent.getEventTargetType().getPath().equals(RMAP.AGENT));
-		assertTrue(createEvent.getCreatedObjectIds().get(0).toString().equals(testAgentUri));
+		assertTrue(createEvent.getCreatedObjectIds().iterator().next().toString().equals(testAgentUri));
 		assertTrue(createEvent.getAssociatedKey().toString().equals(TESTKEY));
 		
 		//already created, no event 

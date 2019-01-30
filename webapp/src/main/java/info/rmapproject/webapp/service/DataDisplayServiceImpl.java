@@ -158,19 +158,20 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 		discoDTO.setUri(discoUri);
 		
 		RMapDiSCO disco = rmapService.readDiSCO(discoUri);
-    	List <URI> aggregatedResources = disco.getAggregatedResources(); 	
+    	List <RMapIri> aggregatedResources = disco.getAggregatedResources(); 	
     	
 		discoDTO.setDescription(disco.getDescription());
 		discoDTO.setCreator(disco.getCreator());
 		discoDTO.setProvGeneratedBy(disco.getProvGeneratedBy());
-		discoDTO.setProviderId(disco.getProviderId());
+		discoDTO.setProviderId(disco.getProviderId().getStringValue());
 		
 		discoDTO.setAgentVersions(rmapService.getDiSCOVersions(discoUri));
 		discoDTO.setAllVersions(rmapService.getDiSCODVersionsAndDerivatives(discoUri));
 		
 		discoDTO.setStatus(rmapService.getDiSCOStatus(discoUri));
 		discoDTO.setEvents(rmapService.getDiSCOEvents(discoUri));
-    	discoDTO.setAggregatedResources(aggregatedResources);
+		List<URI> aggResUris = aggregatedResources.stream().map(r -> r.getIri()).collect(Collectors.toList());
+    	discoDTO.setAggregatedResources(aggResUris);
 	    discoDTO.setRelatedStatements(disco.getRelatedStatements());
 
 		return discoDTO;		
@@ -771,7 +772,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    Map<String, String> resourcesAffected = new HashMap<String, String>();
 	    if (eventType == RMapEventType.CREATION){
 	    	RMapEventCreation creationEvent = (RMapEventCreation) event;
-	    	List<RMapIri> uris = creationEvent.getCreatedObjectIds();
+	    	Set<RMapIri> uris = creationEvent.getCreatedObjectIds();
 	    	for (RMapIri uri : uris){
 	    		rmapService.isDiSCOId(new java.net.URI(uri.toString()));
 	    		String type = getRMapTypeDisplayName(uri);
@@ -792,7 +793,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    }
 	    else if (eventType == RMapEventType.DERIVATION)	{
 	    	RMapEventDerivation derivationEvent = (RMapEventDerivation) event;
-	    	List<RMapIri> createdUris = derivationEvent.getCreatedObjectIds();
+	    	Set<RMapIri> createdUris = derivationEvent.getCreatedObjectIds();
 	    	for (RMapIri uri : createdUris){
 	    		String type = getRMapTypeDisplayName(uri);
 	    		resourcesAffected.put(uri.toString(), "Created " + type);
@@ -807,7 +808,7 @@ public class DataDisplayServiceImpl implements DataDisplayService {
 	    }
 	    else if (eventType == RMapEventType.UPDATE)	{
 	    	RMapEventUpdate updateEvent = (RMapEventUpdate) event;	   
-	    	List<RMapIri> createdUris = updateEvent.getCreatedObjectIds();
+	    	Set<RMapIri> createdUris = updateEvent.getCreatedObjectIds();
 	    	for (RMapIri uri : createdUris){
 	    		String type = getRMapTypeDisplayName(uri);
 	    		resourcesAffected.put(uri.toString(), "Created " + type);

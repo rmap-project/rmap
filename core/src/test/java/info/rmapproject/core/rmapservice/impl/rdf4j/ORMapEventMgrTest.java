@@ -31,14 +31,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventCreation;
@@ -50,7 +48,6 @@ import info.rmapproject.core.model.event.RMapEventTombstone;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdate;
 import info.rmapproject.core.model.event.RMapEventUpdateWithReplace;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventDeletion;
@@ -59,8 +56,6 @@ import info.rmapproject.core.model.impl.rdf4j.ORMapEventInactivation;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventTombstone;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventUpdate;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventUpdateWithReplace;
-import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapDiSCOMgr;
-import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapEventMgr;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -80,33 +75,33 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	private String FAKE_IRI_STR1 = "fake:iri.1";
 	private String FAKE_IRI_STR2 = "fake:iri.2";
 
-	private IRI fakeIri1;
-	private IRI fakeIri2;
-	private IRI agentIri;
+	private RMapIri fakeIri1;
+	private RMapIri fakeIri2;
+	private RMapIri agentIri;
 	
 	/**Generic IRI set to pass in to Event creation for use as created objects, tombstoned objects, etc. 
 	 * In a number of Events a list is accepted, though as currently designed lists would always be of length 1.*/
-	private Set<IRI> iriSet1;
+	private Set<RMapIri> iriSet1;
 	
 	/**Similar to iriSet1, but with a different value in the set.*/
-	private Set<IRI> iriSet2;
+	private Set<RMapIri> iriSet2;
 	
 	/**Set of length one containing request agent URI, to be used in agent event tests.**/
-	private Set<IRI> agentIriSet;
+	private Set<RMapIri> agentIriSet;
 	
 	
 	@Before
 	public void eventTestInits() {
-		fakeIri1 = SimpleValueFactory.getInstance().createIRI(FAKE_IRI_STR1);
-		iriSet1 = new HashSet<IRI>();
+		fakeIri1 = new RMapIri(FAKE_IRI_STR1);
+		iriSet1 = new HashSet<RMapIri>();
 		iriSet1.add(fakeIri1);
 		
-		fakeIri2 = SimpleValueFactory.getInstance().createIRI(FAKE_IRI_STR2);
-		iriSet2 = new HashSet<IRI>();
+		fakeIri2 = new RMapIri(FAKE_IRI_STR2);
+		iriSet2 = new HashSet<RMapIri>();
 		iriSet2.add(fakeIri2);
 		
-		agentIri = SimpleValueFactory.getInstance().createIRI(TestConstants.SYSAGENT_ID);
-		agentIriSet = new HashSet<IRI>();
+		agentIri = new RMapIri(TestConstants.SYSAGENT_ID);
+		agentIriSet = new HashSet<RMapIri>();
 		agentIriSet.add(agentIri);
 	}
 		
@@ -116,11 +111,11 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	@Test
 	public void testCreateAndReadbackCreationEventWithAgentApiKey() {
 		try {
-			ORMapEventCreation event = new ORMapEventCreation(fakeIri1, reqEventDetails,RMapEventTargetType.DISCO);
+			ORMapEventCreation event = new ORMapEventCreation(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO);
 			event.setEndTime(new Date());
-			event.setCreatedObjectIdsFromIRI(iriSet1);
+			event.setCreatedObjectIds(iriSet1);
 			
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+			RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 			RMapEventCreation eventreadback = (RMapEventCreation) eventmgr.readEvent(eventIri, triplestore);		
 					
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO, RMapEventType.CREATION);
@@ -149,8 +144,8 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventCreation event = new ORMapEventCreation(fakeIri1, reqEventDetails2,RMapEventTargetType.DISCO);
 			event.setEndTime(new Date());
-			event.setCreatedObjectIdsFromIRI(iriSet1);
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+			event.setCreatedObjectIds(iriSet1);
+			RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 			RMapEventCreation eventreadback = (RMapEventCreation) eventmgr.readEvent(eventIri, triplestore);			
 			
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO,RMapEventType.CREATION);
@@ -171,7 +166,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventTombstone event = new ORMapEventTombstone(fakeIri1, reqEventDetails,RMapEventTargetType.DISCO, fakeIri1);
 			event.setEndTime(new Date());
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+			RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 
 			RMapEventTombstone eventreadback = (RMapEventTombstone) eventmgr.readEvent(eventIri, triplestore);				
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO,RMapEventType.TOMBSTONE);
@@ -200,7 +195,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventDeletion event = new ORMapEventDeletion(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO, fakeIri1);
 			event.setEndTime(new Date());
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+			RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 
 			RMapEventDeletion eventreadback = (RMapEventDeletion) eventmgr.readEvent(eventIri, triplestore);				
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO,RMapEventType.DELETION);
@@ -229,7 +224,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventDerivation event = new ORMapEventDerivation(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO, fakeIri1, fakeIri2);
 			event.setEndTime(new Date());
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+			RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 
 			RMapEventDerivation eventreadback = (RMapEventDerivation) eventmgr.readEvent(eventIri, triplestore);				
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO,RMapEventType.DERIVATION);
@@ -259,8 +254,8 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventInactivation event = new ORMapEventInactivation(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO);
 			event.setEndTime(new Date());
-			event.setInactivatedObjectId(ORAdapter.rdf4jIri2RMapIri(fakeIri1));
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+			event.setInactivatedObjectId(fakeIri1);
+			RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 
 			RMapEventInactivation eventreadback = (RMapEventInactivation) eventmgr.readEvent(eventIri, triplestore);				
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO, RMapEventType.INACTIVATION);
@@ -284,29 +279,25 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	 * Test creation and readback of a DiSCO replace Event in isolation.
 	 */
 	@Test
-	public void testCreateAndReadbackReplaceEvent() {
-		try {
-			ORMapEventUpdateWithReplace event = new ORMapEventUpdateWithReplace(fakeIri1, reqEventDetails, RMapEventTargetType.AGENT, agentIri);
-			event.setEndTime(new Date());
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+	public void testCreateAndReadbackReplaceEvent() throws Exception {
+		
+		ORMapEventUpdateWithReplace event = new ORMapEventUpdateWithReplace(fakeIri1, reqEventDetails, RMapEventTargetType.AGENT, agentIri);
+		event.setEndTime(new Date());
+		RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 
-			RMapEventUpdateWithReplace eventreadback = (RMapEventUpdateWithReplace) eventmgr.readEvent(eventIri, triplestore);				
-			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.AGENT, RMapEventType.REPLACE);
-			//check RMapEventUpdateWithReplace specific fields
-			assertEquals(event.getUpdatedObjectId(), eventreadback.getUpdatedObjectId());
+		RMapEventUpdateWithReplace eventreadback = (RMapEventUpdateWithReplace) eventmgr.readEvent(eventIri, triplestore);				
+		checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.AGENT, RMapEventType.REPLACE);
+		//check RMapEventUpdateWithReplace specific fields
+		assertEquals(event.getUpdatedObjectId(), eventreadback.getUpdatedObjectId());
 
-			//check type methods - there isnt an isReplaceEvent
-			assertFalse(eventmgr.isCreationEvent(eventIri, triplestore));
-			assertFalse(eventmgr.isDeleteEvent(eventIri, triplestore));
-			assertFalse(eventmgr.isDerivationEvent(eventIri, triplestore));
-			assertFalse(eventmgr.isInactivateEvent(eventIri, triplestore));
-			assertFalse(eventmgr.isTombstoneEvent(eventIri, triplestore));
-			assertFalse(eventmgr.isUpdateEvent(eventIri, triplestore));
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			fail(ex.getMessage());			
-		}
+		//check type methods - there isnt an isReplaceEvent
+		assertFalse(eventmgr.isCreationEvent(eventIri, triplestore));
+		assertFalse(eventmgr.isDeleteEvent(eventIri, triplestore));
+		assertFalse(eventmgr.isDerivationEvent(eventIri, triplestore));
+		assertFalse(eventmgr.isInactivateEvent(eventIri, triplestore));
+		assertFalse(eventmgr.isTombstoneEvent(eventIri, triplestore));
+		assertFalse(eventmgr.isUpdateEvent(eventIri, triplestore));
+
 	}
 	
 	/**
@@ -317,7 +308,7 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventUpdate event = new ORMapEventUpdate(fakeIri1, reqEventDetails, RMapEventTargetType.DISCO, fakeIri1, fakeIri2);
 			event.setEndTime(new Date());
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+			RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 			
 			RMapEventUpdate eventreadback = (RMapEventUpdate) eventmgr.readEvent(eventIri, triplestore);				
 			checkCoreEventFieldsMatch(event,eventreadback, RMapEventTargetType.DISCO, RMapEventType.UPDATE);
@@ -344,27 +335,21 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 	 */
 	@Test
 	public void testGetEventStartAndEndDate() {
-		try {
-			ORMapEventCreation event = new ORMapEventCreation(fakeIri1, reqEventDetails,RMapEventTargetType.DISCO);
-			event.setCreatedObjectIdsFromIRI(iriSet1);
-			event.setEndTime(new Date());
-			IRI eventIri = eventmgr.createEvent(event, triplestore);
+		ORMapEventCreation event = new ORMapEventCreation(fakeIri1, reqEventDetails,RMapEventTargetType.DISCO);
+		event.setCreatedObjectIds(iriSet1);
+		event.setEndTime(new Date());
+		RMapIri eventIri = eventmgr.createEvent(event, triplestore);
 
-			Date startDate = event.getStartTime();
-			Date endDate = event.getEndTime();
-			
-			Date readbackStartDate = eventmgr.getEventStartDate(eventIri, triplestore);
-			Date readbackEndDate = eventmgr.getEventEndDate(eventIri, triplestore);
-			
-			int startDateCompare = startDate.compareTo(readbackStartDate);
-			int endDateCompare = endDate.compareTo(readbackEndDate);			
-			assertEquals(startDateCompare,0);
-			assertEquals(endDateCompare,0);			
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			fail(ex.getMessage());			
-		}
+		Date startDate = event.getStartTime();
+		Date endDate = event.getEndTime();
+		
+		Date readbackStartDate = eventmgr.getEventStartDate(eventIri, triplestore);
+		Date readbackEndDate = eventmgr.getEventEndDate(eventIri, triplestore);
+		
+		int startDateCompare = startDate.compareTo(readbackStartDate);
+		int endDateCompare = endDate.compareTo(readbackEndDate);			
+		assertEquals(0, startDateCompare);
+		assertEquals(0, endDateCompare);			
 	}
 	
 	/**
@@ -375,16 +360,16 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 		try {
 			ORMapEventCreation createEvent = new ORMapEventCreation(fakeIri1, reqEventDetails,RMapEventTargetType.AGENT);
 			createEvent.setEndTime(new Date());
-			createEvent.setCreatedObjectIdsFromIRI(agentIriSet);
-			IRI eventIri = eventmgr.createEvent(createEvent, triplestore);
-			List<IRI> createEventAgents = eventmgr.getAffectedAgents(eventIri, triplestore);
+			createEvent.setCreatedObjectIds(agentIriSet);
+			RMapIri eventIri = eventmgr.createEvent(createEvent, triplestore);
+			List<RMapIri> createEventAgents = eventmgr.getAffectedAgents(eventIri, triplestore);
 			assertEquals(createEventAgents.size(),1);	
-			assertEquals(createEventAgents.get(0).toString(),createEvent.getCreatedObjectIds().get(0).toString());			
+			assertTrue(createEvent.getCreatedObjectIds().contains(createEventAgents.get(0)));			
 			
 			ORMapEventUpdateWithReplace replaceEvent = new ORMapEventUpdateWithReplace(fakeIri1, reqEventDetails, RMapEventTargetType.AGENT, agentIri);
 			replaceEvent.setEndTime(new Date());
 			eventIri = eventmgr.createEvent(replaceEvent, triplestore);
-			List<IRI> replaceEventAgents = eventmgr.getAffectedAgents(eventIri, triplestore);
+			List<RMapIri> replaceEventAgents = eventmgr.getAffectedAgents(eventIri, triplestore);
 			assertEquals(replaceEventAgents.size(),1);	
 			assertEquals(replaceEventAgents.get(0).toString(),replaceEvent.getUpdatedObjectId().toString());			
 						
@@ -405,19 +390,19 @@ public class ORMapEventMgrTest extends ORMapMgrTest{
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOB_V1_XML);
 			ORMapEventCreation event = (ORMapEventCreation) discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 
-			IRI discoIri = ORAdapter.rMapIri2Rdf4jIri(disco.getId());
-			IRI eventIri = ORAdapter.rMapIri2Rdf4jIri(event.getId());
+			RMapIri discoIri = disco.getId();
+			RMapIri eventIri = event.getId();
 			
-			List<IRI> affectedDiscos = eventmgr.getAffectedDiSCOs(eventIri, triplestore);
+			List<RMapIri> affectedDiscos = eventmgr.getAffectedDiSCOs(eventIri, triplestore);
 			assertEquals(affectedDiscos.size(),1);	
-			assertEquals(affectedDiscos.get(0).toString(),event.getCreatedObjectIds().get(0).toString());	
+			assertTrue(event.getCreatedObjectIds().contains(affectedDiscos.get(0)));	
 			affectedDiscos.clear();
 			
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOB_V2_XML);
 			RMapEvent updateEvent = discomgr.updateDiSCO(discoIri, disco2, reqEventDetails, false, triplestore);
 			
-			IRI disco2Iri = ORAdapter.rMapIri2Rdf4jIri(disco2.getId());
-			IRI event2Iri = ORAdapter.rMapIri2Rdf4jIri(updateEvent.getId());
+			RMapIri disco2Iri = disco2.getId();
+			RMapIri event2Iri = updateEvent.getId();
 
 			affectedDiscos = eventmgr.getAffectedDiSCOs(event2Iri, triplestore);
 			

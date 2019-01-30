@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.eclipse.rdf4j.model.IRI;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.CoreTestAbstract;
@@ -111,7 +110,7 @@ public abstract class ORMapCommonEventTest extends CoreTestAbstract {
     }
 
     private ORMapEvent roundTrip(ORMapEvent initial) {
-        final IRI id = eventmgr.createEvent(initial, triplestore);
+        final RMapIri id = eventmgr.createEvent(initial, triplestore);
         return eventmgr.readEvent(id, triplestore);
     }
 }

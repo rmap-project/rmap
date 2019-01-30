@@ -4,7 +4,6 @@ import static info.rmapproject.indexing.IndexUtils.notEmpty;
 import static info.rmapproject.indexing.IndexUtils.notNull;
 import static info.rmapproject.indexing.solr.repository.MappingUtils.tripleToRDF;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.rdfhandler.RDFHandler;
 import info.rmapproject.core.rdfhandler.RDFType;
@@ -46,7 +46,7 @@ class SimpleDiscoMapper implements DiscoMapper {
             doc.setDiscoAggregatedResourceUris(
                     disco.getAggregatedResources()
                             .stream()
-                            .map(URI::toString)
+                            .map(RMapIri::toString)
                             .collect(Collectors.toList())
             );
         }
@@ -71,7 +71,7 @@ class SimpleDiscoMapper implements DiscoMapper {
         }
 
         if (notNull(disco.getProviderId())) {
-            doc.setDiscoProviderid(disco.getProviderId());
+            doc.setDiscoProviderid(disco.getProviderId().getStringValue());
         }
 
         return doc;

@@ -19,7 +19,7 @@
  *******************************************************************************/
 package info.rmapproject.core.model.impl.rdf4j;
 
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jStatement2RMapStatement;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -30,19 +30,21 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapBlankNode;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapStatement;
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.vocabulary.DC;
@@ -63,11 +65,6 @@ public class OStatementsAdapter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger("OStatementsAdapter.class");
 	
-	private static final IRI RMAP_DISCO = rMapIri2Rdf4jIri(RMAP.DISCO);
-	private static final IRI RMAP_EVENT = rMapIri2Rdf4jIri(RMAP.EVENT);
-	private static final IRI RMAP_AGENT = rMapIri2Rdf4jIri(RMAP.AGENT);
-	private static final IRI RMAP_PROVIDERID = rMapIri2Rdf4jIri(RMAP.PROVIDERID);
-	
     private static final String MISSING_RDF_TYPE = "Missing identifiers in statements; maybe the statements did not " +
             "include an 'rdf:type' predicate?";
 
@@ -82,110 +79,116 @@ public class OStatementsAdapter {
     /**
      * Constructs DiSCO from List of triples.
      *
-     * @param stmts Statements to be structured into DiSCO
+     * @param discoStmts Statements to be structured into DiSCO
      * @throws RMapException                  if resources not present, or related statements do not reference at least
      *                                        one resource, or comprise a disjoint graph, or if cannot create Statements
      *                                        from parameters
      * @throws RMapDefectiveArgumentException the RMap defective argument exception
      */
-    public static ORMapDiSCO asDisco(Set<Statement> stmts, Supplier<URI> idSupplier) throws RMapException,
+    public static ORMapDiSCO asDisco(Set<Statement> discoStmts, Supplier<URI> idSupplier) throws RMapException,
             RMapDefectiveArgumentException {
 
-        if (stmts == null) {
+        if (discoStmts == null) {
             throw new RMapDefectiveArgumentException(NULL_STATEMENTS);
         }
-
+        
+        Set<RMapStatement> stmts = discoStmts.stream().map(s -> rdf4jStatement2RMapStatement(s)).collect(Collectors.toSet());
+        
         // Assuming RDF comes in, RDF4J parser will create a bNode for the DiSCO
         // itself, and use that BNode identifier as resource - or
         // possibly also submitter used a local (non-RMap) identifier in RDF
 
-        Identifiers identifiers = identifiers(stmts, RMAP_DISCO).orElseThrow(() ->
+        Identifiers identifiers = identifiers(stmts, RMAP.DISCO).orElseThrow(() ->
                 new RMapDefectiveArgumentException(MISSING_RDF_TYPE));
 
-        if (identifiers.assertedId == null || identifiers.assertedId.stringValue().trim().length() == 0) {
+        if (identifiers.assertedId == null || identifiers.assertedId.getStringValue().trim().length() == 0) {
             throw new RMapException(MISSING_DISCO_IRI);
         }
 
-        if (identifiers.officalId == null || identifiers.officalId.stringValue().trim().length() == 0) {
+        if (identifiers.officalId == null || identifiers.officalId.getStringValue().trim().length() == 0) {
             //if disco has come in without a context, generate ID. This will happen if it's a new disco
-            identifiers.officalId = ORAdapter.uri2Rdf4jIri(idSupplier.get());
+            identifiers.officalId = new RMapIri(idSupplier.get());
         }
 
-        ORMapDiSCO disco = new ORMapDiSCO((IRI) identifiers.officalId);
+         
+        ORMapDiSCO disco = new ORMapDiSCO(new RMapIri(identifiers.officalId.getStringValue()));
 
         // if the user has asserted their own ID, capture this as provider ID. Only IRIs acceptable
-        if (identifiers.assertedId instanceof IRI && !(identifiers.assertedId instanceof BNode)
-                && !identifiers.officalId.stringValue().equals(identifiers.assertedId.stringValue())) {
-            disco.providerIdStmt = ORAdapter.getValueFactory().createStatement(identifiers.officalId, RMAP_PROVIDERID,
-                    identifiers.assertedId, disco.getContext());
+        if (identifiers.assertedId instanceof RMapIri && !(identifiers.assertedId instanceof RMapBlankNode)
+                && !identifiers.officalId.equals(identifiers.assertedId)) {
+            disco.providerId = identifiers.assertedId;
         }
 
         // sort out statements into type statement, aggregate resource statement,
         // creator statement, related statements, desc statement
         // replacing DiSCO id with new one if necessary
 
-        List<Statement> aggResources = new ArrayList<Statement>();
-        List<Statement> relStatements = new ArrayList<Statement>();
+        List<RMapIri> aggResources = new ArrayList<RMapIri>();
+        List<RMapTriple> relatedStatements = new ArrayList<RMapTriple>();
 
-        for (Statement stmt : stmts) {
-            Resource subject = stmt.getSubject();
-            IRI predicate = stmt.getPredicate();
-            Value object = stmt.getObject();
+        for (RMapStatement stmt : stmts) {
+        	
+            RMapResource subject = stmt.getSubject();
+            RMapIri predicate = stmt.getPredicate();
+            RMapValue object = stmt.getObject();
             LOG.debug("Processing DiSCO statement: {} - {} - {}", subject, predicate, object);
             // see if disco is subject of statement
-            boolean subjectIsDisco = subject.stringValue().equals(identifiers.assertedId.stringValue());
+            boolean subjectIsDisco = subject.getStringValue().equals(identifiers.assertedId.getStringValue());
             // convert incoming id to RMap id in subject and object
             if (subjectIsDisco) {
                 subject = identifiers.officalId;
             }
-            if (object.stringValue().equals(identifiers.assertedId.stringValue())) {
+            if (object.getStringValue().equals(identifiers.assertedId.getStringValue())) {
                 object = identifiers.officalId;
             }
             if (predicate.toString().equals(RDF.TYPE.toString())) {
                 if (!subjectIsDisco) {
                     // we automatically created a type statement for disco so only
                     //only add stmt if in body of disco
-                    relStatements.add(ORAdapter.getValueFactory().createStatement
-                            (subject, predicate, object, disco.getContext()));
+                	relatedStatements.add(new RMapTriple(subject, predicate, object));
                 }
             } else if (predicate.toString().equals(DCTERMS.CREATOR.toString()) && subjectIsDisco) {
                 // make sure creator value is a IRI
-                if (!(object instanceof IRI)) {
-                    throw new RMapException("Object of DiSCO creator statement should be a IRI and is not: "
+                if (!(object instanceof RMapIri)) {
+                    throw new RMapException("Object of DiSCO dc:creator statement should be an IRI and is not: "
                             + object.toString());
                 }
-                disco.creator = ORAdapter.getValueFactory().createStatement
-                        (subject, predicate, object, disco.getContext());
+                disco.creator = (RMapIri) object;
             } else if (predicate.toString().equals(PROV.WASGENERATEDBY.toString()) && subjectIsDisco) {
-                disco.provGeneratedByStmt = ORAdapter.getValueFactory().createStatement
-                        (subject, predicate, object, disco.getContext());
+                // make sure prov:generatedBy value is a IRI
+                if (!(object instanceof RMapIri)) {
+                    throw new RMapException("Object of DiSCO prov:generatedBy statement shold be an IRI and is not: "
+                            + object.toString());
+                }
+                disco.provGeneratedBy = (RMapIri) object;
             } else if (predicate.toString().equals(RMAP.PROVIDERID.toString()) && subjectIsDisco) {
-                disco.providerIdStmt = ORAdapter.getValueFactory().createStatement
-                        (subject, predicate, object, disco.getContext());
+                disco.providerId = object;
             } else if (predicate.toString().equals(ORE.AGGREGATES.toString()) && subjectIsDisco) {
-                aggResources.add(ORAdapter.getValueFactory().createStatement
-                        (subject, predicate, object, disco.getContext()));
+                // make sure ore:aggregates value is a IRI
+                if (!(object instanceof RMapIri)) {
+                    throw new RMapException("Object of DiSCO ore:aggregates statement shold be an IRI and is not: "
+                            + object.toString());
+                }
+                aggResources.add((RMapIri) object);
             } else if ((predicate.toString().equals(DC.DESCRIPTION.toString()) 
             		|| predicate.toString().equals(DCTERMS.DESCRIPTION.toString())) 
             		&& subjectIsDisco) {
-                disco.description = ORAdapter.getValueFactory().createStatement
-                        (subject, predicate, object, disco.getContext());
+                disco.description = object;
             } else {
-                relStatements.add(ORAdapter.getValueFactory().createStatement
-                        (subject, predicate, object, disco.getContext()));
+            	relatedStatements.add(new RMapTriple(subject, predicate, object));
             }
         }
         if (aggResources.isEmpty()) {
             throw new RMapException("No aggregated resource statements found");
         }
         disco.aggregatedResources = aggResources;
-        if (!referencesAggregate(disco, aggResources, relStatements)) {
-            throw new RMapException("related statements do no reference aggregated resources");
+        if (!referencesAggregate(disco, aggResources, relatedStatements)) {
+            throw new RMapException("related statements do not reference aggregated resources");
         }
-        if (!isConnectedGraph(disco.getAggregatedResources(), relStatements)) {
+        if (!isConnectedGraph(disco.getAggregatedResources(), relatedStatements)) {
             throw new RMapException("related statements do not form a connected graph");
         }
-        disco.relatedStatements = relStatements;
+        disco.relatedStatements = relatedStatements;
 
         return disco;
     }
@@ -197,26 +200,26 @@ public class OStatementsAdapter {
      * @throws RMapException the RMap exception
      * @throws RMapDefectiveArgumentException the RMap defective argument exception
      */
-    public static ORMapAgent asAgent(Set<Statement> stmts, Supplier<URI> idSupplier) throws RMapException,
+    public static ORMapAgent asAgent(Set<Statement> agentStmts, Supplier<URI> idSupplier) throws RMapException,
             RMapDefectiveArgumentException {
 
-        if (stmts == null) {
+        if (agentStmts == null) {
             throw new RMapDefectiveArgumentException(NULL_STATEMENTS);
         }
 
-        Identifiers identifiers = identifiers(stmts, RMAP_AGENT).orElseThrow(() ->
+        Set<RMapStatement> stmts = agentStmts.stream().map(s -> rdf4jStatement2RMapStatement(s)).collect(Collectors.toSet());
+        
+        Identifiers identifiers = identifiers(stmts, RMAP.AGENT).orElseThrow(() ->
                 new RMapDefectiveArgumentException(MISSING_RDF_TYPE));
 
-        if (identifiers.assertedId == null || identifiers.assertedId.stringValue().trim().length() == 0) {
+        if (identifiers.assertedId == null || identifiers.assertedId.getStringValue().trim().length() == 0) {
             throw new RMapException(MISSING_AGENT_IRI);
         }
 
-        if (identifiers.officalId == null || identifiers.officalId.stringValue().trim().length() == 0) {
+        if (identifiers.officalId == null || identifiers.officalId.getStringValue().trim().length() == 0) {
             //if disco has come in without a context, generate ID. This will happen if it's a new disco
-            identifiers.officalId = ORAdapter.uri2Rdf4jIri(idSupplier.get());
+            identifiers.officalId = new RMapIri(idSupplier.get());
         }
-
-        ORMapAgent agent = new ORMapAgent((IRI)identifiers.officalId);
 
         //loop through and check we have all vital components for Agent.
         boolean typeRecorded = false;
@@ -224,25 +227,41 @@ public class OStatementsAdapter {
         boolean idProviderRecorded = false;
         boolean authIdRecorded = false;
 
-        for (Statement stmt : stmts) {
-            Resource subject = stmt.getSubject();
-            IRI predicate = stmt.getPredicate();
-            Value object = stmt.getObject();
 
+        RMapIri agentId = new RMapIri(identifiers.officalId.toString());
+        RMapIri idProvider = null;
+        RMapIri authId = null;
+        RMapValue name = null;
+        
+        for (RMapStatement rStmt : stmts) {
+            RMapResource subject = rStmt.getSubject();
+            RMapIri predicate = rStmt.getPredicate();
+            RMapValue object = rStmt.getObject();
+
+            
             LOG.debug("Processing Agent statement: {} - {} - {}", subject, predicate, object);
             
-            boolean agentIsSubject = subject.stringValue().equals(identifiers.assertedId.stringValue());
+            boolean agentIsSubject = subject.getStringValue().equals(identifiers.assertedId.getStringValue());
             if (agentIsSubject && predicate.toString().equals(RDF.TYPE.toString()) && object.toString().equals(RMAP.AGENT.toString()) && !typeRecorded) {
-                agent.setTypeStatement(RMapObjectType.AGENT);
                 typeRecorded = true;
             } else if (agentIsSubject && predicate.toString().equals(FOAF.NAME.toString()) && !nameRecorded) {
-                agent.setNameStmt(object);
+                name = object;
                 nameRecorded = true;
             } else if (agentIsSubject && predicate.toString().equals(RMAP.IDENTITYPROVIDER.toString()) && !idProviderRecorded) {
-                agent.setIdProviderStmt((IRI) object);
+                // make sure idProvider value is a IRI
+                if (!(object instanceof RMapIri)) {
+                    throw new RMapException("Object of Agent rmap:idProvider statement should be an IRI and is not: "
+                            + object.toString());
+                }
+            	idProvider = (RMapIri) object;
                 idProviderRecorded = true;
             } else if (agentIsSubject && predicate.toString().equals(RMAP.USERAUTHID.toString()) && !authIdRecorded) {
-                agent.setAuthIdStmt((IRI) object);
+                // make sure authId value is a IRI
+                if (!(object instanceof RMapIri)) {
+                    throw new RMapException("Object of Agent rmap:authId statement should be an IRI and is not: "
+                            + object.toString());
+                }
+            	authId = (RMapIri) object;
                 authIdRecorded = true;
             } else { //there is an invalid statement in there
                 throw new RMapException("Invalid statement found in RMap:Agent object: (" + subject + ", " + predicate + ", " + object + "). "
@@ -262,6 +281,7 @@ public class OStatementsAdapter {
             throw new RMapException("The rmap:userAuthId statement is missing from the Agent");
         }
 
+        ORMapAgent agent = new ORMapAgent(agentId, idProvider, authId, name);        
         return agent;
     }
 
@@ -276,240 +296,204 @@ public class OStatementsAdapter {
         if (eventStmts==null || eventStmts.size()==0){
             throw new RMapException ("null or empty list of event statements");
         }
-        Statement eventTypeStmt = null;
-        Statement eventTargetTypeStmt = null;
-        Statement associatedAgentStmt = null;
-        Statement descriptionStmt = null;
-        Statement associatedKeyStmt = null;
-        Statement startTimeStmt = null;
-        Statement endTimeStmt = null;
-        IRI context = null;
-        Statement typeStatement = null;
+        RMapObjectType objType = null;
+        RMapEventType eventType = null;
+        RMapEventTargetType eventTargetType = null;
+        RMapIri associatedAgent = null;
+        RMapValue description = null;
+        RMapIri associatedKey = null;
+        RMapLiteral startTime = null;
+        RMapLiteral endTime = null;
+        RMapIri eventId = null;
         // for create  and update events
-        List<Statement> createdObjects = new ArrayList<Statement>();
+        Set<RMapIri> createdObjects = new HashSet<RMapIri>();
         // for update events
-        Statement sourceObjectStatement = null;
-        Statement derivationStatement = null;
-        Statement inactivatedObjectStatement = null;
+        RMapIri sourceObjectId = null;
+        RMapIri derivedObjectId = null;
+        RMapIri inactivatedObjectId = null;
         //For update events the do a replace
-        Statement replacedObjectStatement = null;
+        RMapIri replacedObjectId = null;
         // for Tombstone events
-        Statement tombstonedObjectStatement = null;
+        RMapIri tombstonedObjectId = null;
         // for Delete events
-        Statement deletedObjectStatement = null;
+        RMapIri deletedObjectId = null;
         
-        Statement lineageProgenitorStatement = null;
+        RMapIri lineageProgenitor = null;
         
         ORMapEvent event = null;
         for (Statement stmt:eventStmts){
-            if (context==null){
-                context = (IRI) stmt.getContext();
-            } else if (! (context.equals(stmt.getContext()))){
+        	RMapStatement rStmt = rdf4jStatement2RMapStatement(stmt);
+            if (eventId==null){
+                eventId = (RMapIri) rStmt.getContext();
+            } else if (! (eventId.equals((RMapIri) rStmt.getContext()))){
                 throw new RMapException("Non-match of context in event named graph: "
-                        + "Expected context: " + context.stringValue() +
+                        + "Expected context: " + eventId.getStringValue() +
                         "; actual context: " + stmt.getContext().stringValue());
             }
             IRI predicate = stmt.getPredicate();
             if (predicate.toString().equals(RDF.TYPE.toString())){
-                typeStatement = stmt;
+            	objType = RMapObjectType.getRMapObjectType(rStmt.getObject().getStringValue());
                 continue;
             }
             if (predicate.toString().equals(RMAP.EVENTTYPE.toString())){
-                eventTypeStmt = stmt;
+                eventType = RMapEventType.getEventType(rStmt.getObject().getStringValue());
                 continue;
             }
             if (predicate.toString().equals(RMAP.TARGETTYPE.toString())){
-                eventTargetTypeStmt = stmt;
+                eventTargetType = RMapEventTargetType.getEventTargetType(rStmt.getObject().getStringValue());
                 continue;
             }
             if (predicate.toString().equals(PROV.STARTEDATTIME.toString())){
-                startTimeStmt =stmt;
+                startTime = (RMapLiteral) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(PROV.ENDEDATTIME.toString())){
-                endTimeStmt = stmt;
+                endTime = (RMapLiteral) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(PROV.WASASSOCIATEDWITH.toString())){
-                associatedAgentStmt = stmt;
+                associatedAgent = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(DC.DESCRIPTION.toString())){
-                descriptionStmt = stmt;
+                description = rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(PROV.USED.toString())){
-                associatedKeyStmt = stmt;
+                associatedKey = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(PROV.GENERATED.toString())){
-                createdObjects.add(stmt);
+                createdObjects.add((RMapIri) rStmt.getObject());
                 continue;
             }
             if (predicate.toString().equals(RMAP.HASSOURCEOBJECT.toString())){
-                sourceObjectStatement = stmt;
+                sourceObjectId = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(RMAP.DERIVEDOBJECT.toString())){
-                derivationStatement = stmt;
+                derivedObjectId = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(RMAP.INACTIVATEDOBJECT.toString())){
-                inactivatedObjectStatement = stmt;
+                inactivatedObjectId = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(RMAP.TOMBSTONEDOBJECT.toString())){
-                tombstonedObjectStatement = stmt;
+                tombstonedObjectId = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(RMAP.DELETEDOBJECT.toString())){
-                deletedObjectStatement = stmt;
+                deletedObjectId = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(RMAP.UPDATEDOBJECT.toString())){
-                replacedObjectStatement=stmt;
+                replacedObjectId = (RMapIri) rStmt.getObject();
                 continue;
             }
             if (predicate.toString().equals(RMAP.LINEAGE_PROGENITOR.toString())) {
-                lineageProgenitorStatement = stmt;
+                lineageProgenitor = (RMapIri) rStmt.getObject();
                 continue;
             }
         }
         // validate all required statements for all event types
-        if (typeStatement != null){
-            if (!(typeStatement.getObject().toString().equals(RMAP_EVENT.toString()))){
+        if (objType != null){
+            if (!(objType.equals(RMapObjectType.EVENT))){
                 throw new RMapException("RDF type should be " + RMAP.EVENT.toString()
-                        + " but is " + typeStatement.getObject().stringValue());
+                        + " but is " + objType.getPath().toString());
             }
         }
-        boolean isCreateEvent = false;
-        boolean isUpdateEvent = false;
-        boolean isInactivateEvent = false;
-        boolean isDerivationEvent = false;
-        boolean isTombstoneEvent = false;
-        boolean isDeleteEvent = false;
-        boolean isReplaceEvent = false;
-        if (eventTypeStmt==null){
-            throw new RMapException ("No event type in event graph " + context.stringValue());
+        
+        if (eventType==null){
+            throw new RMapException ("No event type in event graph " + eventId.getStringValue());
         }
-
-        RMapEventType eventType = RMapEventType.getEventType(eventTypeStmt.getObject().stringValue());
-        switch (eventType) {
-            case CREATION : isCreateEvent = true;
-                break;
-            case UPDATE : isUpdateEvent = true;
-                break;
-            case INACTIVATION : isInactivateEvent = true;
-                break;
-            case DERIVATION : isDerivationEvent = true;
-                break;
-            case TOMBSTONE : isTombstoneEvent = true;
-                break;
-            case DELETION : isDeleteEvent = true;
-                break;
-            case REPLACE : isReplaceEvent = true;
-                break;
-            default :
-                throw new RMapException ("Unrecognized event type: " + eventType
-                    + " in event " + context.stringValue());
-            }
-
-        if (eventTargetTypeStmt==null){
-            throw new RMapException("No event target type in event graph " + context.stringValue());
+        if (eventTargetType==null){
+            throw new RMapException("No event target type in event graph " + eventId.getStringValue());
         }
-
-        RMapEventTargetType eventTargetType = RMapEventTargetType.getEventTargetType(eventTargetTypeStmt.getObject().stringValue());
-
-        switch(eventTargetType){
-        case DISCO : break;
-        case AGENT : break;
-        default :
-            throw new RMapException ("Unrecognized event target type: " + eventTargetType
-                    + " in event " + context.stringValue());
+        
+        if (associatedAgent == null){
+            throw new RMapException("No associated agent in event graph " + eventId.getStringValue());
         }
-
-        if (associatedAgentStmt == null){
-            throw new RMapException("No associated agent in event graph "
-                    + context.stringValue());
+        
+        if (startTime == null){
+            throw new RMapException("No start time in event graph " + eventId.getStringValue());
         }
-        if (startTimeStmt == null){
-            throw new RMapException("No start time in event graph " + context.stringValue());
-        }
-        if (endTimeStmt == null){
-            throw new RMapException("No end time in event graph " + context.stringValue());
+        
+        if (endTime == null){
+            throw new RMapException("No end time in event graph " + eventId.getStringValue());
         }
         // validate specific for each event type
-        if (isCreateEvent){
+        if (eventType.equals(RMapEventType.CREATION)) {
             if (createdObjects.size()==0){
                 throw new RMapException ("No new objects created in create event");
             }
             else {
-                event = new ORMapEventCreation(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                        descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt,
-                        lineageProgenitorStatement, createdObjects);
+                event = new ORMapEventCreation(eventType,eventTargetType, associatedAgent,
+                        description, startTime,endTime, eventId, objType, associatedKey,
+                        lineageProgenitor, createdObjects);
             }
         }
-        else if (isUpdateEvent){
-            if (inactivatedObjectStatement==null){
+        else if (eventType.equals(RMapEventType.UPDATE)){
+            if (inactivatedObjectId==null){
                 throw new RMapException("Update event missing inactivated object statement");
             }
-            if (derivationStatement == null ){
+            if (derivedObjectId == null ){
                 throw new RMapException("Update event missing derived objec statement");
             }
 
             if (createdObjects.size()==0 ){
                 throw new RMapException("Updated has no new created objects ");
             }
-            event = new ORMapEventUpdate(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageProgenitorStatement, createdObjects,derivationStatement,inactivatedObjectStatement);
+            event = new ORMapEventUpdate(eventType,eventTargetType, associatedAgent,
+                    description, startTime,endTime, eventId, objType, associatedKey,
+                    lineageProgenitor, createdObjects, inactivatedObjectId, derivedObjectId);
         }
-        else if (isInactivateEvent){
-            if (inactivatedObjectStatement==null){
+        else if (eventType.equals(RMapEventType.INACTIVATION)){
+            if (inactivatedObjectId==null){
                 throw new RMapException("Update event missing inactivated object statement");
             }
-            event = new ORMapEventInactivation(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageProgenitorStatement, inactivatedObjectStatement);
+            event = new ORMapEventInactivation(eventType,eventTargetType, associatedAgent,
+                    description, startTime, endTime, eventId, objType, associatedKey,
+                    lineageProgenitor, inactivatedObjectId);
         }
-        else if (isDerivationEvent){
-            if (sourceObjectStatement==null){
+        else if (eventType.equals(RMapEventType.DERIVATION)) {
+            if (sourceObjectId==null){
                 throw new RMapException("Update event missing source object statement");
             }
-            if (derivationStatement == null ){
+            if (derivedObjectId == null ){
                 throw new RMapException("Update event missing derived objec statement");
             }
 
             if (createdObjects.size()==0 ){
                 throw new RMapException("Updated has no new created objects ");
             }
-            event = new ORMapEventDerivation(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageProgenitorStatement, createdObjects,derivationStatement,sourceObjectStatement);
+            event = new ORMapEventDerivation(eventType,eventTargetType, associatedAgent,
+                    description, startTime,endTime, eventId, objType, associatedKey,
+                    lineageProgenitor, createdObjects, sourceObjectId, derivedObjectId);
         }
-        else if (isTombstoneEvent){
-            if (tombstonedObjectStatement==null){
+        else if (eventType.equals(RMapEventType.TOMBSTONE)) {
+            if (tombstonedObjectId==null){
                 throw new RMapException("Tombstone event missing tombstoned object statement");
             }
-            event = new ORMapEventTombstone(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, 
-                    lineageProgenitorStatement, tombstonedObjectStatement);
+            event = new ORMapEventTombstone(eventType,eventTargetType, associatedAgent,
+                    description, startTime,endTime, eventId, objType, associatedKey, 
+                    lineageProgenitor, tombstonedObjectId);
         }
-        else if (isDeleteEvent){
-            if (deletedObjectStatement==null){
+        else if (eventType.equals(RMapEventType.DELETION)) {
+            if (deletedObjectId==null){
                 throw new RMapException ("Delete event missing the deleted object statement");
             }
-            event = new ORMapEventDeletion(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt,endTimeStmt, context, typeStatement, associatedKeyStmt, 
-                    lineageProgenitorStatement, deletedObjectStatement);
+            event = new ORMapEventDeletion(eventType,eventTargetType, associatedAgent,
+                    description, startTime,endTime, eventId, objType, associatedKey, 
+                    lineageProgenitor, deletedObjectId);
         }
-        else if (isReplaceEvent){
-            if (replacedObjectStatement==null){
+        else if (eventType.equals(RMapEventType.REPLACE)) {
+            if (replacedObjectId==null){
                 throw new RMapException("Update event missing replaced object statement");
             }
-            event = new ORMapEventUpdateWithReplace(eventTypeStmt,eventTargetTypeStmt, associatedAgentStmt,
-                    descriptionStmt, startTimeStmt, endTimeStmt, context, typeStatement, associatedKeyStmt,
-                    lineageProgenitorStatement, replacedObjectStatement);
+            event = new ORMapEventUpdateWithReplace(eventType,eventTargetType, associatedAgent,
+                    description, startTime, endTime, eventId, objType, associatedKey,
+                    lineageProgenitor, replacedObjectId);
         }
         else {
             throw new RMapException ("Unrecognized event type");
@@ -524,7 +508,7 @@ public class OStatementsAdapter {
      * @param statements statements that may contain an rdf:type statement
      * @return the identifiers
      */
-    static Optional<Identifiers> identifiers(Set<Statement> statements, IRI typeIri) {
+    static Optional<Identifiers> identifiers(Set<RMapStatement> statements, RMapIri typeIri) {
         Optional<Identifiers> ids = statements.stream()
                 .filter(s -> s.getPredicate().toString().equals(RDF.TYPE.toString()) && s.getObject().equals(typeIri))
                 .map(s -> new Identifiers(s.getContext(), s.getSubject()))
@@ -534,16 +518,16 @@ public class OStatementsAdapter {
     }
 
     /**
-     * Checks to see that at least once statement in DiSCO's RelatedStatements has
-     * one of the aggregated resources as its subject.
+     * Checks to see that at least one statement in DiSCO's RelatedStatements has
+     * one of the aggregated resources as its subject or object.
      *
      * @param disco
-     * @param aggregatedResources @param relatedStatements the related statements
+     * @param aggregaces @param relatedStatements the related statements
      * @return true, if successful
      * @throws RMapException the RMap exception
      */
-    protected static boolean referencesAggregate(ORMapDiSCO disco, List<Statement> aggregatedResources,
-                                                 List<Statement> relatedStatements) throws RMapException {
+    protected static boolean referencesAggregate(ORMapDiSCO disco, List<RMapIri> aggregatedResources,
+                                                 List<RMapTriple> relatedStatements) throws RMapException {
         if (relatedStatements == null || relatedStatements.size() == 0) {
             //there are no statements so it is true that "all stmts reference aggregate"
             return true;
@@ -552,15 +536,13 @@ public class OStatementsAdapter {
         if (disco.aggregatedResources == null || disco.aggregatedResources.size() == 0) {
             throw new RMapException("Null or empty aggregated resources");
         }
-        List<Resource> resources = new ArrayList<Resource>();
-        for (Statement stmt : aggregatedResources) {
-            resources.add((IRI) stmt.getObject());
-        }
         // find at least one statement that references at least one aggregated object
         if (relatedStatements.size() > 0) {
-            for (Statement stmt : relatedStatements) {
-                Resource subject = stmt.getSubject();
-                if (resources.contains(subject)) {
+            for (RMapTriple stmt : relatedStatements) {
+                RMapResource subject = stmt.getSubject();
+                RMapValue object = stmt.getObject();
+                if (subject instanceof RMapIri && aggregatedResources.contains((RMapIri) subject)
+                		|| object instanceof RMapIri && aggregatedResources.contains((RMapIri) object)) {
                     refsAggs = true;
                     break;
                 }
@@ -579,21 +561,17 @@ public class OStatementsAdapter {
      * @return true if related statements are non-disjoint; else false
      * @throws RMapException the RMap exception
      */
-    public static boolean isConnectedGraph(List<URI> connectingNodes, List<Statement> statements)
+    public static boolean isConnectedGraph(List<RMapIri> connectingNodes, List<RMapTriple> statements)
             throws RMapException {
         if (statements == null || statements.size() == 0) {
             //there are no statements, so for the purpose of this RMap there are no disconnected statements...
             //i.e. graph is connected
             return true;
         }
-     
-        Set<Resource> startingPoints = new HashSet<Resource>();
-        for (URI node : connectingNodes) {
-        	startingPoints.add(ORAdapter.uri2Rdf4jIri(node));
-        }
-        
-        Model stmts = new LinkedHashModel(statements);
-        for (Resource res : startingPoints) {
+             
+        List<RMapTriple> stmts = new ArrayList<RMapTriple>();
+        stmts.addAll(statements);
+        for (RMapIri res : connectingNodes) {
         	stmts = removeConnected(stmts, res);
         	if (stmts.size()==0) {
         		return true;
@@ -609,25 +587,33 @@ public class OStatementsAdapter {
      * @param resource
      * @return
      */
-    public static Model removeConnected(Model model, Resource resource) {
-    	Model remainingStmts = new LinkedHashModel(model);
+    public static List<RMapTriple> removeConnected(List<RMapTriple> stmts, RMapResource resource) {
+    	List<RMapTriple> remainingStmts = stmts;
     	    	
-    	Set<Value> connectedValues = new HashSet<Value>();
-    	Model stmtsMatchingSubject = model.filter(resource, null, null);   
-    	connectedValues.addAll(stmtsMatchingSubject.objects());
+    	Set<RMapValue> connectedValues = new HashSet<RMapValue>();
+    	
+    	List<RMapTriple> stmtsMatchingSubject = stmts.stream()
+    			.filter(st -> st.getSubject().getStringValue().equals(resource.getStringValue()))
+    			.collect(Collectors.toList());  
+    	
+    	connectedValues.addAll(stmtsMatchingSubject.stream().map(r -> r.getObject()).collect(Collectors.toList()));
     	remainingStmts.removeAll(stmtsMatchingSubject);
     	
-    	Model stmtsMatchingObject = model.filter(null, null, resource);
-    	connectedValues.addAll(stmtsMatchingObject.subjects());
+    	
+    	List<RMapTriple> stmtsMatchingObject = stmts.stream()
+    			.filter(st -> st.getObject().getStringValue().equals(resource.getStringValue()))
+    			.collect(Collectors.toList());  
+    	
+    	connectedValues.addAll(stmtsMatchingObject.stream().map(r -> r.getSubject()).collect(Collectors.toList()));
     	remainingStmts.removeAll(stmtsMatchingObject);
     	
-    	connectedValues = connectedValues.stream().filter(node -> node instanceof Resource).collect(Collectors.toSet());
-    	    	
-    	for (Value node: connectedValues) {
+    	connectedValues = connectedValues.stream().filter(node -> node instanceof RMapResource).collect(Collectors.toSet());
+    	
+    	for (RMapValue node: connectedValues) {
     		if (remainingStmts.size()==0) {
     			return remainingStmts;
     		}
-    		remainingStmts = removeConnected(remainingStmts, (Resource)node);
+    		remainingStmts = removeConnected(remainingStmts, (RMapResource)node);
     	}
     	    	
     	return remainingStmts;
@@ -637,10 +623,10 @@ public class OStatementsAdapter {
      * Holds the values for the "official" and "asserted" identifiers for a disco.
      */
     private static class Identifiers {
-        private Resource officalId;
-        private Resource assertedId;
+        private RMapResource officalId;
+        private RMapResource assertedId;
 
-        private Identifiers(Resource officalId, Resource assertedId) {
+        private Identifiers(RMapResource officalId, RMapResource assertedId) {
             this.officalId = officalId;
             this.assertedId = assertedId;
         }

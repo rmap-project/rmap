@@ -26,8 +26,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +37,11 @@ import info.rmapproject.auth.model.User;
 import info.rmapproject.auth.model.UserIdentityProvider;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
 import info.rmapproject.core.model.event.RMapEvent;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.request.RequestEventDetails;
 import info.rmapproject.core.rmapservice.RMapService;
@@ -112,8 +112,9 @@ public class UserRMapAgentServiceImpl {
 				LOG.debug("RMap agent already exists, checking to see if update required");
 				//rmap agent exists - but has there been a change?
 				RMapAgent origAgent = rmapService.readAgent(agentId);
+								
 				if (!origAgent.equals(agent)){	
-					LOG.debug("Something has changed in the Agent record, an update is required");
+					LOG.error("Something has changed in the Agent record, an update is required");
 					//something has changed, do update
 					if (user.getUserId()>0) {
 						reqEventDetails.setDescription("Agent updated from user record");
@@ -182,19 +183,19 @@ public class UserRMapAgentServiceImpl {
 	 * @return
 	 */
 	public RMapAgent asRMapAgent(User user) {
-		Value name = null;
-		IRI authKeyUri = null;
-		IRI idProvider = null;
-		IRI agentId = null;
+		RMapValue name = null;
+		RMapIri authKeyUri = null;
+		RMapIri idProvider = null;
+		RMapIri agentId = null;
 		
 		try {
 
 			LOG.debug("Converting user with ID {} to an rmap:Agent", user.getUserId());
 			//retrieve foaf:name
-			name = ORAdapter.getValueFactory().createLiteral(user.getName());
+			name = new RMapLiteral(user.getName());
 			
 			//retrieve rmap:authKeyId
-			authKeyUri = ORAdapter.getValueFactory().createIRI(user.getAuthKeyUri());
+			authKeyUri = new RMapIri(user.getAuthKeyUri());
 			
 			//retrieve rmap:identityProvider
 			Set<UserIdentityProvider> userIdProviders = user.getUserIdentityProviders();
@@ -209,7 +210,7 @@ public class UserRMapAgentServiceImpl {
 				//account was authorized manually without an ID provider
 				primaryIdProvider = userService.getRMapAdministratorPath();
 			}
-			idProvider = ORAdapter.getValueFactory().createIRI(primaryIdProvider);
+			idProvider = new RMapIri(primaryIdProvider);
 
 			//check all of these properties are populated - so far so good?
 			if (authKeyUri==null || idProvider==null|| name==null || name.toString().length()==0){
@@ -221,7 +222,7 @@ public class UserRMapAgentServiceImpl {
 			if (sAgentUri==null){
 				sAgentUri = userService.assignRMapAgentUri(user.getUserId());
 			} 
-			agentId = ORAdapter.getValueFactory().createIRI(sAgentUri);
+			agentId = new RMapIri(sAgentUri);
 
 			LOG.debug("rmap:Agent object being instantiated using agentId: {}; name:{}; authKeyId: {}; idProvider: {}", sAgentUri, name, authKeyUri, idProvider);
 			
@@ -232,6 +233,7 @@ public class UserRMapAgentServiceImpl {
 		} catch (RMapAuthException ex) {
 			throw ex;			
 		} catch (Exception ex) {
+			LOG.error(ex.getStackTrace().toString());
 			throw new RMapAuthException(ErrorCode.ER_USER_AGENT_NOT_FORMED_IN_DB.getMessage(), ex);			
 		}
 	}

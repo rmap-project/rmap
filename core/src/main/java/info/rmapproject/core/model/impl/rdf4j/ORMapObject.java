@@ -22,7 +22,7 @@ package info.rmapproject.core.model.impl.rdf4j;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -52,6 +52,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	protected static final IRI RMAP_IDENTITYPROVIDER = rMapIri2Rdf4jIri(RMAP.IDENTITYPROVIDER);
+	protected static final IRI RMAP_PROVIDERID = rMapIri2Rdf4jIri(RMAP.PROVIDERID);
 	protected static final IRI RMAP_USERAUTHID = rMapIri2Rdf4jIri(RMAP.USERAUTHID);
 	protected static final IRI RMAP_EVENTTYPE = rMapIri2Rdf4jIri(RMAP.EVENTTYPE);
 	protected static final IRI RMAP_TARGETTYPE = rMapIri2Rdf4jIri(RMAP.TARGETTYPE);
@@ -75,20 +76,17 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 	protected static final IRI DCTERMS_CREATOR = rMapIri2Rdf4jIri(DCTERMS.CREATOR);
 	
 	/** The object unique ID. */
-	protected IRI id;
+	protected RMapIri id;
 	
 	/** The type statement. */
-	protected Statement typeStatement;
-	
-	/** The context. */
-	protected IRI context;
+	protected RMapObjectType type;
 
 	/**
 	 * Base Constructor for all RMapObjects instances, which must have a unique IRI identifier .
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapObject(IRI id) throws RMapException {
+	protected ORMapObject(RMapIri id) throws RMapException {
 		if (id == null) {
 			throw new IllegalArgumentException("id must not be null!");
 		}
@@ -101,15 +99,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 	 * @return the object ID
 	 * @throws RMapException 
 	 */
-	public RMapIri getId() throws RMapException {
-		RMapIri id = null;
-		if (this.id!=null){
-			try {
-				id = ORAdapter.rdf4jIri2RMapIri(this.id);
-			} catch (Exception e) {
-				throw new RMapException("Could not retrieve a valid ID for RMap object", e);
-			}
-		}
+	public RMapIri getId() {
 		return id;
 	}
 
@@ -118,11 +108,10 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 	 * @param id the new object ID
 	 * @throws RMapDefectiveArgumentException where object id is null or empty
 	 */
-	protected void setId(IRI id) throws RMapDefectiveArgumentException {		
+	protected void setId(RMapIri id) throws RMapDefectiveArgumentException {		
 		if (id == null || id.toString().length()==0)
 			{throw new RMapDefectiveArgumentException("Object ID is null or empty");}
 		this.id = id;
-		setContext(id); //context always corresponds to ID
 	}
 
 	/**
@@ -130,67 +119,32 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 	 * @return the object model
 	 * @throws RMapException the RMap exception
 	 */
-	public abstract Model getAsModel() throws RMapException;
-
-	/**
-	 * Gets the type statement.
-	 * @return the typeStatement
-	 */
-	public Statement getTypeStatement() {
-		return typeStatement;
+	public Model getAsModel() throws RMapException {
+		Model model = new LinkedHashModel();
+		Statement newStmt = ORAdapter.getValueFactory().createStatement
+				(ORAdapter.rMapIri2Rdf4jIri(this.id), RDF_TYPE,ORAdapter.getValueFactory().createIRI(type.getPath()),ORAdapter.rMapIri2Rdf4jIri(this.id));
+		model.add(newStmt);
+		return model;
 	}
-	
+
+
 	/**
 	 * Sets the type statement.
 	 * @param type the new type statement
 	 * @throws RMapException the RMap exception
 	 */
-	protected void setTypeStatement (RMapObjectType type) throws RMapException{
+	protected void setType(RMapObjectType type) throws RMapException{
 		if (type==null){
 			throw new RMapException("The type statement could not be created because a valid type was not provided");
 		}
-		if (this.id == null || this.context==null){
-			throw new RMapException("The object ID and context value must be set before creating a type statement");
-		}
-		try {
-			IRI typeIri = ORAdapter.rMapIri2Rdf4jIri(type.getPath());
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.id, RDF_TYPE, typeIri, this.context);
-			this.typeStatement = stmt;
-		} catch (Exception e) {
-			throw new RMapException("Invalid object type provided.", e);
-		}
+		this.type = type;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapObject#getType()
 	 */
 	public RMapObjectType getType() throws RMapException {
-		RMapObjectType type = null;
-		try {
-			Value v = this.getTypeStatement().getObject();
-			IRI vIri = (IRI)v;
-			RMapIri iri = ORAdapter.rdf4jIri2RMapIri(vIri);
-			type = RMapObjectType.getObjectType(iri);
-		} catch (Exception ex){
-			throw new RMapException("Type statement object could not convert to an IRI",ex);						
-		}
 		return type;
-	}
-	
-	/**
-	 * Sets the context.
-	 * @param context the new context
-	 */
-	protected void setContext (IRI context) {	
-		this.context = context;
-	}
-	
-	/**
-	 * Gets the context.
-	 * @return the context
-	 */
-	public IRI getContext() {
-		return context;
 	}
 
 	@Override
@@ -201,16 +155,13 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 		ORMapObject that = (ORMapObject) o;
 
 		if (id != null ? !id.equals(that.id) : that.id != null) return false;
-		if (typeStatement != null ? !typeStatement.equals(that.typeStatement) : that.typeStatement != null)
-			return false;
-		return context != null ? context.equals(that.context) : that.context == null;
+		return type != null ? type.equals(that.type) : that.type == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = id != null ? id.hashCode() : 0;
-		result = 31 * result + (typeStatement != null ? typeStatement.hashCode() : 0);
-		result = 31 * result + (context != null ? context.hashCode() : 0);
+		result = 31 * result + (type != null ? type.hashCode() : 0);
 		return result;
 	}
 
@@ -218,8 +169,7 @@ public abstract class ORMapObject implements RMapObject, Serializable {
 	public String toString() {
 		return "ORMapObject{" +
 				"id=" + id +
-				", typeStatement=" + typeStatement +
-				", context=" + context +
+				", type=" + type.getPath().toString() +
 				'}';
 	}
 }

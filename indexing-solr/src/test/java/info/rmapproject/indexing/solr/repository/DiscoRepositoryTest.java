@@ -131,7 +131,7 @@ public class DiscoRepositoryTest extends AbstractSpringIndexingTest {
 		ORMapEventCreation event = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOA_XML);
         assertNotNull(event);
 		assertEquals(1, discoRepository.count());
-		String sDiscoUri = event.getCreatedObjectIds().get(0).toString();
+		String sDiscoUri = event.getCreatedObjectIds().iterator().next().toString();
 		        		
 		String search="(*brown*)";
 		Pageable pageable = PageRequest.of(0, 10);
@@ -192,18 +192,18 @@ public class DiscoRepositoryTest extends AbstractSpringIndexingTest {
 	public void testSearchDiscosWithStatusFilter() throws Exception {
 		//create 2 active discos
 		ORMapEventCreation createEvent1 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOA_XML);
-		String discoUri1 = createEvent1.getCreatedObjectIds().get(0).toString();
+		String discoUri1 = createEvent1.getCreatedObjectIds().iterator().next().toString();
         ORMapEventCreation createEvent2 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOB_V1_XML);
-		String discoUri2 = createEvent2.getCreatedObjectIds().get(0).toString();
+		String discoUri2 = createEvent2.getCreatedObjectIds().iterator().next().toString();
         
         //create one and inactivate it so we now have 2 active, 1 inactive
         ORMapEventCreation createEvent3 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOB_V4_XML);
-		String discoUri3 = createEvent3.getCreatedObjectIds().get(0).toString();
-        indexInactivateDisco(createEvent3.getCreatedObjectIds().get(0).getIri());
+		String discoUri3 = createEvent3.getCreatedObjectIds().iterator().next().toString();
+        indexInactivateDisco(createEvent3.getCreatedObjectIds().iterator().next().getIri());
         
         //create one and delete it just to make sure it doesnt end up in the results.
         ORMapEventCreation createEvent4 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOB_V4_XML);
-        indexTombstoneDisco(createEvent4.getCreatedObjectIds().get(0).getIri());
+        indexTombstoneDisco(createEvent4.getCreatedObjectIds().iterator().next().getIri());
         
         assertEquals(4, discoRepository.count());
 
@@ -258,9 +258,9 @@ public class DiscoRepositoryTest extends AbstractSpringIndexingTest {
 	public void testSearchDiscoWithAgentFilter() throws Exception {
 		//create 2 active discos
 		ORMapEventCreation createEvent1 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOA_XML);
-		String discoUri1 = createEvent1.getCreatedObjectIds().get(0).toString();
+		String discoUri1 = createEvent1.getCreatedObjectIds().iterator().next().toString();
         ORMapEventCreation createEvent2 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOB_V1_XML);
-		String discoUri2 = createEvent2.getCreatedObjectIds().get(0).toString();
+		String discoUri2 = createEvent2.getCreatedObjectIds().iterator().next().toString();
         assertEquals(2, discoRepository.count());
 
 		//only param that will vary is the status filter, everything else wildcards	
@@ -272,11 +272,11 @@ public class DiscoRepositoryTest extends AbstractSpringIndexingTest {
 				= discoRepository.findDiscoSolrDocumentsGeneralSearch("*", FILTER_ACTIVEORINACTIVE, agentUriEscaped, FILTER_ALL_DATES, pageable);
 		assertEquals(2, discos.getTotalElements());
 		//make sure it matches one discos
-		String discoId = discos.getContent().get(0).getDiscoUri();
+		String discoId = discos.getContent().iterator().next().getDiscoUri();
 		assertTrue(discoId.equals(discoUri1) || discoId.equals(discoUri2));
 		//check the facets have a match
 		assertEquals(1, discos.getPivot("agent_uri,agent_name").size());
-		assertEquals(2, discos.getPivot("agent_uri,agent_name").get(0).getValueCount());
+		assertEquals(2, discos.getPivot("agent_uri,agent_name").iterator().next().getValueCount());
 		
 		//made up agent URI with escaped ":"
 		String madeUpAgent = "(fake\\:testagent)";
@@ -297,10 +297,10 @@ public class DiscoRepositoryTest extends AbstractSpringIndexingTest {
 	public void testSearchDiscoWithDateFilter() throws Exception {
 		//create 2 active discos
 		ORMapEventCreation createEvent1 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOA_XML);
-		String discoUri1 = createEvent1.getCreatedObjectIds().get(0).toString();
+		String discoUri1 = createEvent1.getCreatedObjectIds().iterator().next().toString();
 		String sTimeBetweenDiscos = Instant.now().toString();
 		ORMapEventCreation createEvent2 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOB_V1_XML);
-		String discoUri2 = createEvent2.getCreatedObjectIds().get(0).toString();
+		String discoUri2 = createEvent2.getCreatedObjectIds().iterator().next().toString();
         assertEquals(2, discoRepository.count());
 
 		//only param that will vary is the date filter, everything else wildcards	
@@ -374,14 +374,14 @@ public class DiscoRepositoryTest extends AbstractSpringIndexingTest {
 	public void testSearchDiscosUsingRelatedStmtsWithHighlight() throws Exception {
 		//create 2 active discos
 		ORMapEventCreation createEvent1 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOA_XML);
-		String discoUri1 = createEvent1.getCreatedObjectIds().get(0).toString();
+		String discoUri1 = createEvent1.getCreatedObjectIds().iterator().next().toString();
         ORMapEventCreation createEvent2 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOB_V1_XML);
-		String discoUri2 = createEvent2.getCreatedObjectIds().get(0).toString();
+		String discoUri2 = createEvent2.getCreatedObjectIds().iterator().next().toString();
         
         //create one and inactivate it so we now have 2 active, 1 inactive
         ORMapEventCreation createEvent3 = (ORMapEventCreation) indexCreateDisco(TestFile.DISCOB_V4_XML);
-		String discoUri3 = createEvent3.getCreatedObjectIds().get(0).toString();
-        indexInactivateDisco(createEvent3.getCreatedObjectIds().get(0).getIri());
+		String discoUri3 = createEvent3.getCreatedObjectIds().iterator().next().toString();
+        indexInactivateDisco(createEvent3.getCreatedObjectIds().iterator().next().getIri());
         		        	
         //ieee should hit all records
 		String search="(*ieee*)";

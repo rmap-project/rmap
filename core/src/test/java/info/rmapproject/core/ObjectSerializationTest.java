@@ -23,19 +23,20 @@ import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
 import info.rmapproject.core.model.request.RequestEventDetails;
+
 import org.junit.Test;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.sail.memory.model.MemValueFactory;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static info.rmapproject.core.SerializationAssertions.serializeTest;
 import static info.rmapproject.core.TestUtil.asRmapLiteral;
@@ -56,12 +57,13 @@ public class ObjectSerializationTest {
     @Test
     public void serializeDisco() throws Exception {
         RMapIri agentIri = TestUtil.asRmapIri("http://example.com/agent/" + count());
-        IRI discoIri = TestUtil.asIri("http://example.com/disco/" + count());
+        RMapIri discoIri = TestUtil.asRmapIri("http://example.com/disco/" + count());
         RMapIri provIri = TestUtil.asRmapIri("http://exmaple.com/agent/" + count());
         RMapIri resourceIri = TestUtil.asRmapIri("http://exmaple.com/resource/" + count());
 
+        
         ORMapDiSCO expectedDisco = new ORMapDiSCO(discoIri, agentIri,
-                singletonList(create("http://foo.com/bar/resource")));
+                singletonList(new RMapIri("http://foo.com/bar/resource")));
 
         expectedDisco.setDescription(new RMapLiteral("a description"));
         expectedDisco.setProvGeneratedBy(provIri);
@@ -73,12 +75,11 @@ public class ObjectSerializationTest {
 
     @Test
     public void serializeAgent() throws Exception {
-        IRI agentIri = TestUtil.asIri("http://example.com/agent/" + count());
-        IRI providerIri = TestUtil.asIri("http://example.com/provider/" + count());
-        IRI authIri = TestUtil.asIri("http://example.com/authid/" + count());
+    	RMapIri agentIri = TestUtil.asRmapIri("http://example.com/agent/" + count());
+    	RMapIri providerIri = TestUtil.asRmapIri("http://example.com/provider/" + count());
+    	RMapIri authIri = TestUtil.asRmapIri("http://example.com/authid/" + count());
         // Value needs to be implemented by something other than an inner class
-        Value agentName = ORAdapter.getValueFactory().createLiteral("An Agent");
-
+        RMapValue agentName = new RMapLiteral("An Agent");
         ORMapAgent agent = new ORMapAgent(agentIri, providerIri, authIri, agentName);
 
         serializeTest(agent);
@@ -86,12 +87,13 @@ public class ObjectSerializationTest {
 
     @Test
     public void serializeEventCreation() throws Exception {
-        IRI eventIri = TestUtil.asIri("http://example.com/event/" + count());
+        RMapIri eventIri = TestUtil.asRmapIri("http://example.com/event/" + count());
         RequestEventDetails reqEventDetails = new RequestEventDetails(create("http://example.org/agent/" + count()),
                 create("http://example.org/agent/key"));
         RMapEventTargetType type = RMapEventTargetType.DISCO;
         RMapLiteral desc = new RMapLiteral("Creation Event Description");
-        List<RMapIri> created = singletonList(TestUtil.asRmapIri("http://example.org/disco/" + count()));
+        Set<RMapIri> created = new HashSet<RMapIri>();
+        created.add(TestUtil.asRmapIri("http://example.org/disco/" + count()));
         reqEventDetails.setDescription(desc);
 
         ORMapEventCreation event = new ORMapEventCreation(eventIri, reqEventDetails, type, created);

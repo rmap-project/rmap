@@ -26,25 +26,26 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
 
 import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapTriple;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
 import info.rmapproject.core.rdfhandler.RDFType;
 import info.rmapproject.core.rdfhandler.impl.rdf4j.RioRDFHandler;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.testdata.service.TestDataHandler;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -126,30 +127,28 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 	 * Checks that a disconnected graph detected, and valid graphs come back as connected.
 	 */
 	@Test
-	public void testIsConnectedGraph() throws Exception {
-		ValueFactory vf = ORAdapter.getValueFactory();
+	public void testIsConnectedGraph() throws Exception {		
+		RMapIri agg1 = new RMapIri("http://rmap-info.org");	
+		RMapIri agg2 = new RMapIri("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki");
 		
-		Resource agg1 = vf.createIRI("http://rmap-info.org");	
-		Resource agg2 = vf.createIRI("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki");
+		List<RMapIri> aggregatedResources = new ArrayList<RMapIri>();
+		aggregatedResources.add(agg1);
+		aggregatedResources.add(agg2);
 		
-		List<URI> aggregatedResources = new ArrayList<URI>();
-		aggregatedResources.add(new URI(agg1.toString()));
-		aggregatedResources.add(new URI(agg2.toString()));
+		RMapValue litA = new RMapLiteral("a");
+		RMapResource resB = new RMapIri("http://b.org");
+		RMapResource resC = new RMapIri("http://c.org");
+		RMapResource resD = new RMapIri("http://d.org");		
+		RMapResource resE = new RMapIri("http://e.org");		
 		
-		Value litA = vf.createLiteral("a");
-		Resource resB = vf.createIRI("http://b.org");
-		Resource resC = vf.createIRI("http://c.org");
-		Resource resD = vf.createIRI("http://d.org");		
-		Resource resE = vf.createIRI("http://e.org");		
-		
-		List<Statement> relatedStmts = new ArrayList<Statement>();
+		List<RMapTriple> relatedStmts = new ArrayList<RMapTriple>();
 		
 		//predicates are nonsense here
 		// first test connected r->a r->b b->c b->d
-		Statement s1 = vf.createStatement(agg1,RMAP_DERIVEDOBJECT,litA);
-		Statement s2 = vf.createStatement(agg1,RMAP_DERIVEDOBJECT,resB);
-		Statement s3 = vf.createStatement(resB,RMAP_DERIVEDOBJECT,resC);
-		Statement s4 = vf.createStatement(resB,RMAP_DERIVEDOBJECT,resD);
+		RMapTriple s1 = new RMapTriple(agg1,RMAP.DERIVEDOBJECT,litA);
+		RMapTriple s2 = new RMapTriple(agg1,RMAP.DERIVEDOBJECT,resB);
+		RMapTriple s3 = new RMapTriple(resB,RMAP.DERIVEDOBJECT,resC);
+		RMapTriple s4 = new RMapTriple(resB,RMAP.DERIVEDOBJECT,resD);
 		relatedStmts.add(s1);
 		relatedStmts.add(s2);
 		relatedStmts.add(s3);
@@ -164,9 +163,9 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		assertFalse(isConnected);
 		
 		// third test connected r->a  b->c r2->c c->b, handles cycle, duplicates
-		Statement s5 = vf.createStatement(agg2,RMAP_DERIVEDOBJECT,resC);
-		Statement s6 = vf.createStatement(resC,RMAP_DERIVEDOBJECT,resB);
-		Statement s7 = vf.createStatement(resC,RMAP_DERIVEDOBJECT,resB);
+		RMapTriple s5 = new RMapTriple(agg2,RMAP.DERIVEDOBJECT,resC);
+		RMapTriple s6 = new RMapTriple(resC,RMAP.DERIVEDOBJECT,resB);
+		RMapTriple s7 = new RMapTriple(resC,RMAP.DERIVEDOBJECT,resB);
 		relatedStmts.add(s6);
 		relatedStmts.add(s5);
 		relatedStmts.add(s7);
@@ -174,7 +173,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		assertTrue (isConnected);
 
 		// fourth test connected handles stmt that directs TO the aggregated resource
-		Statement s8 = vf.createStatement(resE,RMAP_DERIVEDOBJECT,resC);
+		RMapTriple s8 = new RMapTriple(resE,RMAP.DERIVEDOBJECT,resC);
 		relatedStmts.add(s8);
 		isConnected = OStatementsAdapter.isConnectedGraph(aggregatedResources, relatedStmts);
 		assertTrue (isConnected);

@@ -1,6 +1,7 @@
 package info.rmapproject.indexing;
 
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapObject;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.agent.RMapAgent;
@@ -48,14 +49,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
@@ -156,7 +155,7 @@ public class TestUtils {
 
                                 Collectors.toMap(
                                         // Map the rdf:type URI to a RMapObjectType to use as a Map key
-                                        uri -> RMapObjectType.getObjectType(new RMapIri(uri)),
+                                        uri -> RMapObjectType.getRMapObjectType(uri.toString()),
 
                                         // Ignore the rdf:type URI, and simply create a new HashSet containing the file
                                         ignored -> {
@@ -401,10 +400,10 @@ public class TestUtils {
      * @throws URISyntaxException
      */
     public static RMapAgent createSystemAgent(RMapService rmapService) throws RMapException, RMapDefectiveArgumentException, URISyntaxException {
-        IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID);
-        IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
-        IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_AUTH_ID);
-        Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT_NAME);
+        RMapIri AGENT_IRI = new RMapIri(TestConstants.SYSAGENT_ID);
+        RMapIri ID_PROVIDER_IRI = new RMapIri(TestConstants.SYSAGENT_ID_PROVIDER);
+        RMapIri AUTH_ID_IRI = new RMapIri(TestConstants.SYSAGENT_AUTH_ID);
+        RMapLiteral NAME = new RMapLiteral(TestConstants.SYSAGENT_NAME);
         RMapAgent sysagent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 
         RequestEventDetails requestEventDetails = new RequestEventDetails(new URI(TestConstants.SYSAGENT_ID), new URI(TestConstants.SYSAGENT_KEY));

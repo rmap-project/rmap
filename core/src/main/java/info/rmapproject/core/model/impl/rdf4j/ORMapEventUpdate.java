@@ -22,17 +22,21 @@
  */
 package info.rmapproject.core.model.impl.rdf4j;
 
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
 import info.rmapproject.core.model.event.RMapEventUpdate;
@@ -49,57 +53,55 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	private static final long serialVersionUID = 1L;
 	
 	/** The statement containing the derived object id. */
-	protected Statement derivationStatement;
+	protected RMapIri derivedObjectId;
 	
 	/** The statement containing the inactivated object id. */
-	protected Statement inactivatedObjectStatement;
+	protected RMapIri inactivatedObjectId;
 
 	/**
 	 * Instantiates a new RMap Update Event.
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventUpdate(IRI id) throws RMapException {
+	protected ORMapEventUpdate(RMapIri id) throws RMapException {
 		super(id);
-		this.setEventTypeStatement(RMapEventType.UPDATE);
+		this.setEventType(RMapEventType.UPDATE);
 	}
 	
 	/**
 	 * Instantiates a new RMap Update Event.
 	 *
-	 * @param eventTypeStmt the event type stmt
-	 * @param eventTargetTypeStmt the event target type stmt
-	 * @param associatedAgentStmt the associated agent stmt
-	 * @param descriptionStmt the description stmt
-	 * @param startTimeStmt the start time stmt
-	 * @param endTimeStmt the end time stmt
+	 * @param eventTypeStmt the event type
+	 * @param eventTargetTypeStmt the event target type
+	 * @param associatedAgentStmt the associated agent
+	 * @param descriptionStmt the description
+	 * @param startTimeStmt the start time
+	 * @param endTimeStmt the end time
 	 * @param context the context
 	 * @param typeStatement the type statement
-	 * @param associatedKeyStmt the associated key stmt
+	 * @param associatedKeyStmt the associated key
 	 * @param createdObjects the list of statements referencing the created object ids
 	 * @param derivationStatement the statement referencing the derived object id
 	 * @param inactivatedObjectStatement the statement referencing the inactivated object id
 	 * @throws RMapException the RMap exception
 	 */
-	public ORMapEventUpdate(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
-			Statement associatedAgentStmt,  Statement descriptionStmt, 
-			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt, Statement lineageProgenitorStmt, List<Statement> createdObjects,
-			Statement derivationStatement, Statement inactivatedObjectStatement) 
+	public ORMapEventUpdate(RMapEventType eventType, RMapEventTargetType eventTargetType, RMapIri associatedAgent,
+			RMapValue description, RMapLiteral startTime, RMapLiteral endTime, RMapIri id,
+			RMapObjectType type, RMapIri associatedKey, RMapIri lineageProgenitor, Set<RMapIri> createdObjectIds,
+			RMapIri inactivatedObjectId, RMapIri derivedObjectId) 
 	throws RMapException {
-		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineageProgenitorStmt);
-		if (createdObjects==null || createdObjects.size()==0){
+		super(eventType,eventTargetType,associatedAgent,description, startTime, endTime, id, type, associatedKey, lineageProgenitor, createdObjectIds);
+		if (createdObjectIds==null || createdObjectIds.size()==0){
 			throw new RMapException ("Null or empty list of created object in Update");
 		}		
-		if (derivationStatement==null){
+		if (derivedObjectId==null){
 			throw new RMapException("Null derived object");
 		}
-		if (inactivatedObjectStatement==null){
+		if (inactivatedObjectId==null){
 			throw new RMapException("Null inactivated object statement");
 		}
-		this.createdObjects = createdObjects;	
-		this.derivationStatement = derivationStatement;
-		this.inactivatedObjectStatement = inactivatedObjectStatement;
+		this.createdObjectIds = createdObjectIds;	
+		this.derivedObjectId = derivedObjectId;
+		this.inactivatedObjectId = inactivatedObjectId;
 	}
 
 	/**
@@ -112,16 +114,16 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventUpdate(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI inactivatedObject, IRI derivedObject)
+	public ORMapEventUpdate(RMapIri id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, RMapIri inactivatedObjectId, RMapIri derivedObjectId)
 	throws RMapException, RMapDefectiveArgumentException {
 		super(id, reqEventDetails, targetType);
-		this.setEventTypeStatement(RMapEventType.UPDATE);
-		this.setInactivatedObjectStmt(inactivatedObject);
-		this.setDerivationStmt(derivedObject);
+		this.setEventType(RMapEventType.UPDATE);
+		this.inactivatedObjectId = inactivatedObjectId;
+		this.derivedObjectId = derivedObjectId;
 
-		Set<IRI> createdObjs = new HashSet<IRI>();
-		createdObjs.add(derivedObject);
-		this.setCreatedObjectIdsFromIRI(createdObjs);
+		Set<RMapIri> createdObjs = new HashSet<RMapIri>();
+		createdObjs.add(derivedObjectId);
+		this.createdObjectIds = createdObjs;
 	}
 
 	
@@ -131,11 +133,18 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
-		if (inactivatedObjectStatement != null){
-			model.add(inactivatedObjectStatement);
+		IRI id = rMapIri2Rdf4jIri(this.id);
+		if (inactivatedObjectId != null){
+			Statement stmt = ORAdapter.getValueFactory().createStatement(id, 
+					RMAP_INACTIVATEDOBJECT,
+					ORAdapter.rMapIri2Rdf4jIri(inactivatedObjectId), id);
+			model.add(stmt);
 		}
-		if (derivationStatement != null){
-			model.add(derivationStatement);
+		if (derivedObjectId != null){
+			Statement stmt = ORAdapter.getValueFactory().createStatement(id, 
+					RMAP_DERIVEDOBJECT,
+					ORAdapter.rMapIri2Rdf4jIri(derivedObjectId), id);
+			model.add(stmt);
 		}
 		return model;
 	}
@@ -144,16 +153,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 * @see info.rmapproject.core.model.RMapEventUpdate#getInactivatedObjectId()
 	 */
 	public RMapIri getInactivatedObjectId() throws RMapException {
-		RMapIri rid = null;
-		if (this.inactivatedObjectStatement!= null){
-			try {
-				IRI iri = (IRI) this.inactivatedObjectStatement.getObject();
-				rid = ORAdapter.rdf4jIri2RMapIri(iri);
-			} catch (IllegalArgumentException ex){
-				throw new RMapException("Could not retrieve Inactivated Object Id", ex);
-			}
-		}
-		return rid;
+		return inactivatedObjectId;
 	}
 	
 	/* (non-Javadoc)
@@ -161,56 +161,14 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 */
 	@Override
 	public void setInactivatedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI inactiveIri = ORAdapter.rMapIri2Rdf4jIri(iri);
-		this.setInactivatedObjectStmt(inactiveIri);
-	}
-	
-	/**
-	 * Gets the statement containing the inactivated object IRI
-	 *
-	 * @return the statement containing the inactivated object IRI
-	 */
-	public Statement getInactivatedObjectStmt() {
-		return this.inactivatedObjectStatement;
-	}
-	
-	/**
-	 * Sets the statement containing the inactivated object IRI
-	 *
-	 * @param intactivatedObject the IRI of the inactivated object
-	 */
-	protected void setInactivatedObjectStmt(IRI intactivatedObject) {
-		if (intactivatedObject != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP_INACTIVATEDOBJECT,
-					intactivatedObject, this.context);
-			this.inactivatedObjectStatement = stmt;
-		}
+		inactivatedObjectId = iri;
 	}
 	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapEventUpdate#getDerivationSourceObjectId()
 	 */
 	public RMapIri getDerivedObjectId() throws RMapException {
-		RMapIri rid = null;
-		if (this.derivationStatement!= null){
-			try {
-				IRI iri = (IRI) this.derivationStatement.getObject();
-				rid = ORAdapter.rdf4jIri2RMapIri(iri);
-			} catch (IllegalArgumentException ex){
-				throw new RMapException("Could not retrieve Inactivated Object Id", ex);
-			}
-		}
-		return rid;
-	}
-	
-	/**
-	 * Gets the statement containing the derived object IRI
-	 *
-	 * @return the derivation stmt
-	 */
-	public Statement getDerivationStmt (){
-		return this.derivationStatement;
+		return derivedObjectId;
 	}
 	
 	/* (non-Javadoc)
@@ -218,23 +176,7 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 	 */
 	@Override
 	public void setDerivedObjectId(RMapIri iri) throws RMapException, RMapDefectiveArgumentException {
-		IRI derivedIRI = ORAdapter.rMapIri2Rdf4jIri(iri);
-		this.setDerivationStmt(derivedIRI);
-	}
-	
-	/**
-	 * Sets the statement containing the derived object IRI
-	 *
-	 * @param derivedObject the IRI of the derived object
-	 * @throws RMapException the RMap exception
-	 */
-	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
-		if (derivedObject != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP_DERIVEDOBJECT,
-					derivedObject, this.context);
-			this.derivationStatement = stmt;
-		}
+		this.derivedObjectId = iri;
 	}
 
 	@Override
@@ -245,16 +187,16 @@ public class ORMapEventUpdate extends ORMapEventWithNewObjects implements RMapEv
 
 		ORMapEventUpdate that = (ORMapEventUpdate) o;
 
-		if (derivationStatement != null ? !derivationStatement.equals(that.derivationStatement) : that.derivationStatement != null)
+		if (derivedObjectId != null ? !derivedObjectId.equals(that.derivedObjectId) : that.derivedObjectId != null)
 			return false;
-		return inactivatedObjectStatement != null ? inactivatedObjectStatement.equals(that.inactivatedObjectStatement) : that.inactivatedObjectStatement == null;
+		return inactivatedObjectId != null ? inactivatedObjectId.equals(that.inactivatedObjectId) : that.inactivatedObjectId == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result + (derivationStatement != null ? derivationStatement.hashCode() : 0);
-		result = 31 * result + (inactivatedObjectStatement != null ? inactivatedObjectStatement.hashCode() : 0);
+		result = 31 * result + (derivedObjectId != null ? derivedObjectId.hashCode() : 0);
+		result = 31 * result + (inactivatedObjectId != null ? inactivatedObjectId.hashCode() : 0);
 		return result;
 	}
 }

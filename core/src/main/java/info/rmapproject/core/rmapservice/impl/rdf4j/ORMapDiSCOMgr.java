@@ -22,9 +22,8 @@
  */
 package info.rmapproject.core.rmapservice.impl.rdf4j;
 
-
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jIri2URI;
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rdf4jIri2RMapIri;
 import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findLineageProgenitor;
 import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.getLineageMembers;
 
@@ -54,7 +53,6 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapStatus;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventTargetType;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEventCreation;
@@ -107,7 +105,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapDiSCO readDiSCO(IRI discoID, Rdf4jTriplestore ts) 
+	public ORMapDiSCO readDiSCO(RMapIri discoID, Rdf4jTriplestore ts) 
 	throws RMapTombstonedObjectException, RMapDeletedObjectException, RMapException, RMapObjectNotFoundException, RMapDefectiveArgumentException {
 		return this.readDiSCO(discoID, ts, false);
 	}
@@ -125,7 +123,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	private ORMapDiSCO readDiSCO(IRI discoID, Rdf4jTriplestore ts, boolean retrieveIfTombstoned) 
+	private ORMapDiSCO readDiSCO(RMapIri discoID, Rdf4jTriplestore ts, boolean retrieveIfTombstoned) 
 	throws RMapException, RMapDefectiveArgumentException {
 		ORMapDiSCO disco = null;
 		if (discoID ==null){
@@ -135,17 +133,17 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			throw new RMapException("null triplestore");
 		}
 		if (! (this.isDiscoId(discoID, ts))){
-			throw new RMapDiSCONotFoundException("No DiSCO with id " + discoID.stringValue());
+			throw new RMapDiSCONotFoundException("No DiSCO with id " + discoID.toString());
 		}
-		RMapStatus status = this.getDiSCOStatus(discoID, ts);
+		RMapStatus status = getDiSCOStatus(discoID, ts);
 		switch (status){
 		case TOMBSTONED :
 			if (!retrieveIfTombstoned){
-				throw new RMapTombstonedObjectException("DiSCO "+ discoID.stringValue() + " has been soft deleted");
+				throw new RMapTombstonedObjectException("DiSCO "+ discoID.toString() + " has been soft deleted");
 			}
 			break;
 		case DELETED :
-			throw new RMapDeletedObjectException ("DiSCO "+ discoID.stringValue() + " has been permanently deleted");
+			throw new RMapDeletedObjectException ("DiSCO "+ discoID.toString() + " has been permanently deleted");
 		default:
 			break;		
 		}		
@@ -154,7 +152,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			discoStmts = this.getNamedGraph(discoID, ts);		
 		}
 		catch (RMapObjectNotFoundException e){
-			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoID.stringValue(), e);
+			throw new RMapDiSCONotFoundException("No DiSCO found with id " + discoID.toString(), e);
 		}
 		disco = OStatementsAdapter.asDisco(discoStmts, idSupplier);
 		
@@ -188,9 +186,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// get the event started
-		ORMapEventCreation event = new ORMapEventCreation(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
+		ORMapEventCreation event = new ORMapEventCreation(new RMapIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
 		// Create reified statements for aggregrated resources if needed
-		List<Statement> aggResources = disco.getAggregatedResourceStatements();
+		List<RMapIri> aggResources = disco.getAggregatedResources();
 		if (aggResources == null){
 			throw new RMapException("Null aggregated resources in DiSCO");
 		}
@@ -207,9 +205,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		// create triples for all statements in DiSCO
 		// Keep track of resources created by this Event
-		Set<IRI> created = new HashSet<IRI>();
+		Set<RMapIri> created = new HashSet<RMapIri>();
 		// add the DiSCO IRI as an event-created Resource
-		created.add(disco.getDiscoContext());
+		created.add(disco.getId());
 		
 		//since this is the first time we are seeing this DiSCO, lets replace the BNodes with proper IDs.
 		disco.replaceBNodesWithIds(idService);
@@ -222,7 +220,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		
 		// end the event, write the event triples, and commit everything
 		// update the event with created object IDS
-		event.setCreatedObjectIdsFromIRI(created);		
+		event.setCreatedObjectIds(created);		
 		event.setEndTime(new Date());
 		event.setLineageProgenitor(disco.getId());
 		eventmgr.createEvent(event, ts);
@@ -255,7 +253,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapNotLatestVersionException 
 	 */
 	//try to roll this back!
-	public RMapEvent updateDiSCO(IRI oldDiscoId, ORMapDiSCO disco, RequestEventDetails reqEventDetails,  boolean justInactivate, Rdf4jTriplestore ts) 
+	public RMapEvent updateDiSCO(RMapIri oldDiscoId, ORMapDiSCO disco, RequestEventDetails reqEventDetails,  boolean justInactivate, Rdf4jTriplestore ts) 
 	throws RMapDefectiveArgumentException, RMapAgentNotFoundException, RMapException, RMapNotLatestVersionException {
 		// confirm non-null old disco
 		if (oldDiscoId==null){
@@ -267,10 +265,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}		
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
-		final URI latestDiscoURI = getLineageMembers(findLineageProgenitor(rdf4jIri2URI(oldDiscoId), ts), ts)
+		final URI latestDiscoURI = getLineageMembers(findLineageProgenitor(oldDiscoId.getIri(), ts), ts)
 		        .stream().reduce((a, b) -> b).get();
 		//check that they are updating the latest version of the DiSCO otherwise throw exception
-		if (!latestDiscoURI.toString().equals(oldDiscoId.stringValue())){
+		if (!latestDiscoURI.toString().equals(oldDiscoId.toString())){
 			//NOTE:the IRI of the latest DiSCO should always appear in angle brackets at the end of the message
 			//so that it can be parsed as needed
 			throw new RMapNotLatestVersionException("The DiSCO '" + oldDiscoId.toString() + "' has a newer version. "
@@ -292,9 +290,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		if (justInactivate){
 			// must be same agent
 			if (creatorSameAsOrig){
-				ORMapEventInactivation iEvent = new ORMapEventInactivation(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
-				iEvent.setInactivatedObjectId(ORAdapter.rdf4jIri2RMapIri(oldDiscoId));
-				iEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(oldDiscoId), ts)));
+				ORMapEventInactivation iEvent = new ORMapEventInactivation(new RMapIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO);
+				iEvent.setInactivatedObjectId(oldDiscoId);
+				iEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(oldDiscoId.getIri(), ts)));
 				event = iEvent;
 			}
 			else {
@@ -309,16 +307,16 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 				throw new RMapDefectiveArgumentException("No new DiSCO provided for update");
 			}
 
-			if (oldDiscoId.stringValue().equals(disco.getDiscoContext().stringValue())){
+			if (oldDiscoId.equals(disco.getId())){
 				throw new RMapDefectiveArgumentException("The DiSCO provided has the same identifier as the DiSCO being replaced.");
 			}
 			if (creatorSameAsOrig){
-				ORMapEventUpdate uEvent = new ORMapEventUpdate(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
-				uEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(oldDiscoId), ts)));
+				ORMapEventUpdate uEvent = new ORMapEventUpdate(new RMapIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getId());
+				uEvent.setLineageProgenitor(new RMapIri(findLineageProgenitor(oldDiscoId.getIri(), ts)));
 				event = uEvent;
 			}
 			else {
-				ORMapEventDerivation dEvent = new ORMapEventDerivation(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getDiscoContext());
+				ORMapEventDerivation dEvent = new ORMapEventDerivation(new RMapIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, oldDiscoId, disco.getId());
 				dEvent.setLineageProgenitor(disco.getId());
 				event = dEvent;
 			}
@@ -342,9 +340,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 						
 			// create any new triples for all statements in DiSCO
 			// Keep track of resources created by this Event
-			Set<IRI> created = new HashSet<IRI>();			
+			Set<RMapIri> created = new HashSet<RMapIri>();			
 			// add the DiSCO IRI as an event-created Resource
-			created.add(disco.getDiscoContext());
+			created.add(disco.getId());
 			
 			//since this is the first time we are seeing this DiSCO, lets replace the BNodes with proper IDs.
 			disco.replaceBNodesWithIds(idService);
@@ -356,7 +354,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			}
 			
 			if (event instanceof ORMapEventWithNewObjects){
-				((ORMapEventWithNewObjects)event).setCreatedObjectIdsFromIRI(created);		
+				((ORMapEventWithNewObjects)event).setCreatedObjectIds(created);		
 			}
 		} while (false);
 			
@@ -385,7 +383,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public RMapEvent tombstoneDiSCO(IRI discoId, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
+	public RMapEvent tombstoneDiSCO(RMapIri discoId, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDefectiveArgumentException {
 		// confirm non-null old disco
 		if (discoId==null){
@@ -399,14 +397,14 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// make sure same Agent created the DiSCO now being inactivated
-		if (! this.isSameCreatorAgent(discoId, reqEventDetails, ts) && !agentmgr.agentHasAdminRights(reqEventDetails)){
+		if (! isSameCreatorAgent(discoId, reqEventDetails, ts) && !agentmgr.agentHasAdminRights(reqEventDetails)){
 			throw new RMapException(
 					"Agent attempting to tombstone DiSCO is not same as its creating Agent and does not have Administrator rights");
 		}
 			
 		// get the event started
-		ORMapEventTombstone event = new ORMapEventTombstone(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
-		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(discoId), ts)));
+		ORMapEventTombstone event = new ORMapEventTombstone(new RMapIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
+		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(discoId.getIri(), ts)));
 		
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
@@ -444,7 +442,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapAgentNotFoundException the RMap agent not found exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public RMapEvent deleteDiSCO(IRI discoId, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
+	public RMapEvent deleteDiSCO(RMapIri discoId, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 	throws RMapException, RMapAgentNotFoundException, RMapDeletedObjectException, RMapDefectiveArgumentException {
 		// confirm non-null old disco
 		if (discoId==null){
@@ -458,7 +456,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		agentmgr.validateRequestAgent(reqEventDetails, ts);
 		
 		// make sure same Agent created the DiSCO now being deleted, or they have admin rights
-		if (!this.isSameCreatorAgent(discoId, reqEventDetails, ts) && !agentmgr.agentHasAdminRights(reqEventDetails)){
+		if (!isSameCreatorAgent(discoId, reqEventDetails, ts) && !agentmgr.agentHasAdminRights(reqEventDetails)){
 			throw new RMapException(
 				"Agent attempting to delete DiSCO is not same as its creating Agent and does not have Administrator rights");
 		}
@@ -466,8 +464,8 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		ORMapDiSCO disco = readDiSCO(discoId, ts, true);
 		Set<Statement> stmts = disco.getAsModel();
 		// get the event started
-		ORMapEventDeletion event = new ORMapEventDeletion(uri2Rdf4jIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
-		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(rdf4jIri2URI(discoId), ts)));
+		ORMapEventDeletion event = new ORMapEventDeletion(new RMapIri(idSupplier.get()), reqEventDetails, RMapEventTargetType.DISCO, discoId);
+		event.setLineageProgenitor(new RMapIri(findLineageProgenitor(discoId.getIri(), ts)));
 		
 		// set up triplestore and start transaction
 		boolean doCommitTransaction = false;
@@ -481,7 +479,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}		
 		
 		//remove statements for DiSCO
-		ts.removeStatements(stmts, discoId);
+		ts.removeStatements(stmts, rMapIri2Rdf4jIri(discoId));
 		
 		// end the event, write the event triples, and commit everything
 		event.setEndTime(new Date());
@@ -507,7 +505,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 * @throws RMapException the RMap exception
 	 */
-	public RMapStatus getDiSCOStatus(IRI discoId, Rdf4jTriplestore ts) 
+	public RMapStatus getDiSCOStatus(RMapIri discoId, Rdf4jTriplestore ts) 
 			throws RMapDiSCONotFoundException, RMapException {
 		RMapStatus status = null;
 		if (discoId==null){
@@ -515,37 +513,38 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		}
 		// first ensure Exists statement IRI rdf:TYPE rmap:DISCO  if not: raise NOTFOUND exception
 		if (! this.isDiscoId(discoId, ts)){
-			throw new RMapDiSCONotFoundException ("No DisCO found with id " + discoId.stringValue());
+			throw new RMapDiSCONotFoundException ("No DisCO found with id " + discoId.toString());
 		}
 		do {
 			Set<Statement> eventStmts = null;
+            IRI discoIri = rMapIri2Rdf4jIri(discoId);
 			try {
 				//   ? RMap:Deletes discoId  done return deleted
-				eventStmts = ts.getStatements(null, RMAP_DELETEDOBJECT, discoId);
+				eventStmts = ts.getStatements(null, RMAP_DELETEDOBJECT, discoIri);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.DELETED;
 					break;
 				}
 				//   ? RMap:Tombstones discoID	done return tombstoned
-				eventStmts = ts.getStatements(null, RMAP_TOMBSTONEDOBJECT, discoId);
+				eventStmts = ts.getStatements(null, RMAP_TOMBSTONEDOBJECT, discoIri);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.TOMBSTONED;
 					break;
 				}
 				//   ? RMap:Updates discoID	done return Inactive
-				eventStmts = ts.getStatements(null, RMAP_INACTIVATEDOBJECT, discoId);
+				eventStmts = ts.getStatements(null, RMAP_INACTIVATEDOBJECT, discoIri);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.INACTIVE;
 					break;
 				}
 			   //   else return active if create event found
-				eventStmts = ts.getStatements(null, PROV_GENERATED, discoId);
+				eventStmts = ts.getStatements(null, PROV_GENERATED, discoIri);
 				if (eventStmts!=null && !eventStmts.isEmpty() && containsValidEventStmt(eventStmts,ts)){
 					status = RMapStatus.ACTIVE;
 					break;
 				}
 				// else throw exception
-				throw new RMapException("No Events found for determing status of  " + discoId.stringValue());
+				throw new RMapException("No Events found for determing status of  " + discoId.toString());
 			} catch (Exception e) {
 				throw new RMapException("Exception thrown querying triplestore for events", e);
 			}
@@ -566,7 +565,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 		for (Statement stmt : stmts) {
 			String context = stmt.getContext().toString();
 			if (stmt.getSubject().toString().equals(context) 
-					&& this.isEventId(ORAdapter.getValueFactory().createIRI(context), ts)){
+					&& this.isEventId(new RMapIri(context), ts)){
 				containsValidEventStmt=true;
 				break;
 			}
@@ -585,14 +584,13 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
-	public IRI getDiSCOAssertingAgent(IRI discoIri, Rdf4jTriplestore ts) 
+	public RMapIri getDiSCOAssertingAgent(RMapIri discoIri, Rdf4jTriplestore ts) 
 			throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
-		IRI assocAgent = null;
-		
-		List<IRI> events = eventmgr.getMakeObjectEvents(discoIri, ts);
+		RMapIri assocAgent = null;
+		List<RMapIri> events = eventmgr.getMakeObjectEvents(discoIri, ts);
 		if (events.size()>0){
 			//any event from this list will do, should only be one and if there is more than one they should have same agent	
-			IRI eventIri = events.get(0);
+			RMapIri eventIri = events.get(0);
 			assocAgent = eventmgr.getEventAssocAgent(eventIri, ts);
 		}
 		
@@ -611,9 +609,9 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @throws RMapDiSCONotFoundException the RMap DiSCO not found exception
 	 * @throws RMapObjectNotFoundException the RMap object not found exception
 	 */
-	public Set<IRI> getRelatedAgents(IRI iri, RMapStatus statusCode, Rdf4jTriplestore ts) 
+	public Set<RMapIri> getRelatedAgents(RMapIri iri, RMapStatus statusCode, Rdf4jTriplestore ts) 
 	throws RMapException, RMapDiSCONotFoundException, RMapObjectNotFoundException {
-		Set<IRI>agents = new HashSet<IRI>();
+		Set<RMapIri>agents = new HashSet<RMapIri>();
 		do {
 			if (statusCode != null){
 				RMapStatus dStatus = this.getDiSCOStatus(iri, ts);
@@ -621,10 +619,10 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 					break;
 				}
 			}
-			List<IRI>events = eventmgr.getDiscoRelatedEventIds(iri, ts);
+			List<RMapIri>events = eventmgr.getDiscoRelatedEventIds(iri, ts);
            //For each event associated with DiSCOID, return AssociatedAgent
-			for (IRI event:events){
-				IRI assocAgent = eventmgr.getEventAssocAgent(event, ts);
+			for (RMapIri event:events){
+				RMapIri assocAgent = eventmgr.getEventAssocAgent(event, ts);
 				agents.add(assocAgent);
 			}
 			//TODO  ask:  do we want these?
@@ -633,14 +631,16 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			for (Statement stmt:dStatements){
 				Resource subject = stmt.getSubject();
 				if (subject instanceof IRI){
-					if (this.isAgentId((IRI)subject,ts)){
-						agents.add((IRI) subject);
+					RMapIri subjIri = rdf4jIri2RMapIri((IRI)subject);
+					if (isAgentId(subjIri,ts)){
+						agents.add(subjIri);
 					}
 				}
 				Value object = stmt.getObject();
 				if (object instanceof IRI){
-					if (this.isAgentId((IRI)object,ts)){
-						agents.add((IRI) object);
+					RMapIri objIri = rdf4jIri2RMapIri((IRI)object);
+					if (this.isAgentId(objIri,ts)){
+						agents.add(objIri);
 					}
 				}
 			}
@@ -657,7 +657,7 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 	 * @return true, if is same creator agent
 	 * @throws RMapException the RMap exception
 	 */
-	protected boolean isSameCreatorAgent (IRI discoIri, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
+	protected boolean isSameCreatorAgent (RMapIri discoIri, RequestEventDetails reqEventDetails, Rdf4jTriplestore ts) 
 			throws RMapException {
 		boolean isSame = false;		
 		Statement stmt = eventmgr.getCreateObjEventStmt(discoIri, ts);
@@ -668,11 +668,11 @@ public class ORMapDiSCOMgr extends ORMapObjectMgr {
 			if (! (stmt.getSubject() instanceof IRI)){
 				throw new RMapException ("Event ID is not IRI: " + stmt.getSubject().stringValue());
 			}
-			IRI eventId = (IRI)stmt.getSubject();
-			IRI createAgent = eventmgr.getEventAssocAgent(eventId, ts);
+			RMapIri eventId = new RMapIri(stmt.getSubject().toString());
+			RMapIri createAgent = eventmgr.getEventAssocAgent(eventId, ts);
 			String iriSysAgent = reqEventDetails.getSystemAgent().toString();
-			isSame = (iriSysAgent.equals(createAgent.stringValue()));
-        }while (false);
+			isSame = (iriSysAgent.equals(createAgent.toString()));
+        } while (false);
         return isSame;
     }
 

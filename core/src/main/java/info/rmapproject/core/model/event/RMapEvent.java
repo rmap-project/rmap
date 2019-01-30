@@ -68,6 +68,13 @@ public interface RMapEvent extends RMapObject{
 	public RMapIri getAssociatedKey() throws RMapException;
 
 	/**
+	 * Sets the IRI of the API key associated with the event.
+	 *
+	 * @param associated key - the ID for the Api Key associated with the event
+	 */
+	public void setAssociatedKey(RMapIri associatedKey);
+
+	/**
 	 * Get start time of event.  This is set by the Event constructor.
 	 *
 	 * @return the Event start time

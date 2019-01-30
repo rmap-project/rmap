@@ -39,7 +39,6 @@ import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,6 +53,7 @@ import info.rmapproject.core.model.request.RMapSearchParams;
 import info.rmapproject.core.model.request.RMapStatusFilter;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapDiSCOMgr;
 import info.rmapproject.core.rmapservice.impl.rdf4j.ORMapResourceMgr;
+import info.rmapproject.core.vocabulary.RMAP;
 import info.rmapproject.testdata.service.TestConstants;
 import info.rmapproject.testdata.service.TestFile;
 
@@ -97,7 +97,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 		
 			//get related discos
-			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+			RMapIri iri = new RMapIri(TestConstants.TEST_DISCO_DOI);
 
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
@@ -110,12 +110,12 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setSystemAgents(sysAgents);
 		
-			List <IRI> discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
+			List <RMapIri> discoIris = resourcemgr.getResourceRelatedDiSCOS(iri, params, triplestore);
 			
 			assertTrue(discoIris.size()==1);
 			
-			Iterator<IRI> iter = discoIris.iterator();
-			IRI matchingIri = iter.next();
+			Iterator<RMapIri> iter = discoIris.iterator();
+			RMapIri matchingIri = iter.next();
 			assertTrue(matchingIri.toString().equals(disco.getId().toString()));
 
 			params.setStatusCode(RMapStatusFilter.ACTIVE);
@@ -157,13 +157,13 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			RMapSearchParams params = paramsFactory.newInstance();
 			params.setDateRange(dateFrom, dateTo);
 
-			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-			List<IRI> agentIris = resourcemgr.getResourceAssertingAgents(iri, params, triplestore);
+			RMapIri iri = new RMapIri(TestConstants.TEST_DISCO_DOI);
+			List<RMapIri> agentIris = resourcemgr.getResourceAssertingAgents(iri, params, triplestore);
 			
 			assertTrue(agentIris.size()==1);
 			
-			Iterator<IRI> iter = agentIris.iterator();
-			IRI matchingIri = iter.next();
+			Iterator<RMapIri> iter = agentIris.iterator();
+			RMapIri matchingIri = iter.next();
 			assertTrue(matchingIri.toString().equals(TestConstants.SYSAGENT_ID));
 			
 		} catch (Exception e) {
@@ -185,11 +185,11 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			
 			//get related events
 			RMapIri eventId = event.getId();
-			IRI discoId = ORAdapter.rMapIri2Rdf4jIri(disco.getId());
+			RMapIri discoId = disco.getId();
 			RMapEvent updateEvent = discomgr.updateDiSCO(discoId, disco2, reqEventDetails, false, triplestore);
-			IRI updateEventId = ORAdapter.rMapIri2Rdf4jIri(updateEvent.getId());
+			RMapIri updateEventId = updateEvent.getId();
 			
-			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
+			RMapIri iri = new RMapIri(TestConstants.TEST_DISCO_DOI);
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
 			
@@ -201,12 +201,12 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			params.setDateRange(dateFrom, dateTo);
 			params.setStatusCode(RMapStatusFilter.ALL);
 			
-			List<IRI> eventIris = resourcemgr.getResourceRelatedEvents(iri, params, triplestore);
+			List<RMapIri> eventIris = resourcemgr.getResourceRelatedEvents(iri, params, triplestore);
 			
 			assertTrue(eventIris.size()==2);
 
 			Set<String> sEventIris = new HashSet<String>();
-			for (IRI eventIri : eventIris){
+			for (RMapIri eventIri : eventIris){
 				sEventIris.add(eventIri.toString());
 			}
 			
@@ -218,132 +218,113 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			fail();
 		} 
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Test
-	public void testGetRelatedTriples() {	
+	public void testGetRelatedTriples() throws Exception {	
 
-		try {
-			
-			//create disco				
-			ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event1 = discomgr.createDiSCO(disco1, reqEventDetails, triplestore);
+		//create disco				
+		ORMapDiSCO disco1 = getRMapDiSCO(TestFile.DISCOA_XML);		
+		ORMapEvent event1 = discomgr.createDiSCO(disco1, reqEventDetails, triplestore);
 
-			//create duplicate disco - we want to make sure triples only come through once.				
-			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
-			ORMapEvent event2 = discomgr.createDiSCO(disco2, reqEventDetails, triplestore);
-			
-			//get related triples			
-			IRI iri = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-			
-			Set <URI> sysAgents = new HashSet<URI>();
-			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
-			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			Date dateFrom = dateFormat.parse("2014-1-1");
-			Date dateTo = dateFormat.parse("2050-1-1");
+		//create duplicate disco - we want to make sure triples only come through once.				
+		ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);		
+		ORMapEvent event2 = discomgr.createDiSCO(disco2, reqEventDetails, triplestore);
 		
-			RMapSearchParams params = paramsFactory.newInstance();
-			params.setDateRange(dateFrom, dateTo);
-			params.setSystemAgents(sysAgents);
+		//get related triples			
+		RMapIri iri = new RMapIri(TestConstants.TEST_DISCO_DOI);
+		
+		Set <URI> sysAgents = new HashSet<URI>();
+		sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date dateFrom = dateFormat.parse("2014-1-1");
+		Date dateTo = dateFormat.parse("2050-1-1");
 	
-			List <Statement> matchingStmts = resourcemgr.getRelatedTriples(iri, params, triplestore);
-			
-			assertTrue(matchingStmts.size()==25);
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setDateRange(dateFrom, dateTo);
+		params.setSystemAgents(sysAgents);
 
-			Iterator<Statement> iter = matchingStmts.iterator();
-			Statement stmt = iter.next();
-			assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
-			stmt = iter.next();
-			assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
-			stmt = iter.next();
-			assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
-			stmt = iter.next();
-			assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		} 
+		List <Statement> matchingStmts = resourcemgr.getRelatedTriples(iri, params, triplestore);
+		
+		assertEquals(25, matchingStmts.size());
+
+		Iterator<Statement> iter = matchingStmts.iterator();
+		Statement stmt = iter.next();
+		assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
+		stmt = iter.next();
+		assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
+		stmt = iter.next();
+		assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
+		stmt = iter.next();
+		assertTrue(stmt.getSubject().toString().equals(iri.toString()) || stmt.getObject().toString().equals(iri.toString()));
 		
 	}
 	
 	
 	@Test
-	public void testGetResourceRdfTypes() {	
-		try {
+	public void testGetResourceRdfTypes() throws Exception {	
 
-			java.net.URI context = rmapIdService.createId();
-			IRI resource01 = ORAdapter.uri2Rdf4jIri(context);
-			context = rmapIdService.createId();
-			IRI resource02 = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-			
-			Statement s1 = ORAdapter.getValueFactory().createStatement(resource01, RDF_TYPE, RMAP_DISCO, resource01);
-			triplestore.addStatement(s1);
-			List<IRI> iris = resourcemgr.getResourceRdfTypes(resource01, resource01, triplestore);
-			assertNotNull(iris);
-			assertEquals(1,iris.size());
-			for (IRI iri:iris){
-				assertEquals(iri, RMAP_DISCO);
-			}
-			iris = resourcemgr.getResourceRdfTypes(resource01, resource02, triplestore);
-			assertNull(iris);
-			try {
-				iris = resourcemgr.getResourceRdfTypes(resource01, null, triplestore);
-				fail("should have thrownRMapDefectiveArgumentException ");
-			}
-			catch (RMapDefectiveArgumentException ex) {}
-			catch (Exception ex1){
-				throw ex1;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
+		java.net.URI context = rmapIdService.createId();
+		RMapIri resource01 = new RMapIri(context);
+		context = rmapIdService.createId();
+		RMapIri resource02 = new RMapIri(TestConstants.TEST_DISCO_DOI);
+		
+		Statement s1 = ORAdapter.getValueFactory()
+				.createStatement(ORAdapter.rMapIri2Rdf4jIri(resource01), RDF_TYPE, RMAP_DISCO, ORAdapter.rMapIri2Rdf4jIri(resource01));
+		triplestore.addStatement(s1);
+		List<RMapIri> iris = resourcemgr.getResourceRdfTypes(resource01, resource01, triplestore);
+		assertNotNull(iris);
+		assertEquals(1,iris.size());
+		for (RMapIri iri:iris){
+			assertEquals(iri, RMAP.DISCO);
+		}
+		iris = resourcemgr.getResourceRdfTypes(resource01, resource02, triplestore);
+		assertNull(iris);
+		try {
+			iris = resourcemgr.getResourceRdfTypes(resource01, null, triplestore);
+			fail("should have thrownRMapDefectiveArgumentException ");
+		}
+		catch (RMapDefectiveArgumentException ex) {}
+		catch (Exception ex1){
+			throw ex1;
 		}
 		
 	}
 
 	@SuppressWarnings("unused")
 	@Test
-	public void testGetResourceRdfTypesAllContexts() {
-		try {
+	public void testGetResourceRdfTypesAllContexts() throws Exception {
 
-			//create disco				
-			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);	
-			ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
+		//create disco				
+		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);	
+		ORMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 
-			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
-			reqEventDetails.setAgentKeyId(new java.net.URI(TestConstants.SYSAGENT_KEY));
-			ORMapEvent event2 = discomgr.createDiSCO(disco2, reqEventDetails, triplestore);
+		ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
+		reqEventDetails.setAgentKeyId(new java.net.URI(TestConstants.SYSAGENT_KEY));
+		ORMapEvent event2 = discomgr.createDiSCO(disco2, reqEventDetails, triplestore);
+	
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		
-			RMapSearchParams params = paramsFactory.newInstance();
-			params.setStatusCode(RMapStatusFilter.ACTIVE);
-			
-			URI uri = new URI(TestConstants.TEST_DISCO_DOI);
-			
-			Map<IRI, Set<IRI>> map = resourcemgr.getResourceRdfTypesAllContexts(ORAdapter.uri2Rdf4jIri(uri), params, triplestore);
-			assertNotNull(map);
-			assertEquals(2,map.keySet().size());
-			IRI discoid1 = ORAdapter.getValueFactory().createIRI(disco.getId().getStringValue());
-			IRI discoid2 = ORAdapter.getValueFactory().createIRI(disco2.getId().getStringValue());
-			assertTrue(map.containsKey(discoid1));
-			assertTrue(map.containsKey(discoid2));
-			Set<IRI> values = map.get(discoid1);
-			assertEquals(1, values.size());
-			IRI fabioJournalType = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI_TYPE);
-			assertTrue(values.contains(fabioJournalType));
-			
-			Set<IRI> values2 = map.get(discoid2);
-			assertEquals(1, values2.size());
-			assertTrue(values2.contains(fabioJournalType));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}		
-	}
+		RMapIri uri = new RMapIri(TestConstants.TEST_DISCO_DOI);
+		
+		Map<RMapIri, Set<RMapIri>> map = resourcemgr.getResourceRdfTypesAllContexts(uri, params, triplestore);
+		assertNotNull(map);
+		assertEquals(2,map.keySet().size());
+		RMapIri discoid1 = new RMapIri(disco.getId().getStringValue());
+		RMapIri discoid2 = new RMapIri(disco2.getId().getStringValue());
+		assertTrue(map.containsKey(discoid1));
+		assertTrue(map.containsKey(discoid2));
+		Set<RMapIri> values = map.get(discoid1);
+		assertEquals(1, values.size());
+		RMapIri fabioJournalType = new RMapIri(TestConstants.TEST_DISCO_DOI_TYPE);
+		assertTrue(values.contains(fabioJournalType));
+		
+		Set<RMapIri> values2 = map.get(discoid2);
+		assertEquals(1, values2.size());
+		assertTrue(values2.contains(fabioJournalType));
 
-	
-	
+	}
 
 }

@@ -22,8 +22,9 @@
  */
 package info.rmapproject.core.model.impl.rdf4j;
 
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.IRI;
@@ -33,6 +34,9 @@ import org.eclipse.rdf4j.model.Statement;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventDerivation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -49,83 +53,82 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 
 	private static final long serialVersionUID = 1L;
 
-	/** The statement containing the source object ID. */
-	protected Statement sourceObjectStatement;
+	/** The source object ID. */
+	protected RMapIri sourceObjectId;
 	
-	/** The statement containing the derived object ID. */
-	protected Statement derivationStatement;
+	/** The derived object ID. */
+	protected RMapIri derivedObjectId;
 
 	/**
 	 * Instantiates a new RMap Derivation Event
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventDerivation(IRI id) throws RMapException {
+	protected ORMapEventDerivation(RMapIri id) throws RMapException {
 		super(id);
-		this.setEventTypeStatement(RMapEventType.DERIVATION);
+		this.setEventType(RMapEventType.DERIVATION);
 	}
-
 
 	/**
 	 * Instantiates a new ORMap event derivation.
 	 *
-	 * @param associatedAgent the associated agent
+	 * @param id the ID of the event object
+	 * @param reqEventDetails the associated agent
 	 * @param targetType the target type
-	 * @param sourceObject the IRI of the source object
-	 * @param derivedObject the IRI of the derived object
+	 * @param sourceObjectId the IRI of the source object
+	 * @param derivedObjectId the IRI of the derived object
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventDerivation(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI sourceObject, IRI derivedObject)
+	public ORMapEventDerivation(RMapIri id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, RMapIri sourceObjectId, RMapIri derivedObjectId)
 	throws RMapException, RMapDefectiveArgumentException {
 		super(id, reqEventDetails, targetType);
-		this.setEventTypeStatement(RMapEventType.DERIVATION);
-		this.setSourceObjectStmt(sourceObject);
-		this.setDerivationStmt(derivedObject);
+		this.setEventType(RMapEventType.DERIVATION);
+		this.sourceObjectId = sourceObjectId;
+		this.derivedObjectId = derivedObjectId;
 		
-		Set<IRI> createdObjs = new HashSet<IRI>();
-		createdObjs.add(derivedObject);
-		this.setCreatedObjectIdsFromIRI(createdObjs);
+		Set<RMapIri> createdObjs = new HashSet<RMapIri>();
+		createdObjs.add(derivedObjectId);
+		this.createdObjectIds = createdObjs;
 	}
 	
 	/**
 	 * Instantiates a new ORMap event derivation.
 	 *
-	 * @param eventTypeStmt the event type stmt
-	 * @param eventTargetTypeStmt the event target type stmt
-	 * @param associatedAgentStmt the associated agent stmt
-	 * @param descriptionStmt the description stmt
-	 * @param startTimeStmt the start time stmt
-	 * @param endTimeStmt the end time stmt
+	 * @param eventType the event type
+	 * @param eventTargetType the event target type
+	 * @param associatedAgentStmt the associated agent
+	 * @param descriptionStmt the description
+	 * @param startTimeStmt the start time
+	 * @param endTimeStmt the end time
 	 * @param context the context
 	 * @param typeStatement the type statement
-	 * @param associatedKeyStmt the associated key stmt
-	 * @param createdObjects the statements containing the IRIs for the objects created in this event
-	 * @param derivationStatement the statement containing the IRI of the object that was derived as a result of this event
-	 * @param sourceObjectStatement the statemetn containing the IRI of the object that was the source of this event
+	 * @param associatedKeyStmt the associated key
+	 * @param createdObjectIds the statements containing the IRIs for the objects created in this event
+	 * @param deriviationId the statement containing the IRI of the object that was derived as a result of this event
+	 * @param sourceObjectId the statemetn containing the IRI of the object that was the source of this event
 	 * @throws RMapException the RMap exception
 	 */
-	public ORMapEventDerivation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
-			Statement associatedAgentStmt,  Statement descriptionStmt, 
-			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt, Statement lineageProgenitorStmnt, 
-			List<Statement> createdObjects, Statement derivationStatement, Statement sourceObjectStatement) 
-	throws RMapException {
-		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineageProgenitorStmnt);
+	public ORMapEventDerivation(RMapEventType eventType, RMapEventTargetType eventTargetType, RMapIri associatedAgent,
+		RMapValue description, RMapLiteral startTime, RMapLiteral endTime, RMapIri id,
+		RMapObjectType type, RMapIri associatedKey, RMapIri lineageProgenitor, Set<RMapIri> createdObjectIds, RMapIri sourceObjectId, 
+		RMapIri deriviationId)
+				throws RMapException {
 		
-		if (createdObjects==null || createdObjects.size()==0){
+		super(eventType,eventTargetType,associatedAgent,description, startTime, endTime, id, type, associatedKey, lineageProgenitor, createdObjectIds);
+		
+		if (createdObjectIds==null || createdObjectIds.size()==0){
 			throw new RMapException ("Null or empty list of created object in Update");
 		}		
-		if (derivationStatement==null){
+		if (deriviationId==null){
 			throw new RMapException("Null derived object");
 		}
-		if (sourceObjectStatement==null){
+		if (sourceObjectId==null){
 			throw new RMapException("Null source object statement");
 		}
-		this.createdObjects = createdObjects;	
-		this.derivationStatement = derivationStatement;
-		this.sourceObjectStatement = sourceObjectStatement;
+		this.createdObjectIds = createdObjectIds;	
+		this.derivedObjectId = deriviationId;
+		this.sourceObjectId = sourceObjectId;
 	}
 	
 	/* (non-Javadoc)
@@ -134,11 +137,18 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
-		if (sourceObjectStatement != null){
-			model.add(sourceObjectStatement);
+		IRI id = rMapIri2Rdf4jIri(this.id);
+		if (sourceObjectId != null){
+			Statement stmt = ORAdapter.getValueFactory().createStatement(id, 
+					RMAP_HASSOURCEOBJECT,
+					ORAdapter.rMapIri2Rdf4jIri(sourceObjectId), id);
+			model.add(stmt);
 		}
-		if (derivationStatement != null){
-			model.add(derivationStatement);
+		if (derivedObjectId != null){
+			Statement stmt = ORAdapter.getValueFactory().createStatement(id, 
+					RMAP_DERIVEDOBJECT,
+					ORAdapter.rMapIri2Rdf4jIri(derivedObjectId), id);
+			model.add(stmt);
 		}
 		return model;
 	}
@@ -147,25 +157,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 * @see info.rmapproject.core.model.RMapEventUpdate#getDerivationSourceObjectId()
 	 */
 	public RMapIri getDerivedObjectId() throws RMapException {
-		RMapIri rid = null;
-		if (this.derivationStatement!= null){
-			try {
-				IRI iri = (IRI) this.derivationStatement.getObject();
-				rid = ORAdapter.rdf4jIri2RMapIri(iri);
-			} catch (Exception e) {
-				throw new RMapException("Could not retrieve RMap Event's derived object ID", e);
-			}
-		}
-		return rid;
-	}
-	
-	/**
-	 * Gets the statement containing the IRI of the object that was derived in this event
-	 *
-	 * @return the statement containing the IRI of the object that was derived in this event
-	 */
-	public Statement getDerivationStmt (){
-		return this.derivationStatement;
+		return derivedObjectId;
 	}
 	
 	/* (non-Javadoc)
@@ -173,28 +165,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	@Override
 	public void setDerivedObjectId(RMapIri iri) throws RMapException {
-		IRI derivedIRI = null;
-		try { 
-			derivedIRI = ORAdapter.rMapIri2Rdf4jIri(iri);
-		} catch (IllegalArgumentException e){
-			throw new RMapException("Could not retrieve RMap Event's derived object ID", e);
-		}
-		this.setDerivationStmt(derivedIRI);
-	}
-	
-	/**
-	 * Sets the statement containing the IRI of the object that was derived in this event
-	 *
-	 * @param derivedObject the statement containing the IRI of the object that was derived in this event
-	 * @throws RMapException the RMap exception
-	 */
-	protected void setDerivationStmt(IRI derivedObject) throws RMapException {
-		if (derivedObject != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP_DERIVEDOBJECT,
-					derivedObject, this.context);
-			this.derivationStatement = stmt;
-		}
+		derivedObjectId = iri;
 	}
 
 	/* (non-Javadoc)
@@ -202,31 +173,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	@Override
 	public RMapIri getSourceObjectId() throws RMapException {
-		RMapIri rid = null;
-		if (this.sourceObjectStatement != null){
-			try {
-				IRI iri = (IRI) this.sourceObjectStatement.getObject();
-				rid = ORAdapter.rdf4jIri2RMapIri(iri);
-			} catch (Exception e) {
-				throw new RMapException("Problem while retrieving Event Source Object ID", e);
-			}
-		}
-		return rid;
-	}
-	
-	/**
-	 * Sets the statement containing the IRI of the object that was the source in this event
-	 *
-	 * @param sourceObject the statement containing the IRI of the object that was the source in this event
-	 * @throws RMapException the RMap exception
-	 */
-	protected void setSourceObjectStmt (IRI sourceObject) throws RMapException {
-		Statement stmt = null;
-		if (sourceObject != null){
-			stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-					RMAP_HASSOURCEOBJECT, sourceObject, this.context);
-		}
-		this.sourceObjectStatement = stmt;
+		return sourceObjectId;
 	}
 
 	/* (non-Javadoc)
@@ -234,24 +181,7 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 	 */
 	@Override
 	public void setSourceObjectId(RMapIri iri) throws RMapException,RMapDefectiveArgumentException {
-		IRI sourceIRI = null;
-		if (iri!=null) {
-			try {
-				sourceIRI = ORAdapter.rMapIri2Rdf4jIri(iri);
-			} catch (IllegalArgumentException ex) {
-				throw new RMapDefectiveArgumentException("Source Object ID could not be converted to an IRI",ex);
-			}
-		}
-		this.setSourceObjectStmt(sourceIRI);
-	}
-
-	/**
-	 * Gets the statement containing the IRI of the object that was the source in this event
-	 *
-	 * @return the statement containing the IRI of the object that was the source in this event
-	 */
-	public Statement getSourceObjectStatement() {
-		return sourceObjectStatement;
+		sourceObjectId = iri;
 	}
 
 	@Override
@@ -262,16 +192,16 @@ public class ORMapEventDerivation extends ORMapEventWithNewObjects implements
 
 		ORMapEventDerivation that = (ORMapEventDerivation) o;
 
-		if (sourceObjectStatement != null ? !sourceObjectStatement.equals(that.sourceObjectStatement) : that.sourceObjectStatement != null)
+		if (sourceObjectId != null ? !sourceObjectId.equals(that.sourceObjectId) : that.sourceObjectId != null)
 			return false;
-		return derivationStatement != null ? derivationStatement.equals(that.derivationStatement) : that.derivationStatement == null;
+		return derivedObjectId != null ? derivedObjectId.equals(that.derivedObjectId) : that.derivedObjectId == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result + (sourceObjectStatement != null ? sourceObjectStatement.hashCode() : 0);
-		result = 31 * result + (derivationStatement != null ? derivationStatement.hashCode() : 0);
+		result = 31 * result + (sourceObjectId != null ? sourceObjectId.hashCode() : 0);
+		result = 31 * result + (derivedObjectId != null ? derivedObjectId.hashCode() : 0);
 		return result;
 	}
 }

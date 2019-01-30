@@ -24,23 +24,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdService;
+import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapResource;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.disco.RMapDiSCO;
+
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.getValueFactory;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapValue2Rdf4jValue;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapResource2Rdf4jResource;
 
 /**
  * Each DiSCO is a named graph.  Constituent statements will share same context, which is same
@@ -58,23 +61,23 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * 1 or more Statements of the form discoID RMAP.AGGREGATES  Resource
 	 * Context will be discoID
 	 */
-	protected List<Statement>aggregatedResources;
+	protected List<RMapIri>aggregatedResources;
 
 	/** 1 or more Statements related to the aggregated resources  All statements will have same context as DiscoID. */
-	protected List<Statement>relatedStatements;
+	protected List<RMapTriple>relatedStatements;
 
 	/** This is the "author" of the DiSCO (distinct from system Agent that creates Disco). */
-	protected Statement creator;
+	protected RMapIri creator;
 
 	/** Optional description of DiSCO. */
-	protected Statement description;
+	protected RMapValue description;
 
 	/** ID used by provider of DiSCO on their own system. */
-	protected Statement providerIdStmt;
+	protected RMapValue providerId;
 	/**
 	 * IRI pointing to a document that describes the DiSCO provenance.
 	 */
-	protected Statement provGeneratedByStmt;
+	protected RMapIri provGeneratedBy;
 
 	/**
 	 * Base constructor
@@ -82,9 +85,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapDiSCO(IRI id) throws RMapException,RMapDefectiveArgumentException  {
+	protected ORMapDiSCO(RMapIri id) throws RMapException,RMapDefectiveArgumentException  {
 		super(id);
-		this.setTypeStatement(RMapObjectType.DISCO);
+		this.setType(RMapObjectType.DISCO);
 	}
 
 	/**
@@ -96,7 +99,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 * @throws RMapException if unable to create Creator or aggregated resources Statements
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapDiSCO(IRI id, RMapIri creator, List<java.net.URI> aggregatedResources)
+	public ORMapDiSCO(RMapIri id, RMapIri creator, List<RMapIri> aggregatedResources)
 			throws RMapException, RMapDefectiveArgumentException {
 		this(id);
 		this.setCreator(creator);
@@ -106,165 +109,44 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getAggregratedResources()
 	 */
-	public List<java.net.URI> getAggregatedResources() throws RMapException {
-		List <java.net.URI> resources = null;
-		if (this.aggregatedResources != null){
-			resources = new ArrayList<java.net.URI>();
-			for (Statement statement:this.aggregatedResources){
-				Value value = statement.getObject();
-				if (value instanceof IRI){
-					// guaranteed by constructor and setter methods so should always happen)
-					IRI resource = (IRI)value;
-					java.net.URI rmapResource = null;
-					try {
-						rmapResource = ORAdapter.rdf4jIri2URI(resource);
-					} catch(IllegalArgumentException e) {
-						throw new RMapException("Could not convert Aggregated Resource value to URI",e);
-					}
-
-					resources.add(rmapResource);
-				}
-				else {
-					throw new RMapException ("Value of aggregrated resource triple is not a IRI object");
-				}
-			}
-		}
-		return resources;
-	}
-
-	/**
-	 * Get list of aggregated resources as list of RDF4J Statements.
-	 *
-	 * @return list of aggregated resources as list of RDF4J Statements
-	 * @throws RMapException the RMap exception
-	 */
-	public List<Statement> getAggregatedResourceStatements() throws RMapException{
-		return this.aggregatedResources;
+	public List<RMapIri> getAggregatedResources() throws RMapException {
+		return aggregatedResources;
 	}
 
 	/* (non-Javadoc)
-	 * @see info.rmapproject.core.model.RMapDiSCO#setAggregratedResources(java.util.List)
+	 * @see info.rmapproject.core.model.RMapDiSCO#setAggregratedResources(List<RMapIri>)
 	 */
-	public void setAggregatedResources(List<java.net.URI> aggregatedResources) throws RMapException, RMapDefectiveArgumentException {
-		if (aggregatedResources==null || aggregatedResources.size()==0){
-			throw new RMapDefectiveArgumentException("Aggregated resources cannot be null or empty");
-		}
-		List<Statement>aggResources = null;
-		if (aggregatedResources != null){
-			IRI predicate = ORE_AGGREGATES;
-			aggResources = new ArrayList<Statement>();
-			try {
-				for (java.net.URI rmapResource:aggregatedResources){
-					Resource resource = ORAdapter.uri2Rdf4jIri(rmapResource);
-					Statement newStmt = ORAdapter.getValueFactory().createStatement
-								(this.context, predicate,resource,this.context);
-					aggResources.add(newStmt);
-				}// end for
-			} catch (Exception e) {
-				throw new RMapException("Exception while converting Aggregated Resources", e);
-			}
-		}
-		this.aggregatedResources = aggResources;
+	public void setAggregatedResources(List<RMapIri> aggregatedResources)
+			throws RMapException, RMapDefectiveArgumentException {
+		this.aggregatedResources = aggregatedResources;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getCreators()
 	 */
 	public RMapIri getCreator() throws RMapException {
-		RMapValue vCreator = null;
-		RMapIri creator = null;
-		if (this.creator != null){
-			try {
-				vCreator = ORAdapter.rdf4jValue2RMapValue(this.creator.getObject());
-				if (vCreator instanceof RMapIri){
-					creator = (RMapIri)vCreator;
-				}
-				else {
-					throw new RMapException ("DiSCO Creator not an RMapIri");
-				}
-			} catch (Exception e) {
-				throw new RMapException("Error while retrieving DiSCO creator",e);
-			}
-		}
 		return creator;
-	}
-
-	/**
-	 * Returns creator as ORMapStatement object.
-	 *
-	 * @return creator as ORMapStatement object
-	 */
-	public Statement getCreatorStmt() {
-		return this.creator;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#setCreators(List<info.rmapproject.core.model.RMapResource)>
 	 */
 	public void setCreator(RMapIri creator) throws RMapException {
-		Statement stmt = null;
-		if (creator != null){
-			IRI predicate = DCTERMS_CREATOR;
-			try {
-				Resource subject = this.context;
-				IRI vcreator = ORAdapter.rMapIri2Rdf4jIri(creator);
-				stmt = ORAdapter.getValueFactory().createStatement(subject,predicate,vcreator,this.context);
-			} catch (Exception e) {
-				throw new RMapException("Exception occurred while setting DiSCO creator", e);
-			}
-		}
-		this.creator = stmt;
+		this.creator = creator;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getDescription()
 	 */
 	public RMapValue getDescription() throws RMapException {
-		RMapValue desc = null;
-		if (this.description!=null){
-			try {
-				desc = ORAdapter.rdf4jValue2RMapValue(this.description.getObject());
-			} catch (Exception e) {
-				throw new RMapException("Error while retrieving DiSCO creator",e);
-			}
-		}
-		return desc;
-	}
-
-	/**
-	 * Returns DiSCO description as ORMapStatement object.
-	 *
-	 * @return statement containing DiSCO description as ORMapStatement object
-	 */
-	public Statement getDescriptonStatement () {
-		return this.description;
+		return description;
 	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#setDescription(info.rmapproject.core.model.RMapResource)
 	 */
 	public void setDescription(RMapValue description) throws RMapException {
-		Statement stmt = null;
-		if (description != null){
-			IRI predicate = DC_DESCRIPTION;
-			try {
-				Resource subject = this.context;
-				Value vdesc = ORAdapter.rMapValue2Rdf4jValue(description);
-				stmt = ORAdapter.getValueFactory().createStatement(subject,predicate,vdesc,this.context);
-			} catch (Exception e) {
-				throw new RMapException("Error while setting DiSCO description: " + e.getMessage(), e);
-			}
-		}
-		this.description = stmt;
-	}
-
-	/**
-	 * Get DiSCO context IRI.
-	 *
-	 * @return the DiSCO context IRI
-	 */
-	public IRI getDiscoContext() {
-		return context;
+		this.description = description;
 	}
 
 	/**
@@ -272,68 +154,24 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 *
 	 * @return DiSCO ID used by provider as String
 	 */
-	public String getProviderId()  {
-		String id = null;
-		if (this.providerIdStmt != null){
-			Value vId = providerIdStmt.getObject();
-			id = vId.stringValue();
-		}
-		return id;
+	public RMapValue getProviderId()  {
+		return providerId;
 	}
-
-	/**
-	 * Return id used by provider of DiSCO in their own system as ORMapStatement.
-	 *
-	 * @return the statement containing the ID used by the provider of the DiSCO
-	 */
-	public Statement getProviderIdStmt(){
-		return this.providerIdStmt;
-	}
-
 
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#getProvGeneratedBy()
 	 */
 	public RMapIri getProvGeneratedBy() throws RMapException {
-		RMapValue vProvGeneratedBy = null;
-		RMapIri provGeneratedBy = null;
-		if (this.provGeneratedByStmt != null){
-			try {
-				vProvGeneratedBy = ORAdapter.rdf4jValue2RMapValue(this.provGeneratedByStmt.getObject());
-				provGeneratedBy = (RMapIri)vProvGeneratedBy;
-			} catch (Exception e) {
-				throw new RMapException("prov:generatedBy value could not be retrieved", e);
-			}
-		}
 		return provGeneratedBy;
 	}
 
-	/**
-	 * Returns provGeneratedBy as ORMapStatement object.
-	 *
-	 * @return provGeneratedBy as ORMapStatement object
-	 */
-	public Statement getProvGeneratedByStmt() {
-		return this.provGeneratedByStmt;
-	}
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.RMapDiSCO#setProvGeneratedBy(info.rmapproject.core.model.RMapIri)
 	 */
 	public void setProvGeneratedBy(RMapIri provGeneratedBy) throws RMapException {
-		Statement stmt = null;
-		if (provGeneratedBy != null){
-			IRI predicate = PROV_WASGENERATEDBY;
-			try {
-				Resource subject = this.context;
-				IRI vprovgeneratedby = ORAdapter.rMapIri2Rdf4jIri(provGeneratedBy);
-				stmt = ORAdapter.getValueFactory().createStatement(subject,predicate,vprovgeneratedby,this.context);
-			} catch (Exception e) {
-				throw new RMapException("Error while setting prov:generatedBy", e);
-			}
-		}
-		this.provGeneratedByStmt = stmt;
+		this.provGeneratedBy = provGeneratedBy;
 	}
 
 
@@ -342,27 +180,54 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 */
 	@Override
 	public Model getAsModel() throws RMapException {
-		Model discoModel = new LinkedHashModel();
-		discoModel.add(getTypeStatement());
+		Model discoModel = super.getAsModel();
 
+		IRI id = rMapIri2Rdf4jIri(this.id);
 		if (creator!=null){
-			discoModel.add(getCreatorStmt());
+			try {
+				Statement newStmt = getValueFactory().createStatement
+						(id,DCTERMS_CREATOR,rMapIri2Rdf4jIri(creator),id);
+				discoModel.add(newStmt);
+			} catch (Exception e) {
+				throw new RMapException("Exception occurred while setting DiSCO creator", e);
+			}
 		}
 		if (description != null){
-			discoModel.add(getDescriptonStatement());
+			Statement newStmt = getValueFactory().createStatement
+					(id, DC_DESCRIPTION,rMapValue2Rdf4jValue(description),id);
+			discoModel.add(newStmt);
 		}
-		if (providerIdStmt != null){
-			discoModel.add(getProviderIdStmt());
+		if (providerId != null){
+			Statement newStmt = getValueFactory().createStatement
+					(id, RMAP_PROVIDERID,rMapValue2Rdf4jValue(providerId),id);
+			discoModel.add(newStmt);
 		}
-		if (provGeneratedByStmt != null){
-			discoModel.add(getProvGeneratedByStmt());
+		if (provGeneratedBy != null){
+			Statement newStmt = getValueFactory().createStatement
+					(id, PROV_WASGENERATEDBY,rMapIri2Rdf4jIri(provGeneratedBy),id);
+			discoModel.add(newStmt);
 		}
 
-		List<Statement> aggResStmts = getAggregatedResourceStatements();
-		discoModel.addAll(aggResStmts);
+		try {
+			for (RMapIri aggResIri:aggregatedResources){
+				Resource resource = rMapIri2Rdf4jIri(aggResIri);
+				Statement newStmt = getValueFactory().createStatement
+							(id, ORE_AGGREGATES,resource,id);
+				discoModel.add(newStmt);
+			}// end for
+		} catch (Exception e) {
+			throw new RMapException("Exception while converting Aggregated Resources", e);
+		}
 
 		if (relatedStatements != null){
-			discoModel.addAll(getRelatedStatementsAsList());
+			for (RMapTriple triple:relatedStatements) {
+				Statement newStmt = getValueFactory().createStatement
+						(rMapResource2Rdf4jResource(triple.getSubject()), 
+								rMapIri2Rdf4jIri(triple.getPredicate()), 
+								rMapValue2Rdf4jValue(triple.getObject()),
+								id);
+				discoModel.add(newStmt);
+			}
 		}
 		return discoModel;
 	}
@@ -373,58 +238,15 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 	 */
 	@Override
 	public List<RMapTriple> getRelatedStatements() {
-		List<RMapTriple> triples = new ArrayList<RMapTriple>();
-		if (this.relatedStatements!= null){
-			for (Statement stmt:relatedStatements){
-				try {
-					RMapResource subject = ORAdapter.rdf4jResource2RMapResource(stmt.getSubject());
-					RMapIri predicate = ORAdapter.rdf4jIri2RMapIri(stmt.getPredicate());
-					RMapValue object = ORAdapter.rdf4jValue2RMapValue(stmt.getObject());
-					RMapTriple triple = new RMapTriple(subject, predicate, object);
-					triples.add(triple);
-				} catch (IllegalArgumentException e) {
-					throw new RMapException("One of the statements retrieved was invalid.",e);
-				}
-			}
-		}
-		return triples;
+		return relatedStatements;
 	}
-
-	/**
-	 * Return related statement triples as list of ORMapStatement objects.
-	 *
-	 * @return list of DiSCO's related Statements
-	 */
-	public List<Statement> getRelatedStatementsAsList (){
-		return this.relatedStatements;
-	}
-
 
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.disco.RMapDiSCO#setRelatedStatements(java.util.List)
 	 */
 	@Override
 	public void setRelatedStatements(List<RMapTriple> relatedStatements) throws RMapException {
-		List<Statement>stmts = null;
-		if (relatedStatements!=null){
-			stmts = new ArrayList<Statement>();
-			for (RMapTriple triple:relatedStatements){
-				Resource subject = null;
-				IRI predicate = null;
-				Value object = null;
-				try {
-					subject = ORAdapter.rMapResource2Rdf4jResource(triple.getSubject());
-					predicate=ORAdapter.rMapIri2Rdf4jIri(triple.getPredicate());
-					object = ORAdapter.rMapValue2Rdf4jValue(triple.getObject());
-				}
-				catch(IllegalArgumentException e) {
-					throw new RMapException("Error while defining related statements in DiSCO", e);
-				}
-				Statement stmt = ORAdapter.getValueFactory().createStatement(subject, predicate, object, this.context);
-				stmts.add(stmt);
-			}
-		}
-		this.relatedStatements = stmts;
+		this.relatedStatements = relatedStatements;
 	}
 
 	/**
@@ -442,28 +264,28 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 
 		if (relatedStatements!=null){
 
-			List<Statement>newStmts = new ArrayList<Statement>();
-			Map<BNode, IRI> bnode2iri = new HashMap<BNode, IRI>();
-			for (Statement stmt:relatedStatements){
-				Resource subject = stmt.getSubject();
-				Value object = stmt.getObject();
-				BNode bSubject = null;
-				BNode bObject = null;
-				if (subject instanceof BNode ) {
-					bSubject = (BNode)subject;
+			List<RMapTriple>newStmts = new ArrayList<RMapTriple>();
+			Map<RMapBlankNode, RMapIri> bnode2iri = new HashMap<RMapBlankNode, RMapIri>();
+			for (RMapTriple stmt:relatedStatements){
+				RMapResource subject = stmt.getSubject();
+				RMapValue object = stmt.getObject();
+				RMapBlankNode bSubject = null;
+				RMapBlankNode bObject = null;
+				if (subject instanceof RMapBlankNode ) {
+					bSubject = (RMapBlankNode)subject;
 				}
-				if (object instanceof BNode){
-					bObject = (BNode)object;
+				if (object instanceof RMapBlankNode){
+					bObject = (RMapBlankNode)object;
 				}
 				if (bSubject==null && bObject==null){
 					newStmts.add(stmt);
 					continue;
 				}
-				Resource newSubject = null;
-				Value newObject = null;
+				RMapResource newSubject = null;
+				RMapValue newObject = null;
 				// if subject is BNODE, replace with IRI (if necessary, create the IRI and add mapping)
 				if (bSubject != null){
-					IRI bReplace = bnode2iri.get(bSubject);
+					RMapIri bReplace = bnode2iri.get(bSubject);
 					if (bReplace==null){
 						java.net.URI newId=null;
 						try {
@@ -472,7 +294,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 							throw new RMapException (e);
 						}
 
-						bReplace = ORAdapter.uri2Rdf4jIri(newId);
+						bReplace = new RMapIri(newId);
 						bnode2iri.put(bSubject, bReplace);
 						newSubject = bReplace;
 					}
@@ -485,7 +307,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 				}
 				// if object is BNODE, replace with IRI (if necessary, create the IRI and add mapping)
 				if (bObject != null){
-					IRI bReplace = bnode2iri.get(bObject);
+					RMapIri bReplace = bnode2iri.get(bObject);
 					if (bReplace==null){
 						java.net.URI newId=null;
 						try {
@@ -493,7 +315,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 						} catch (Exception e) {
 							throw new RMapException (e);
 						}
-						bReplace = ORAdapter.uri2Rdf4jIri(newId);
+						bReplace = new RMapIri(newId);
 						bnode2iri.put(bObject, bReplace);
 						newObject = bReplace;
 					}
@@ -505,8 +327,7 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 					newObject = object;
 				}
 				// now create new statement with bnodes replaced
-				Statement newStmt=null;
-				newStmt = ORAdapter.getValueFactory().createStatement(newSubject, stmt.getPredicate(), newObject, stmt.getContext());
+				RMapTriple newStmt= new RMapTriple(newSubject, stmt.getPredicate(), newObject);
 				newStmts.add(newStmt);
 				continue;
 			}
@@ -528,9 +349,9 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 			return false;
 		if (creator != null ? !creator.equals(that.creator) : that.creator != null) return false;
 		if (description != null ? !description.equals(that.description) : that.description != null) return false;
-		if (providerIdStmt != null ? !providerIdStmt.equals(that.providerIdStmt) : that.providerIdStmt != null)
+		if (providerId != null ? !providerId.equals(that.providerId) : that.providerId != null)
 			return false;
-		return provGeneratedByStmt != null ? provGeneratedByStmt.equals(that.provGeneratedByStmt) : that.provGeneratedByStmt == null;
+		return provGeneratedBy != null ? provGeneratedBy.equals(that.provGeneratedBy) : that.provGeneratedBy == null;
 	}
 
 	@Override
@@ -540,9 +361,10 @@ public class ORMapDiSCO extends ORMapObject implements RMapDiSCO {
 		result = 31 * result + (relatedStatements != null ? relatedStatements.hashCode() : 0);
 		result = 31 * result + (creator != null ? creator.hashCode() : 0);
 		result = 31 * result + (description != null ? description.hashCode() : 0);
-		result = 31 * result + (providerIdStmt != null ? providerIdStmt.hashCode() : 0);
-		result = 31 * result + (provGeneratedByStmt != null ? provGeneratedByStmt.hashCode() : 0);
+		result = 31 * result + (providerId != null ? providerId.hashCode() : 0);
+		result = 31 * result + (provGeneratedBy != null ? provGeneratedBy.hashCode() : 0);
 		return result;
 	}
+
 
 }

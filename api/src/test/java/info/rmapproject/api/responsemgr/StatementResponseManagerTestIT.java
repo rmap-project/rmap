@@ -22,7 +22,6 @@ package info.rmapproject.api.responsemgr;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -63,13 +62,7 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 	 */
 	@Before
 	public void setUp() throws Exception {
-		try {
-			super.setUp();			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("Exception thrown " + e.getMessage());
-		}
-		
+		super.setUp();			
 	}
 
 	/**
@@ -84,14 +77,9 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 	 * Test get statement service options.
 	 */
 	@Test
-	public void testGetStatementServiceOptions() {
+	public void testGetStatementServiceOptions() throws Exception {
 		Response response = null;
-		try {
-			response = statementResponseManager.getStatementServiceOptions();
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
+		response = statementResponseManager.getStatementServiceOptions();
 
 		assertNotNull(response);
 		assertEquals(200, response.getStatus());	
@@ -101,15 +89,9 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 	 * Test get statement service head.
 	 */
 	@Test
-	public void testGetStatementServiceHead() {
+	public void testGetStatementServiceHead() throws Exception {
 		Response response = null;
-		try {
-			response = statementResponseManager.getStatementServiceHead();
-		} catch (Exception e) {
-			e.printStackTrace();			
-			fail("Exception thrown " + e.getMessage());
-		}
-
+		response = statementResponseManager.getStatementServiceHead();
 		assertNotNull(response);
 		assertEquals(200, response.getStatus());	
 	}
@@ -118,34 +100,29 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 	 * Test get statement related DiSCOs
 	 */
 	@Test
-	public void testGetStatementRelatedDiSCOs() {
+	public void testGetStatementRelatedDiSCOs() throws Exception {
 		Response response = null;
-		try {
-			//createDisco
-			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestEventDetails);
-			
-			RMapSearchParams params = paramsFactory.newInstance();
-			params.setStatusCode(RMapStatusFilter.ACTIVE);
+		//createDisco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		String discoURI = rmapDisco.getId().toString();
+        assertNotNull(discoURI);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
+		
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
 
 
-			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
-			//queryParams.add("page", "1");
-			
-			//get disco as related to statement
-			response = statementResponseManager.getStatementRelatedDiSCOs(TestConstants.TEST_DISCO_DOI, 
-															RDF.TYPE.toString(), 
-															TestConstants.TEST_DISCO_DOI_TYPE, NonRdfType.JSON, queryParams);
+		MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+		//queryParams.add("page", "1");
+		
+		//get disco as related to statement
+		response = statementResponseManager.getStatementRelatedDiSCOs(TestConstants.TEST_DISCO_DOI, 
+														RDF.TYPE.toString(), 
+														TestConstants.TEST_DISCO_DOI_TYPE, NonRdfType.JSON, queryParams);
 
-			assertNotNull(response);
-			assertEquals(response.getStatus(),200);
-			assertTrue(response.getEntity().toString().contains(discoURI));
-			
-		} catch (Exception e) {
-			e.printStackTrace();	
-		}
+		assertNotNull(response);
+		assertEquals(response.getStatus(),200);
+		assertTrue(response.getEntity().toString().contains(discoURI));
 		
 	}	
 	
@@ -154,35 +131,30 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 	 * Test get statement related DiSCOs where there are no matches
 	 */
 	@Test
-	public void testGetStatementRelatedDiSCOsNoMatches() {
+	public void testGetStatementRelatedDiSCOsNoMatches() throws Exception {
 		Response response = null;
-		try {
-			//createDisco
-			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestEventDetails);
-			
-			RMapSearchParams params = paramsFactory.newInstance();
-			params.setStatusCode(RMapStatusFilter.ACTIVE);
+		//createDisco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		String discoURI = rmapDisco.getId().toString();
+        assertNotNull(discoURI);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
+		
+		RMapSearchParams params = paramsFactory.newInstance();
+		params.setStatusCode(RMapStatusFilter.ACTIVE);
 
 
-			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
-			//queryParams.add("page", "1");
-			
-			//get disco as related to statement
-			response = statementResponseManager.getStatementRelatedDiSCOs(
-															TestConstants.INVALID_DOI, 
-															RDF.TYPE.toString(), 
-															TestConstants.INVALID_RDF_TYPE, 
-															NonRdfType.JSON, queryParams);
+		MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+		//queryParams.add("page", "1");
+		
+		//get disco as related to statement
+		response = statementResponseManager.getStatementRelatedDiSCOs(
+														TestConstants.INVALID_DOI, 
+														RDF.TYPE.toString(), 
+														TestConstants.INVALID_RDF_TYPE, 
+														NonRdfType.JSON, queryParams);
 
-			assertNotNull(response);
-			assertEquals(response.getStatus(),404); //Not found 404 is appropriate response.
-			
-		} catch (Exception e) {
-			e.printStackTrace();	
-		}
+		assertNotNull(response);
+		assertEquals(response.getStatus(),404); //Not found 404 is appropriate response.
 		
 	}
 	
@@ -190,27 +162,22 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 	 * Test get statement asserting Agents.
 	 */
 	@Test
-	public void testGetStatementAssertingAgents() {
+	public void testGetStatementAssertingAgents() throws Exception {
 		Response response = null;
-		try {			
-			//createDisco
-			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestEventDetails);
+		//createDisco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		String discoURI = rmapDisco.getId().toString();
+        assertNotNull(discoURI);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
 
-			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
-			response = 
-					statementResponseManager.getStatementAssertingAgents(TestConstants.TEST_DISCO_DOI, 
-														RDF.TYPE.toString(), 
-														TestConstants.TEST_DISCO_DOI_TYPE, NonRdfType.JSON, queryParams);
-			assertNotNull(response);
-			assertEquals(response.getStatus(),200);
-			assertEquals(response.getEntity(),"{\""+ RMAP.AGENT.toString() + "\":[\"" + TestConstants.SYSAGENT_ID + "\"]}");
-
-		} catch (Exception e) {
-			e.printStackTrace();	
-		}
+		MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+		response = 
+				statementResponseManager.getStatementAssertingAgents(TestConstants.TEST_DISCO_DOI, 
+													RDF.TYPE.toString(), 
+													TestConstants.TEST_DISCO_DOI_TYPE, NonRdfType.JSON, queryParams);
+		assertNotNull(response);
+		assertEquals(response.getStatus(),200);
+		assertEquals(response.getEntity(),"{\""+ RMAP.AGENT.toString() + "\":[\"" + TestConstants.SYSAGENT_ID + "\"]}");
 
 	}
 	
@@ -219,27 +186,21 @@ public class StatementResponseManagerTestIT extends ApiDataCreationTestAbstractI
 	 * Test get statement asserting Agents.
 	 */
 	@Test
-	public void testGetStatementAssertingAgentsNoMatches() {
-		Response response = null;
-		try {			
-			//createDisco
-			RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
-			String discoURI = rmapDisco.getId().toString();
-	        assertNotNull(discoURI);
-			rmapService.createDiSCO(rmapDisco, requestEventDetails);
+	public void testGetStatementAssertingAgentsNoMatches() throws Exception {
+		Response response = null;		
+		//createDisco
+		RMapDiSCO rmapDisco = TestUtils.getRMapDiSCO(TestFile.DISCOA_XML);
+		String discoURI = rmapDisco.getId().toString();
+        assertNotNull(discoURI);
+		rmapService.createDiSCO(rmapDisco, requestEventDetails);
 
-			MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
-			response = 
-					statementResponseManager.getStatementAssertingAgents(TestConstants.INVALID_DOI, 
-														RDF.TYPE.toString(), 
-														TestConstants.INVALID_RDF_TYPE, NonRdfType.JSON, queryParams);
-			assertNotNull(response);
-			assertEquals(response.getStatus(),404);
-			
-		} catch (Exception e) {
-			e.printStackTrace();	
-		}
-
+		MultivaluedMap<String, String> queryParams = new MultivaluedHashMap<String, String>();
+		response = 
+				statementResponseManager.getStatementAssertingAgents(TestConstants.INVALID_DOI, 
+													RDF.TYPE.toString(), 
+													TestConstants.INVALID_RDF_TYPE, NonRdfType.JSON, queryParams);
+		assertNotNull(response);
+		assertEquals(response.getStatus(),404);
 	}
 
 }

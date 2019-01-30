@@ -11,7 +11,6 @@ import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Base64;
 
 import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;

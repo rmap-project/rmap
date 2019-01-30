@@ -457,7 +457,7 @@ public class SimpleSolrIT extends BaseKafkaIT {
                     switch (event.getEventType()) {
                         case CREATION:
                             source = null;
-                            target = ((RMapEventWithNewObjects) event).getCreatedObjectIds().get(0);
+                            target = ((RMapEventWithNewObjects) event).getCreatedObjectIds().iterator().next();
                             break;
                         case UPDATE:
                             source = ((RMapEventUpdate) event).getInactivatedObjectId();
@@ -522,7 +522,7 @@ public class SimpleSolrIT extends BaseKafkaIT {
                     doc.setDiscoUri(toIndex.disco.getId().getStringValue());
                     doc.setDiscoCreatorUri(toIndex.disco.getCreator().getStringValue());               // TODO: Resolve creator and index creator properties?
                     doc.setDiscoAggregatedResourceUris(toIndex.disco.getAggregatedResources()
-                            .stream().map(URI::toString).collect(Collectors.toList()));
+                            .stream().map(RMapIri::toString).collect(Collectors.toList()));
                     doc.setDiscoDescription(toIndex.disco.getDescription().getStringValue());
                     doc.setDiscoProvenanceUri(toIndex.disco.getProvGeneratedBy() != null ? toIndex.disco.getProvGeneratedBy().getStringValue() : null);
 

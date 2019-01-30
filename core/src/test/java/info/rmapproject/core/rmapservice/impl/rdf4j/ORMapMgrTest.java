@@ -31,8 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +40,8 @@ import info.rmapproject.core.CoreTestAbstract;
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.idservice.IdService;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.OStatementsAdapter;
@@ -126,10 +125,10 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 	 */
 	protected void createSystemAgent() throws FileNotFoundException, RMapException, RMapDefectiveArgumentException, URISyntaxException{
 		if (sysagent == null) {
-			IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID);
-			IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
-			IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_AUTH_ID);
-			Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT_NAME);	
+			RMapIri AGENT_IRI = new RMapIri(TestConstants.SYSAGENT_ID);
+			RMapIri ID_PROVIDER_IRI = new RMapIri(TestConstants.SYSAGENT_ID_PROVIDER);
+			RMapIri AUTH_ID_IRI = new RMapIri(TestConstants.SYSAGENT_AUTH_ID);
+			RMapLiteral NAME = new RMapLiteral(TestConstants.SYSAGENT_NAME);	
 			sysagent = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			
 			if (reqEventDetails==null){
@@ -157,10 +156,10 @@ public abstract class ORMapMgrTest extends CoreTestAbstract {
 	protected void createSystemAgent2() throws RMapException, RMapDefectiveArgumentException, FileNotFoundException, URISyntaxException{
 		if (sysagent2 == null){
 			//create new test agent #2
-			IRI AGENT_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT2_ID);
-			IRI ID_PROVIDER_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT_ID_PROVIDER);
-			IRI AUTH_ID_IRI = ORAdapter.getValueFactory().createIRI(TestConstants.SYSAGENT2_AUTH_ID);
-			Literal NAME = ORAdapter.getValueFactory().createLiteral(TestConstants.SYSAGENT2_NAME);	
+			RMapIri AGENT_IRI = new RMapIri(TestConstants.SYSAGENT2_ID);
+			RMapIri ID_PROVIDER_IRI = new RMapIri(TestConstants.SYSAGENT_ID_PROVIDER);
+			RMapIri AUTH_ID_IRI = new RMapIri(TestConstants.SYSAGENT2_AUTH_ID);
+			RMapLiteral NAME = new RMapLiteral(TestConstants.SYSAGENT2_NAME);	
 			sysagent2 = new ORMapAgent(AGENT_IRI, ID_PROVIDER_IRI, AUTH_ID_IRI, NAME);
 			
 			if (reqEventDetails2==null){

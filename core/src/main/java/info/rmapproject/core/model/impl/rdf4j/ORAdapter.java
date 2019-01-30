@@ -42,6 +42,7 @@ import info.rmapproject.core.model.RMapBlankNode;
 import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapResource;
+import info.rmapproject.core.model.RMapStatement;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.RMapValue;
 
@@ -357,6 +358,28 @@ public class ORAdapter {
 		RMapValue object = rdf4jValue2RMapValue(stmt.getObject());		
 		RMapTriple rtriple = new RMapTriple(subject, predicate, object);		
 		return rtriple;
+	}
+	
+	/**
+	 * Converts an RDF4J Statement to an RMapStatement. Includes context. Null returns null
+	 *
+	 * @param stmt RDF4J Statement to be converted
+	 * @return RMapStatement corresponding to RDF4J Statement
+	 * @throws IllegalArgumentException if subject, predicate or object is null or not compatible for conversion to RMapTriple
+	 */
+	public static RMapStatement rdf4jStatement2RMapStatement(Statement stmt) {
+		if (stmt==null){
+			return null;
+		}
+		RMapResource subject = rdf4jResource2RMapResource(stmt.getSubject());
+		RMapIri predicate = rdf4jIri2RMapIri(stmt.getPredicate());
+		RMapValue object = rdf4jValue2RMapValue(stmt.getObject());		
+		RMapIri context = null;
+		if (stmt.getContext()!=null) {
+			context = rdf4jIri2RMapIri((IRI) stmt.getContext());
+		}
+		RMapStatement rmapStmt = new RMapStatement(subject, predicate, object, context);		
+		return rmapStmt;
 	}
 
 	/**

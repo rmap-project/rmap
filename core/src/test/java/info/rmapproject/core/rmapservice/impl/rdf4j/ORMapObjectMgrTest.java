@@ -31,7 +31,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.eclipse.rdf4j.model.IRI;
@@ -142,28 +144,23 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	 */
 	@Test
 	public void testIsEventId() throws RMapException, RMapDefectiveArgumentException {
-		List<java.net.URI> resourceList = new ArrayList<java.net.URI>();
+		List<RMapIri> resourceList = new ArrayList<RMapIri>();
 		try {
 			createSystemAgent();
-		    IRI creatorIRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/0000-0003-2069-1219");
-			resourceList.add(new java.net.URI("http://rmap-info.org"));
-			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
-			RMapIri associatedAgent = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
-			ORMapDiSCO disco = new ORMapDiSCO(ORAdapter.uri2Rdf4jIri(rmapIdService.createId()), associatedAgent, resourceList);
+		    RMapIri creatorIRI = new RMapIri("http://orcid.org/0000-0003-2069-1219");
+			resourceList.add(new RMapIri("http://rmap-info.org"));
+			resourceList.add(new RMapIri("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+			ORMapDiSCO disco = new ORMapDiSCO(new RMapIri(rmapIdService.createId()), creatorIRI, resourceList);
 			// Make list of created objects
-			List<IRI> iris = new ArrayList<IRI>();
-			IRI discoContext = disco.getDiscoContext();
+			Set<RMapIri> iris = new HashSet<RMapIri>();
+			RMapIri discoContext = disco.getId();
 			iris.add(discoContext);
-			List<RMapIri> createdObjIds = new ArrayList<RMapIri>();
-			for (IRI iri:iris){
-				createdObjIds.add(ORAdapter.rdf4jIri2RMapIri(iri));
-			}
 			
-			ORMapEventCreation event = new ORMapEventCreation(ORAdapter.uri2Rdf4jIri(rmapIdService.createId()), reqEventDetails, RMapEventTargetType.DISCO, createdObjIds);
+			ORMapEventCreation event = new ORMapEventCreation(new RMapIri(rmapIdService.createId()), reqEventDetails, RMapEventTargetType.DISCO);
+			event.setCreatedObjectIds(iris);
 			Date end = new Date();
 			event.setEndTime(end);
-			IRI crEventId = eventMgr.createEvent(event, triplestore);
+			RMapIri crEventId = eventMgr.createEvent(event, triplestore);
 			assertTrue(eventMgr.isEventId(crEventId, triplestore));
 			
 		} catch (Exception e) {
@@ -179,7 +176,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 	public void testIsAgentId() throws URISyntaxException {
 		try {
 			createSystemAgent();
-			assertTrue(agentMgr.isAgentId(ORAdapter.uri2Rdf4jIri(new URI(TestConstants.SYSAGENT_ID)), triplestore));
+			assertTrue(agentMgr.isAgentId(new RMapIri(TestConstants.SYSAGENT_ID), triplestore));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("could not create test agent.");

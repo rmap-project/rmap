@@ -27,8 +27,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
-import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.uri2Rdf4jIri;
 import static info.rmapproject.core.rmapservice.impl.rdf4j.ORMapQueriesLineage.findLineageProgenitor;
 
 import java.net.URI;
@@ -41,8 +39,6 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.junit.Test;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
@@ -52,12 +48,12 @@ import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.exception.RMapNotLatestVersionException;
 import info.rmapproject.core.exception.RMapTombstonedObjectException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
 import info.rmapproject.core.model.RMapTriple;
 import info.rmapproject.core.model.disco.RMapDiSCO;
 import info.rmapproject.core.model.event.RMapEvent;
 import info.rmapproject.core.model.event.RMapEventDeletion;
 import info.rmapproject.core.model.event.RMapEventTombstone;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
 import info.rmapproject.core.model.impl.rdf4j.ORMapAgent;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.request.RequestEventDetails;
@@ -96,8 +92,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
-			RMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
+			RMapDiSCO rDisco = discomgr.readDiSCO(idIRI, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
@@ -143,8 +138,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
+			ORMapDiSCO rDisco = discomgr.readDiSCO(idIRI, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
@@ -226,8 +220,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			assertTrue(event!=null);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
+			ORMapDiSCO rDisco = discomgr.readDiSCO(idIRI,triplestore);
 			RMapIri rIdIRI = rDisco.getId();
 			assertEquals(idIRI.toString(),rIdIRI.toString());
 			//check key is associated with event
@@ -235,11 +228,11 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			boolean correctErrorThrown = false;
 			// now update DiSCO	
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
-			discomgr.updateDiSCO(dIri, disco2, reqEventDetails, false, triplestore);
+			discomgr.updateDiSCO(idIRI, disco2, reqEventDetails, false, triplestore);
 			
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
 			try{
-				discomgr.updateDiSCO(dIri, disco3, reqEventDetails, false, triplestore);
+				discomgr.updateDiSCO(idIRI, disco3, reqEventDetails, false, triplestore);
 			} catch(RMapNotLatestVersionException ex){
 				if (ex.getMessage().contains("latest version")){
 					correctErrorThrown=true;
@@ -250,14 +243,13 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			}
 			//now update with different agent using latest id
 			try{
-				IRI dIri2 = ORAdapter.rMapIri2Rdf4jIri(disco2.getId());
-				discomgr.updateDiSCO(dIri2, disco3, reqEventDetails2, false, triplestore);
+				discomgr.updateDiSCO(disco2.getId(), disco3, reqEventDetails2, false, triplestore);
 			} catch(Exception ex){
 				ex.printStackTrace();
 			}
 			String description = disco3.getDescription().toString();
 			//read back derived disco
-			ORMapDiSCO rDisco2 = discomgr.readDiSCO(dIri, triplestore);
+			ORMapDiSCO rDisco2 = discomgr.readDiSCO(idIRI, triplestore);
 			RMapIri rIdIRI2 = rDisco2.getId();
 			assertEquals(idIRI.toString(),rIdIRI2.toString());
 			String description3 = rDisco2.getDescription().toString();
@@ -289,8 +281,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			
 			RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 						
-			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri, triplestore);
+			ORMapDiSCO rDisco = discomgr.readDiSCO(idIRI, triplestore);
 			RMapIri idIRI2 = rDisco.getId();
 			assertEquals(idIRI.toString(),idIRI2.toString());
 			String description2 = rDisco.getDescription().toString();
@@ -309,9 +300,8 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 	/* Creating a DiSCO should define a lineage with that disco as progenitor */
     @Test
     public void testCreateDiscoLineage() throws Exception {
-        ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
-                new RMapIri(randomURI()), 
-                Arrays.asList(randomURI()));
+        ORMapDiSCO disco = new ORMapDiSCO(new RMapIri(randomURI()), new RMapIri(randomURI()), 
+						                Arrays.asList(new RMapIri(randomURI())));
 
         discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 
@@ -322,25 +312,20 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
     @Test
     public void testUpdateDiscoLineage() {
 
-        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
-                new RMapIri(randomURI()), 
-                Arrays.asList(randomURI()));
+        final ORMapDiSCO originalDisco = new ORMapDiSCO(new RMapIri(randomURI()), new RMapIri(randomURI()), 
+                										Arrays.asList(new RMapIri(randomURI())));
 
-        final ORMapDiSCO updatedDisco1 = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
-                new RMapIri(randomURI()), 
-                Arrays.asList(randomURI()));
+        final ORMapDiSCO updatedDisco1 = new ORMapDiSCO(new RMapIri(randomURI()), new RMapIri(randomURI()), 
+														Arrays.asList(new RMapIri(randomURI())));
         
-        final ORMapDiSCO updatedDisco2 = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
-                new RMapIri(randomURI()), 
-                Arrays.asList(randomURI()));
+        final ORMapDiSCO updatedDisco2 = new ORMapDiSCO(new RMapIri(randomURI()), new RMapIri(randomURI()), 
+														Arrays.asList(new RMapIri(randomURI())));
 
         discomgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
 
-        discomgr.updateDiSCO(
-                rMapIri2Rdf4jIri(originalDisco.getId()), updatedDisco1, reqEventDetails, false, triplestore);
+        discomgr.updateDiSCO(originalDisco.getId(), updatedDisco1, reqEventDetails, false, triplestore);
         
-        discomgr.updateDiSCO(
-                rMapIri2Rdf4jIri(updatedDisco1.getId()), updatedDisco2, reqEventDetails, false, triplestore);
+        discomgr.updateDiSCO(updatedDisco1.getId(), updatedDisco2, reqEventDetails, false, triplestore);
 
         assertEquals(findLineageProgenitor(originalDisco.getId().getIri(), triplestore),
                 findLineageProgenitor(updatedDisco1.getId().getIri(), triplestore));
@@ -354,18 +339,15 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
     @Test
     public void testDerivedDiscoLineage() {
         
-        final ORMapDiSCO originalDisco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
-                new RMapIri(randomURI()), 
-                Arrays.asList(randomURI()));
+        final ORMapDiSCO originalDisco = new ORMapDiSCO(new RMapIri(randomURI()), new RMapIri(randomURI()), 
+														Arrays.asList(new RMapIri(randomURI())));
         
-        final ORMapDiSCO derivedDisco = new ORMapDiSCO(uri2Rdf4jIri(randomURI()), 
-                new RMapIri(randomURI()), 
-                Arrays.asList(randomURI()));
+        final ORMapDiSCO derivedDisco = new ORMapDiSCO(new RMapIri(randomURI()), new RMapIri(randomURI()), 
+														Arrays.asList(new RMapIri(randomURI())));
   
         discomgr.createDiSCO(originalDisco, reqEventDetails, triplestore);
         
-        discomgr.updateDiSCO(
-                rMapIri2Rdf4jIri(originalDisco.getId()), derivedDisco, reqEventDetails2, false, triplestore);
+        discomgr.updateDiSCO(originalDisco.getId(), derivedDisco, reqEventDetails2, false, triplestore);
         
         assertNotEquals(findLineageProgenitor(originalDisco.getId().getIri(), triplestore),
                 findLineageProgenitor(derivedDisco.getId().getIri(), triplestore));
@@ -398,8 +380,8 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML_WITH_PROVIDERID);
 		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 		assertTrue(event!=null);
-		assertEquals(disco.getProviderId(),providerId); 		
-		assertFalse(disco.getId().equals(providerId));
+		assertEquals(disco.getProviderId().getStringValue(),providerId); 		
+		assertFalse(disco.getId().getStringValue().equals(providerId));
 	}	
 	
 	/**
@@ -417,56 +399,55 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			
 			//read DiSCO back
-			IRI dIri = ORAdapter.rMapIri2Rdf4jIri(idIRI);
-			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
-			RMapIri rIdIRI = rDisco.getId();
-			assertEquals(idIRI.toString(),rIdIRI.toString());
+			ORMapDiSCO rDisco = discomgr.readDiSCO(idIRI,triplestore);
+			RMapIri idIRI1 = rDisco.getId();
+			assertEquals(idIRI.toString(),idIRI1.toString());
 			
 			// now update DiSCO	
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
-			discomgr.updateDiSCO(dIri, disco2, reqEventDetails, false, triplestore);
-			IRI dIri2 = ORAdapter.rMapIri2Rdf4jIri(disco2.getId());
+			discomgr.updateDiSCO(idIRI, disco2, reqEventDetails, false, triplestore);
+			RMapIri idIRI2 = disco2.getId();
 			
 			//update again
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
-			discomgr.updateDiSCO(dIri2, disco3, reqEventDetails, false, triplestore);
+			discomgr.updateDiSCO(idIRI2, disco3, reqEventDetails, false, triplestore);
+			RMapIri idIRI3 = disco3.getId();
 			
-			IRI dIri3 = ORAdapter.rMapIri2Rdf4jIri(disco3.getId());
 			//update with different agent using latest id
 			ORMapDiSCO disco4 = getRMapDiSCO(TestFile.DISCOA_XML);
-			discomgr.updateDiSCO(dIri3, disco4, reqEventDetails2, false, triplestore);
+			discomgr.updateDiSCO(idIRI3, disco4, reqEventDetails2, false, triplestore);
 
-			rmapService.tombstoneDiSCO(disco.getId().getIri(), reqEventDetails);
+			rmapService.tombstoneDiSCO(idIRI1.getIri(), reqEventDetails);
 			
-			NavigableMap<Date, java.net.URI> versions = new TreeMap<Date, java.net.URI>();
-			versions.putAll(rmapService.getDiSCOVersionsWithDates(new java.net.URI(dIri3.toString())));
+			NavigableMap<Date, URI> versions = new TreeMap<Date, URI>();
+			versions.putAll(rmapService.getDiSCOVersionsWithDates(idIRI3.getIri()));
 			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
 			Entry<Date,java.net.URI> version3 = versions.lowerEntry(new Date());
-			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
+			assertTrue(version3.getValue().toString().equals(idIRI3.toString()));
 			Entry<Date,java.net.URI> version2 = versions.lowerEntry(version3.getKey());
-			assertTrue(version2.getValue().toString().equals(dIri2.toString()));
+			assertTrue(version2.getValue().toString().equals(idIRI2.toString()));
 			Entry<Date,java.net.URI> version1 = versions.lowerEntry(version2.getKey());
-			assertTrue(version1.getValue().toString().equals(dIri.toString()));
+			assertTrue(version1.getValue().toString().equals(idIRI1.toString()));
 			versions.clear();
 			
-			versions.putAll(rmapService.getDiSCOVersionsWithDates(new java.net.URI(dIri2.toString())));
+			versions.putAll(rmapService.getDiSCOVersionsWithDates(idIRI2.getIri()));
 			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
 
 			version3 = versions.lowerEntry(new Date());
-			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
+			assertTrue(version3.getValue().toString().equals(idIRI3.toString()));
 			version2 = versions.lowerEntry(version3.getKey());
-			assertTrue(version2.getValue().toString().equals(dIri2.toString()));
+			assertTrue(version2.getValue().toString().equals(idIRI2.toString()));
 			version1 = versions.lowerEntry(version2.getKey());
-			assertTrue(version1.getValue().toString().equals(dIri.toString()));
+			assertTrue(version1.getValue().toString().equals(idIRI1.toString()));
 			versions.clear();
 
-			versions.putAll(rmapService.getDiSCOVersionsWithDates(new java.net.URI(dIri.toString())));
+			versions.putAll(rmapService.getDiSCOVersionsWithDates(idIRI2.getIri()));
 			version3 = versions.lowerEntry(new Date());
-			assertTrue(version3.getValue().toString().equals(dIri3.toString()));
+			assertTrue(version3.getValue().toString().equals(idIRI3.toString()));
 			version2 = versions.lowerEntry(version3.getKey());
-			assertTrue(version2.getValue().toString().equals(dIri2.toString()));
+			assertTrue(version2.getValue().toString().equals(idIRI2.toString()));
 			version1 = versions.lowerEntry(version2.getKey());
-			assertTrue(version1.getValue().toString().equals(dIri.toString()));
+			assertTrue(version1.getValue().toString().equals(idIRI1.toString()));
 			assertTrue(versions.size()==3); //should include 2 updates and deleted, not derived.
 			
 		} catch (Exception e) {
@@ -488,7 +469,7 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 			URI dUri = disco.getId().getIri();
-			IRI dIri = ORAdapter.uri2Rdf4jIri(dUri);
+			RMapIri dIri = new RMapIri(dUri);
 			
 			//read DiSCO back
 			ORMapDiSCO rDisco = discomgr.readDiSCO(dIri,triplestore);
@@ -498,13 +479,13 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 			ORMapDiSCO disco2 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri, disco2, reqEventDetails, false, triplestore);
 			URI dUri2 = disco2.getId().getIri();
-			IRI dIri2 = ORAdapter.uri2Rdf4jIri(dUri2);
+			RMapIri dIri2 = disco2.getId();
 			
 			//update again with different agent to do derivation
 			ORMapDiSCO disco3 = getRMapDiSCO(TestFile.DISCOA_XML);
 			discomgr.updateDiSCO(dIri2, disco3, reqEventDetails2, false, triplestore);
 			URI dUri3 = disco3.getId().getIri();
-			IRI dIri3 = ORAdapter.uri2Rdf4jIri(dUri3);
+			RMapIri dIri3 = disco3.getId();
 			
 			// Now update that derived disco
 			ORMapDiSCO disco4 = getRMapDiSCO(TestFile.DISCOA_XML);
@@ -570,9 +551,9 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 
 		//create admin agent
-		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
-		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
-		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		RMapIri adminIri = new RMapIri("https://fakermap.rmap-hub.org#Administrator");
+		RMapIri authid = new RMapIri("https://fakermap.rmap-hub.org/authid");
+		RMapLiteral name = new RMapLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
 		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);
@@ -606,10 +587,11 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 
 		//create admin agent
-		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
-		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
-		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		RMapIri adminIri = new RMapIri("https://fakermap.rmap-hub.org#Administrator");
+		RMapIri authid = new RMapIri("https://fakermap.rmap-hub.org/authid");
+		RMapLiteral name = new RMapLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
+		
 		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);
 		
@@ -650,9 +632,10 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		ORMapDiSCO disco = getRMapDiSCO(TestFile.DISCOA_XML);
 
 		//create admin agent
-		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
-		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
-		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		//create admin agent
+		RMapIri adminIri = new RMapIri("https://fakermap.rmap-hub.org#Administrator");
+		RMapIri authid = new RMapIri("https://fakermap.rmap-hub.org/authid");
+		RMapLiteral name = new RMapLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
 		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);
@@ -683,9 +666,9 @@ public class ORMapDiSCOMgrTest extends ORMapMgrTest {
 		RMapEvent event = discomgr.createDiSCO(disco, reqEventDetails, triplestore);
 
 		//create admin agent
-		IRI adminIri = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org#Administrator");
-		IRI authid = ORAdapter.getValueFactory().createIRI("https://fakermap.rmap-hub.org/authid");
-		Literal name = ORAdapter.getValueFactory().createLiteral("RMap Administrator");
+		RMapIri adminIri = new RMapIri("https://fakermap.rmap-hub.org#Administrator");
+		RMapIri authid = new RMapIri("https://fakermap.rmap-hub.org/authid");
+		RMapLiteral name = new RMapLiteral("RMap Administrator");
 		ORMapAgent adminAgent = new ORMapAgent(adminIri, adminIri, authid, name);
 		RequestEventDetails adminReqAgent = new RequestEventDetails(new URI(adminIri.toString()));
 		rmapService.createAgent(adminAgent, adminReqAgent);

@@ -21,9 +21,6 @@ package info.rmapproject.core.model.impl.rdf4j;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
@@ -31,6 +28,10 @@ import info.rmapproject.core.model.RMapIri;
 import info.rmapproject.core.model.RMapObjectType;
 import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.agent.RMapAgent;
+
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.getValueFactory;
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapValue2Rdf4jValue;
 
 /**
  * Concrete class of RMapAgent, specific to RDF4J object model.
@@ -43,13 +44,13 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	private static final long serialVersionUID = 1L;
 		
 	/** The Agent's name stmt. */
-	protected Statement nameStmt;
+	protected RMapValue name;
 	
 	/** The Agent's id provider stmt. */
-	protected Statement idProviderStmt;
+	protected RMapIri idProvider;
 	
 	/** The Agent's auth id stmt. */
-	protected Statement authIdStmt;
+	protected RMapIri authId;
 
 	/**
 	 * Instantiates a new RMap Agent.
@@ -57,9 +58,9 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * @param id the Agent IRI (the id of the agent)
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapAgent(IRI id) throws RMapException {
+	protected ORMapAgent(RMapIri id) throws RMapException {
 		super(id);
-		setTypeStatement(RMapObjectType.AGENT);
+		setType(RMapObjectType.AGENT);
 	}
 	
 	/**
@@ -72,20 +73,19 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapAgent(IRI id, IRI idProvider, IRI authId, Value name)
+	public ORMapAgent(RMapIri id, RMapIri idProvider, RMapIri authId, RMapValue name)
 			throws RMapException, RMapDefectiveArgumentException {
 		this(id);
-		try {
-			setTypeStatement(RMapObjectType.AGENT);
-			setContext(id);
-			setIdProviderStmt(idProvider);
-			setAuthIdStmt(authId);
-			setNameStmt(name);
-		} catch (RMapDefectiveArgumentException ex1) {
-			throw ex1;
-		} catch(Exception ex2){
-			throw new RMapException("Error while initiating ORMapAgent", ex2);
-		}
+		if (name == null || name.toString().length()==0)
+			{throw new RMapDefectiveArgumentException("RMapAgent name is null or empty");}
+		if (idProvider == null || name.toString().length()==0)
+			{throw new RMapDefectiveArgumentException("RMapAgent ID Provider is null or empty");}
+		if (authId == null || name.toString().length()==0)
+			{throw new RMapDefectiveArgumentException("RMapAgent Auth ID is null or empty");}
+
+		this.idProvider = idProvider;
+		this.authId = authId;
+		this.name = name;
 	}
 		
 	/* (non-Javadoc)
@@ -93,11 +93,20 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 */
 	@Override
 	public Model getAsModel() {
-		Model model = new LinkedHashModel();
-		model.add(typeStatement);
-		model.add(nameStmt);
-		model.add(idProviderStmt);
-		model.add(authIdStmt);
+		Model model = super.getAsModel();
+		
+		IRI id = rMapIri2Rdf4jIri(this.id);
+		
+		if (name!=null) {
+			model.add(getValueFactory().createStatement(id, FOAF_NAME, rMapValue2Rdf4jValue(name), id));
+		}
+		if (idProvider!=null) {
+			model.add(getValueFactory().createStatement(id, RMAP_IDENTITYPROVIDER, rMapIri2Rdf4jIri(idProvider), id));
+		}
+		if (authId!=null) {
+			model.add(getValueFactory().createStatement(id, RMAP_USERAUTHID, rMapIri2Rdf4jIri(authId), id));
+		}
+		
 		return model;
 	}
 
@@ -106,123 +115,23 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 	 */
 	@Override
 	public RMapValue getName() throws RMapException {
-		RMapValue name = null;
-		if (this.nameStmt!= null){
-			Value value = this.nameStmt.getObject();
-			try {
-				name = ORAdapter.rdf4jValue2RMapValue(value);
-			} catch(Exception e) {
-				throw new RMapException("Could not convert Name value to RMapValue");
-			}
-		}
 		return name;
 	}
-
-	/**
-	 * Gets the statement containing the Agent Name.
-	 *
-	 * @return the statement containing the Agent Name
-	 */
-	public Statement getNameStmt() {
-		return nameStmt;
-	}
-	
-	/**
-	 * Sets the statement containing the Agent Name.
-	 *
-	 * @param name statement containing the Agent Name
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected void setNameStmt (Value name) throws RMapDefectiveArgumentException{
-		if (name == null || name.toString().length()==0)
-			{throw new RMapDefectiveArgumentException("RMapAgent name is null or empty");}
-		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-				FOAF_NAME, name, this.context);
-		this.nameStmt = stmt;
-	}
-
-	
+		
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.agent.RMapAgent#getIdProvider()
 	 */
 	@Override
 	public RMapIri getIdProvider() throws RMapException {
-		
-		RMapIri idProvider = null;
-		if (this.idProviderStmt!= null){
-			try {
-				IRI value = (IRI)this.idProviderStmt.getObject();
-				idProvider = ORAdapter.rdf4jIri2RMapIri(value);
-			} catch(Exception e) {
-				throw new RMapException("Could not retrieve ID Provider as RMapValue");
-			}
-		}
 		return idProvider;
 	}
-
-	/**
-	 * Gets the statement containing the Agent's ID provider.
-	 *
-	 * @return the statement containing the Agent's ID provider
-	 */
-	public Statement getIdProviderStmt() {
-		return idProviderStmt;
-	}
-	
-	/**
-	 * Sets the statement containing the Agent's ID provider.
-	 *
-	 * @param idProvider the new statement containing the Agent's ID provider
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected void setIdProviderStmt (IRI idProvider) throws RMapDefectiveArgumentException{
-		if (idProvider == null || idProvider.toString().length()==0)
-			{throw new RMapDefectiveArgumentException("RMapAgent idProvider is null or empty");}
 		
-		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-				RMAP_IDENTITYPROVIDER, idProvider, this.context);
-		this.idProviderStmt = stmt;
-	}
-	
 	/* (non-Javadoc)
 	 * @see info.rmapproject.core.model.agent.RMapAgent#getAuthId()
 	 */
 	@Override
 	public RMapIri getAuthId() throws RMapException {
-		RMapIri authIdValue = null;
-		if (this.authIdStmt!= null){
-			try {
-				IRI value = (IRI)this.authIdStmt.getObject();
-				authIdValue = ORAdapter.rdf4jIri2RMapIri(value);
-			} catch(Exception e) {
-				throw new RMapException("Could not retrieve ID Provider value as RMapIri",e);
-			}
-		}
-		return authIdValue;
-	}
-	
-	/**
-	 * Gets the statement containing the Agent's Auth ID.
-	 *
-	 * @return the statement containing the Agent's Auth ID
-	 */
-	public Statement getAuthIdStmt() {
-		return authIdStmt;
-	}
-	
-	/**
-	 * Sets the statement containing the Agent's Auth ID.
-	 *
-	 * @param authId the new statement containing the Agent's Auth ID
-	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
-	 */
-	protected void setAuthIdStmt (IRI authId) throws RMapDefectiveArgumentException{
-		if (authId == null || authId.toString().length()==0) {
-			throw new RMapDefectiveArgumentException("RMapAgent authId is null or empty");
-			}
-		Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, 
-				RMAP_USERAUTHID, authId, this.context);
-		this.authIdStmt = stmt;
+		return authId;
 	}
 
 	@Override
@@ -233,27 +142,27 @@ public class ORMapAgent extends ORMapObject implements RMapAgent {
 
 		ORMapAgent that = (ORMapAgent) o;
 
-		if (nameStmt != null ? !nameStmt.equals(that.nameStmt) : that.nameStmt != null) return false;
-		if (idProviderStmt != null ? !idProviderStmt.equals(that.idProviderStmt) : that.idProviderStmt != null)
+		if (name != null ? !name.equals(that.name) : that.name != null) return false;
+		if (idProvider != null ? !idProvider.equals(that.idProvider) : that.idProvider != null)
 			return false;
-		return authIdStmt != null ? authIdStmt.equals(that.authIdStmt) : that.authIdStmt == null;
+		return authId != null ? authId.equals(that.authId) : that.authId == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result + (nameStmt != null ? nameStmt.hashCode() : 0);
-		result = 31 * result + (idProviderStmt != null ? idProviderStmt.hashCode() : 0);
-		result = 31 * result + (authIdStmt != null ? authIdStmt.hashCode() : 0);
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (idProvider != null ? idProvider.hashCode() : 0);
+		result = 31 * result + (authId != null ? authId.hashCode() : 0);
 		return result;
 	}
 
 	@Override
 	public String toString() {
 		return "ORMapAgent{" +
-				"nameStmt=" + nameStmt +
-				", idProviderStmt=" + idProviderStmt +
-				", authIdStmt=" + authIdStmt +
+				"name=" + name +
+				", idProvider=" + idProvider +
+				", authId=" + authId +
 				"} " + super.toString();
 	}
 }

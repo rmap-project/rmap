@@ -22,14 +22,14 @@
  */
 package info.rmapproject.core.model.impl.rdf4j;
 
-import java.util.List;
-
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Statement;
+import java.util.Set;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventCreation;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -49,9 +49,9 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventCreation(IRI id) throws RMapException {
+	protected ORMapEventCreation(RMapIri id) throws RMapException {
 		super(id);
-		this.setEventTypeStatement(RMapEventType.CREATION);
+		setEventType(RMapEventType.CREATION);
 	}
 	
 	/**
@@ -69,14 +69,11 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @param createdObjects the created objects
 	 * @throws RMapException the RMap exception
 	 */
-	public ORMapEventCreation(Statement eventTypeStmt, Statement eventTargetTypeStmt, 
-			Statement associatedAgentStmt,  Statement descriptionStmt, 
-			Statement startTimeStmt,  Statement endTimeStmt, IRI context, 
-			Statement typeStatement, Statement associatedKeyStmt, Statement lineage, List<Statement> createdObjects) 
+	public ORMapEventCreation(RMapEventType eventType, RMapEventTargetType eventTargetType, RMapIri associatedAgent,
+			RMapValue description, RMapLiteral startTime, RMapLiteral endTime, RMapIri id,
+			RMapObjectType type, RMapIri associatedKey, RMapIri lineageProgenitor, Set<RMapIri> createdObjects)
 					throws RMapException {
-		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineage);
-		this.createdObjects = createdObjects;
+		super(eventType,eventTargetType,associatedAgent,description, startTime, endTime, id, type, associatedKey, lineageProgenitor, createdObjects);
 	}
 	
 	/**
@@ -87,10 +84,10 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventCreation(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType)
+	public ORMapEventCreation(RMapIri id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType)
 			throws RMapException, RMapDefectiveArgumentException {
 		super(id, reqEventDetails, targetType);
-		this.setEventTypeStatement(RMapEventType.CREATION);
+		setEventType(RMapEventType.CREATION);
 	}
 	
 	/**
@@ -102,11 +99,10 @@ public class ORMapEventCreation extends ORMapEventWithNewObjects implements RMap
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException the RMap defective argument exception
 	 */
-	public ORMapEventCreation(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, List<RMapIri> createdObjIds)
+	public ORMapEventCreation(RMapIri id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, Set<RMapIri> createdObjIds)
 		throws RMapException, RMapDefectiveArgumentException{
 		this(id, reqEventDetails, targetType);
 		this.setCreatedObjectIds(createdObjIds);	
 	}
-
 
 }

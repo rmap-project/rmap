@@ -24,11 +24,17 @@ package info.rmapproject.core.model.impl.rdf4j;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
+
+import static info.rmapproject.core.model.impl.rdf4j.ORAdapter.rMapIri2Rdf4jIri;
+
 import org.eclipse.rdf4j.model.IRI;
 
 import info.rmapproject.core.exception.RMapDefectiveArgumentException;
 import info.rmapproject.core.exception.RMapException;
 import info.rmapproject.core.model.RMapIri;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapObjectType;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.event.RMapEventTargetType;
 import info.rmapproject.core.model.event.RMapEventTombstone;
 import info.rmapproject.core.model.event.RMapEventType;
@@ -45,17 +51,17 @@ public class ORMapEventTombstone extends ORMapEvent implements
 
 	private static final long serialVersionUID = 1L;
 
-	/** The statement that defines the tombstoned object. */
-	protected Statement tombstoned;
+	/** The the IRI of the tombstoned object. */
+	protected RMapIri tombstonedObjectId;
 
 	/**
 	 * Instantiates a new RMap Tombstoned Event
 	 *
 	 * @throws RMapException the RMap exception
 	 */
-	protected ORMapEventTombstone(IRI id) throws RMapException {
+	protected ORMapEventTombstone(RMapIri id) throws RMapException {
 		super(id);
-		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
+		this.setEventType(RMapEventType.TOMBSTONE);
 	}
 	
 	/**
@@ -73,15 +79,14 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @param tombstoned statement referencing the IRI of the tombstoned object
 	 * @throws RMapException the RMap exception
 	 */
-	public ORMapEventTombstone(Statement eventTypeStmt,
-			Statement eventTargetTypeStmt, Statement associatedAgentStmt,
-			Statement descriptionStmt, Statement startTimeStmt,  
-			Statement endTimeStmt, IRI context, Statement typeStatement, Statement associatedKeyStmt,
-			Statement lineageProgenitorStmt , Statement tombstoned) throws RMapException {
-		
-		super(eventTypeStmt,eventTargetTypeStmt,associatedAgentStmt,descriptionStmt,
-				startTimeStmt, endTimeStmt,context,typeStatement, associatedKeyStmt, lineageProgenitorStmt);
-		this.tombstoned = tombstoned;
+	public ORMapEventTombstone(RMapEventType eventType, RMapEventTargetType eventTargetType, RMapIri associatedAgent,
+			RMapValue description, RMapLiteral startTime, RMapLiteral endTime, RMapIri id,
+			RMapObjectType type, RMapIri associatedKey, RMapIri lineageProgenitor, RMapIri tombstonedObjectId) throws RMapException {
+		super(eventType,eventTargetType,associatedAgent,description, startTime, endTime, id, type, associatedKey, lineageProgenitor);
+		if (tombstonedObjectId==null){
+			throw new RMapException("Tombstoned object ID cannot be null");
+		}
+		this.tombstonedObjectId = tombstonedObjectId;
 	}
 
 	/**
@@ -93,10 +98,14 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @throws RMapException the RMap exception
 	 * @throws RMapDefectiveArgumentException 
 	 */
-	public ORMapEventTombstone(IRI id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, IRI tombstonedResource) throws RMapException, RMapDefectiveArgumentException {
+	public ORMapEventTombstone(RMapIri id, RequestEventDetails reqEventDetails, RMapEventTargetType targetType, RMapIri tombstonedObjectId) 
+			throws RMapException, RMapDefectiveArgumentException {
 		super(id, reqEventDetails, targetType);
-		this.setEventTypeStatement(RMapEventType.TOMBSTONE);
-		this.setTombstonedResourceIdStmt(tombstonedResource);
+		if (tombstonedObjectId==null){
+			throw new RMapException("Tombstoned object ID cannot be null");
+		}
+		this.setEventType(RMapEventType.TOMBSTONE);
+		this.tombstonedObjectId = tombstonedObjectId;
 	}
 
 	/* (non-Javadoc)
@@ -105,7 +114,10 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	@Override
 	public Model getAsModel() throws RMapException {
 		Model model = super.getAsModel();
-		model.add(tombstoned);
+		IRI id = rMapIri2Rdf4jIri(this.id);
+		Statement stmt = ORAdapter.getValueFactory().createStatement(id, RMAP_TOMBSTONEDOBJECT,
+				ORAdapter.rMapIri2Rdf4jIri(tombstonedObjectId), id);
+		model.add(stmt);
 		return model;
 	}
 	
@@ -113,24 +125,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 * @see info.rmapproject.core.model.RMapEventTombstone#getTombstonedResourceId()
 	 */
 	public RMapIri getTombstonedObjectId() throws RMapException {
-		RMapIri iri = null;
-		if (this.tombstoned!= null){
-			try {
-				IRI tIri = (IRI) this.tombstoned.getObject();
-				iri = ORAdapter.rdf4jIri2RMapIri(tIri);
-			} catch (IllegalArgumentException ex){
-				throw new RMapException("Could not retrieve Tombstoned Resource ID",ex);
-			}
-		}
-		return iri;
-	}
-	
-	/**
-	 * Gets the statement referencing the IRI of the tombstoned object
-	 * @return the statement referencing the IRI of the tombstoned object
-	 */
-	public Statement getTombstonedResourceStmt(){
-		return this.tombstoned;
+		return tombstonedObjectId;
 	}
 	
 	/* (non-Javadoc)
@@ -138,27 +133,7 @@ public class ORMapEventTombstone extends ORMapEvent implements
 	 */
 	@Override
 	public void setTombstonedObjectId(RMapIri iri) throws RMapException {
-		IRI tombstonedIri = null;
-		try { 
-			tombstonedIri = ORAdapter.rMapIri2Rdf4jIri(iri);
-		} catch (IllegalArgumentException e){
-			throw new RMapException("Could not retrieve RMap Event's tombstoned object ID", e);
-		}
-		this.setTombstonedResourceIdStmt(tombstonedIri);
-	}
-	
-	/**
-	 * Sets the statement referencing the IRI of the tombstoned object
-	 *
-	 * @param tombstonedResource the IRI of the tombstoned resource
-	 * @throws RMapException the RMap exception
-	 */
-	private void setTombstonedResourceIdStmt(IRI tombstonedResource) throws RMapException {
-		if (tombstonedResource != null){
-			Statement stmt = ORAdapter.getValueFactory().createStatement(this.context, RMAP_TOMBSTONEDOBJECT,
-					tombstonedResource, this.context);
-			this.tombstoned = stmt;
-		}
+		this.tombstonedObjectId = iri;
 	}
 	
 	@Override
@@ -169,13 +144,13 @@ public class ORMapEventTombstone extends ORMapEvent implements
 
 		ORMapEventTombstone that = (ORMapEventTombstone) o;
 
-		return tombstoned != null ? tombstoned.equals(that.tombstoned) : that.tombstoned == null;
+		return tombstonedObjectId != null ? tombstonedObjectId.equals(that.tombstonedObjectId) : that.tombstonedObjectId == null;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result + (tombstoned != null ? tombstoned.hashCode() : 0);
+		result = 31 * result + (tombstonedObjectId != null ? tombstonedObjectId.hashCode() : 0);
 		return result;
 	}
 }

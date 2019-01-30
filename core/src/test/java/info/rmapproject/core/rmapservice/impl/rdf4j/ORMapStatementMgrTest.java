@@ -37,12 +37,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import info.rmapproject.core.model.RMapIri;
-import info.rmapproject.core.model.impl.rdf4j.ORAdapter;
+import info.rmapproject.core.model.RMapLiteral;
+import info.rmapproject.core.model.RMapValue;
 import info.rmapproject.core.model.impl.rdf4j.ORMapDiSCO;
 import info.rmapproject.core.model.impl.rdf4j.ORMapEvent;
 import info.rmapproject.core.model.request.RMapSearchParams;
@@ -80,18 +79,18 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date dateFrom = dateFormat.parse("2014-1-1");
 		Date dateTo = dateFormat.parse("2050-1-1");
-		IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-		IRI predicate = ORAdapter.rMapIri2Rdf4jIri(DC.SUBJECT);
-		Value object = ORAdapter.getValueFactory().createLiteral("storage management");
+		RMapIri subject = new RMapIri(TestConstants.TEST_DISCO_DOI);
+		RMapIri predicate = DC.SUBJECT;
+		RMapValue object = new RMapLiteral("storage management");
 		
 		RMapSearchParams params = paramsFactory.newInstance();
 		params.setStatusCode(RMapStatusFilter.ACTIVE);
 		params.setDateRange(dateFrom, dateTo);
 		
-		List <IRI> discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
+		List <RMapIri> discoIds = stmtmgr.getRelatedDiSCOs(subject, predicate, object, params, triplestore);
 		assertTrue(discoIds.size()==1);
-		Iterator<IRI> iter = discoIds.iterator();
-		IRI matchingDiscoId = iter.next();
+		Iterator<RMapIri> iter = discoIds.iterator();
+		RMapIri matchingDiscoId = iter.next();
 		assertTrue(matchingDiscoId.toString().equals(discoId.toString()));
 		
 		
@@ -119,20 +118,20 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date dateFrom = dateFormat.parse("2014-1-1");
 		Date dateTo = dateFormat.parse("2050-1-1");
-		IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
-		IRI predicate = ORAdapter.getValueFactory().createIRI(DC.SUBJECT.toString());
-		Value object = ORAdapter.getValueFactory().createLiteral("storage management");
+		RMapIri subject = new RMapIri(TestConstants.TEST_DISCO_DOI);
+		RMapIri predicate = new RMapIri(DC.SUBJECT.toString());
+		RMapValue object = new RMapLiteral("storage management");
 		RMapSearchParams params = paramsFactory.newInstance();
 		params.setDateRange(dateFrom, dateTo);
 		params.setSystemAgents(sysAgents);
 					
 		ORMapStatementMgr stmtMgr = new ORMapStatementMgr();
-		List<IRI> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, params, triplestore);
+		List<RMapIri> agentIds = stmtMgr.getAssertingAgents(subject, predicate, object, params, triplestore);
 		
 		assertTrue(agentIds.size()==1);
 
-		Iterator<IRI> iter = agentIds.iterator();
-		IRI matchingAgentId = iter.next();
+		Iterator<RMapIri> iter = agentIds.iterator();
+		RMapIri matchingAgentId = iter.next();
 		assertTrue(matchingAgentId.toString().equals(TestConstants.SYSAGENT_ID));
 
 	}
