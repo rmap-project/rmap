@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import info.rmapproject.core.model.request.RMapSearchParamsFactory;
 import org.junit.After;
@@ -79,8 +80,11 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 	@Autowired
 	RMapSearchParamsFactory paramsFactory;
 
+	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	
 	@Before
 	public void setUp() throws Exception {
+		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		createSystemAgent();
 	}
 
@@ -104,7 +108,7 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
 			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
@@ -152,7 +156,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
 			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		
@@ -195,7 +198,6 @@ public class ORMapResourceMgrTest extends ORMapMgrTest {
 			Set <URI> sysAgents = new HashSet<URI>();
 			sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
 			
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date dateFrom = dateFormat.parse("2014-1-1");
 			Date dateTo = dateFormat.parse("2050-1-1");
 		

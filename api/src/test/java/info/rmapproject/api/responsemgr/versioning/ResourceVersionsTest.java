@@ -66,7 +66,7 @@ public class ResourceVersionsTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		
+
 		date1 = sdf.parse(sdate1);
 		date2 = sdf.parse(sdate2);
 		date3 = sdf.parse(sdate3);

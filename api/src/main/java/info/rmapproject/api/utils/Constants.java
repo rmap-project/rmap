@@ -82,7 +82,7 @@ public final class Constants  {
 	public static final String HTTP_HEADER_ACCEPT_DATETIME = "Accept-Datetime";
 	
 	/** Date format for dates in Response header e.g. Link datetime, Memento-Datetime**/
-	public static final String HTTP_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
+	public static final String HTTP_HEADER_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
 	
 	/**
   	* Instantiates a new constants.
