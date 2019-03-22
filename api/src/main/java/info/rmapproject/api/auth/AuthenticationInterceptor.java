@@ -82,7 +82,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	    	HttpServletRequest req = (HttpServletRequest) message.get("HTTP.REQUEST");
 	    	String method = req.getMethod();
 	    	
-	    	if (method!=HttpMethod.GET && method!=HttpMethod.OPTIONS && method!=HttpMethod.HEAD){
+	    	if (!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.OPTIONS) && !method.equals(HttpMethod.HEAD)){
     	 
 		    	AuthorizationPolicy policy = apiUserService.getCurrentAuthPolicy();
 		    	String accessKey = policy.getUserName();
