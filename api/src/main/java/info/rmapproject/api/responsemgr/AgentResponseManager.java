@@ -365,7 +365,7 @@ public class AgentResponseManager extends ResponseManager {
 						.type(HttpTypeMediator.getResponseNonRdfMediaType(returnType));		
 
 				//are we doing page links?
-				if (resultbatch.hasNext() || currPage>1) {
+				if (resultbatch.hasNext() || (currPage!=null && currPage>1)) {
 					String pageLinkTemplate =
 							queryParamHandler.getPageLinkTemplate(path, queryParams, params.getLimit());
 					Link[] pageLinks =
