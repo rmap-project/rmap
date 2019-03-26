@@ -172,7 +172,7 @@ public class EventApiService {
     @Produces({"application/json;charset=UTF-8;","text/plain;charset=UTF-8;"})
     public Response apiGetRMapEventDiSCOs(@Context HttpHeaders headers, @PathParam("eventUri") String eventUri) throws RMapApiException {
     	NonRdfType outputType = HttpTypeMediator.getNonRdfResponseType(headers);
-    	Response relatedDiscos = getEventResponseManager().getRMapEventRelatedObjs(eventUri, RMapObjectType.EVENT, outputType);
+    	Response relatedDiscos = getEventResponseManager().getRMapEventRelatedObjs(eventUri, RMapObjectType.DISCO, outputType);
 	    return relatedDiscos;
     }
 
