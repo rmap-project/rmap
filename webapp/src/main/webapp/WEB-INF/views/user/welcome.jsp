@@ -22,7 +22,7 @@
 	<h2>What can I do here?</h2>
 	<p>Logging in to RMap allows you to manage your write access to the RMap API. 
 	Read only access to the RMap API does not require an account.  
-	Documentation about how to use the RMap API can be found on the <a href="https://rmap-project.atlassian.net/wiki">RMap technical wiki</a>
+	Documentation about how to use the RMap API can be found in the <a href="https://github.com/rmap-project/rmap-documentation">RMap technical documentation</a>
 	To get write access to RMap through the API, carry out the following steps:</p>
 	<h3>Step 1: Create your RMap System Agent</h3>
 	<p>Creating a System Agent involves pushing some information about your identity into the RMap repository

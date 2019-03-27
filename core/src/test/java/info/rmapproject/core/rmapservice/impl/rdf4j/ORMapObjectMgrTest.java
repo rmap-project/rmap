@@ -152,7 +152,7 @@ public class ORMapObjectMgrTest extends ORMapMgrTest {
 		    IRI creatorIRI = ORAdapter.getValueFactory().createIRI("http://orcid.org/0000-0003-2069-1219");
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 			RMapIri associatedAgent = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(ORAdapter.uri2Rdf4jIri(rmapIdService.createId()), associatedAgent, resourceList);
 			// Make list of created objects

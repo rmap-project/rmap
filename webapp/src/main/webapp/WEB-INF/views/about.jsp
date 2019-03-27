@@ -49,7 +49,7 @@
 	Data submitted through the API must be formatted as valid RMap DiSCOs - a simple RDF model that can wrap around most RDF graphs with a few constraints: 
 	(1) the DiSCO has two required fields "rdf:type=DiSCO" and a list of "aggregated resources", and (2) the RDF graph must be fully connected to the 
 	aggregated resources listed.</p>
-	<p>For full documentation on the RMap data model and how to use the API to create DiSCOs please visit the <a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/overview">RMap Technical Wiki</a>. 
+	<p>For full documentation on the RMap data model and how to use the API to create DiSCOs please visit the <a href="https://github.com/rmap-project/rmap-documentation">RMap technical documentation</a>. 
 	Feel free to <a href="mailto:${SITEPROPS.getContactEmail()}">contact us</a> with any questions about obtaining API keys, or creating DiSCOs.
 	</p>
 	
@@ -57,8 +57,8 @@
 	<h2>Using ORCID IDs, DOIs, and other PIDs</h2>
 	<p>Where possible, it is recommended that the resources expressed in your DiSCOs are represented using unique persistent identifiers (PIDs) such as DOIs, ORCID IDs, 
 	ARK IDs, Handles, ISNIs etc. This is not a requirement, all identifier types are accepted provided they are expressed as RDF, but using PIDs in a consistent way 
-	allows us to unambiguously connect related works and contributors, improving data quality and discovery.  The RMap technical wiki includes some 
-	<a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/pages/198475777/RMap+DiSCO+Best+Practices" target="_blank">best practices</a> for 
+	allows us to unambiguously connect related works and contributors, improving data quality and discovery.  The RMap technical documentation includes some 
+	<a href="https://github.com/rmap-project/rmap-documentation/blob/master/guides/disco-design-best-practices.md" target="_blank">best practices</a> for 
 	linking and using these various related identifiers in a way that will encourage consistency around identifier use.
 	</p>
 	<c:if test="${SITEPROPS.isOrcidEnabled()}">
@@ -75,7 +75,7 @@
 	identifiers are referring to the same thing (person, article etc), they might also have different information or relationships associated with them. The 
 	user interface does not currently provide a way to condense these into a single view. As an example, a person might have an ORCID ID as well as an identity 
 	on a number of other platforms such as Scopus, Facebook, LinkedIn, and others. In the visualization these identities will appear as separate when in fact they 
-	all represent the same person. The RMap technical wiki includes some <a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/pages/198475777/RMap+DiSCO+Best+Practices" target="_blank">best practices</a> 
+	all represent the same person. The RMap technical wiki includes some <a href="https://github.com/rmap-project/rmap-documentation/blob/master/guides/disco-design-best-practices.md" target="_blank">best practices</a> 
 	for linking and using these various related identifiers in a way that will support better discovery and encourage consistency around identifier use.
 	</p>
 	
@@ -97,9 +97,9 @@
 		
 	<div id="additional-info"></div>
 	<h2>Additional information</h2>
-	<p>For additional information about RMap, visit the <a href="http://rmap-project.info/rmap/?page_id=98" target="_blank">RMap Project website</a>. 
+	<p>For additional information about RMap, visit the <a href="http://rmap-project.info" target="_blank">RMap Project information site</a>. 
 	To view the RMap code, report bugs, or request changes, visit the <a href="https://github.com/rmap-project/rmap" target="_blank">RMap GitHub project</a>. 
-	To read about technical detail of RMap including API instructions, visit the <a href="https://rmap-project.atlassian.net/wiki/spaces/RMAPPS/overview" target="_blank">RMap Techncial Wiki</a>. 
+	To read about technical detail of RMap including API instructions, view the <a href="https://github.com/rmap-project/rmap-documentation" target="_blank">RMap technical documentation</a>. 
 	For all other questions, please contact us at <a href="mailto:${SITEPROPS.getContactEmail()}">${SITEPROPS.getContactEmail()}</a></p>
 	<br/>
 <tl:pageEndStandard/>

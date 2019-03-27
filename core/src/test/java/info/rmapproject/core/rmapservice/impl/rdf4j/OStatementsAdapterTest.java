@@ -131,7 +131,7 @@ public class OStatementsAdapterTest extends CoreTestAbstract {
 		ValueFactory vf = ORAdapter.getValueFactory();
 		
 		Resource agg1 = vf.createIRI("http://rmap-info.org");	
-		Resource agg2 = vf.createIRI("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki");
+		Resource agg2 = vf.createIRI("https://github.com/rmap-project/rmap-documentation");
 		
 		List<URI> aggregatedResources = new ArrayList<URI>();
 		aggregatedResources.add(new URI(agg1.toString()));

@@ -100,7 +100,7 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 	public void setUp() throws Exception {
 		vf = ORAdapter.getValueFactory();
 		r = vf.createIRI("http://rmap-info.org");	
-		r2 = vf.createIRI("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki");
+		r2 = vf.createIRI("https://github.com/rmap-project/rmap-documentation");
 		a = vf.createLiteral("a");
 		b = vf.createIRI("http://b.org");
 		c = vf.createIRI("http://c.org");
@@ -129,7 +129,7 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/1")), author, resourceList);
 			assertEquals(author.toString(),disco.getCreator().getStringValue());
@@ -259,7 +259,7 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
 			assertEquals(author.toString(),disco.getCreator().getStringValue());
@@ -289,7 +289,7 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
 			Literal desc = vf.createLiteral("this is a description");
@@ -316,7 +316,7 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
 			Statement stmt = disco.getTypeStatement();
@@ -340,7 +340,7 @@ public class ORMapDiscoTest extends CoreTestAbstract {
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 			RMapIri author = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/" + counter.getAndIncrement())), author, resourceList);
 			IRI context = disco.getDiscoContext();
