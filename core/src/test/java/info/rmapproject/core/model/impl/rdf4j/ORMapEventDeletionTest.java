@@ -160,7 +160,7 @@ public class ORMapEventDeletionTest extends ORMapCommonEventTest {
 			IRI creatorIRI = vf.createIRI("http://orcid.org/0000-0003-2069-1219");
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 			RMapIri associatedAgent = ORAdapter.rdf4jIri2RMapIri(creatorIRI);
 			
 			ORMapDiSCO disco = new ORMapDiSCO(uri2Rdf4jIri(create("http://example.org/disco/1")), associatedAgent, resourceList);

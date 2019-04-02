@@ -12,7 +12,7 @@
 		</p>
 	</c:if>
 	<p>Signing in to RMap allows you to initiate an RMap System Agent and manage API access keys that can be used to write DiSCOs to the RMap API. 
-	API documentation can be found on the <a href="https://rmap-project.atlassian.net/wiki">RMap technical wiki</a></p>
+	API documentation can be found in the <a href="https://github.com/rmap-project/rmap-documentation">RMap technical documentation</a></p>
 	<fieldset>
 	<ul>
 		<c:if test="${SITEPROPS.isGoogleEnabled()}">

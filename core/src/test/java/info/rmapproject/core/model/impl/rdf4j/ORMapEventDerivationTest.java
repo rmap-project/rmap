@@ -111,7 +111,7 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			fail("unable to create resources");
@@ -164,7 +164,7 @@ public class ORMapEventDerivationTest extends ORMapCommonEventTest {
 		try {
 			resourceList.add(new java.net.URI("http://rmap-info.org"));
 			resourceList.add(new java.net.URI
-					("https://rmap-project.atlassian.net/wiki/display/RMAPPS/RMap+Wiki"));
+					("https://github.com/rmap-project/rmap-documentation"));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			fail("unable to create resources");

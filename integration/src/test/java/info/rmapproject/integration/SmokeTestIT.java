@@ -42,7 +42,7 @@ public class SmokeTestIT extends BaseHttpIT {
      */
     @Test
     public void testApi200Ok() throws IOException {
-        String searchString = "https://rmap-project.atlassian.net/wiki/display/RMAPPS/API+Documentation";
+        String searchString = "https://github.com/rmap-project/rmap-documentation";
         URL url = new URL(apiBaseUrl, apiCtxPath + "/discos");
         Response res = http.newCall(new Request.Builder().get().url(url).build()).execute();
         ResponseBody body = res.body();
