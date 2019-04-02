@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MultivaluedMap;
@@ -73,6 +74,7 @@ public class QueryParamHandler {
 			String until = queryParams.getFirst(Constants.UNTIL_PARAM);
 			if (until==null || until.trim().length()==0){
 				DateFormat df = new SimpleDateFormat(DATE_STRING_FORMAT);
+				df.setTimeZone(TimeZone.getTimeZone("UTC"));
 				Date thisMoment = Calendar.getInstance().getTime();        
 				String untilNow = df.format(thisMoment);
 				until=untilNow;

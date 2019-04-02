@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.eclipse.rdf4j.model.IRI;
@@ -78,6 +79,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 		sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Date dateFrom = dateFormat.parse("2014-1-1");
 		Date dateTo = dateFormat.parse("2050-1-1");
 		IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);
@@ -117,6 +119,7 @@ public class ORMapStatementMgrTest extends ORMapMgrTest {
 		sysAgents.add(new URI(TestConstants.SYSAGENT_ID));
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Date dateFrom = dateFormat.parse("2014-1-1");
 		Date dateTo = dateFormat.parse("2050-1-1");
 		IRI subject = ORAdapter.getValueFactory().createIRI(TestConstants.TEST_DISCO_DOI);

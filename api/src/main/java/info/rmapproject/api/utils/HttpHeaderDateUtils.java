@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class HttpHeaderDateUtils {
 	
@@ -53,6 +54,7 @@ public class HttpHeaderDateUtils {
 	public static String convertDateToString(Date date)
 	throws NullPointerException, IllegalArgumentException {
 		DateFormat format = new SimpleDateFormat(Constants.HTTP_HEADER_DATE_FORMAT);
+		format.setTimeZone(TimeZone.getTimeZone("GMT")); //must be displayed as GMT (https://tools.ietf.org/html/rfc7089)
 		String dateString = format.format(date);
 		return dateString;
 	}

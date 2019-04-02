@@ -73,7 +73,7 @@ public class TimegateTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		
+
 		timegate = new TimegateImpl();
 		
 		date1 = sdf.parse(sdate1);

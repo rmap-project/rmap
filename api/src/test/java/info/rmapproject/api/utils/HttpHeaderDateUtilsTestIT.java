@@ -20,7 +20,6 @@ import info.rmapproject.api.ApiTestAbstractIT;
  * @author khanson5
  *
  */
-@Ignore("TODO: Pending resolution of #46")
 public class HttpHeaderDateUtilsTestIT extends ApiTestAbstractIT {
 
 	private Date dTestdate1;
@@ -36,11 +35,11 @@ public class HttpHeaderDateUtilsTestIT extends ApiTestAbstractIT {
 
 			String sdate = "Tue Nov 18 08:11:30 EST 2014";
 			this.dTestdate1 = df.parse(sdate); 
-			this.sTestdate1 = "Tue, 18 Nov 2014 08:11:30 EST";
+			this.sTestdate1 = "Tue, 18 Nov 2014 13:11:30 GMT"; //5 hours later
 
-			sdate = "Wed Feb 08 18:41:30 EST 2017";
+			sdate = "Wed Feb 08 18:41:30 GMT 2017";
 			this.dTestdate2 = df.parse(sdate); 
-			this.sTestdate2 = "Wed, 08 Feb 2017 18:41:30 EST";
+			this.sTestdate2 = "Wed, 08 Feb 2017 18:41:30 GMT"; //same as GMT
 			
 		} catch (Exception ex){
 			fail("Problem while populating properties during test startup");
@@ -56,10 +55,11 @@ public class HttpHeaderDateUtilsTestIT extends ApiTestAbstractIT {
 	public void testConvertDateToString() {
 		try {
 			String mementodate = HttpHeaderDateUtils.convertDateToString(dTestdate1);
-			assertTrue(mementodate.equals(sTestdate1));		
+      
+			assertTrue(mementodate + " not the same as " + sTestdate1, mementodate.equals(sTestdate1));		
 			
 			String mementodate2 = HttpHeaderDateUtils.convertDateToString(dTestdate2);
-			assertTrue(mementodate2.equals(sTestdate2));	
+			assertTrue(mementodate + " not the same as " + sTestdate2,mementodate2.equals(sTestdate2));	
 		} catch (Exception ex){
 			fail("Problem while testing convertStringToDate(Date)");
 		}
@@ -73,17 +73,17 @@ public class HttpHeaderDateUtilsTestIT extends ApiTestAbstractIT {
 	public void testConvertStringToDate() {
 		try {
 			Date mementodate = HttpHeaderDateUtils.convertStringToDate(sTestdate1);
-			assertTrue(mementodate.equals(dTestdate1));		
+			assertTrue(mementodate + " not the same as " + sTestdate1,mementodate.equals(dTestdate1));		
 			
 			Date mementodate2 = HttpHeaderDateUtils.convertStringToDate(sTestdate2);
-			assertTrue(mementodate2.equals(dTestdate2));
+			assertTrue(mementodate2 + " not the same as " + sTestdate2,mementodate2.equals(dTestdate2));
 
 			//now use convertDateToString to switch back.
 			String smementodate = HttpHeaderDateUtils.convertDateToString(mementodate2);
-			assertTrue(smementodate.equals(sTestdate2));	
+			assertTrue(smementodate + " not the same as " + sTestdate2,smementodate.equals(sTestdate2));	
 			
 		} catch (Exception ex){
-			fail("Problem while testing convertStringToDate(String)");			
+			fail("Problem while testing convertStringToDate(String)");
 		}
 	}
 
