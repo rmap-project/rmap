@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings({"unchecked", "rawtypes", "serial"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SolrOffsetLookupTest {
 
     @Test(expected = IllegalArgumentException.class)
@@ -22,7 +22,6 @@ public class SolrOffsetLookupTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testNullResults() throws Exception {
         final KafkaMetadataRepository repo = mock(KafkaMetadataRepository.class);
         SolrOffsetLookup underTest = new SolrOffsetLookup(repo);
@@ -37,7 +36,6 @@ public class SolrOffsetLookupTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testEmptyResults() throws Exception {
         final KafkaMetadataRepository repo = mock(KafkaMetadataRepository.class);
         SolrOffsetLookup underTest = new SolrOffsetLookup(repo);
@@ -52,7 +50,6 @@ public class SolrOffsetLookupTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testValidResult() throws Exception {
         final KafkaMetadataRepository repo = mock(KafkaMetadataRepository.class);
         SolrOffsetLookup underTest = new SolrOffsetLookup(repo);
@@ -68,7 +65,6 @@ public class SolrOffsetLookupTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testSeek() throws Exception {
         final KafkaMetadataRepository repo = mock(KafkaMetadataRepository.class);
         SolrOffsetLookup underTest = new SolrOffsetLookup(repo);

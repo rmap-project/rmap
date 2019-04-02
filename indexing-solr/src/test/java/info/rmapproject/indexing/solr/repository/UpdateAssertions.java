@@ -68,7 +68,6 @@ class UpdateAssertions {
      * @param expectedStatus the {@link DiscoSolrDocument#DISCO_STATUS status} the matching Solr document must have
      * @param compositeAnswer the {@code CompositeAnswer} being built
      */
-    @SuppressWarnings("unchecked")
     private static void assertUpdateMustContainHavingStatus(String discoIri, RMapStatus expectedStatus,
                                                             CompositeAnswer<DiscoPartialUpdate> compositeAnswer) {
         assertUpdateMustContainHavingStatus((partialUpdate) ->
@@ -85,7 +84,6 @@ class UpdateAssertions {
      * @param expectedStatus the {@link DiscoSolrDocument#DISCO_STATUS status} the matching Solr documents must have
      * @param compositeAnswer the {@code CompositeAnswer} being built
      */
-    @SuppressWarnings("unchecked")
     private static void assertUpdateMustContainHavingStatus(Predicate<DiscoPartialUpdate> mustContain,
                                                             RMapStatus expectedStatus,
                                                             CompositeAnswer<DiscoPartialUpdate> compositeAnswer) {

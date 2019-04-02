@@ -5,7 +5,6 @@ import info.rmapproject.indexing.IndexingInterruptedException;
 import info.rmapproject.indexing.IndexingTimeoutException;
 import info.rmapproject.indexing.solr.model.DiscoSolrDocument;
 import info.rmapproject.indexing.solr.model.KafkaMetadata;
-import info.rmapproject.indexing.solr.repository.IndexDTO;
 
 import java.util.function.Consumer;
 

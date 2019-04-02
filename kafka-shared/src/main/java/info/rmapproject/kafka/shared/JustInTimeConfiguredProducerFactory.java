@@ -9,7 +9,6 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
-import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 
 import java.util.List;

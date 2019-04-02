@@ -11,7 +11,6 @@ import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 
 import static info.rmapproject.core.model.RMapStatus.ACTIVE;
-import static info.rmapproject.core.model.RMapStatus.DELETED;
 import static info.rmapproject.core.model.RMapStatus.INACTIVE;
 import static info.rmapproject.core.model.RMapStatus.TOMBSTONED;
 import static info.rmapproject.core.model.event.RMapEventType.CREATION;

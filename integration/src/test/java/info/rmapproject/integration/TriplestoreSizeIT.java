@@ -27,7 +27,6 @@ import java.util.Set;
 import static info.rmapproject.core.model.RMapObjectType.DISCO;
 import static info.rmapproject.indexing.TestUtils.getRmapResources;
 import static info.rmapproject.integration.Rdf4jUtil.convertRdf;
-import static info.rmapproject.integration.Rdf4jUtil.dumpTriplestore;
 import static java.lang.String.format;
 import static org.eclipse.rdf4j.rio.RDFFormat.NQUADS;
 import static org.eclipse.rdf4j.rio.RDFFormat.RDFXML;

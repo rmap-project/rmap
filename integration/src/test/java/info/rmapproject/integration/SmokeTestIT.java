@@ -8,10 +8,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Base64;
 
 import okhttp3.ResponseBody;
 import org.apache.commons.io.IOUtils;
@@ -129,8 +129,8 @@ public class SmokeTestIT extends BaseHttpIT {
         String accessKey = "uah2CKDaBsEw3cEQ";
         String secret = "NSbdzctrP46ZvhTi";
         URL url = new URL(apiBaseUrl, apiCtxPath + "/discos");
-        String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.ttl"));
-        String sampleDisco2 = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoB_v1.rdf"));
+        String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.ttl"), StandardCharsets.UTF_8);
+        String sampleDisco2 = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoB_v1.rdf"), StandardCharsets.UTF_8);
 
         try (Response res =
                      http.newCall(new Request.Builder()
@@ -202,7 +202,7 @@ public class SmokeTestIT extends BaseHttpIT {
         String accessKey = "uah2CKDaBsEw3cEQ";
         String secret = "NSbdzctrP46ZvhTi";
         URL url = new URL(apiBaseUrl, apiCtxPath + "/discos");
-        String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.ttl"));
+        String sampleDisco = IOUtils.toString(this.getClass().getResourceAsStream("/discos/discoA.ttl"), StandardCharsets.UTF_8);
         String discoUri;
 
         LOG.trace("** Depositing DiSCO ...");

@@ -5,7 +5,6 @@ import edu.ucsb.nceas.ezid.EZIDException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
