@@ -42,7 +42,7 @@
         <logback.version>1.2.3</logback.version>
         <rdf4j.version>2.5.5</rdf4j.version>
         <httpclient.version>4.5.2</httpclient.version>
-        <jsonld-java.version>0.5.1</jsonld-java.version>
+        <jsonld-java.version>0.12.5</jsonld-java.version>
         <commons-collections.version>4.0</commons-collections.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
