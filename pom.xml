@@ -61,7 +61,7 @@
         <apache-cxf.version>3.1.4</apache-cxf.version>
         <derby.version>10.13.1.1</derby.version>
         <build-helper.plugin.version>3.0.0</build-helper.plugin.version>
-        <okhttp.version>3.8.0</okhttp.version>
+        <okhttp.version>4.4.0</okhttp.version>
         <ant.version>1.10.1</ant.version>
         <solr.version>8.3.0</solr.version>
         <spring-data-solr.version>4.0.3.RELEASE</spring-data-solr.version>
