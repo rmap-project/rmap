@@ -53,7 +53,7 @@
         <jsoup.version>1.8.3</jsoup.version>
         <hibernate.version>5.2.10.Final</hibernate.version>
         <hibernate-validator.version>5.2.5.Final</hibernate-validator.version>
-        <mysql-connector.version>5.1.6</mysql-connector.version>
+        <mysql-connector.version>8.0.16</mysql-connector.version>
         <postgres-jdbc.version>42.2.1.jre7</postgres-jdbc.version>
         <mockito.version>2.11.0</mockito.version>
         <scribejava.version>2.1.0</scribejava.version>
