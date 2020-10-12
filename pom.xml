@@ -46,7 +46,7 @@
         <commons-collections.version>4.0</commons-collections.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <jstl.version>1.2</jstl.version>
         <jsp-api.version>2.1</jsp-api.version>
         <servlet-api.version>3.1.0</servlet-api.version>
