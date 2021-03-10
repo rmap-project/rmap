@@ -57,7 +57,7 @@
         <postgres-jdbc.version>42.2.1.jre7</postgres-jdbc.version>
         <mockito.version>2.11.0</mockito.version>
         <scribejava.version>2.1.0</scribejava.version>
-        <org-json.version>20151123</org-json.version>
+        <org-json.version>20210307</org-json.version>
         <apache-cxf.version>3.1.4</apache-cxf.version>
         <derby.version>10.13.1.1</derby.version>
         <build-helper.plugin.version>3.0.0</build-helper.plugin.version>
