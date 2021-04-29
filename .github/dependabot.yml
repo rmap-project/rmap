@@ -1,0 +1,57 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.eclipse.rdf4j:rdf4j-http-server
+    versions:
+    - ">= 3.a, < 4"
+  - dependency-name: org.eclipse.rdf4j:rdf4j-http-workbench
+    versions:
+    - ">= 3.a, < 4"
+  - dependency-name: org.eclipse.rdf4j:rdf4j-runtime
+    versions:
+    - ">= 3.a, < 4"
+  - dependency-name: org.mockito:mockito-core
+    versions:
+    - 3.7.7
+    - 3.8.0
+  - dependency-name: org.apache.kafka:kafka-clients
+    versions:
+    - 2.7.0
+  - dependency-name: org.json:json
+    versions:
+    - "20201115"
+  - dependency-name: com.squareup.okhttp3:okhttp
+    versions:
+    - 4.9.0
+  - dependency-name: org.springframework:spring-beans
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-jdbc
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-orm
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-tx
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-test
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-webmvc
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-web
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-context
+    versions:
+    - 5.2.1.RELEASE
+  - dependency-name: org.springframework:spring-core
+    versions:
+    - 5.2.1.RELEASE
