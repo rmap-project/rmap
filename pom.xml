@@ -34,7 +34,7 @@
         <scp.port>22</scp.port>
 
         <java-version>1.8</java-version>
-        <org.springframework-version>5.1.3.RELEASE</org.springframework-version>
+        <org.springframework-version>5.3.8</org.springframework-version>
         <org.aspectj-version>1.6.10</org.aspectj-version>
         <org.powermock-version>1.6.6</org.powermock-version>
         <org.slf4j-version>1.7.25</org.slf4j-version>
