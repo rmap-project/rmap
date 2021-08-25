@@ -6,7 +6,7 @@
     <groupId>info.rmapproject</groupId>
     <artifactId>rmap-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.1.0-beta</version>
+    <version>2.1.1-beta-SNAPSHOT</version>
 
     <name>RMap Project</name>
     <url>http://rmap-project.info</url>
