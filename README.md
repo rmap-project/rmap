@@ -3,7 +3,7 @@ The RMap Project is an Alfred P. Sloan Foundation-funded initiative undertaken b
 
 The RMap software allows users to create and manage these maps of relationships as RDF graphs in a format called RMap DiSCOs (Distributed Scholarly Compound Objects).  DiSCOs are named graphs consisting of a persistent identifier, a list of aggregated works ("ore:aggregates"), an optional list of additional assertions (which must form a connected graph with the aggregated works), and several other optional metadata fields.  The provenance of each DiSCO is captured as RMap Events, and each Event cites the RMap Agent responsible for triggering it.
 
-Further documentation and links about the RMap Project are available on the [RMap website](http://rmap-project.info/) and in the [technical documentation](https://github.com/rmap-project/rmap-documentation).  A working instance of RMap, hosted by the [Sheridan Libraries at Johns Hopkins University](https://libraries.jhu.edu), is available at [https://rmap-hub.org](https://rmap-hub.org).
+Further documentation and links about the RMap Project are available on the [RMap website](https://osf.io/n93ch/) and in the [technical documentation](https://github.com/rmap-project/rmap-documentation).
 
 # Downloading RMap
 The current version of RMap and supporting scripts can be [downloaded from the Github](https://github.com/rmap-project/rmap/releases). 
