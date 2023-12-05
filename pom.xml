@@ -39,7 +39,7 @@
         <org.powermock-version>1.6.6</org.powermock-version>
         <org.slf4j-version>1.7.25</org.slf4j-version>
         <jackson.version>2.10.1</jackson.version>
-        <logback.version>1.2.3</logback.version>
+        <logback.version>1.2.13</logback.version>
         <rdf4j.version>2.2.2</rdf4j.version>
         <httpclient.version>4.5.2</httpclient.version>
         <jsonld-java.version>0.5.1</jsonld-java.version>
